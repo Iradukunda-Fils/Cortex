@@ -2,7 +2,7 @@
 **Status:** LOCKED  
 
 ## Purpose
-Exhaustively catalog and taxonomize major preservation theorems, simulation relations, and logical relations. Establish the precise relation between our target predicate ($\Sigma \models \text{Preserves}(\Lambda, e)$) and established properties, exploring why our problem avoids classification as a standard logical relation.
+Exhaustively catalog and taxonomize major preservation theorems, simulation relations, and logical relations. Establish the precise relation between our working hypothesis ($H_{\text{prop}}$) and established properties, exploring why our problem avoids classification as a standard logical relation.
 
 ## Dependencies
 *   [02_Domain_Model.md](02_Domain_Model.md)
@@ -91,14 +91,14 @@ To prevent semantic conflation, every preservation theorem class in this taxonom
 
 ---
 
-## 3. Position of the Target Predicate
+## 3. Position of the Target Predicate (Working Hypothesis)
 
-Comparing our target predicate, classified mathematically as a Relational Hyperproperty over Traces:
+Comparing our working proposition ($H_{\text{prop}}$), provisionally modeled as a Relational Hyperproperty over Traces:
 $$\Sigma \models \text{Preserves}(\Lambda, e)$$
 
 ### 3.1 Unmapped Coverage
 1.  **Divergence from Type Preservation**: Subject reduction guarantees that terms remain well-typed. It is structurally blind to downstream authority bounds ($\Lambda$) inherited by compiled or interpreted operational artifacts ($\mathcal{A}$).
-2.  **Divergence from Robust Safety Preservation (RSP)**: RSP ensures that target-level contexts cannot violate safety properties verified at the source. This typically assumes a fixed source program. Our target relation assumes the operational artifact ($\mathcal{A}$) is translated and formulated dynamically, consuming non-deterministic inputs at runtime.
+2.  **Divergence from Robust Safety Preservation (RSP)**: RSP ensures that target-level contexts cannot violate safety properties verified at the source. This typically assumes a fixed source program. Our proposition assumes the operational artifact ($\mathcal{A}$) is translated and formulated dynamically, consuming non-deterministic inputs at runtime.
 
 ### 3.2 The Crucial Inquiry: Why Not a Logical Relation?
 We must dedicate sufficient analytical rigor to evaluating whether our core problem can be elegantly subsumed by a Kripke or Step-Indexed Logical Relation. Logical relations are incredibly expressive at handling semantic boundaries (e.g., proving capability safety or compiler correctness across languages).
@@ -106,4 +106,4 @@ We must dedicate sufficient analytical rigor to evaluating whether our core prob
 > **Logical Relations Posture:**
 > While logical relations are highly expressive for establishing contextual equivalence or type-directed effect safety, we have not identified a standard formulation that directly models non-local, dynamically propagating delegated authority constraints ($\Lambda$) over multi-domain execution strategies without relying on static typing guarantees.
 
-Since the operational artifact ($\mathcal{A}$) under our threat model operates over unverified intermediate states constructed from adversarial parameters, the standard inductive reliance on well-typedness fails. Therefore, **Semantic Consequence Preservation** remains a distinct, unmapped property.
+Since the operational artifact ($\mathcal{A}$) under our threat model operates over unverified intermediate states constructed from adversarial parameters, the standard inductive reliance on well-typedness fails. Therefore, within the scope of $H_{\text{prop}}$, Semantic Consequence Preservation is poised to remain a distinct, unmapped property.

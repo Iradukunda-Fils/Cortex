@@ -3,9 +3,11 @@
 
 ## 1. Epistemological Framework
 
-This research program operates via Adversarial Falsification and Elimination. Rather than attempting to prove the validity of a pre-conceptualized security architecture, the program dedicates its entire execution trajectory to validating the Null Hypothesis: that a rigorous composition of existing computer science disciplines completely resolves the safety boundaries of runtime decision attribution.
+This research program operates via Adversarial Falsification and Elimination. Rather than attempting to prove the validity of a pre-conceptualized security architecture, the program dedicates its entire execution trajectory to validating the base Null Hypothesis ($H_0$): that a rigorous composition of existing computer science disciplines completely resolves the safety boundaries of delegated execution attribution.
 
-We utilize DSRP (Distinguishing Systems, Boundaries, Relationships, and Perspectives) to continuously map out where semantic boundaries shift when moving from static correspondence relations to operational artifact evaluations.
+We utilize DSRP (Distinguishing Systems, Boundaries, Relationships, and Perspectives) to continuously map out where semantic boundaries shift when moving from static correspondence relations to dynamic operational artifact evaluations.
+
+**Working Hypothesis ($H_{\text{prop}}$):** We retract any premature classification of our target predicate, $\text{Preserves}(\Lambda, e)$, as a definitive mathematical category. We re-index this concept strictly as an open proposition to be evaluated empirically against the completed surveys. *The desired correspondence appears to require reasoning over families of executions parameterized by delegated constraints, suggesting—but not yet establishing—that it may be expressible as a relational hyperproperty over operational traces.*
 
 ---
 
@@ -38,17 +40,17 @@ The name "Cortex" is completely scrubbed from the active research vocabulary. It
 
 ## 5. Research Question 0: Baseline Semantic Correspondence Survey
 
-> **Mandatory Prerequisite.** Before any system-level composition is evaluated, the research program must establish that the proof obligation identified in $H_0$ is not simply a renamed version of a correspondence already fully proven by an existing discipline. This survey is the formal baseline for all subsequent adversarial evaluations.
+> **Mandatory Prerequisite.** Before any system-level composition is evaluated, the research program must establish that the proof obligation required is not simply a renamed version of a correspondence already fully proven by an existing discipline. This survey is the formal baseline for all subsequent adversarial evaluations.
 
 ### Research Question 0 Statement
 
 For each major discipline in the history of computer science that claims to express or enforce a "correspondence" between program behavior and a specification, identify:
 1.  The **specific correspondence relation** it verifies.
 2.  The **precise mathematical or logical expression** of that relation.
-3.  The **formal boundary** at which it fails to cover $H_0$ — i.e., where proof-obligation preservation across a delegation boundary using dynamic intermediate operational artifacts falls outside the discipline's scope.
+3.  The **formal boundary** at which it fails to cover the requisite bounds—i.e., where proof-obligation preservation across a delegation boundary using dynamic intermediate operational artifacts falls outside the discipline's scope.
 
 The complete baseline survey is expanded and documented in [07_Correspondence_Survey.md](07_Correspondence_Survey.md).
 
 ### Survey Finding Summary
 
-No surveyed discipline defines, expresses, or enforces the correspondence relation described in $H_0$: that the evaluation relation governing intermediate operational artifacts must preserve the semantic bounds delegated to that execution by an external authority space. This gap is not a naming ambiguity—it is a structural absence in the landscape of known semantic correspondences.
+No surveyed discipline defines, expresses, or enforces the open correspondence relation posited by $H_{\text{prop}}$: that the evaluation relation governing intermediate operational artifacts must preserve the semantic bounds delegated to that execution by an external authority space. This gap is not a naming ambiguity—it is a structural absence in the landscape of known semantic correspondences, setting up the empirical deep-dive analysis.

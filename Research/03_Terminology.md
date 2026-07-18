@@ -55,11 +55,11 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 *   **Rejected Synonyms:** Runtime Synthesis, Runtime Derivation, Synthesis Trajectory.
 
 ### Derivation Procedure ($\xrightarrow{\text{derive}}$)
-*   **Definition:** An abstract computational procedure (such as evaluation, interpretation, planning, scheduling, compilation, optimization, or elaboration) that maps inputs and a delegation context to an intermediate operational artifact ($\mathcal{A}$).
+*   **Definition:** An abstract computational procedure (such as evaluation, interpretation, planning, scheduling, compilation, optimization, or elaboration) that processes inputs ($I$) inside the global state ($\Sigma$) and under the initial delegation context ($\Lambda$) to yield an intermediate Operational Artifact ($\mathcal{A}$).
 *   **Rejected Synonyms:** Compilation pass, Translation pass.
 
 ### Enforcement Procedure ($\xrightarrow{\text{enact}}$)
-*   **Definition:** An abstract machine execution phase (such as execution, interpretation, scheduling, optimization, dispatching, or hardware pipelining) that consumes an operational artifact ($\mathcal{A}$) to yield a terminal effect ($e$).
+*   **Definition:** An abstract machine execution phase (such as execution, interpretation, scheduling, optimization, dispatching, or hardware pipelining) that consumes an operational artifact ($\mathcal{A}$) to yield a terminal effect ($e$). Under the generalized rule, it retains the semantic capability to continuously consult or attenuate against the delegation context ($\Lambda$) at any point during execution.
 *   **Rejected Synonyms:** Execution pass, Dispatcher loop.
 
 ### Decision Node ($\Delta$)

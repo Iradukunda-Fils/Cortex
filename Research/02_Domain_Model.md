@@ -9,15 +9,17 @@ Define the system boundaries, threat model, safety properties catalog, operation
 
 ---
 
-## 1. The Primary Research Hypothesis ($H_0$)
+## 1. The Primary Research Hypothesis and Working Proposition ($H_{\text{prop}}$)
 
-> **$H_0$:** Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?
+> **The Primary Research Hypothesis ($H_0$):** Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?
 
-By rephrasing $H_0$ using standard programming languages and compiler semantics terminology, the hypothesis is made directly testable against the formal literature without collapsing into arguments about implementation variability.
+By rephrasing the research question using standard programming languages and compiler semantics terminology, the hypothesis is made directly testable against the formal literature without collapsing into arguments about implementation variability.
+
+> **Working Hypothesis ($H_{\text{prop}}$):** The desired correspondence appears to require reasoning over families of executions parameterized by delegated constraints, suggesting—but not yet establishing—that it may be expressible as a relational hyperproperty over operational traces.
 
 **Conditional Outcome:**
 *   **If $H_0$ is validated:** A composition of existing CS frameworks satisfies all safety properties. No new semantic layer is required. The program terminates and pivots to implementation guidance.
-*   **If $H_0$ is falsified:** The analysis exposes an irreducible semantic gap—a correspondence relation that no surveyed discipline can express or enforce, validating the necessity of a dedicated semantic boundary.
+*   **If $H_0$ is falsified:** The analysis exposes an irreducible semantic gap—a correspondence relation that no surveyed discipline can express or enforce, validating the necessity of a dedicated semantic boundary formalizing $H_{\text{prop}}$.
 
 ---
 
@@ -25,7 +27,7 @@ By rephrasing $H_0$ using standard programming languages and compiler semantics 
 
 To prevent reviewers from assuming a fixed execution pathway, we catalog the four cases of system mutability:
 
-```
+```text
   [Case A: Structural Code Mutation]     [Case B: Fixed State Transition]
     eval() / Dynamic Plugin Loading         Input (I) ──► Fixed Program ──► Effect (e)
 
@@ -47,7 +49,7 @@ To prevent reviewers from assuming a fixed execution pathway, we catalog the fou
 *   **Case C (Dynamic Semantic Translation):** The foundational evaluation semantics change or emerge dynamically. The host environment passes inputs into an engine that translates or compiles those inputs into an intermediate Domain-Specific Language (DSL), an execution plan, or a multi-conditional routing tree—modeled as an abstract **Operational Artifact** ($\mathcal{A}$)—before executing the final action ($e$).
 *   **Case D (Policy Mutation):** The evaluator and interpreter remain completely unchanged; only the external delegation constraints or access control rules evolve.
 
-**Scope Selection:** This research program isolates **Case C** and **Case B when nested within dynamic user-space interpretation** (e.g., a verified query planner executing an unfixed, synthesized query trace). The core problem is that even if the outer interpreter framework is fully verified, the intermediate operational artifact ($\mathcal{A}$) is not bound to the delegation context inherited at the execution boundary.
+**Scope Selection:** This research program isolates **Case C** and **Case B when nested within dynamic user-space interpretation** (e.g., a verified query planner executing an unfixed, synthesized query trace). The core problem is that even if the outer interpreter framework is fully verified, the intermediate operational artifact ($\mathcal{A}$) is not verified against the delegation context originally inherited at the execution boundary.
 
 ---
 
@@ -56,23 +58,23 @@ To prevent reviewers from assuming a fixed execution pathway, we catalog the fou
 We weaken the definition of **Operational Artifact ($\mathcal{A}$)** to keep it strictly abstract and reusable:
 > **Operational Artifact ($\mathcal{A}$):** Anything produced by an execution procedure that is subsequently interpreted to determine externally observable behavior.
 
-To prevent reviewers from claiming our execution model conflates system specifications with concrete engine mechanics, we decouple the translation and execution phases using fully generalized operational procedures.
+To prevent reviewers from claiming our execution model conflates system specifications with concrete engine mechanics, we decouple the translation and execution phases using fully generalized operational procedures that allow continuous enactment checking.
 
-### The Generalized Semantic Transition Rule
+### The Refined Structural Operational Semantics Rule
 
-$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
+$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 Where:
 *   $\mathbf{\Sigma}$ represents the global environmental state.
 *   $\mathbf{\Lambda}$ represents the abstract **Delegation Context**: A semantic object whose interpretation constrains the admissible externally observable effects of an execution.
 *   $\mathbf{I}$ is the incoming input stream.
 *   $\mathbf{\mathcal{A}}$ is the generalized **Operational Artifact** (e.g., Evaluation Derivation, Query Plan, Workflow Plan, Scheduling Plan, Proof Object, Optimization Trace, or Execution Graph).
-*   $\mathbf{\xrightarrow{\text{derive}}}$ represents an abstract **Derivation Procedure** (such as evaluation, interpretation, planning, scheduling, compilation, optimization, or elaboration).
-*   $\mathbf{\xrightarrow{\text{enact}}}$ represents an abstract **Enforcement Procedure** (such as execution, interpretation, scheduling, optimization, dispatching, or hardware pipelining) whose execution yields the terminal effect $e$.
+*   **The Derivation Premise ($\xrightarrow{\text{derive}}$):** The abstract derivation procedure processes the input stream $I$ inside the global state $\Sigma$ and under the initial delegation context $\Lambda$ to yield the Operational Artifact $\mathcal{A}$.
+*   **The Enactment Premise ($\xrightarrow{\text{enact}}$):** The abstract enforcement procedure maps $\mathcal{A}$ to its terminal irreversible effect $e$, explicitly retaining the semantic option to continuously consult, attenuate, or assert the bounds of $\Lambda$ at any point during execution. Specific implementations that decouple execution entirely from policy checking remain supported as instances where the second premise simply leaves $\Lambda$ unexamined.
 
 ### The Operational Artifact Hierarchy
 
-```
+```text
                             [ Operational Artifact (A) ]
                                          │
          ┌───────────────────────────────┼───────────────────────────────┐
@@ -116,4 +118,4 @@ Every candidate composition must be rigidly cross-examined against four orthogon
 
 $$\Sigma \models \text{Preserves}(\Lambda, e)$$
 
-> **Mathematical Identity:** The core object $\text{Preserves}(\Lambda, e)$ is a **Relational Hyperproperty over Traces**. It establishes a semantic satisfaction relation ($\models$) stating that the set of all possible terminal execution paths resulting in an effect $e$ must fit inside a relational envelope parameterized by the initial delegation context $\Lambda$. It cannot be simplified to a traditional relational property or unary safety invariant because it quantifies over the alignment between an authorization domain and a dynamic operational trace.
+> **Mathematical Identity:** The core target predicate $\text{Preserves}(\Lambda, e)$ functions as a **Working Hypothesis ($H_{\text{prop}}$)**, provisionally categorized as a **Relational Hyperproperty over Traces**. It establishes an open, empirically testable semantic satisfaction relation ($\models$) stating that the set of all possible terminal execution paths resulting in an effect $e$ must fit inside a relational envelope parameterized by the initial delegation context $\Lambda$. We retract any premature classification of this as a definitive semantic category pending the completed correspondence survey analysis.

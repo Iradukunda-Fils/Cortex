@@ -2,7 +2,7 @@
 **Status:** Active — Downstream compositions (CC-05+) frozen pending completion of Research Question 0's 5-part semantic survey blueprint.
 
 ## Purpose
-Subject the Null Hypothesis to adversarial testing using the four Safety Properties (P1–P4) and the Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 20-discipline taxonomy.
+Subject the Working Hypothesis ($H_{\text{prop}}$) to adversarial testing using the four Safety Properties (P1–P4) and the Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 21-discipline taxonomy.
 
 ## Dependencies
 *   [01_Methodology.md](01_Methodology.md) — LOCKED
@@ -15,22 +15,23 @@ Subject the Null Hypothesis to adversarial testing using the four Safety Propert
 
 ## Evaluation Pipeline
 
-We evaluate how each candidate composition handles the Generalized Semantic Transition mapping inputs ($I$) to intermediate Operational Artifacts ($\mathcal{A}$) and target actions ($e$) under adversarial conditions:
+We evaluate how each candidate composition handles the Generalized Semantic Transition mapping inputs ($I$) to intermediate Operational Artifacts ($\mathcal{A}$) and target actions ($e$) under adversarial conditions, specifically leveraging the continuous enactment property:
 
-$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
+$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
-```
+```text
                       [ Evaluation Relation (I ⟹ e) ]
                                      │
        ┌─────────────────────────────┴─────────────────────────────┐
        ▼                                                           ▼
  [ Intent / Delegation (Λ) ] ────► [ Operational Artifact (A) ] ──► [ Irreversible Action (e) ]
+                      └────────────────────────────────────────────► (Continuous Enactment Check)
 ```
 
 Each composition is audited against the Safety Properties catalog:
 *   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
 *   **P2 — Execution Integrity:** Byte-level parameter state must remain unmodified. *(Environmental baseline — not primary research focus)*
-*   **P3 — Semantic Consequence Preservation:** Every irreversible effect must be demonstrably derivable from active delegation constraints under the evaluation semantics: $\Sigma \models \text{Preserves}(\Lambda, e)$.
+*   **P3 — Semantic Consequence Preservation:** Every irreversible effect must be demonstrably derivable from active delegation constraints under the evaluation semantics (evaluating $H_{\text{prop}}$): $\Sigma \models \text{Preserves}(\Lambda, e)$.
 *   **P4 — Independent Verifiability (Rectified):** Post-facto audit of P3 must be possible without trusting the execution runtime beyond an explicitly declared TCB.
 
 ---
@@ -49,20 +50,10 @@ Each composition is audited against the Safety Properties catalog:
 
 Under the multi-domain scenario of a Distributed DBMS Query Optimizer:
 1. The optimizer ingests an input stream ($I$), using its derivation procedure $\xrightarrow{\text{derive}}$ to compile a DB query execution plan—its operational artifact ($\mathcal{A}$)—targeting an irreversible deletion action ($e$).
-2. An adversary executes a user-space memory exploit within the query optimizer's runtime heap after the plan has finished generation but before the capability interface call is dispatched.
+2. An adversary executes a user-space memory exploit within the query optimizer's runtime heap after the plan has finished generation but before the enactment phase invokes the capability interface call.
 3. The parameter vector is altered to clear a production database space.
 4. The execution process invokes its local capability descriptor. Because the descriptor only evaluates coarse entitlement ("Does this task have permission to touch this storage sector?"), the execution passes.
 5. The kernel provenance subsystem (CamFlow) captures the transaction at the LSM interface.
-
-```
-[ User-Space Optimizer ] ── Input (I) ──► Operational Artifact (A) ──► [ Exploited / Mutated Payload ]
-                                                                                   │
-                                                                                   ▼
-[ OS LSM Boundary ]      ── (Confinement Check OK) ─────────────────────────────► Action (e)
-                                                                                   │
-                                                                                   ▼
-[ CamFlow Kernel Hook ]  ── Captures: Task(X) -> Writes -> Device(Y) ──────────────┘
-```
 
 ### 2. Safety Properties Matrix
 
@@ -91,8 +82,6 @@ Under the multi-domain scenario of a Distributed DBMS Query Optimizer:
 
 This composition addresses the problem through Program Logics. By leveraging refinement types, the compiler mathematically enforces that any function capable of producing an external, irreversible effect must carry a type-level witness proving it was derived safely from its inputs.
 
-Under the Infrastructure Orchestration scenario, a function mapping Kubernetes scheduling parameters to an irreversible `TeardownNode()` call must present a compile-time proof that the target node satisfies all safety policies.
-
 ### 2. Operational Assumptions
 
 *   **Static Equivalence:** The complete policy domain, input taxonomy, and invariant constraints must be fully decidable at compile time.
@@ -110,20 +99,14 @@ Because the platform cannot recompile itself for every user input, it must run a
 
 ### 4. Addressing the "Verified Interpreter" Objection
 
-A typical objection is: *"Simply use a verified interpreter (e.g., CompCert, CakeML, or a certified compiler)."*
-
-This objection is formally bypassed by the following structural argument:
-
 A formally verified interpreter guarantees a strict evaluation relation:
 $$\text{Interpreter}(Program, Input) \equiv \text{Semantics}(Program, Input)$$
 
 This proves the interpreter faithfully executes the language rules. However:
 
-> A verified interpreter does **not** prove that the generated program's strategy choices are a valid semantic consequence ($\Sigma \models \text{Preserves}(\Lambda, e)$) of the original delegation constraints.
+> A verified interpreter does **not** prove that the derived operational artifact's strategy choices are a valid semantic consequence ($\Sigma \models \text{Preserves}(\Lambda, e)$) of the original delegation constraints.
 
 Even if the interpreter executes its instruction-decoding with complete semantic correctness and no memory bugs, it remains incapable of proving that its intermediate operational artifact ($\mathcal{A}$) preserved the proof obligation delegated to it by the host system. The type system evaluates the interpreter's wrapper; it cannot natively bind the generated program's dynamic strategy to the external authority envelope.
-
-This is a **structural absence** which exists because classical Operational Semantics (15) and Program Logics (16) do not model delegated authority propagation.
 
 ### 5. Safety Properties Matrix
 
@@ -132,7 +115,7 @@ This is a **structural absence** which exists because classical Operational Sema
 | **P1: Authority Soundness** | **SUCCESS** | Managed by the object-capability process shell. |
 | **P2: Execution Integrity** | **SUCCESS** | Guaranteed by the memory safety invariants of the dependently typed language. |
 | **P3: Semantic Consequence Preservation** | **PARTIAL** | Satisfied for all native compiled code pathways. Failed for nested dynamic runtime interpretations — verified interpreter does not bind the generated plan to the delegation envelope. |
-| **P4: Independent Verifiability** | **FAILED** | A post-facto verifier cannot prove that the generated target parameter was a valid semantic consequence of the original delegation policy without inspecting the interpreter's internal state configurations, which are not preserved as an immutable external witness. |
+| **P4: Independent Verifiability** | **FAILED** | A post-facto verifier cannot prove that the generated target parameter was a valid semantic consequence of the original delegation policy without inspecting the interpreter's internal state configurations. |
 
 ### 6. Confidence Verdict
 
@@ -142,7 +125,7 @@ This is a **structural absence** which exists because classical Operational Sema
 
 ## Candidate Compositions (Status)
 
-All architectural composition checks remain strictly locked pending the completion of the baseline surveys.
+All architectural composition checks remain strictly locked pending the completion of the baseline surveys (now expanding across 21 disciplines).
 
 | ID | Evaluated Disciplines | Status |
 | --- | --- | --- |
@@ -151,3 +134,4 @@ All architectural composition checks remain strictly locked pending the completi
 | CC-05 | Language-Based Security (14) + Trusted Computing (13) | **FROZEN** |
 | CC-06 | Program Logics (16) + Trusted Computing (13) + Systemic Accountability (7) | **FROZEN** |
 | CC-07 | Secure Compilation (19) + Capability Security (1) | **FROZEN** |
+| CC-08 | Runtime Verification (21) + Capability Security (1) | **FROZEN** |

@@ -49,4 +49,18 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 - Restructured `10_Preservation_Relations.md` across a 4-dimensional matrix and integrated Simulation and Logical Relations, establishing a formal posture on the inadequacy of standard logical relations for decoupled, untyped intermediary authority constraints.
 - Expanded `09_Delegation_Semantics.md` to map Capability Architectures, Language-Based Capabilities, Resource & Structural Logics, and Authorization Logics.
 
-**Next Step:** The meta-design phase is officially closed. The program proceeds directly to executing the formal literature deep dives for Documents 07 through 11, determining if the target relational hyperproperty $\Sigma \models \text{Preserves}(\Lambda, e)$ truly remains unmapped in the entirety of the CS literature.
+---
+
+## Entry: 2026.07.18-E — Core Assumptions Registry & Working Hypothesis Transition
+
+**Target:** Initializing Surveys 07-11 and Threat Model Document 12; Meta-Design Closed
+**Status:** Formal Framework Parameters Complete. Continuous Enactment Rules Active.
+
+**Decision:** The research program has decoupled all system-level security assumptions from the semantic definitions by establishing a dedicated document, `Research/12_Threat_Model.md`. Additionally, we have downgraded the target predicate to a **Working Hypothesis ($H_{\text{prop}}$)**, provisionally exploring it as a Relational Hyperproperty over Traces while avoiding premature reification.
+
+**Progress:** 
+- Lifted the delegation context ($\Lambda$) into the enactment premise of the Generalized Semantic Transition Rule to support systems capable of continuous trace compliance, modifying `02_Domain_Model.md`, `03_Terminology.md`, and `05_Composition_Analysis.md`.
+- Appended Runtime Verification (#21) into `04_Literature_Taxonomy.md` to map enforcement monitors and executable temporal logic layers.
+- Formally locked the 6-step meta-design sequence in `master_plan.md` and `README.md`.
+
+**Next Step:** The metadata setup phase is concluded. The entire project repository is locked into literature analysis mode. The next sequential log entry will capture the initial analytical drafting of `Research/11_Semantic_Objects.md` and `Research/12_Threat_Model.md`.
