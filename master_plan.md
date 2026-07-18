@@ -1,6 +1,6 @@
 # Documentation Master Plan: Cortex Semantic Layer
 **Version:** 1.0.0-Plan  
-**Status:** PROPOSED  
+**Status:** APPROVED  
 **Author:** Principal Standards Specification Author & Documentation Architect  
 
 ---
@@ -47,12 +47,16 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
     ├── 01_Methodology.md          <-- Operational rules & strict stopping criteria
     ├── 02_Domain_Model.md         <-- ICU Baseline, Safety Properties Catalog, Formal Model
     ├── 03_Terminology.md          <-- Formal CS-grounded glossary
-    ├── 04_Literature_Taxonomy.md  <-- The 15 intersecting computer science disciplines
-    ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix
-    └── 06_Research_Log.md         <-- Cumulative evidence, logs, and case updates
+    ├── 04_Literature_Taxonomy.md  <-- The 19 intersecting computer science disciplines
+    ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (CC-05+ FROZEN)
+    ├── 06_Research_Log.md         <-- Cumulative evidence, logs, and case updates
+    ├── 07_Correspondence_Survey.md <-- Baseline correspondence survey
+    ├── 08_Evaluation_Relations.md   <-- Disambiguation of derivation trees, traces, and plans
+    ├── 09_Delegation_Semantics.md   <-- Authority propagation boundaries
+    └── 10_Preservation_Relations.md <-- Taxonomy of CS preservation theorems
 ```
 
-*   **Research Domain:** Governed by `01_Methodology.md` and its mandatory stopping rule. Documents 01–04 must be individually locked before 05 is authored. Mathematical notation is grounded in established CS primitives (lattice theory, type theory, compiler construction). The name "Cortex" is scrubbed from the active vocabulary—it functions strictly as a non-normative placeholder for a hypothetical semantic layer that would only exist if adversarial analysis exhaustively proves no existing composition satisfies the domain's safety properties.
+*   **Research Domain:** Governed by `01_Methodology.md` and its mandatory stopping rule. Documents 01–04 and 07–10 are locked. Mathematical notation is grounded in established CS primitives (lattice theory, type theory, compiler construction). The name "Cortex" is scrubbed from the active vocabulary—it functions strictly as a non-normative placeholder for a hypothetical semantic layer that would only exist if adversarial analysis exhaustively proves no existing composition satisfies the domain's safety properties.
 
 ---
 
@@ -67,7 +71,11 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
     ├── 03_Terminology.md
     ├── 04_Literature_Taxonomy.md
     ├── 05_Composition_Analysis.md
-    └── 06_Research_Log.md
+    ├── 06_Research_Log.md
+    ├── 07_Correspondence_Survey.md
+    ├── 08_Evaluation_Relations.md
+    ├── 09_Delegation_Semantics.md
+    └── 10_Preservation_Relations.md
 ```
 
 ### 3.1 Document Declarations
@@ -77,28 +85,48 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 *   **Status:** LOCKED.
 
 #### 2. Domain Model (`Research/02_Domain_Model.md`)
-*   **Purpose:** Define system boundaries, the Medical ICU baseline, multi-system adversarial scenarios, the Safety Properties Catalog (P1–P4), and the Evaluation Relation (I→T→e) model.
+*   **Purpose:** Define system boundaries, mutability cases, safety properties (P1–P4), and the SOS derivation rules.
 *   **Dependencies:** `01_Methodology.md`
 *   **Status:** LOCKED.
 
 #### 3. Terminology (`Research/03_Terminology.md`)
-*   **Purpose:** Ground core domain concepts in reproducible CS primitives. Formal notation sourced from lattice theory, type theory, compiler construction, and cryptographic commitment schemes. No synonyms. No polysemy.
+*   **Purpose:** Ground core domain concepts in reproducible CS primitives, pivoting from "synthesis" to "runtime derivation".
 *   **Dependencies:** `02_Domain_Model.md`
 *   **Status:** LOCKED.
 
 #### 4. Literature Taxonomy (`Research/04_Literature_Taxonomy.md`)
-*   **Purpose:** Map 15 foundational computer science disciplines, identifying their theoretical primitives, core guarantees, and boundary limitations.
+*   **Purpose:** Map 19 foundational computer science disciplines, identifying their theoretical primitives, core guarantees, and boundary limitations.
 *   **Dependencies:** `03_Terminology.md`
 *   **Status:** LOCKED.
 
 #### 5. Composition Analysis (`Research/05_Composition_Analysis.md`)
-*   **Purpose:** Subject the Null Hypothesis to adversarial testing using the Safety Properties Catalog (P1–P4) and Evaluation Relation (I→T→e) framework against candidate compositions drawn from the 15-discipline taxonomy.
-*   **Dependencies:** `01_Methodology.md`, `02_Domain_Model.md`, `03_Terminology.md`, `04_Literature_Taxonomy.md`
+*   **Purpose:** Subject the Null Hypothesis to adversarial testing using the Safety Properties Catalog (P1–P4) and Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) framework against candidate compositions.
+*   **Dependencies:** `01_Methodology.md`, `02_Domain_Model.md`, `03_Terminology.md`, `04_Literature_Taxonomy.md`, `07_Correspondence_Survey.md`
 *   **Status:** Active.
 
 #### 6. Research Log (`Research/06_Research_Log.md`)
 *   **Purpose:** Cumulative evidence log tracking composition evaluations, discoveries, strategic pivots, and cross-composition pattern analysis.
 *   **Status:** Active.
+
+#### 7. Correspondence Survey (`Research/07_Correspondence_Survey.md`)
+*   **Purpose:** Map semantic correspondence relations across 8 major CS paradigms to verify whether the proof obligation in $H_0$ is unmapped.
+*   **Dependencies:** `01_Methodology.md`, `02_Domain_Model.md`
+*   **Status:** LOCKED.
+
+#### 8. Evaluation Relations (`Research/08_Evaluation_Relations.md`)
+*   **Purpose:** Disambiguate big-step, small-step, and trace semantics, and partition runtime derivation into Trees ($\mathcal{D}$), Traces ($\tau$), and Plans ($\mathcal{P}$).
+*   **Dependencies:** `02_Domain_Model.md`
+*   **Status:** LOCKED.
+
+#### 9. Delegation Semantics (`Research/09_Delegation_Semantics.md`)
+*   **Purpose:** Taxonomize delegation models (O-Caps, Token delegation, PCA) and identify where they lose coupling with runtimes.
+*   **Dependencies:** `02_Domain_Model.md`, `07_Correspondence_Survey.md`
+*   **Status:** LOCKED.
+
+#### 10. Preservation Relations (`Research/10_Preservation_Relations.md`)
+*   **Purpose:** Catalog preservation theorems (type safety, invariants, refinement, secure compilation) to verify the uniqueness of the target relation $\Sigma \models \text{Preserves}(\Lambda, e)$.
+*   **Dependencies:** `02_Domain_Model.md`, `07_Correspondence_Survey.md`
+*   **Status:** LOCKED.
 
 ---
 
@@ -114,11 +142,22 @@ graph TD
     TM --> CA
     LT --> CA
     CA --> RL[06_Research_Log.md]
+    
+    MT --> CS[07_Correspondence_Survey.md]
+    DM --> CS
+    
+    DM --> ER[08_Evaluation_Relations.md]
+    
+    DM --> DS[09_Delegation_Semantics.md]
+    CS --> DS
+    
+    DM --> PR[10_Preservation_Relations.md]
+    CS --> PR
 
     classDef locked fill:#efe,stroke:#393,stroke-width:2px;
     classDef active fill:#ccf,stroke:#333,stroke-width:2px;
 
-    class MT,DM,TM,LT locked;
+    class MT,DM,TM,LT,CS,ER,DS,PR locked;
     class CA,RL active;
 ```
 
@@ -126,20 +165,19 @@ graph TD
 
 ## 5. Documentation Generation Order
 
-Documents must be authored and individually locked in the following strict sequence:
+Documents must be authored and individually locked in the sequence below:
 
-1.  **Phase I: Methodology** *(LOCKED)*
-    *   `Research/01_Methodology.md`
-2.  **Phase II: Domain Model** *(LOCKED)*
-    *   `Research/02_Domain_Model.md`
-3.  **Phase III: Terminology** *(LOCKED)*
-    *   `Research/03_Terminology.md`
-4.  **Phase IV: Literature Taxonomy** *(LOCKED)*
-    *   `Research/04_Literature_Taxonomy.md`
-5.  **Phase V: Composition Analysis** *(Active)*
-    *   `Research/05_Composition_Analysis.md`
-6.  **Phase VI: Research Log** *(Active)*
-    *   `Research/06_Research_Log.md`
+1.  **Phase I: Methodology** *(LOCKED)* -> `Research/01_Methodology.md`
+2.  **Phase II: Domain Model** *(LOCKED)* -> `Research/02_Domain_Model.md`
+3.  **Phase III: Terminology** *(LOCKED)* -> `Research/03_Terminology.md`
+4.  **Phase IV: Literature Taxonomy** *(LOCKED)* -> `Research/04_Literature_Taxonomy.md`
+5.  **Phase V: Baseline Surveys** *(LOCKED)*
+    *   `Research/07_Correspondence_Survey.md`
+    *   `Research/08_Evaluation_Relations.md`
+    *   `Research/09_Delegation_Semantics.md`
+    *   `Research/10_Preservation_Relations.md`
+6.  **Phase VI: Composition Analysis** *(Active)* -> `Research/05_Composition_Analysis.md`
+7.  **Phase VII: Research Log** *(Active)* -> `Research/06_Research_Log.md`
 
 ---
 
@@ -306,7 +344,7 @@ Each requirement block in `SP-XXX` must append a traceability footnote:
 
 ### 10.2 Naming Protocol
 *   Terms must use **CamelCase** or **ScreamingSnake** when referring to protocol variables/states, and standard lowercase in text.
-*   Terms must remain strictly consistent across documents (e.g., do not alternate between "Agent Host", "Execution Host", and "Agent Container"; pick one and enforce it).
+*   Terms must remain strictly consistent across documents (e.g., do not alternate between "Agent Host", "Execution Host", and "Execution Plan"; pick one and enforce it).
 
 ### 10.3 Entry Template
 ```markdown
@@ -381,14 +419,14 @@ Every technical document must conclude with a "Reviewer Questions" section conta
 The progression of Cortex documentation is structured into the following sequential milestones:
 
 *   **Milestone A: Constitutional Agreement**
-    *   *Deliverables:* `master_plan.md`, `Research/03_Terminology.md`, `GV-001`, `GV-002`.
+    *   *Deliverables:* `master_plan.md`, `Research/03_Terminology.md`.
     *   *Exit Gate:* Complete validation framework approval by TSC.
 *   **Milestone B: Security Core Foundations (Research)**
-    *   *Deliverables:* Mathematical formulations of capability and irreversibility bounds (`RS-001`, `RS-002`).
-    *   *Exit Gate:* External cryptographers audit and validate model limits.
+    *   *Deliverables:* Baseline semantic surveys (`Research/07_Correspondence_Survey.md`, `Research/08_Evaluation_Relations.md`, `Research/09_Delegation_Semantics.md`, `Research/10_Preservation_Relations.md`).
+    *   *Exit Gate:* External CS reviewers validate baseline survey gaps.
 *   **Milestone C: Contract Normative Release (Specification)**
-    *   *Deliverables:* Core semantic obligations, verification protocol, and conformance metrics (`SP-001`, `SP-002`, `SP-003`).
+    *   *Deliverables:* Core semantic obligations, verification protocol, and conformance metrics.
     *   *Exit Gate:* Release of version 1.0.0-Normative suite.
 *   **Milestone D: Blueprint Topologies (Architecture & Implementation)**
-    *   *Deliverables:* Security topoloical diagrams, Temporal/Biscuit and Cedar blueprints (`AR-001`, `IM-001`).
+    *   *Deliverables:* Security topological diagrams, reference blueprints.
     *   *Exit Gate:* Verification suite confirms reference implementations meet all SP requirements.
