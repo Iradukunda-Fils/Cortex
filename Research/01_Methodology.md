@@ -5,7 +5,7 @@
 
 This research program operates via Adversarial Falsification and Elimination. Rather than attempting to prove the validity of a pre-conceptualized security architecture, the program dedicates its entire execution trajectory to validating the Null Hypothesis: that a rigorous composition of existing computer science disciplines completely resolves the safety boundaries of runtime decision attribution.
 
-We utilize DSRP (Distinguishing Systems, Boundaries, Relationships, and Perspectives) to continuously map out where semantic boundaries shift when moving from static correspondence relations to runtime derivation processes.
+We utilize DSRP (Distinguishing Systems, Boundaries, Relationships, and Perspectives) to continuously map out where semantic boundaries shift when moving from static correspondence relations to operational artifact evaluations.
 
 ---
 
@@ -45,10 +45,10 @@ The name "Cortex" is completely scrubbed from the active research vocabulary. It
 For each major discipline in the history of computer science that claims to express or enforce a "correspondence" between program behavior and a specification, identify:
 1.  The **specific correspondence relation** it verifies.
 2.  The **precise mathematical or logical expression** of that relation.
-3.  The **formal boundary** at which it fails to cover $H_0$ — i.e., where proof-obligation preservation across a delegation boundary with a runtime derivation process falls outside the discipline's scope.
+3.  The **formal boundary** at which it fails to cover $H_0$ — i.e., where proof-obligation preservation across a delegation boundary using dynamic intermediate operational artifacts falls outside the discipline's scope.
 
 The complete baseline survey is expanded and documented in [07_Correspondence_Survey.md](07_Correspondence_Survey.md).
 
 ### Survey Finding Summary
 
-No surveyed discipline defines, expresses, or enforces the correspondence relation described in $H_0$: that the evaluation relation governing a runtime derivation process must preserve the proof obligation delegated to it from an external authority boundary. This gap is not a naming ambiguity—it is a structural absence in the landscape of known semantic correspondences.
+No surveyed discipline defines, expresses, or enforces the correspondence relation described in $H_0$: that the evaluation relation governing intermediate operational artifacts must preserve the semantic bounds delegated to that execution by an external authority space. This gap is not a naming ambiguity—it is a structural absence in the landscape of known semantic correspondences.

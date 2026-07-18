@@ -2,7 +2,7 @@
 **Status:** LOCKED  
 
 ## Purpose
-Exhaustively catalog every major preservation theorem in computer science history. Determine if our target relation—Semantic Consequence Preservation—is a completely distinct property or if it can be expressed as a specialized refinement of an established preservation theorem.
+Exhaustively catalog and taxonomize major preservation theorems spanning programming languages, verified compilers, secure compilation, and security architectures. Establish the precise relation between our target predicate ($\Sigma \models \text{Preserves}(\Lambda, e)$) and established properties.
 
 ## Dependencies
 *   [02_Domain_Model.md](02_Domain_Model.md)
@@ -10,34 +10,83 @@ Exhaustively catalog every major preservation theorem in computer science histor
 
 ---
 
-## 1. Taxonomy of Preservation Theorems
+## 1. Classification Methodology
 
-We compile and evaluate the classical preservation properties defined by the programming languages, verification, and security research communities.
-
-### Preservation Theorem Mapping Matrix
-
-| Academic Community | Core Theorem Type | Object Formally Preserved Across the Mapping | Primary Open Gap / Divergence from our Target Relation |
-| --- | --- | --- | --- |
-| **Type Systems** | Type Preservation (Subject Reduction) | Evaluated terms retain their type invariants across step-reductions: $e : \tau \wedge e \to e' \implies e' : \tau$. | Bounded to internal language type-safety; does not model or carry out-of-band delegation invariants through dynamic planning or execution plan synthesis. |
-| **Program Logics (Hoare)** | Invariant Preservation | Multi-state loop or execution transitions preserve foundational assertion predicates. | Assumes a statically bound, pre-analyzed program space. Cannot map dynamic runtime-derived executions where the translation engine itself is under adversarial pressure. |
-| **Refinement Calculi** | Behavioral Refinement | Concrete operational traces remain a valid subset of allowed abstract behaviors. | Assumes compile-time or static translation paths. Lacks mechanisms to handle dynamic authority context shifts dynamically embedded inside non-deterministic input parameters. |
-| **Secure Compilation** | Robust Safety / Hyperproperty Preservation (RSP/RHP) | Source-level safety properties ($\phi$) are preserved against all target-level adversarial contexts ($\text{Context}$): $\text{Target} \sim_{\text{RSP}} \text{Source}$. | Focuses on translating fixed source programs to lower-level binaries safely. It does not model execution environments whose explicit runtime task is to derive and execute brand new, arbitrary query plans or workflows based on incoming delegation objects ($\Lambda$). |
-| **Capability Systems** | Confinement & Authority Preservation | Graph reachability metrics guarantee that references can never be leaked to un-delegated principals. | Purely structural and connectivity-focused. It verifies reference boundary traversal but is fundamentally blind to whether the semantic meaning or exact arguments of an operational payload ($e$) reflect the delegated intent. |
+To prevent semantic conflation, every preservation theorem class in this taxonomy is classified across four strict dimensions:
+1.  **Object Preserved**: The logical structure, invariant, type, or property that remains invariant.
+2.  **Foundational Relation**: The mathematical or logical equation/reduction relation validating the preservation.
+3.  **Proof Style**: The primary proof technique employed in the literature (e.g., structural induction, simulation, back-translation).
+4.  **Core Environmental Assumptions**: The systemic baseline requirements assumed (e.g., closed world, compiler correctness, platform isolation).
 
 ---
 
-## 2. Comparing with the Target Predicate
+## 2. Expanded Taxonomy of Preservation Theorems
 
-Our target relation represents the preservation of a delegated obligation across a runtime derivation process:
+### 2.1 Type Preservation (Subject Reduction)
+*   **Object Preserved**: Static Type Invariant ($\tau$).
+*   **Foundational Relation**: $e : \tau \wedge e \to e' \implies e' : \tau$.
+*   **Proof Style**: Structural induction over term derivation trees and evaluation step reductions.
+*   **Core Environmental Assumptions**: Closed system semantics; type-safety of all language primitives; absence of untyped memory writes, arbitrary FFI calls, or JIT assembly injection.
+
+### 2.2 Semantic Preservation (Compiler Correctness)
+*   **Object Preserved**: Execution semantics / observable behaviors of a source program.
+*   **Foundational Relation**: $\text{beh}(\llbracket P \rrbracket_T) \subseteq \text{beh}(P_S)$ (where $\text{beh}$ captures traces of inputs/outputs).
+*   **Proof Style**: Stepwise simulation relations (forward/backward simulation proofs) between source and target abstract machine configurations.
+*   **Core Environmental Assumptions**: Whole-program translation; non-adversarial target environment (the compiled output is run in an environment that behaves strictly as defined by the target architecture).
+
+### 2.3 Behavioral Refinement Preservation
+*   **Object Preserved**: Abstract specifications / state invariants.
+*   **Foundational Relation**: Concrete Trace $\sqsubseteq$ Specification Trace (under a state mapper $\alpha$).
+*   **Proof Style**: Data refinement verification; inductive proof of simulation relations between abstract and concrete state transition steps.
+*   **Core Environmental Assumptions**: Deterministic behavior or bounded non-determinism of the environment; complete pre-definability of the state mapping relations.
+
+### 2.4 Observational / Contextual Equivalence
+*   **Object Preserved**: Semantic indistinguishability of terms under arbitrary contexts.
+*   **Foundational Relation**: $P_1 \approx_{ctx} P_2 \iff \forall C, C[P_1] \Downarrow \iff C[P_2] \Downarrow$.
+*   **Proof Style**: Logical relations, bisimulation games, or coinductive proof maps.
+*   **Core Environmental Assumptions**: Restricting the context $C$ to standard, well-typed language contexts; absence of out-of-band context capabilities or platform exploits.
+
+### 2.5 Hyperproperty Preservation (Robust Hyperproperty Preservation - RHP)
+*   **Object Preserved**: Sets of execution traces (e.g., non-leakage, security hyperproperties).
+*   **Foundational Relation**: Trace set containment under arbitrary contextual configurations.
+*   **Proof Style**: Contextual simulation games or back-translation of target counterexamples back to the source.
+*   **Core Environmental Assumptions**: Target-level contexts cannot bypass hardware or compiler memory segment boundaries.
+
+### 2.6 Security Preservation (Robust Safety Preservation - RSP)
+*   **Object Preserved**: Source-level safety properties ($\phi$).
+*   **Foundational Relation**: $\forall \text{Ctx}_{\text{Target}}, \exists \text{Ctx}_{\text{Source}}$ such that target safety violation implies source safety violation.
+*   **Proof Style**: Back-translation of target-level contexts to source-level contexts, or simulation relations.
+*   **Core Environmental Assumptions**: The target execution context cannot violate the core isolation primitives (e.g., memory safety or execution alignment) promised by the target platform architecture.
+
+### 2.7 Information Flow Preservation (Non-Interference)
+*   **Object Preserved**: Low-equivalence trace indistinguishability.
+*   **Foundational Relation**: $s_1 \approx_L s_2 \implies \text{eval}(s_1) \approx_L \text{eval}(s_2)$.
+*   **Proof Style**: Relational structural induction or type-directed information tracking (relational Hoare logic).
+*   **Core Environmental Assumptions**: Deterministic evaluation semantics or bounded probabilistic non-determinism; absence of structural timing or microarchitectural side-channels.
+
+### 2.8 Capability / Confinement Preservation
+*   **Object Preserved**: Capability graph reachability boundary (non-leakage of references).
+*   **Foundational Relation**: $R \in \text{Reach}(G_t) \implies R \in \text{Reach}(G_{t_0}) \cup \text{Created}(G_{t_0, t})$.
+*   **Proof Style**: Inductive path checking over capability transfer operations and graph transition systems.
+*   **Core Environmental Assumptions**: Unforgeability of capabilities; reference evaluation boundary cannot be bypassed by operating system bugs or physical memory attacks.
+
+### 2.9 Invariant / Assertion Preservation
+*   **Object Preserved**: Loop invariants or Hoare preconditions.
+*   **Foundational Relation**: $\{P\} \, C \, \{Q\}$ where $P$ is preserved across execution transitions of program statement $C$.
+*   **Proof Style**: Deductive proof using verification condition generators (VCGs) and solver assertions.
+*   **Core Environmental Assumptions**: Fixed program code $C$ at proof time; absence of self-modifying code or runtime-synthesized execution statements.
+
+---
+
+## 3. Position of the Target Predicate
+
+Comparing our target predicate:
 
 $$\Sigma \models \text{Preserves}(\Lambda, e)$$
 
-Where the terminal target action $e$ is synthesized through an unfixed evaluation trace under the constraints of delegation context $\Lambda$.
+We analyze how it relates to these categories:
+1.  **Divergence from Type Preservation**: Subject reduction guarantees that terms remain well-typed. It is structurally blind to downstream authority bounds ($\Lambda$) inherited by compiled or interpreted plans.
+2.  **Divergence from Robust Safety Preservation (RSP)**: RSP ensures that target-level contexts cannot violate safety properties verified at the source. This assumes a fixed program. Our target relation assumes the program or execution strategy is dynamically translated into an intermediate operational artifact ($\mathcal{A}$) consuming non-deterministic inputs at runtime.
+3.  **Divergence from Invariant Preservation**: Standard invariant preservation requires knowing the state transition instructions statically. It cannot model situations where the operational steps are dynamically generated by an evaluation engine (Case C mutability) operating under user-influenced parameters.
 
-*   **Divergence from Type Systems:** Type preservation ensures that reduction steps do not produce ill-typed terms. It is blind to the behavioral correctness of the synthesized execution plans. A query planner can compile a query to a validly typed `Delete` term that deletes the wrong database table: the term is type-safe, but the delegated authority obligation has been violated.
-*   **Divergence from Secure Compilation:** Secure compilation (e.g., RSP) guarantees that compiling a program does not introduce vulnerabilities that allow target-level adversaries to violate source-level safety properties. The source program itself is fixed. In our target model, the source program is not fixed—it is dynamic input ($I$) carrying credentials, which is evaluated on-the-fly to derive an execution trace.
-*   **Divergence from Hoare Logic Invariant Preservation:** Invariant preservation proves that a loop step preserves a state predicate (e.g., $i \le N$). It requires knowing the program text ($c$) statically. It cannot model proof-obligation inheritance where the program code ($c$) is generated dynamically at runtime by a query planner or interpreter under the influence of adversarial inputs.
-
-## 3. Finding
-
-Semantic Consequence Preservation ($\Sigma \models \text{Preserves}(\Lambda, e)$) is a **distinct property** that cannot be expressed as a direct refinement of type preservation, secure compilation, or capability confinement. The primary gap is that existing theorems require the evaluation relation or program text to be statically fixed before execution begins, failing to express proof-obligation preservation through runtime derivations.
+Therefore, **Semantic Consequence Preservation** remains a distinct semantic property—it represents the preservation of a delegated authority obligation ($\Lambda$) across the evaluation and enactment of a dynamically generated operational artifact ($\mathcal{A}$) under an adversarial execution model.

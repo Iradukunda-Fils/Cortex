@@ -4,9 +4,9 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 
 ---
 
-## Entry: 2026.07.18-A — semantic Framework Established
+## Entry: 2026.07.18-A — Semantic Framework Established
 
-**Milestone:** Established the Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) and the four-property Safety Properties Catalog (P1–P4). Demoted P2 to an environmental assumption. Multi-system validation expanded to four structural domains to eliminate narrow domain bias.
+**Milestone:** Established the Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) and the safety properties catalog (P1–P4). Demoted P2 to an environmental assumption. Multi-system validation expanded to four structural domains to eliminate narrow domain bias.
 
 ---
 
@@ -16,14 +16,7 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 
 **Verdict:** Partially Covered.
 
-**Key Finding:** Kernel provenance (CamFlow at LSM boundary) captures syscalls and OS events but is structurally blind to user-space program derivation trace elements ($\mathcal{D}, \tau, \mathcal{P}$). When memory is mutated after trace derivation but before interface dispatch, the capability layer passes the call (P1/P2 SUCCESS) but cannot establish whether the target action is a valid semantic consequence of delegation constraints ($\Sigma \models \text{Preserves}(\Lambda, e)$ FAILED).
-
-| Property | Result |
-| --- | --- |
-| P1 (Authority Soundness) | SUCCESS |
-| P2 (Execution Integrity) | SUCCESS |
-| P3 (Semantic Consequence Preservation) | FAILED |
-| P4 (Independent Verifiability) | FAILED |
+**Key Finding:** Kernel provenance (CamFlow at LSM boundary) captures syscalls and OS events but is structurally blind to user-space operational artifacts ($\mathcal{A}$). When memory is mutated after plan construction but before interface dispatch, the capability layer passes the call (P1/P2 SUCCESS) but cannot establish whether the target action is a valid semantic consequence of delegation constraints ($\Sigma \models \text{Preserves}(\Lambda, e)$ FAILED).
 
 ---
 
@@ -33,32 +26,27 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 
 **Verdict:** Partially Covered.
 
-**Key Finding:** Refinement types and monadic effects verify static pathway semantics. When dynamic workflows are processed by a user-space interpreter embedded inside the typed engine, the host compiler's soundness proofs verify the interpreter wrapper but cannot verify the derivation trajectory ($\tau$) occurring within the interpreter's virtual space.
+**Key Finding:** Refinement types and monadic effects verify static pathway semantics. When dynamic workflows are processed by a user-space interpreter embedded inside the typed engine, the host compiler's soundness proofs verify the interpreter wrapper but cannot verify the operational trace occurring within the interpreter's virtual space.
 
-**Critical Formalization (Verified Interpreter Objection Rebuttal):** A formally verified interpreter proves $\text{Interpreter}(Program, In) \equiv \text{Semantics}(Program, In)$ which guarantees execution fidelity. It does **not** prove that the derived program's strategy choices are a valid semantic consequence of the original delegation constraints. The type system evaluates the interpreter's wrapper; it cannot natively bind the derived program's dynamic strategy to the external authority envelope. This is a structural absence, not an implementation bug.
-
-| Property | Result |
-| --- | --- |
-| P1 (Authority Soundness) | SUCCESS |
-| P2 (Execution Integrity) | SUCCESS |
-| P3 (Semantic Consequence Preservation) | PARTIAL (native compiled; fails for nested interpreted) |
-| P4 (Independent Verifiability) | FAILED |
+**Critical Formalization (Verified Interpreter Objection Rebuttal):** A formally verified interpreter proves $\text{Interpreter}(Program, In) \equiv \text{Semantics}(Program, In)$ which guarantees execution fidelity. It does **not** prove that the generated program's strategy choices are a valid semantic consequence of the original delegation constraints. The type system evaluates the interpreter's wrapper; it cannot natively bind the generated program's dynamic strategy to the external authority envelope. This is a structural absence, not an implementation bug.
 
 ---
 
-## Entry: 2026.07.18-D — Strategic Pivot: Baseline surveys Activated
+## Entry: 2026.07.18-D — Strategic Pivot: 5-Part Survey Blueprint Activated
 
-**Status:** Meta-Design Complete. Systematic Evaluation Log Initialized. Terminology updated from "Runtime Synthesis" to "Runtime Derivation" (or Evaluation Derivation).
+**Status:** Meta-Design Finalized. Structural Operational Semantics Parameterized on "Operational Artifacts" ($\mathcal{A}$) to avoid forcing distinct system states into a privileged vocabulary. All downstream composition analyses remain strictly frozen.
 
-**Decision:** All downstream composition analyses (CC-05 and beyond) are frozen. The program executes an exhaustive, formal baseline mapping of what "correspondence" means and how execution is modeled across computer science history before attempting any further system-level compositions. Four new modular baseline survey files are introduced:
+**Decision:** The research program commits exclusively to producing a 5-part core semantic survey blueprint to systematically map logical consequence, evaluated semantics, delegation paradigms, security preservation theorems, and mathematical categories of objects. The new survey file list is established:
 1.  [07_Correspondence_Survey.md](07_Correspondence_Survey.md) (Formal Definitions of Existing Relations)
-2.  [08_Evaluation_Relations.md](08_Evaluation_Relations.md) (Big-step, Small-step, Trace, Abstract Machine semantics)
-3.  [09_Delegation_Semantics.md](09_Delegation_Semantics.md) (Capability systems, Token propagation boundaries)
-4.  [10_Preservation_Relations.md](10_Preservation_Relations.md) (Taxonomy of CS preservation theorems)
+2.  [08_Evaluation_Relations.md](08_Evaluation_Relations.md) (Computation & Planning paradigms)
+3.  [09_Delegation_Semantics.md](09_Delegation_Semantics.md) (Authority boundaries)
+4.  [10_Preservation_Relations.md](10_Preservation_Relations.md) (Expanded taxonomy of type, refinement, and secure compilation theorems)
+5.  [11_Semantic_Objects.md](11_Semantic_Objects.md) (NEW - Mathematical categories of objects)
 
 **Progress:** 
-- Successfully finalized the taxonomy expansion to include Proof-Producing Computation (#18) and Secure Compilation (#19) in `04_Literature_Taxonomy.md`.
-- Completed operational drafts of `07_Correspondence_Survey.md`, `08_Evaluation_Relations.md`, `09_Delegation_Semantics.md`, and `10_Preservation_Relations.md`.
-- Officially updated target relation notation to: $\Sigma \models \text{Preserves}(\Lambda, e)$.
+- Successfully finalized the taxonomy expansion to include Institutional Semantics (#20) in `04_Literature_Taxonomy.md` and reframed Secure Compilation (#19) around behavioral preservation and security hyperproperties.
+- Drafted and locked `11_Semantic_Objects.md` containing the mathematical category mappings.
+- Refactored `10_Preservation_Relations.md` into a highly structured survey utilizing the four-dimensional taxonomy.
+- Updated terminology across all active and locked documents to center around standard PL vocabulary, operational artifacts, and the rephrased hypothesis.
 
-**Next Step:** Document the next phase of deep semantic baseline mapping. Evaluate if a simulation relation or admissibility constraint can be leveraged to bound the runtime derivation tree without collapsing into a standard, static refinement proof.
+**Next Step:** Evaluate if our target predicate $\Sigma \models \text{Preserves}(\Lambda, e)$ can be formally classified as a novel subclass of Robust Property Preservation (from secure compilation) or if it presents a completely isolated, irreducible semantic relationship.

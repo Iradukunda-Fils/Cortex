@@ -2,7 +2,7 @@
 
 This repository houses a rigorous, peer-reviewed adversarial falsification program for autonomous systems. The primary function of this research is to validate the **Null Hypothesis ($H_0$)**:
 
-> **Can an execution semantics preserve a proof obligation across a delegation boundary when an externally observable, irreversible effect is generated via a runtime derivation process whose evaluation relation is not fixed before execution?**
+> **Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?**
 
 If the adversarial analysis succeeds in satisfying all safety properties under $H_0$, no new semantic layer is required. If the analysis reveals an irreducible semantic gap, that gap defines the formal requirements for a new candidate specification.
 
@@ -10,27 +10,30 @@ If the adversarial analysis succeeds in satisfying all safety properties under $
 
 ## 🏛️ Repository Architecture
 
-To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured ten-file sequential research pipeline under `Research/`:
+To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured eleven-file sequential research pipeline under `Research/`:
 
 ```
 Research/
 ├── 01_Methodology.md         <-- Operational rules & Semantic Inversion Stopping Rule (LOCKED)
 ├── 02_Domain_Model.md        <-- Boundaries, mutability cases, and Safety Properties (LOCKED)
 ├── 03_Terminology.md         <-- Formal glossary grounded in CS primitives (LOCKED)
-├── 04_Literature_Taxonomy.md <-- The 19 intersecting computer science disciplines (LOCKED)
+├── 04_Literature_Taxonomy.md <-- The 20 intersecting computer science disciplines (LOCKED)
 ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (ACTIVE - CC-05+ FROZEN)
 ├── 06_Research_Log.md        <-- Cumulative evidence registry (ACTIVE)
-├── 07_Correspondence_Survey.md <-- Deep dive on baseline semantic correspondence relations (LOCKED)
-├── 08_Evaluation_Relations.md   <-- Disambiguation of derivation Trees, Traces, & Plans (LOCKED)
-├── 09_Delegation_Semantics.md   <-- Authority propagation boundaries (LOCKED)
-└── 10_Preservation_Relations.md <-- Taxonomy of CS preservation theorems (LOCKED)
+├── 07_Correspondence_Survey.md <-- Baseline semantic correspondence survey (LOCKED)
+├── 08_Evaluation_Relations.md   <-- Disambiguation of computation and planning models (LOCKED)
+├── 09_Delegation_Semantics.md   <-- Authority boundaries (LOCKED)
+├── 10_Preservation_Relations.md <-- Taxonomy of CS preservation theorems (LOCKED)
+└── 11_Semantic_Objects.md       <-- Mapped mathematical categories of objects (LOCKED)
 ```
 
 ---
 
 ## 🛡️ The Safety Properties Catalog
 
-Every composition is evaluated against four orthogonal, non-overlapping safety properties under the **Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$)** mapping input streams ($I$) to terminal target actions ($e$):
+Every composition is evaluated against four orthogonal, non-overlapping safety properties under the **Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$)** mapping input streams ($I$) to terminal target actions ($e$) through intermediate **Operational Artifacts ($\mathcal{A}$)**:
+
+$$\frac{\Sigma; \Lambda \vdash I \Downarrow \mathcal{A} \quad \quad \Sigma \vdash \text{enact}(\mathcal{A}) \Downarrow e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 *   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
 *   **P2 — Execution Integrity:** The byte-level parameter state of an executed action must remain structurally unaltered between the generation boundary and the interface enforcement perimeters under the stated threat model. *(Environmental Assumption)*
@@ -39,9 +42,9 @@ Every composition is evaluated against four orthogonal, non-overlapping safety p
 
 ---
 
-## 🔬 Literature Taxonomy (19 Disciplines)
+## 🔬 Literature Taxonomy (20 Disciplines)
 
-The program maps system interactions across 19 distinct computer science areas:
+The program maps system interactions across 20 distinct computer science areas:
 1. **Capability Security** (Confinement & Ambient Authority Elimination)
 2. **Programming Languages** (Type Safety, Scoped-Use Semantics)
 3. **Delegated Authorization** (Offline-Verifiable Attenuation)
@@ -60,13 +63,14 @@ The program maps system interactions across 19 distinct computer science areas:
 16. **Program Logics** (Hoare Logic, Separation Logic, Refinement Calculi)
 17. **Static Analysis** (Abstract Interpretation, Monadic Effects)
 18. **Proof-Producing Computation** (SMT Solvers, Certified Abstract Interpretation)
-19. **Secure Compilation** (Robust Safety Preservation, Robust Hyperproperty Preservation)
+19. **Secure Compilation** (Robust Safety/Hyperproperty Preservation)
+20. **Institutional Semantics** (Rewriting Logic, K Framework, ASMs)
 
 ---
 
 ## 📊 Evaluation Status Matrix
 
-Due to findings in CC-01 and CC-04, all downstream composition checks are frozen while Research Question 0's deep semantic surveys (07–10) are completed.
+Due to findings in CC-01 and CC-04, all downstream composition checks are frozen while Research Question 0's 5-part semantic survey blueprint (07–11) is completed.
 
 | ID | Composition Structure | P1 | P2 | P3 | P4 | Verdict / Current Status |
 | --- | --- | :---: | :---: | :---: | :---: | :---: |

@@ -24,7 +24,7 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 *   **Rejected Synonyms:** Permission set, Access scope.
 
 ### Delegation Context ($\Lambda$)
-*   **Definition:** A principal's cryptographic statement mapping a subset of authority to a target execution context, satisfying the relation $\Lambda \sqsubseteq A$. Delegation is monotonically attenuating.
+*   **Definition:** A semantic object whose interpretation constrains the admissible externally observable effects of an execution. Formally, it represents a principal's cryptographic statement mapping a subset of authority, satisfying the relation $\Lambda \sqsubseteq A$.
 *   **Grounding:** SPKI/SDSI (RFC 2693), Macaroons, Biscuit.
 *   **Rejected Synonyms:** Authorization grant, Token scope.
 
@@ -38,34 +38,23 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 *   **Rejected Synonyms:** Effect, Operation, Command.
 
 ### Causal Witness Vector ($\mathcal{W}$)
-*   **Definition:** The set of cryptographic hashes of all external state inputs consumed to compute the derivation trace elements. Enables deterministic reconstruction of the trace graph by an independent auditor.
+*   **Definition:** The set of cryptographic hashes of all external state inputs consumed to compute the operational artifact. Enables deterministic reconstruction of the execution path by an independent auditor.
 *   **Grounding:** Cryptographic commitment schemes, Merkle tree constructions.
 *   **Rejected Synonyms:** Input log, Evidence record.
 
-### Runtime Derivation (or Evaluation Derivation)
-*   **Definition:** The dynamic compilation, interpretation, or translation process that maps a stream of non-deterministic input parameters ($I$) to a tuple representing its operational derivation: $T = \langle \mathcal{D}, \tau, \mathcal{P} \rangle$.
-*   **Grounding:** Compiler construction (JIT compilation traces), interpreter theory, structural operational semantics (SOS).
-*   **Rejected Synonyms:** Runtime Synthesis, Dynamic Parameter Synthesis, Autonomous Planning.
+### Operational Artifact ($\mathcal{A}$)
+*   **Definition:** The intermediate structural representation generated dynamically by a system's internal decision procedure, planning engine, or interpreter wrapper.
+*   **Subclasses:**
+    *   **Evaluation Derivation**: AST to value mappings in operational semantics.
+    *   **Query Plan**: Relational operators tree in DB query systems.
+    *   **Workflow Plan**: Distributed task dependency DAG in choreographies.
+    *   **Scheduling Plan**: Resource and host allocations in schedulers.
+    *   **Proof Object**: Typed $\lambda$-calculus term or logical proof witness.
+    *   **Execution Graph**: Transition system state graph.
+*   **Rejected Synonyms:** Runtime Synthesis, Runtime Derivation, Synthesis Trajectory.
 
-### Derivation Tree ($\mathcal{D}$)
-*   **Definition:** The formal, meta-logical proof object composed of a tree of inference rules demonstrating that the execution engine accurately followed its language or operational semantics to translate input stream $I$.
-*   **Rejected Synonyms:** Evaluation proof, Syntax tree.
-
-### Operational Trace ($\tau$)
-*   **Definition:** The linear or branching sequential history of intermediate micro-state transitions executed by the underlying abstract or concrete machine during evaluation.
-*   **Rejected Synonyms:** State log, Microtrace.
-
-### Execution Plan ($\mathcal{P}$)
-*   **Definition:** The intermediate structural artifact emitted by the derivation process which is subsequently consumed by an enforcement engine to induce real-world state shifts.
-*   **Rejected Synonyms:** Execution schedule, Command block.
-
-### Decision Derivation Node ($\Delta$)
-*   **Definition:** A structurally bounded execution state tuple representing a complete runtime derivation event: $\Delta = \langle e, \Lambda, \langle \mathcal{D}, \tau, \mathcal{P} \rangle, \mathcal{W} \rangle$.
-*   **Components:**
-    *   $e$: The generated Target Action Tuple.
-    *   $\Lambda$: The Delegation Context (coarse permission perimeter).
-    *   $\langle \mathcal{D}, \tau, \mathcal{P} \rangle$: The Runtime Derivation artifacts.
-    *   $\mathcal{W}$: The Causal Witness Vector (cryptographic input commitments).
+### Decision Node ($\Delta$)
+*   **Definition:** A structurally bounded execution state tuple representing a complete execution decision event: $\Delta = \langle e, \Lambda, \mathcal{A}, \mathcal{W} \rangle$.
 *   **Rejected Synonyms:** Decision record, Execution event, Synthesis node.
 
 ### Observation Model ($\mathcal{M}_{\text{obs}}$)
@@ -73,12 +62,12 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 *   **Rejected Synonyms:** Monitoring scope, Telemetry boundary.
 
 ### Verification Perimeter ($\mathcal{V}$)
-*   **Definition:** The enforcement boundary at which the complete decision derivation node $\Delta$ is evaluated to determine whether the consequence relation holds before permitting execution of the irreversible effect.
+*   **Definition:** The enforcement boundary at which the complete decision node $\Delta$ is evaluated to determine whether the consequence relation holds before permitting execution of the irreversible effect.
 *   **Formal Role:** Evaluates whether $\Sigma \models \text{Preserves}(\Lambda, e)$ using the artifacts in $\Delta$.
 *   **Rejected Synonyms:** Enforcement point, Policy decision point.
 
 ### Authorized Consequence Relation ($\vdash$)
-*   **Definition:** An inference relation over a bounded policy language representing a strict mathematical proof that the emitted target action tuple $e$ falls within the valid refinement space defined by the delegation context $\Lambda$, as demonstrated through the derivation trace structures.
+*   **Definition:** An inference relation over a bounded policy language representing a strict mathematical proof that the emitted target action tuple $e$ falls within the valid refinement space defined by the delegation context $\Lambda$, as demonstrated through the operational metadata.
 *   **Grounding:** Type theory (judgment forms), formal logic (inference rules).
 *   **Rejected Synonyms:** Authorization check, Access control decision, Policy evaluation.
 
@@ -88,9 +77,10 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 
 | Deprecated Term | Replaced By | Rationale |
 | --- | --- | --- |
-| Dynamic Parameter Synthesis | Runtime Derivation | More precise; aligns with operational evaluation definitions. |
-| Runtime Decision Synthesis | Runtime Derivation | More precise; aligns with operational evaluation definitions. |
-| Synthesis Trajectory Matrix | Runtime Derivation tuple $\langle \mathcal{D}, \tau, \mathcal{P} \rangle$ | Formally partitioned to prevent semantics confusion. |
-| Independently Verifiable Causality Proof | Causal Witness Vector ($\mathcal{W}$) + Derivation Trace | Decomposed into formal components. |
+| Dynamic Parameter Synthesis | Operational Artifact ($\mathcal{A}$) | Standardizes semantic representations across system domains. |
+| Runtime Decision Synthesis | Operational Artifact ($\mathcal{A}$) | Standardizes semantic representations across system domains. |
+| Runtime Derivation | Operational Artifact ($\mathcal{A}$) | Standardizes semantic representations across system domains. |
+| Synthesis Trajectory Matrix | Operational Artifact ($\mathcal{A}$) | Standardizes semantic representations across system domains. |
+| Independently Verifiable Causality Proof | Causal Witness Vector ($\mathcal{W}$) + Operational Artifact ($\mathcal{A}$) | Decomposed into formal components. |
 | Effect | Target Action Tuple ($e$) | Formally grounded with structural definition. |
 | Agent Host | *(not replaced)* | Implementation-specific. |

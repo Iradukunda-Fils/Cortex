@@ -1,8 +1,8 @@
 # 05: Composition Analysis
-**Status:** Active — Downstream compositions (CC-05+) frozen pending completion of Research Question 0 deep semantic baseline surveys.
+**Status:** Active — Downstream compositions (CC-05+) frozen pending completion of Research Question 0's 5-part semantic survey blueprint.
 
 ## Purpose
-Subject the Null Hypothesis to adversarial testing using the four Safety Properties (P1–P4) and the Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 19-discipline taxonomy.
+Subject the Null Hypothesis to adversarial testing using the four Safety Properties (P1–P4) and the Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 20-discipline taxonomy.
 
 ## Dependencies
 *   [01_Methodology.md](01_Methodology.md) — LOCKED
@@ -15,18 +15,18 @@ Subject the Null Hypothesis to adversarial testing using the four Safety Propert
 
 ## Evaluation Pipeline
 
-We evaluate how each candidate composition handles the Evaluation Relation mapping inputs ($I$) to operational derivation artifacts ($\langle \mathcal{D}, \tau, \mathcal{P} \rangle$) and target actions ($e$) under adversarial conditions:
+We evaluate how each candidate composition handles the Evaluation Relation mapping inputs ($I$) to intermediate operational artifacts ($\mathcal{A}$) and target actions ($e$) under adversarial conditions:
 
 ```
                       [ Evaluation Relation (I ⟹ e) ]
                                      │
        ┌─────────────────────────────┴─────────────────────────────┐
        ▼                                                           ▼
- [ Intent / Delegation (Λ) ] ──► [ Derivation (D, τ, P) ] ──► [ Irreversible Action (e) ]
+ [ Intent / Delegation (Λ) ] ────► [ Operational Artifact (A) ] ──► [ Irreversible Action (e) ]
 ```
 
 Each composition is audited against the Safety Properties catalog:
-*   **P1 — Authority Soundness:** Delegated authority must remain bounded and attenuable.
+*   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
 *   **P2 — Execution Integrity:** Byte-level parameter state must remain unmodified. *(Environmental baseline — not primary research focus)*
 *   **P3 — Semantic Consequence Preservation:** Every irreversible effect must be demonstrably derivable from active delegation constraints under the evaluation semantics: $\Sigma \models \text{Preserves}(\Lambda, e)$.
 *   **P4 — Independent Verifiability (Rectified):** Post-facto audit of P3 must be possible without trusting the execution runtime beyond an explicitly declared TCB.
@@ -46,20 +46,20 @@ Each composition is audited against the Safety Properties catalog:
 ### 1. The Realized Structural Proof Gap
 
 Under the multi-domain scenario of a Distributed DBMS Query Optimizer:
-1. The optimizer ingests an input stream ($I$), evaluating dynamic relational statistics to derive an execution trace and plan ($\mathcal{P}$) targeting an irreversible deletion action ($e$).
-2. An adversary executes a user-space memory exploit within the query optimizer's runtime heap after the execution plan has finished derivation but before the capability interface call is dispatched.
+1. The optimizer ingests an input stream ($I$), evaluating dynamic relational statistics to generate an intermediate database query execution plan—its operational artifact ($\mathcal{A}$)—targeting an irreversible deletion action ($e$).
+2. An adversary executes a user-space memory exploit within the query optimizer's runtime heap after the plan has finished generation but before the capability interface call is dispatched.
 3. The parameter vector is altered to clear a production database space.
 4. The execution process invokes its local capability descriptor. Because the descriptor only evaluates coarse entitlement ("Does this task have permission to touch this storage sector?"), the execution passes.
 5. The kernel provenance subsystem (CamFlow) captures the transaction at the LSM interface.
 
 ```
-[ User-Space Optimizer ] ─── Input (I) ───► Derivation (D, τ, P) ───► [ Exploited / Mutated Payload ]
-                                                                                │
-                                                                                ▼
-[ OS LSM Boundary ]      ─── (Confinement Check OK) ─────────────────────────► Action (e)
-                                                                                │
-                                                                                ▼
-[ CamFlow Kernel Hook ]  ─── Captures: Task(X) -> Writes -> Device(Y) ──────────┘
+[ User-Space Optimizer ] ─── Input (I) ───► Operational Artifact (A) ───► [ Exploited / Mutated Payload ]
+                                                                                   │
+                                                                                   ▼
+[ OS LSM Boundary ]      ─── (Confinement Check OK) ────────────────────────────► Action (e)
+                                                                                   │
+                                                                                   ▼
+[ CamFlow Kernel Hook ]  ─── Captures: Task(X) -> Writes -> Device(Y) ─────────────┘
 ```
 
 ### 2. Safety Properties Matrix
@@ -69,7 +69,7 @@ Under the multi-domain scenario of a Distributed DBMS Query Optimizer:
 | **P1: Authority Soundness** | **SUCCESS** | The capability boundary successfully limits the maximum accessible scope of the process. |
 | **P2: Execution Integrity** | **SUCCESS** | Hardened OS memory isolation blocks out-of-band external tampering with target process memory. |
 | **P3: Semantic Consequence Preservation** | **FAILED** | CamFlow's observation model captures operating-system events rather than semantic evaluation relations. It cannot establish whether the emitted operation is a valid semantic consequence of delegation constraints: $\Sigma \models \text{Preserves}(\Lambda, e)$ fails. |
-| **P4: Independent Verifiability** | **FAILED** | The inner derivation elements ($\mathcal{D}, \tau, \mathcal{P}$) are entirely opaque to the LSM observation boundary. An external auditor cannot verify structural validity without trusting the user-space runtime. |
+| **P4: Independent Verifiability** | **FAILED** | The intermediate operational artifact ($\mathcal{A}$) is entirely opaque to the LSM observation boundary. An external auditor cannot verify structural validity without trusting the user-space runtime. |
 
 ### 3. Confidence Verdict
 
@@ -104,7 +104,7 @@ Because the platform cannot recompile itself for every user input, it must run a
 2.  At runtime, the host engine ingests an input stream representing an infrastructure deployment template.
 3.  An adversary crafts an input template that exploits a logical flaw in the user-space interpreter's evaluation routine.
 4.  The interpreter generates an execution instruction to delete a production node cluster.
-5.  The host engine receives this instruction from its internal interpreter block. The parameter satisfies the refinement check at the language level — the type system verifies that the interpreter generated the output, but cannot verify the correctness of the dynamic derivation trajectory inside the interpreter's virtual space.
+5.  The host engine receives this instruction from its internal interpreter block. The parameter satisfies the refinement check at the language level — the type system verifies that the interpreter generated the output, but cannot verify the correctness of the dynamic operational trace inside the interpreter's virtual space.
 
 ### 4. Addressing the "Verified Interpreter" Objection
 
@@ -117,9 +117,9 @@ $$\text{Interpreter}(Program, Input) \equiv \text{Semantics}(Program, Input)$$
 
 This proves the interpreter faithfully executes the language rules. However:
 
-> A verified interpreter does **not** prove that the derived program's strategy choices are a valid semantic consequence ($\Sigma \models \text{Preserves}(\Lambda, e)$) of the original delegation constraints.
+> A verified interpreter does **not** prove that the generated program's strategy choices are a valid semantic consequence ($\Sigma \models \text{Preserves}(\Lambda, e)$) of the original delegation constraints.
 
-Even if the interpreter executes its instruction-decoding with complete semantic correctness and no memory bugs, it remains incapable of proving that its runtime derivation trajectory preserved the proof obligation delegated to it by the host system. The type system evaluates the interpreter's wrapper; it cannot natively bind the synthesized program's dynamic strategy to the external authority envelope.
+Even if the interpreter executes its instruction-decoding with complete semantic correctness and no memory bugs, it remains incapable of proving that its intermediate operational artifact ($\mathcal{A}$) preserved the proof obligation delegated to it by the host system. The type system evaluates the interpreter's wrapper; it cannot natively bind the generated program's dynamic strategy to the external authority envelope.
 
 This is a **structural absence** which exists because classical Operational Semantics (15) and Program Logics (16) do not model delegated authority propagation.
 
@@ -129,8 +129,8 @@ This is a **structural absence** which exists because classical Operational Sema
 | --- | --- | --- |
 | **P1: Authority Soundness** | **SUCCESS** | Managed by the object-capability process shell. |
 | **P2: Execution Integrity** | **SUCCESS** | Guaranteed by the memory safety invariants of the dependently typed language. |
-| **P3: Semantic Consequence Preservation** | **PARTIAL** | Satisfied for all native compiled code pathways. Failed for nested dynamic runtime interpretations — verified interpreter does not bind the derived program's strategy to the delegation envelope. |
-| **P4: Independent Verifiability** | **FAILED** | A post-facto verifier cannot prove that the generated target parameter was a valid semantic consequence of the original delegation policy without inspecting the interpreter's internal derivation state, which is not preserved as an immutable external witness. |
+| **P3: Semantic Consequence Preservation** | **PARTIAL** | Satisfied for all native compiled code pathways. Failed for nested dynamic runtime interpretations — verified interpreter does not bind the generated plan to the delegation envelope. |
+| **P4: Independent Verifiability** | **FAILED** | A post-facto verifier cannot prove that the generated target parameter was a valid semantic consequence of the original delegation policy without inspecting the interpreter's internal state configurations, which are not preserved as an immutable external witness. |
 
 ### 6. Confidence Verdict
 

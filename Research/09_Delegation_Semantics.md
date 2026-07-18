@@ -20,11 +20,11 @@ Delegation is the process of conveying authority from one execution context to a
 
 ### 1.2 Cryptographic Token Delegation (Macaroons, Biscuit, JWT)
 *   **Mechanism:** Bearer tokens carrying append-only, cryptographically signed caveat structures. Attenuation occurs offline by signing new caveats onto an existing token.
-*   **Decoupling Boundary:** These systems allow rich, logic-grounded constraints (e.g., `time < 12:00`, `prefix == /db`). However, the token validator operates at the ingress interface. Once the token is validated and the request reaches the target interpreter, the token constraints are no longer bound to the interpreter's internal planning or optimization traces. The execution engine assumes it has full access to the authorized scope.
+*   **Decoupling Boundary:** These systems allow rich, logic-grounded constraints (e.g., `time < 12:00`, `prefix == /db`). However, the token validator operates at the ingress interface. Once the token is validated and the request reaches the target interpreter, the token constraints are no longer bound to the interpreter's internal planning or optimization passes. The execution engine assumes it has full access to the authorized scope.
 
 ### 1.3 Authorization Logics & Proof-Carrying Authorization (PCA)
 *   **Mechanism:** Principal assertions expressed as logical predicates. Delegation is represented as deduction chains ($\text{Alice says } \text{delegate}(\text{Bob}, \text{Resource}) \wedge \text{Bob says } \text{request}(\dots)$).
-*   **Decoupling Boundary:** Authorization logics successfully prove that a request was authorized by a principal. Their limitation is that the logic engine only reasons about *statements* and *entitlements*. It cannot track or verify the semantic correctness of the runtime derivation structures (such as JIT-compiled basic blocks or dynamic execution plans) that translated the authorized request into a concrete system payload.
+*   **Decoupling Boundary:** Authorization logics successfully prove that a request was authorized by a principal. Their limitation is that the logic engine only reasons about *statements* and *entitlements*. It cannot track or verify the semantic correctness of the intermediate operational artifacts ($\mathcal{A}$) (such as JIT-compiled basic blocks or dynamic execution plans) that translated the authorized request into a concrete system payload.
 
 ---
 
@@ -46,9 +46,9 @@ They lack the semantic primitives to answer:
                                │
   ┌────────────────────────────▼─────────────────────────────┐
   │ Operational Execution Runtime (Interpreter / Planner)    │
-  │   - Derives execution plan P via non-fixed semantics     │
+  │   - Synthesizes operational artifact (A)                 │
   │   - Executes action e                                    │
   └──────────────────────────────────────────────────────────┘
 ```
 
-Once authority is proved at the gateway boundary, the execution engine runs as a trusted interpreter. Any internal logical drift or adversarial input exploitation in the runtime derivation phase escapes the delegation model's enforcement scope.
+Once authority is proved at the gateway boundary, the execution engine runs as a trusted interpreter. Any internal logical drift or adversarial input exploitation in the runtime planning phase escapes the delegation model's enforcement scope.
