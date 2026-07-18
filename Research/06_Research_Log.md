@@ -94,3 +94,18 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 - Clarified the theoretical bridge between Operational Artifacts ($\mathcal{A}$) derived via execution procedures and their formal roles tracking Observation boundaries, external Effects, and inline Proof Objects.
 
 **Next Step:** We are ready to transition directly to `Research/12_Threat_Model.md`, establishing the adversarial capabilities, trusted computing base boundaries, and observation models under which our upcoming evaluations will take place.
+
+---
+
+## Entry: 2026.07.19 (Part 2) — Threat Model Parameters Locked
+
+**Target:** Document 12 finalized; Proceeding to Document 08 (Evaluation Relations)
+**Status:** Threat model parameters fully mapped. Observation projections and authority models locked.
+
+**Progress:** 
+- Finalized `12_Threat_Model.md`, mapping the rigid separation of Mathematical Semantics, Execution Architecture, and Threat Assumptions.
+- Codified the parameterized TCB tuple $(T_H, T_S, T_C)$.
+- Formalized the observation projection mapping space ($\mathcal{O}_{black}$, $\mathcal{O}_{trace}$, $\mathcal{O}_{art}$, $\mathcal{O}_{white}$).
+- Defined the universal powerset of Attacker Capabilities ($\mathcal{C}$).
+
+**Next Step:** The theoretical baseline is now set. Following our strict dependency chain, we proceed directly to `Research/08_Evaluation_Relations.md` to perform the literature deep dive into how various programming languages, compilers, database systems, and workflow engines formally model computation, planning, and operational artifacts.
