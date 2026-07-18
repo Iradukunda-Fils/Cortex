@@ -147,3 +147,33 @@ We proceed directly to `Research/09_Delegation_Semantics.md` to survey how capab
 - Enforced the Structural Interface Invariant against the derivation/enactment split uncovered in Document 08.
 
 **Next Step:** Following our strict dependency graph, we skip `10_Preservation_Relations.md` for now—as preservation proofs are only coherent once execution assurance and monitoring frameworks are mapped—and proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime verification, trace monitoring, and execution assurance frameworks structurally enforce properties.
+
+---
+
+## Entry: 2026.07.19 (Part 5) — Authority Paradigm Refinement
+
+**Target:** Document 09 finalized; Proceeding to Document 13 (Runtime Assurance)
+**Status:** Authority taxonomies, matrices, and hybrid categories refined. Proceeding via adjusted dependency graph.
+
+**Progress:** 
+- The authority semantics baseline is fully established and locked.
+- Integrated `Effect Systems / Capability Effects` (Question 1).
+- Expanded the Authority Dimension Matrix (Control Invocation, Ownership, IFC, Identity, Lateral Effects).
+- Refined Delegation Soundness umbrella definition to accommodate logic cut-elimination, context monotonicity, and policy containment.
+
+**Next Step:** Following our refined dependency roadmap:
+11. Semantic Objects (Complete)
+     ↓
+12. Threat Model (Complete)
+     ↓
+08. Evaluation Relations (Complete)
+     ↓
+09. Authority Semantics (Complete)
+     ↓
+13. Runtime Assurance <── [NEXT]
+     ↓
+10. Preservation Relations
+     ↓
+07. Correspondence Survey
+
+We proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime verification, trace monitoring, and dynamic assurance frameworks structurally map onto our observer projections ($\mathcal{O}$) and enforce execution invariants.
