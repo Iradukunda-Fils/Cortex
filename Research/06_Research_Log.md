@@ -128,6 +128,22 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
      ↓
 3. Evaluation Relations (Complete)
      ↓
-4. Delegation Semantics <── [NEXT]
+4. Delegation Semantics (Complete)
+     ↓
+5. Runtime Assurance <── [NEXT]
 
 We proceed directly to `Research/09_Delegation_Semantics.md` to survey how capabilities, authorization logics, and resource systems model the propagation, attenuation, and validation of authority constraints across execution landscapes.
+
+---
+
+## Entry: 2026.07.19 (Part 4) — Authority Semantics Baseline Locked
+
+**Target:** Document 09 finalized; Proceeding to Document 13 (Runtime Assurance)
+**Status:** Authority representation, evolution, and validation taxonomies locked. Interface invariant integrated.
+
+**Progress:** 
+- The authority semantics baseline is fully established.
+- Formalized the 6 primary mathematical representations of authority, the 6 structural evolution pathways, and the 3 enforcement validation strategies.
+- Enforced the Structural Interface Invariant against the derivation/enactment split uncovered in Document 08.
+
+**Next Step:** Following our strict dependency graph, we skip `10_Preservation_Relations.md` for now—as preservation proofs are only coherent once execution assurance and monitoring frameworks are mapped—and proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime verification, trace monitoring, and execution assurance frameworks structurally enforce properties.
