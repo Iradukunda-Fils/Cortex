@@ -34,7 +34,7 @@ Where:
 *   $\Sigma \in \text{StateDomain}$ represents the global execution state (e.g., memory heaps, environment variables, database relations, network state).
 *   $\Lambda_t \in \text{AuthDomain}$ denotes the abstract Delegation Context or constraint object at execution time $t$.
 *   $I \in \text{InputStream}$ represents the sequence of incoming external inputs or requests.
-*   $\mathcal{A} \in \text{ArtifactDomain}$ represents the intermediate Operational Artifact (e.g., AST, physical query plan, compiler intermediate representation, optimization trace, or proof term).
+*   Let $\mathcal{A}$ denote an intermediate semantic object produced by a derivation procedure. The concrete mathematical domain inhabited by $\mathcal{A}$ depends entirely on the execution formalism under study (e.g., inductive derivation trees, query plans, proof objects, workflow graphs, or optimization IRs).
 *   $e \in E_{\text{irreversible}}$ denotes the terminal, externally observable, and irreversible effect.
 
 ## 4. Parameterized Trusted Computing Base (TCB)
@@ -73,29 +73,37 @@ To prevent our threat baseline from biasing the research toward a specific autho
 *   **Immutable Authority:** $\Lambda_t = \Lambda_0$. The authority allocation remains completely static over the execution lifetime (e.g., cryptographically signed capability tokens, static role-based policies).
 *   **Stateful Authority:** $\Lambda_t \xrightarrow{\text{step}} \Lambda_{t+1}$. The delegation context changes deterministically based on internal execution milestones (e.g., consumption of resource quotas, temporal lease expirations, inline dynamic privilege attenuation).
 *   **External Authority:** The delegation context mutates non-deterministically relative to the internal execution loop via out-of-band events (e.g., asynchronous administrator revocations, live policy server updates, distributed admission control adjustments).
-*   **Observational Authority:** $\Lambda_t$ is never actively processed or mutated by the execution engine. Instead, authorization is evaluated dynamically as an external structural predicate over state transitions: $\Sigma \models \text{Allowed}(\Lambda_t, e)$.
+*   **Observational Authority:** $\Lambda_t$ is never actively processed or mutated by the execution engine. Instead, authorization is evaluated dynamically as an external structural predicate over state transitions. The global satisfaction relation holds over the complete execution state tuple: 
+    $$(\Sigma, \Lambda_t, e) \models \text{Allowed}$$
 
 ## 7. Attacker Capability Model
 Rather than cataloging ephemeral exploit variants, the adversary is characterized as an element inhabiting a powerset of precise primitives. Let $\mathcal{C}$ define the universal set of attacker capabilities:
 $$\mathcal{C} = \{c_1, c_2, \dots, c_n\}$$
 Individual system configurations select a specific subset of $\mathcal{C}$ to represent their target threat landscape:
 
-*   $c_{\text{input}}$: Ability to inject arbitrary, non-deterministic payloads into the input stream $I$.
+*   $c_{\text{input\_mut}}$: Adversarial manipulation of the semantic inputs fed into the derivation procedure.
 *   $c_{\text{inspect\_trace}}$: Ability to read the fine-grained execution trace $\tau$ (microarchitectural leakage, debugging hooks).
 *   $c_{\text{replay}}$: Ability to duplicate and resubmit historical valid transaction tokens.
 *   $c_{\text{mutate\_user}}$: Ability to modify unprivileged user-space memory segments during active execution.
-*   $c_{\text{compromise\_derive}}$: Ability to fully manipulate the derivation procedure $\xrightarrow{\text{derive}}$, resulting in arbitrary malformed operational artifacts $\mathcal{A}$.
+*   $c_{\text{derive\_impl}}$: Structural compromise of the derivation engine's internal implementation logic.
+*   $c_{\text{arbitrary\_dev}}$: Complete semantic deviation resulting in the injection of arbitrary, un-vetted, or structurally malformed operational artifacts $\mathcal{A}$.
 *   $c_{\text{delay}}$: Ability to introduce arbitrary temporal delays or reorder concurrent messaging structures.
 *   $c_{\text{corrupt\_state}}$: Ability to violently alter execution state parameters $\Sigma$ outside the formal semantics of the target language.
 
-## 8. Explicit Integrity Assumptions
-Every semantic preservation theorem relies on an explicit set of structural invariants. Subsequent surveys will map which of the following integrity parameters are strictly required by each framework:
+## 8. Explicit Integrity Boundaries
+Every semantic preservation theorem relies on an explicit set of structural invariants. Subsequent surveys will map which of the following integrity parameters are strictly required by each framework. This is partitioned into three non-overlapping operational invariant categories:
 
+### 8.1 Semantic Invariants
+*   **Linguistic Type Safety:** The execution context guarantees that terms match their static or dynamic behavioral invariants.
+*   **Evaluation Determinism:** Where determinism is required, it is treated strictly as a highly localized, explicit assumption of the specific framework under evaluation rather than a global structural assumption of this survey.
+*   Subject reduction and semantic termination bounds.
+
+### 8.2 Structural Invariants
 *   **Memory Confinement:** Address spaces are strongly isolated; out-of-bounds pointer manipulation is structurally impossible.
 *   **Capability Unforgeability:** Reference capabilities cannot be manufactured or modified via bitwise manipulation.
-*   **Cryptographic Soundness:** Cryptographic primitives are mathematically resilient against polynomial-time decryption or signature forgery.
-*   **Evaluation Determinism:** Given identical configurations of $\Sigma$, $\Lambda$, and $I$, the execution engine transitions through identical trace pathways.
-*   **Linguistic Type Safety:** The execution context guarantees that terms match their static or dynamic behavioral invariants.
+
+### 8.3 Cryptographic Invariants
+*   **Cryptographic Soundness:** Existential Unforgeability under Chosen Message Attacks (EUF-CMA) for signatures, cryptographic collision resistance, and authenticated communication channels. Cryptographic primitives are mathematically resilient against polynomial-time decryption or signature forgery.
 
 ## 9. Environmental Nondeterminism vs. Adversarial Interference
 This framework strictly partitions non-deterministic execution variance from active adversarial manipulation. Environmental nondeterminism stems from platform characteristics that do not actively seek to invalidate security properties, including:
@@ -104,7 +112,7 @@ This framework strictly partitions non-deterministic execution variance from act
 *   Hardware interrupt timings.
 *   Randomized initialization parameters within randomized verification routines.
 
-This distinction is mathematically vital: many foundational PL preservation results (such as simulation relations and contextual equivalence) are designed to tolerate complex environmental nondeterminism while collapsing completely under deliberate adversarial interference ($c_{\text{compromise\_derive}}$).
+This distinction is mathematically vital: many foundational PL preservation results (such as simulation relations and contextual equivalence) are designed to tolerate complex environmental nondeterminism while collapsing completely under deliberate adversarial interference ($c_{\text{derive\_impl}}$, $c_{\text{arbitrary\_dev}}$).
 
 ## 10. Scope Exclusions
 Unless explicitly introduced by a highly localized system case study, the following execution phenomena remain outside the scope of this formal research program:
@@ -128,10 +136,12 @@ The complete parameterized environment is structurally summarized below:
 | **Out-of-Scope Risks** | Physical, side-channel, and resource exhaustion phenomena |
 
 ## 12. Primary Research Inquiries Enabled by this Model
-With the structural ontology (`11_Semantic_Objects.md`) and the environmental threat baseline (`12_Threat_Model.md`) formally established, the remaining literature surveys are equipped to answer the core analytical questions of this research program:
+With the structural ontology (`11_Semantic_Objects.md`) and the environmental threat baseline (`12_Threat_Model.md`) formally established, the remaining literature surveys are equipped to answer the core analytical questions of this research program via bijective mappings to downstream modules:
 
-*   **Observer Resilience:** Which classic semantic preservation relations remain valid when shifted from a White-box observer projection ($\mathcal{O}_{\text{white}}$) down to an Artifact observer projection ($\mathcal{O}_{\text{art}}$) or Trace observer projection ($\mathcal{O}_{\text{trace}}$)?
-*   **Authority Dynamic Support:** Which existing formal frameworks natively parameterize their preservation proofs over a stateful or externally mutating authority context ($\Lambda_t \xrightarrow{\text{step}} \Lambda_{t+1}$)?
-*   **TCB Decoupling Capacity:** Under what exact software and hardware integrity assumptions can an authority preservation claim be formally checked independently of the primary execution engine?
-*   **Adversarial Collapse Boundaries:** Which specific attacker capability selections within $\mathcal{C}$ mathematically invalidate traditional compiler correctness simulations, and do those boundaries match the requirements of system-level delegated workflows?
-*   **Subsumption Verification:** Does any existing semantic framework directly characterize the preservation of authority-constrained, externally observable effects ($e$) when the intermediate operational artifact ($\mathcal{A}$) is synthesized inside a completely untrusted environment ($c_{\text{compromise\_derive}}$)?
+| Core Analytical Inquiry | Primary Target Destination |
+| --- | --- |
+| **Observer Resilience:** Which classic semantic preservation relations remain valid under restricted observer projections? | `Research/13_Runtime_Assurance.md` |
+| **Authority Dynamic Support:** Which formal frameworks parameterize preservation over mutable authority contexts ($\Lambda_t \to \Lambda_{t+1}$)? | `Research/09_Delegation_Semantics.md` |
+| **TCB Decoupling Capacity:** Under what assumptions can an authority claim be checked independently of the primary execution engine? | `Research/10_Preservation_Relations.md` |
+| **Adversarial Collapse Boundaries:** Which specific attacker capability selections within $\mathcal{C}$ invalidate traditional compiler correctness simulations? | `Research/11_Semantic_Objects.md` |
+| **Subsumption Verification:** Does any existing framework characterize the preservation of authority constraints under this normalized model? | `Research/07_Correspondence_Survey.md` |

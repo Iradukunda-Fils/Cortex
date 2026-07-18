@@ -109,3 +109,25 @@ Cumulative evidence log tracking composition evaluations, discoveries, and strat
 - Defined the universal powerset of Attacker Capabilities ($\mathcal{C}$).
 
 **Next Step:** The theoretical baseline is now set. Following our strict dependency chain, we proceed directly to `Research/08_Evaluation_Relations.md` to perform the literature deep dive into how various programming languages, compilers, database systems, and workflow engines formally model computation, planning, and operational artifacts.
+
+---
+
+## Entry: 2026.07.19 (Part 3) — Evaluation Relations Mapped
+
+**Target:** Document 08 finalized; Proceeding to Document 09 (Delegation Semantics)
+**Status:** Evaluation paradigms and operational interface crosswalk mapped. Decoupling vulnerability defined.
+
+**Progress:** 
+- The evaluation relations are systematically locked.
+- Structured the separation invariant, demonstrating the exact attacker vulnerability ($c_{\text{arbitrary\_dev}}$) that emerges when derivation engines ($\xrightarrow{\text{derive}}$) are decoupled from enforcement runtimes ($\xrightarrow{\text{enact}}$).
+
+**Next Step:** Following our strict structural dependency chain:
+1. Semantic Objects (Complete)
+     ↓
+2. Threat Model (Complete)
+     ↓
+3. Evaluation Relations (Complete)
+     ↓
+4. Delegation Semantics <── [NEXT]
+
+We proceed directly to `Research/09_Delegation_Semantics.md` to survey how capabilities, authorization logics, and resource systems model the propagation, attenuation, and validation of authority constraints across execution landscapes.
