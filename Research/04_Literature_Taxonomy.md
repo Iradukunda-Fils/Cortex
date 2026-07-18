@@ -2,7 +2,7 @@
 **Status:** LOCKED  
 
 ## Purpose
-Map 15 foundational computer science disciplines relevant to the research domain, identifying their theoretical primitives, core guarantees, and boundary limitations.
+Map 17 foundational computer science disciplines relevant to the research domain, identifying their theoretical primitives, core guarantees, and boundary limitations.
 
 ## Dependencies
 *   [03_Terminology.md](03_Terminology.md)
@@ -27,7 +27,9 @@ Map 15 foundational computer science disciplines relevant to the research domain
 | 12 | **Information Flow Control** | Non-Interference, Integrity Boundaries | Decentralized IFC (Myers & Liskov), Asbestos |
 | 13 | **Trusted Computing** | Cryptographic Hardware Isolation | TPM, Intel SGX, AMD SEV, ARM CCA, Attestation |
 | 14 | **Language-Based Security** | Semantic Information Integrity | Non-interference, Robust Declassification, Proof-Carrying Code |
-| 15 | **Formal Program Semantics** | Evaluation Relations, Type Refinements, State Transitions | Plotkin's SOS, Cousot's Abstract Interpretation, Hoare Logic, Monadic Effects |
+| 15 | **Operational Semantics** | What execution formally means | Structural Operational Semantics (SOS), Evaluation Relations (Plotkin, Felleisen) |
+| 16 | **Program Logics** | What properties can be formally proven | Hoare Logic, Separation Logic, Refinement Calculi (Dijkstra) |
+| 17 | **Static Analysis** | What invariants can be soundly inferred | Abstract Interpretation (Cousot), Type-Driven Monadic Effects |
 
 ---
 
@@ -35,7 +37,7 @@ Map 15 foundational computer science disciplines relevant to the research domain
 
 ### 1. Capability Security
 *   **Core Guarantee:** Confinement and ambient authority elimination. An execution context can only interact with resources for which it explicitly holds a capability reference. References cannot be forged.
-*   **Boundary Limitation:** Captures invocation mechanics but does not internally model the causal justification or synthesis trajectory that prompted the invocation.
+*   **Boundary Limitation:** Captures invocation mechanics but does not internally model the causal justification or synthesis trajectory that prompted the invocation. (See RQ-0: $\text{Invoke}(e) \iff \text{token} \in \text{Context}$)
 
 ### 2. Programming Languages (PL)
 *   **Core Guarantee:** Type safety, memory safety, and effect tracking. Linear and affine type systems enforce single-use or scoped-use semantics. Effect systems and ownership models prevent unauthorized resource access at the language level.
@@ -51,15 +53,15 @@ Map 15 foundational computer science disciplines relevant to the research domain
 
 ### 5. Data Provenance
 *   **Core Guarantee:** Abstract graph-based models (W3C PROV-DM) providing a vocabulary for describing entities, activities, and agents involved in data derivation. Platform-independent lineage representation.
-*   **Boundary Limitation:** Descriptive vocabulary only. Does not provide enforcement, interception, or active verification mechanisms. A PROV graph records what it is told; it cannot independently verify the accuracy of its inputs.
+*   **Boundary Limitation:** Descriptive vocabulary only. Does not provide enforcement, interception, or active verification mechanisms. (See RQ-0: $\text{DerivedFrom}(\text{Artifact}_\text{out}, \text{Artifact}_\text{in})$)
 
 ### 6. Whole-System Provenance
-*   **Core Guarantee:** OS-kernel-level interception of all state changes via security module hooks (LSM). Generates append-only directed acyclic graphs tracing every process, file, and socket interaction back to initialization. Captures provenance automatically without application cooperation.
-*   **Boundary Limitation:** Observation granularity is bounded by the kernel system-call interface. User-space application logic (including dynamic evaluation trajectories within interpreters, virtual machines, or agent runtimes) operates as a black box to the kernel interceptor. The provenance graph records that a process invoked a system call with specific parameters, but cannot verify whether those parameters were the authentic output of the application's internal decision synthesis.
+*   **Core Guarantee:** OS-kernel-level interception of all state changes via security module hooks (LSM). Generates append-only directed acyclic graphs tracing every process, file, and socket interaction back to initialization.
+*   **Boundary Limitation:** Observation granularity is bounded by the kernel system-call interface. User-space application logic (including dynamic evaluation trajectories within interpreters or agent runtimes) operates as a black box to the kernel interceptor.
 
 ### 7. Systemic Accountability
 *   **Core Guarantee:** Secure, non-repudiable attribution of network or system actions to identified principals, using tamper-evident logs and distributed fault detection mechanisms.
-*   **Boundary Limitation:** Accountability systems bind actions to identities, not to the causal decision synthesis that generated the action parameters. They answer "who did it" but not "why these specific parameters were an authorized consequence of that delegation."
+*   **Boundary Limitation:** Accountability systems bind actions to identities, not to the causal decision synthesis that generated the action parameters.
 
 ### 8. Distributed Transactions
 *   **Core Guarantee:** Linearizability and fault tolerance. Multi-node state transactions transition atomically and predictably despite arbitrary network partitions.
@@ -71,24 +73,32 @@ Map 15 foundational computer science disciplines relevant to the research domain
 
 ### 10. Formal Methods
 *   **Core Guarantee:** Mathematical modeling of system behavior using process calculi, temporal logics, and state machine specifications. Enables reasoning about concurrency, liveness, and safety properties at design time.
-*   **Boundary Limitation:** Models describe and constrain system behavior at design time. They do not provide runtime enforcement mechanisms or binding of dynamic execution states.
+*   **Boundary Limitation:** Models describe and constrain system behavior at design time. They do not provide runtime enforcement mechanisms or binding of dynamic execution states. (See RQ-0: $\mathcal{M}, s \models \Box\phi$)
 
 ### 11. Formal Verification
 *   **Core Guarantee:** Mathematical proofs of system correctness properties, including freedom from deadlocks, type safety, and functional specification conformance.
-*   **Boundary Limitation:** Verification applies to statically defined system models. Non-deterministic runtime decision synthesis introduces state spaces that may exceed tractable verification boundaries.
+*   **Boundary Limitation:** Verification applies to statically defined system models. Non-deterministic runtime synthesis processes introduce state spaces that may exceed tractable verification boundaries.
 
 ### 12. Information Flow Control
 *   **Core Guarantee:** Enforces that data classified at a given confidentiality or integrity level cannot flow to unauthorized sinks. Prevents covert channel leaks.
-*   **Boundary Limitation:** IFC tracks data flow direction and classification labels but does not model delegation attenuation or the semantic relationship between an authority grant and the parameters of a specific effect.
+*   **Boundary Limitation:** IFC tracks data flow direction and classification labels but does not model delegation attenuation or the semantic relationship between an authority grant and the parameters of a specific effect. (See RQ-0: $(s_1 \approx_L s_2) \implies (\llbracket c \rrbracket s_1 \approx_L \llbracket c \rrbracket s_2)$)
 
 ### 13. Trusted Computing
 *   **Core Guarantee:** Cryptographic hardware-enforced runtime trust. A trusted execution environment can attest that specific code ran in an isolated enclave, producing signed measurements.
 *   **Boundary Limitation:** Hardware attestation proves that code-as-compiled executed within an enclave, but does not structurally bind the dynamic runtime evaluation trajectory to the delegation lineage. If the attested code contains a vulnerability in decision synthesis, the attestation remains valid despite the semantic failure.
 
 ### 14. Language-Based Security
-*   **Core Guarantee:** Enforces semantic information integrity through type-system-level non-interference, robust declassification policies, and proof-carrying code. A secure compiler guarantees that source-level type invariants (information flow properties) are preserved in the compiled output. Execution parameters marked as high-integrity cannot be influenced by untrusted inputs without explicit, auditable declassification.
-*   **Boundary Limitation:** Static type-level guarantees constrain code as written and compiled. They do not extend to dynamically loaded runtime modules, non-deterministic evaluation engines, or logic trajectories synthesized at runtime that were not present at compile time. If the system adapts its execution logic mid-operation (e.g., fetching an external model update or evaluation weight vector), the new module may be type-compliant yet semantically adversarial—producing outputs that respect data flow type annotations but violate the delegation authority's semantic intent.
+*   **Core Guarantee:** Enforces semantic information integrity through type-system-level non-interference, robust declassification policies, and proof-carrying code. (See RQ-0: $\text{CheckProof}(\text{Binary}, \text{SafetyPolicy}) \equiv \text{True}$)
+*   **Boundary Limitation:** Static type-level guarantees constrain code as written and compiled. They do not extend to dynamically loaded runtime modules or logic trajectories synthesized at runtime that were not present at compile time.
 
-### 15. Formal Program Semantics
-*   **Core Guarantee:** Formalizes program execution and property specification via evaluation relations (e.g., Structural Operational Semantics), type refinements, relational logics, and monadic effect systems, proving semantic correctness of execution pathways.
-*   **Boundary Limitation:** Typically restricted to statically verifiable, deterministic, closed-world software systems. Under runtime execution where modules or inputs are non-deterministic, dynamic, or interpreted out-of-band, the verification perimeter cannot verify the semantic correctness of evaluations without dynamic proof carrying or trace monitoring.
+### 15. Operational Semantics
+*   **Core Guarantee:** Provides a rigorous, mathematical account of what it means to execute a program. Structural Operational Semantics (SOS) defines exactly which states a program may transition through for any given input, making execution behavior precisely verifiable.
+*   **Boundary Limitation:** Operational semantics defines the transition relation of a fixed language or program. It cannot natively express the constraint that a runtime synthesis process — where the program being executed is itself generated from inputs — must preserve an externally delegated proof obligation through its evaluation steps.
+
+### 16. Program Logics
+*   **Core Guarantee:** Provides formal tools (Hoare triples, Separation Logic, Refinement Calculi) to prove that a program satisfies a specification expressed as pre- and post-conditions. (See RQ-0: $\{P\} \, c \, \{Q\}$; $S \sqsubseteq C$; $\{P * Q\} \, c \, \{P' * Q\}$)
+*   **Boundary Limitation:** All established program logics require the program statement $c$ to be known and fixed at proof time. When $c$ is itself the output of a runtime synthesis process whose evaluation relation is not fixed before execution, the standard triple $\{P\} \, c \, \{Q\}$ becomes undefined until $c$ is known — at which point the execution has already occurred.
+
+### 17. Static Analysis
+*   **Core Guarantee:** Soundly infers invariants about all possible program executions without running the program. Abstract Interpretation provides a sound over-approximation of program behavior; type-driven effect systems infer resource usage statically.
+*   **Boundary Limitation:** Static analysis operates over a fixed program text or control-flow graph. When the control-flow graph itself is synthesized at runtime (e.g., a query planner constructing its own execution plan), static analysis cannot track invariants through that synthesis boundary without requiring the synthesis be fully pre-enumerable.
