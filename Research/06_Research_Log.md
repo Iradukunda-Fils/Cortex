@@ -170,10 +170,25 @@ We proceed directly to `Research/09_Delegation_Semantics.md` to survey how capab
      ↓
 09. Authority Semantics (Complete)
      ↓
-13. Runtime Assurance <── [NEXT]
+13. Runtime Assurance (Complete)
      ↓
-10. Preservation Relations
+10. Preservation Relations <── [NEXT]
      ↓
 07. Correspondence Survey
 
 We proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime verification, trace monitoring, and dynamic assurance frameworks structurally map onto our observer projections ($\mathcal{O}$) and enforce execution invariants.
+
+---
+
+## Entry: 2026.07.19 (Part 6) — Runtime Assurance Matrices Formed
+
+**Target:** Document 13 finalized; Proceeding to Document 10 (Preservation Relations)
+**Status:** Assurance objects, attachment points, and enforcement matrix locked. Interface theorem integrated.
+
+**Progress:** 
+- The runtime assurance foundation is formally established and locked.
+- Mapped 5 assurance attachment nodes (Input, Derivation, Artifact, Execution, Effect).
+- Formulated the Enforcement Matrix (Preventative, Detective, Corrective, Recovering) linking Security Automata directly to capability derivations.
+- Established Theorem 13.1 (Assurance Interface Bound) connecting the derivation/enactment logic to the global $\models \text{Allowed}$ requirement.
+
+**Next Step:** Following our refined dependency roadmap, we now have all necessary pieces—computational semantics (08), authority representations (09), and execution assurance models (13)—to perform the definitive survey of formal proof structures. We proceed directly to `Research/10_Preservation_Relations.md` to analyze simulation relations, refinement mapping, and hyperproperty preservation proofs across the literature.
