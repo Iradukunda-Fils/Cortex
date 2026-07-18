@@ -191,4 +191,19 @@ We proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime 
 - Formulated the Enforcement Matrix (Preventative, Detective, Corrective, Recovering) linking Security Automata directly to capability derivations.
 - Established Theorem 13.1 (Assurance Interface Bound) connecting the derivation/enactment logic to the global $\models \text{Allowed}$ requirement.
 
-**Next Step:** Following our refined dependency roadmap, we now have all necessary pieces—computational semantics (08), authority representations (09), and execution assurance models (13)—to perform the definitive survey of formal proof structures. We proceed directly to `Research/10_Preservation_Relations.md` to analyze simulation relations, refinement mapping, and hyperproperty preservation proofs across the literature.
+**Next Step:** Following our refined dependency roadmap, we now have all necessary pieces—computational semantics (08), authority representations (09), and execution assurance models (13)—to perform the definitive survey of formal proof structures. We proceed directly to `Research/10_Semantic_Relations.md` to analyze simulation relations, refinement mapping, and hyperproperty preservation proofs across the literature.
+
+---
+
+## Entry: 2026.07.19 (Part 7) — Semantic Relations Mapped
+
+**Target:** Document 10 finalized; Proceeding to Document 07 (Correspondence Survey)
+**Status:** Semantic relations cataloged. Simulation, refinement, and logical systems mapped. The relational gap defined.
+
+**Progress:** 
+- Renamed and finalized `Research/10_Semantic_Relations.md` (formerly Preservation Relations) to reflect the expanded structural scope.
+- Cataloged the six structural families (Equivalence, Simulation, Refinement, Logical, Preservation, Correspondence).
+- Mapped classic properties (Subject Reduction, RHP, Bisimulation) to their corresponding mathematical engines.
+- Formally identified "The Core Relational Disconnect": the absence of relational structures handling untrusted artifacts $\mathcal{A}$ synthesized by compromised derivation interfaces.
+
+**Next Step:** We have arrived at the final stage of our sequential roadmap. Every foundational component is completely mapped and structurally cross-referenced. We proceed directly to `Research/07_Correspondence_Survey.md` to execute the comparative synthesis, evaluate our core hypothesis ($H_{\text{prop}}$), and formally establish where our research contribution fits within the landscape of programming languages and formal methods.
