@@ -2,7 +2,7 @@
 **Status:** Active — Downstream compositions (CC-05+) frozen pending completion of Research Question 0's 5-part semantic survey blueprint.
 
 ## Purpose
-Subject the Null Hypothesis to adversarial testing using the four Safety Properties (P1–P4) and the Evaluation Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 20-discipline taxonomy.
+Subject the Null Hypothesis to adversarial testing using the four Safety Properties (P1–P4) and the Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$) against candidate compositions drawn from the 20-discipline taxonomy.
 
 ## Dependencies
 *   [01_Methodology.md](01_Methodology.md) — LOCKED
@@ -15,7 +15,9 @@ Subject the Null Hypothesis to adversarial testing using the four Safety Propert
 
 ## Evaluation Pipeline
 
-We evaluate how each candidate composition handles the Evaluation Relation mapping inputs ($I$) to intermediate operational artifacts ($\mathcal{A}$) and target actions ($e$) under adversarial conditions:
+We evaluate how each candidate composition handles the Generalized Semantic Transition mapping inputs ($I$) to intermediate Operational Artifacts ($\mathcal{A}$) and target actions ($e$) under adversarial conditions:
+
+$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 ```
                       [ Evaluation Relation (I ⟹ e) ]
@@ -46,20 +48,20 @@ Each composition is audited against the Safety Properties catalog:
 ### 1. The Realized Structural Proof Gap
 
 Under the multi-domain scenario of a Distributed DBMS Query Optimizer:
-1. The optimizer ingests an input stream ($I$), evaluating dynamic relational statistics to generate an intermediate database query execution plan—its operational artifact ($\mathcal{A}$)—targeting an irreversible deletion action ($e$).
+1. The optimizer ingests an input stream ($I$), using its derivation procedure $\xrightarrow{\text{derive}}$ to compile a DB query execution plan—its operational artifact ($\mathcal{A}$)—targeting an irreversible deletion action ($e$).
 2. An adversary executes a user-space memory exploit within the query optimizer's runtime heap after the plan has finished generation but before the capability interface call is dispatched.
 3. The parameter vector is altered to clear a production database space.
 4. The execution process invokes its local capability descriptor. Because the descriptor only evaluates coarse entitlement ("Does this task have permission to touch this storage sector?"), the execution passes.
 5. The kernel provenance subsystem (CamFlow) captures the transaction at the LSM interface.
 
 ```
-[ User-Space Optimizer ] ─── Input (I) ───► Operational Artifact (A) ───► [ Exploited / Mutated Payload ]
+[ User-Space Optimizer ] ── Input (I) ──► Operational Artifact (A) ──► [ Exploited / Mutated Payload ]
                                                                                    │
                                                                                    ▼
-[ OS LSM Boundary ]      ─── (Confinement Check OK) ────────────────────────────► Action (e)
+[ OS LSM Boundary ]      ── (Confinement Check OK) ─────────────────────────────► Action (e)
                                                                                    │
                                                                                    ▼
-[ CamFlow Kernel Hook ]  ─── Captures: Task(X) -> Writes -> Device(Y) ─────────────┘
+[ CamFlow Kernel Hook ]  ── Captures: Task(X) -> Writes -> Device(Y) ──────────────┘
 ```
 
 ### 2. Safety Properties Matrix

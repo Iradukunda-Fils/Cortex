@@ -2,7 +2,7 @@
 **Status:** LOCKED  
 
 ## Purpose
-Document a comprehensive taxonomy of delegation architectures. Isolate the exact boundaries where policy propagation models lose semantic coupling with user-space computational runtimes.
+Document a comprehensive taxonomy of delegation architectures. Isolate the exact boundaries where policy propagation models lose semantic coupling with user-space computational runtimes, moving entirely past coarse authentication or reference systems to treat delegation as a fundamental semantic concept spanning disjoint domains.
 
 ## Dependencies
 *   [02_Domain_Model.md](02_Domain_Model.md)
@@ -10,20 +10,24 @@ Document a comprehensive taxonomy of delegation architectures. Isolate the exact
 
 ---
 
-## 1. Taxonomy of Delegation Architectures
+## 1. Taxonomy of Delegation Domains
 
-Delegation is the process of conveying authority from one execution context to another. We categorize the core mechanisms used in computer systems:
+Delegation is the process of conveying authority from one execution context to another. We categorize the core mechanisms used in computer systems across four fundamental disjoint domains:
 
-### 1.1 Object-Capability (O-Caps) Systems
-*   **Mechanism:** Direct, unforgeable references. An object reference encapsulates both the target identity and the designated privilege. Authority propagates by passing references as arguments in method calls.
-*   **Decoupling Boundary:** O-Caps enforce absolute, fine-grained sandboxing. However, they are *semantic-blind*: a reference to a `FileSystemWrite` capability checks if the caller can write, but cannot verify whether the character payload or targeted path string is a valid logical derivation of a delegated task instruction.
+### 1.1 Capability Architectures
+*   **Mechanism:** Object-Capabilities, Capability Graphs, and reference confinement (e.g., Capsicum, CheriBSD). Direct, unforgeable references encapsulate both the target identity and the designated privilege.
+*   **Decoupling Boundary:** O-Caps enforce absolute, fine-grained sandboxing. However, they are *semantic-blind*: a reference to a write capability checks if the caller can write, but cannot verify if the execution path generating the write payload was a valid logical derivation of a delegated intent.
 
-### 1.2 Cryptographic Token Delegation (Macaroons, Biscuit, JWT)
-*   **Mechanism:** Bearer tokens carrying append-only, cryptographically signed caveat structures. Attenuation occurs offline by signing new caveats onto an existing token.
-*   **Decoupling Boundary:** These systems allow rich, logic-grounded constraints (e.g., `time < 12:00`, `prefix == /db`). However, the token validator operates at the ingress interface. Once the token is validated and the request reaches the target interpreter, the token constraints are no longer bound to the interpreter's internal planning or optimization passes. The execution engine assumes it has full access to the authorized scope.
+### 1.2 Language-Based Capabilities
+*   **Mechanism:** Effect capabilities, algebraic effect handlers, and linear capabilities embedded directly into language type systems.
+*   **Decoupling Boundary:** These guarantee safety for statically known or natively compiled program traces. When the trace must be derived dynamically at runtime (via an Operational Artifact $\mathcal{A}$ interpreted from external payloads), the language-level compiler cannot bridge its static type invariants to the dynamically inferred evaluation behavior.
 
-### 1.3 Authorization Logics & Proof-Carrying Authorization (PCA)
-*   **Mechanism:** Principal assertions expressed as logical predicates. Delegation is represented as deduction chains ($\text{Alice says } \text{delegate}(\text{Bob}, \text{Resource}) \wedge \text{Bob says } \text{request}(\dots)$).
+### 1.3 Resource & Structural Logics
+*   **Mechanism:** Session types, channel delegation, linear ownership transfer, resource algebras, and Iris ghost ownership.
+*   **Decoupling Boundary:** These logics excel at verifying resource non-duplication and operational heap isolation. However, their verification targets internal execution memory constraints, not the external preservation of a cryptographic or upstream identity/authority constraint passed dynamically through untrusted, intermediate operational planners.
+
+### 1.4 Authorization Logics
+*   **Mechanism:** Principal deductive systems (e.g., Abadi-Burrows-Lampson, Binder, SecPAL, DKAL, Proof-Carrying Authorization). Delegation is represented as deduction chains ($\text{Alice says } \text{delegate}(\text{Bob}, \text{Resource})$).
 *   **Decoupling Boundary:** Authorization logics successfully prove that a request was authorized by a principal. Their limitation is that the logic engine only reasons about *statements* and *entitlements*. It cannot track or verify the semantic correctness of the intermediate operational artifacts ($\mathcal{A}$) (such as JIT-compiled basic blocks or dynamic execution plans) that translated the authorized request into a concrete system payload.
 
 ---
@@ -36,9 +40,9 @@ This analysis reveals that delegation architectures are designed to answer:
 They lack the semantic primitives to answer:
 > *"Were these arguments generated by an evaluation process that faithfully preserved the proof obligation nested inside the delegation context $\Lambda$?"*
 
-```
+```text
   ┌──────────────────────────────────────────────────────────┐
-  │ Delegation Boundary (Token / O-Cap Check)               │
+  │ Delegation Boundary (Token / Logic Check / O-Cap)        │
   │   - Proves entrypoint eligibility                        │
   └────────────────────────────┬─────────────────────────────┘
                                │
@@ -51,4 +55,4 @@ They lack the semantic primitives to answer:
   └──────────────────────────────────────────────────────────┘
 ```
 
-Once authority is proved at the gateway boundary, the execution engine runs as a trusted interpreter. Any internal logical drift or adversarial input exploitation in the runtime planning phase escapes the delegation model's enforcement scope.
+Once authority is proved at the gateway boundary, the execution engine runs as a trusted interpreter. Any internal logical drift or adversarial input exploitation in the operational artifact derivation phase escapes the delegation model's enforcement scope.

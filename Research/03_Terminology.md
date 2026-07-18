@@ -43,7 +43,7 @@ Ground core domain concepts in reproducible, abstract computer science primitive
 *   **Rejected Synonyms:** Input log, Evidence record.
 
 ### Operational Artifact ($\mathcal{A}$)
-*   **Definition:** The intermediate structural representation generated dynamically by a system's internal decision procedure, planning engine, or interpreter wrapper.
+*   **Definition:** Anything produced by an execution procedure that is subsequently interpreted to determine externally observable behavior.
 *   **Subclasses:**
     *   **Evaluation Derivation**: AST to value mappings in operational semantics.
     *   **Query Plan**: Relational operators tree in DB query systems.
@@ -51,7 +51,16 @@ Ground core domain concepts in reproducible, abstract computer science primitive
     *   **Scheduling Plan**: Resource and host allocations in schedulers.
     *   **Proof Object**: Typed $\lambda$-calculus term or logical proof witness.
     *   **Execution Graph**: Transition system state graph.
+    *   **Optimization Trace**: Compiler optimization records.
 *   **Rejected Synonyms:** Runtime Synthesis, Runtime Derivation, Synthesis Trajectory.
+
+### Derivation Procedure ($\xrightarrow{\text{derive}}$)
+*   **Definition:** An abstract computational procedure (such as evaluation, interpretation, planning, scheduling, compilation, optimization, or elaboration) that maps inputs and a delegation context to an intermediate operational artifact ($\mathcal{A}$).
+*   **Rejected Synonyms:** Compilation pass, Translation pass.
+
+### Enforcement Procedure ($\xrightarrow{\text{enact}}$)
+*   **Definition:** An abstract machine execution phase (such as execution, interpretation, scheduling, optimization, dispatching, or hardware pipelining) that consumes an operational artifact ($\mathcal{A}$) to yield a terminal effect ($e$).
+*   **Rejected Synonyms:** Execution pass, Dispatcher loop.
 
 ### Decision Node ($\Delta$)
 *   **Definition:** A structurally bounded execution state tuple representing a complete execution decision event: $\Delta = \langle e, \Lambda, \mathcal{A}, \mathcal{W} \rangle$.

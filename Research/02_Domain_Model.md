@@ -51,22 +51,26 @@ To prevent reviewers from assuming a fixed execution pathway, we catalog the fou
 
 ---
 
-## 3. Formal Operational Semantics of the Execution Space
+## 3. Generalized Semantic Transition System
 
-We model the runtime execution process using the formal language of Structural Operational Semantics (SOS), incorporating the abstract **Operational Artifact ($\mathcal{A}$)** as the unifying intermediate representation:
+We weaken the definition of **Operational Artifact ($\mathcal{A}$)** to keep it strictly abstract and reusable:
+> **Operational Artifact ($\mathcal{A}$):** Anything produced by an execution procedure that is subsequently interpreted to determine externally observable behavior.
 
-$$\frac{\Sigma; \Lambda \vdash I \Downarrow \mathcal{A} \quad \quad \Sigma \vdash \text{enact}(\mathcal{A}) \Downarrow e}{\Sigma; \Lambda \vdash I \longrightarrow e}$$
+To prevent reviewers from claiming our execution model conflates system specifications with concrete engine mechanics, we decouple the translation and execution phases using fully generalized operational procedures.
+
+### The Generalized Semantic Transition Rule
+
+$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 Where:
 *   $\mathbf{\Sigma}$ represents the global environmental state.
 *   $\mathbf{\Lambda}$ represents the abstract **Delegation Context**: A semantic object whose interpretation constrains the admissible externally observable effects of an execution.
-*   $\mathbf{I}$ is the non-deterministic input stream.
-*   $\mathbf{\mathcal{A}}$ is the intermediate **Operational Artifact** generated dynamically by the system's internal decision procedure, planning engine, or interpreter wrapper.
-*   $\mathbf{e}$ is the terminal **Target Action Tuple** ($\langle \text{op}, \text{args} \rangle \in E_{\text{irreversible}}$).
+*   $\mathbf{I}$ is the incoming input stream.
+*   $\mathbf{\mathcal{A}}$ is the generalized **Operational Artifact** (e.g., Evaluation Derivation, Query Plan, Workflow Plan, Scheduling Plan, Proof Object, Optimization Trace, or Execution Graph).
+*   $\mathbf{\xrightarrow{\text{derive}}}$ represents an abstract **Derivation Procedure** (such as evaluation, interpretation, planning, scheduling, compilation, optimization, or elaboration).
+*   $\mathbf{\xrightarrow{\text{enact}}}$ represents an abstract **Enforcement Procedure** (such as execution, interpretation, scheduling, optimization, dispatching, or hardware pipelining) whose execution yields the terminal effect $e$.
 
 ### The Operational Artifact Hierarchy
-
-To bridge multiple computer science disciplines under a single formal representation without conflating their underlying mathematical structures, the Operational Artifact ($\mathcal{A}$) acts as a unifying abstract class:
 
 ```
                             [ Operational Artifact (A) ]
@@ -108,4 +112,8 @@ Every candidate composition must be rigidly cross-examined against four orthogon
 | **P3** | **Semantic Consequence Preservation** | Every externally observable, irreversible effect must be demonstrably and traceably derivable from the active delegation constraints under the evaluation semantics: $\Sigma \models \text{Preserves}(\Lambda, e)$ | **No known complete solution** |
 | **P4** | **Independent Verifiability (Rectified)** | An external, post-facto verifier must be capable of establishing the validity of P3 without trusting the execution runtime beyond the boundaries of an explicitly declared **Trusted Computing Base (TCB)**. | **No known complete solution** |
 
-> **Satisfaction Relation ($\Sigma \models \text{Preserves}(\Lambda, e)$):** The environment $\Sigma$ guarantees that the terminal target action $e$ sits strictly within the semantic envelope authorized by the delegated context $\Lambda$, regardless of the intermediate operational artifact ($\mathcal{A}$) produced during execution.
+### Mathematical Identity of the Target Predicate
+
+$$\Sigma \models \text{Preserves}(\Lambda, e)$$
+
+> **Mathematical Identity:** The core object $\text{Preserves}(\Lambda, e)$ is a **Relational Hyperproperty over Traces**. It establishes a semantic satisfaction relation ($\models$) stating that the set of all possible terminal execution paths resulting in an effect $e$ must fit inside a relational envelope parameterized by the initial delegation context $\Lambda$. It cannot be simplified to a traditional relational property or unary safety invariant because it quantifies over the alignment between an authorization domain and a dynamic operational trace.
