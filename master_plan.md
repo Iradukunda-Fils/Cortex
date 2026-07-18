@@ -77,7 +77,7 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 *   **Status:** LOCKED.
 
 #### 2. Domain Model (`Research/02_Domain_Model.md`)
-*   **Purpose:** Define system boundaries, the Medical ICU baseline, multi-system adversarial scenarios, the Safety Properties Catalog (SP-01..SP-06), and the formal semantic domain model ($\Delta$, $\Lambda$, $\mathcal{T}$, $\mathcal{W}$).
+*   **Purpose:** Define system boundaries, the Medical ICU baseline, multi-system adversarial scenarios, the Safety Properties Catalog (P1–P4), and the Evaluation Relation (I→T→e) model.
 *   **Dependencies:** `01_Methodology.md`
 *   **Status:** LOCKED.
 
@@ -92,7 +92,7 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 *   **Status:** LOCKED.
 
 #### 5. Composition Analysis (`Research/05_Composition_Analysis.md`)
-*   **Purpose:** Subject the Null Hypothesis to adversarial testing using the Safety Properties Catalog and Decision Synthesis Node framework against candidate compositions drawn from the 15-discipline taxonomy.
+*   **Purpose:** Subject the Null Hypothesis to adversarial testing using the Safety Properties Catalog (P1–P4) and Evaluation Relation (I→T→e) framework against candidate compositions drawn from the 15-discipline taxonomy.
 *   **Dependencies:** `01_Methodology.md`, `02_Domain_Model.md`, `03_Terminology.md`, `04_Literature_Taxonomy.md`
 *   **Status:** Active.
 
@@ -302,7 +302,7 @@ Each requirement block in `SP-XXX` must append a traceability footnote:
 ## 10. Terminology Strategy
 
 ### 10.1 Glossary Ownership
-`glossary.md` is owned by the TSC. No document may define a term that is not listed in `glossary.md`.
+`Research/03_Terminology.md` is owned by the TSC. No document may define a term that is not listed in `Research/03_Terminology.md`.
 
 ### 10.2 Naming Protocol
 *   Terms must use **CamelCase** or **ScreamingSnake** when referring to protocol variables/states, and standard lowercase in text.
@@ -381,7 +381,7 @@ Every technical document must conclude with a "Reviewer Questions" section conta
 The progression of Cortex documentation is structured into the following sequential milestones:
 
 *   **Milestone A: Constitutional Agreement**
-    *   *Deliverables:* `master_plan.md`, `glossary.md`, `GV-001`, `GV-002`.
+    *   *Deliverables:* `master_plan.md`, `Research/03_Terminology.md`, `GV-001`, `GV-002`.
     *   *Exit Gate:* Complete validation framework approval by TSC.
 *   **Milestone B: Security Core Foundations (Research)**
     *   *Deliverables:* Mathematical formulations of capability and irreversibility bounds (`RS-001`, `RS-002`).
