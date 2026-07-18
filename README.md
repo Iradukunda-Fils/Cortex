@@ -12,7 +12,7 @@ If the adversarial analysis reveals that a composition of existing CS frameworks
 
 ## 🏛️ Repository Architecture
 
-To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured twelve-file sequential research pipeline under `Research/`:
+To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured thirteen-file sequential research pipeline under `Research/`:
 
 ```text
 Research/
@@ -22,12 +22,13 @@ Research/
 ├── 04_Literature_Taxonomy.md <-- The 21 intersecting computer science disciplines (LOCKED)
 ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (ACTIVE - CC-05+ FROZEN)
 ├── 06_Research_Log.md        <-- Cumulative evidence registry (ACTIVE)
-├── 07_Correspondence_Survey.md <-- Baseline semantic correspondence survey (LOCKED)
-├── 08_Evaluation_Relations.md   <-- Disambiguation of computation and planning models (LOCKED)
-├── 09_Delegation_Semantics.md   <-- Authority boundaries (LOCKED)
-├── 10_Preservation_Relations.md <-- Taxonomy of CS preservation theorems (LOCKED)
-├── 11_Semantic_Objects.md       <-- Mapped mathematical categories of objects (LOCKED)
-└── 12_Threat_Model.md           <-- Core structural assumptions & attacker bounds (LOCKED)
+├── 07_Correspondence_Survey.md <-- What relations exist; Admissibility mapping (LOCKED)
+├── 08_Evaluation_Relations.md   <-- How procedures and operational artifacts are modeled (LOCKED)
+├── 09_Delegation_Semantics.md   <-- How authority behaves during derivation/enactment (LOCKED)
+├── 10_Preservation_Relations.md <-- Taxonomy of theorems, simulations, and logical relations (LOCKED)
+├── 11_Semantic_Objects.md       <-- Mapping mathematical domains to primary objects (LOCKED)
+├── 12_Threat_Model.md           <-- Normalizing adversarial and observation models (LOCKED)
+└── 13_Runtime_Assurance.md      <-- Trace monitoring, compliance, and enforcement metrics (LOCKED)
 ```
 
 ---
@@ -36,7 +37,7 @@ Research/
 
 Every composition is evaluated against four orthogonal, non-overlapping safety properties under the **Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$)** mapping input streams ($I$) to terminal target actions ($e$) through intermediate **Operational Artifacts ($\mathcal{A}$)**:
 
-$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
+$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \mathcal{A} \in \text{Adm}(\Lambda) \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 *   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
 *   **P2 — Execution Integrity:** The byte-level parameter state of an executed action must remain structurally unaltered between the generation boundary and the interface enforcement perimeters under the stated threat model. *(Environmental Assumption)*
@@ -74,7 +75,7 @@ The program maps system interactions across 21 distinct computer science areas:
 
 ## 📊 Evaluation Status Matrix
 
-Due to findings in CC-01 and CC-04, all downstream composition checks are frozen while Research Question 0's 5-part semantic survey blueprint (07–12) is completed.
+Due to findings in CC-01 and CC-04, all downstream composition checks are frozen while Research Question 0's core mapping (Surveys 07–13) is completed.
 
 | ID | Composition Structure | P1 | P2 | P3 | P4 | Verdict / Current Status |
 | --- | --- | :---: | :---: | :---: | :---: | :---: |
@@ -89,5 +90,5 @@ Due to findings in CC-01 and CC-04, all downstream composition checks are frozen
 
 ## 🛠️ Repository Administration & Rules
 
-1. **LOCKED State:** Foundational survey and model documents are frozen once complete to maintain strict control over confirmation bias.
+1. **LOCKED State:** Foundational survey and model documents are frozen once complete to maintain strict control over confirmation bias. The repository is actively engaged in empirical survey generation.
 2. **No Marketing Syntax:** Language must remain strictly technical, quantitative, and neutral.

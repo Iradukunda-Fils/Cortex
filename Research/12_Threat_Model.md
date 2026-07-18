@@ -29,11 +29,19 @@ Profile of the adversary operating against the execution mechanics, normalized f
 *   **Supply-Chain & Algorithmic Compromise:** The adversary can load maliciously crafted planning logic or manipulate heuristic generation inside the compilation/evaluation pass.
 *   **Adversarial Payload Injection:** The adversary can supply arbitrarily complex, untrusted payloads in the input stream ($I$) designed to exploit combinatorial logic gaps in the derivation procedure.
 
-## 3. Observation Capabilities & Information Leakage
-The limits placed on the adversary with respect to observing states and artifacts:
+---
 
-*   **Observable Output Streams:** The attacker can freely observe terminal irreversible effects ($e$) as they propagate across external boundaries.
-*   **Artifact Manipulation:** The attacker has local read-and-mutate access to intermediate Operational Artifacts ($\mathcal{A}$) and sequence traces ($\tau$) that exist during the latency window between logical derivation and structural enactment.
+## 3. Parameterizing the Observation Model
+A core analytical insight of this research program is that existing frameworks diverge fundamentally based on their assumed visibility primitives. We formalize the Observation Model across distinct levels of adversarial visibility:
+
+| Observer Type | Formal Scope of Adversarial Visibility | Typical Architectural Paradigm |
+| --- | --- | --- |
+| **Weak Observer** | Sees exclusively terminal irreversible effects ($e$). | Standard Black-box Reference Monitors |
+| **Trace Observer** | Sees the sequence of machine state execution traces ($\tau$). | Secure Compilation / Non-Interference |
+| **Artifact Observer** | Sees the intermediate operational artifact ($\mathcal{A}$) but not the runtime trace. | Query Optimization / Static Compilers |
+| **Full Semantic Observer** | Assumes visibility over the complete execution tuple: $\langle I, \Lambda, \Sigma, \mathcal{A}, \tau, e \rangle$. | White-box Testing / In-Enclave Debugging |
+
+---
 
 ## 4. System & Hardware Invariants
 Foundational architectural assumptions inherently relied upon to halt infinite regress:

@@ -56,3 +56,28 @@ They lack the semantic primitives to answer:
 ```
 
 Once authority is proved at the gateway boundary, the execution engine runs as a trusted interpreter. Any internal logical drift or adversarial input exploitation in the operational artifact derivation phase escapes the delegation model's enforcement scope.
+
+---
+
+## 3. Delegation Semantics Models (Enactment Behavior)
+
+To keep our generalized transition rule agnostic of specific authorization philosophies, we catalog the exact semantic mechanics of $\Lambda$ during the enactment phase into three rigorous operational models:
+
+```text
+Delegation Semantics Models (Enactment Behavior)
+├── Model 1: Immutable Delegation (Read-only environmental parameter)
+├── Model 2: Stateful Delegation (Dynamic transition: Λ_t ──► Λ_{t+1})
+└── Model 3: Observational Delegation (Post-facto reference monitoring predicate)
+```
+
+### Model 1 — Static Delegation Environment
+$\Lambda$ acts as an immutable, read-only environment parameter (e.g., cryptographic capability tokens, signed static policy objects). The enactment procedure merely inspects or asserts alignment against this fixed boundary:
+$$\Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e$$
+
+### Model 2 — Stateful Delegation Evolution
+$\Lambda_t$ behaves as a mutable state vector that evolves dynamically over the course of execution (e.g., inline capability attenuation, resource quotas, lease expirations). The state transition maps both environmental changes and authority state transformations:
+$$\Sigma; \Lambda_t \vdash \mathcal{A}_t \xrightarrow{\text{enact}} e_t, \Lambda_{t+1}$$
+
+### Model 3 — Observational Authority Predicate
+$\Lambda$ is not directly parsed as an input variable by the execution engine. Instead, a distinct structural reference monitor asserts a satisfaction relation directly over the emitted effect:
+$$\Sigma \models \text{Allowed}(\Lambda, e)$$
