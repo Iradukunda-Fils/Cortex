@@ -207,3 +207,31 @@ We proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime 
 - Formally identified "The Core Relational Disconnect": the absence of relational structures handling untrusted artifacts $\mathcal{A}$ synthesized by compromised derivation interfaces.
 
 **Next Step:** We have arrived at the final stage of our sequential roadmap. Every foundational component is completely mapped and structurally cross-referenced. We proceed directly to `Research/07_Correspondence_Survey.md` to execute the comparative synthesis, evaluate our core hypothesis ($H_{\text{prop}}$), and formally establish where our research contribution fits within the landscape of programming languages and formal methods.
+
+---
+
+## Entry: 2026.07.19 (Part 8) — Correspondence Survey Finalized
+
+**Target:** Document 07 finalized; Comprehensive Survey Closed.
+**Status:** Verification framework complete. $H_{\text{prop}}$ formal boundaries established.
+
+**Progress:** 
+- Finalized `Research/07_Correspondence_Survey.md` as the definitive comparative synthesis.
+- Downgraded Theorem 13.1 in `13_Runtime_Assurance.md` to **Principle 13.1 (Execution Assurance Bound)** to preserve formal neutrality.
+- Evaluated $R_{\text{target}}$ against all seven surveyed framework families via the 4-criterion Falsification Protocol (Subsumption, Reduction, Threat-Model, Observer-Projection).
+- Tested three explicit reduction pathways: Simulation, Logical Relations, Hyperproperties.
+- Formally distinguished **Failure of Applicability** from **Failure of Expressiveness** to prevent mischaracterization under peer review.
+- Arrived at the definitive classification: **Specialized Frame Relation** — composing Step-Indexed Kripke Logical Relations with Trace Safety Refinement.
+
+**Final Dependency Chain (Complete):**
+```
+11. Semantic Objects       ── LOCKED
+12. Threat Model           ── LOCKED
+08. Evaluation Relations   ── LOCKED
+09. Authority Semantics    ── LOCKED
+13. Runtime Assurance      ── LOCKED
+10. Semantic Relations     ── LOCKED
+07. Correspondence Survey  ── LOCKED
+```
+
+**Conclusion:** The 7-part literature survey blueprint is complete. All foundational modules are locked and cross-referenced. The working hypothesis $H_{\text{prop}}$ has been formally evaluated and classified as a **Specialized Frame Relation** within the existing formal methods landscape.

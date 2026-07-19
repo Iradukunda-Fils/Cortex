@@ -106,7 +106,7 @@ A critical challenge in cross-disciplinary systems research is tracking what typ
 *   **Runtime Verification Frameworks:** Preserve Trace Prefixes and updated automata states ($m$) to track temporal safety across discontinuous operations.
 
 ## 8. The Runtime Assurance Strategy Matrix
-To enable downstream mapping in `10_Preservation_Relations.md` and `07_Correspondence_Survey.md`, we synthesize the surveyed assurance models into a uniform evaluation matrix:
+To enable downstream mapping in `10_Semantic_Relations.md` and `07_Correspondence_Survey.md`, we synthesize the surveyed assurance models into a uniform evaluation matrix:
 
 | Assurance Framework | Evidence Consumed | Verification Point | Produces New Evidence | Alters Live Execution |
 | --- | --- | --- | --- | --- |
@@ -118,10 +118,10 @@ To enable downstream mapping in `10_Preservation_Relations.md` and `07_Correspon
 | **Data Provenance Systems** | Execution Effects ($e$) | Post-Enactment (Forensics) | Yes (Lineage Graph) | No |
 | **Shield Synthesis Models** | LTL Specification | Reactive Runtime Interception | No | Yes (Corrects Actions) |
 
-## 9. Structural Interface Theorem
+## 9. Execution Assurance Principle
 By incorporating the insights from `08_Evaluation_Relations.md` and `09_Authority_Semantics.md`, we formalize the boundary condition mapping execution assurance to our global transition design:
 
-> **Theorem 13.1 (Assurance Interface Bound):**
+> **Principle 13.1 (Execution Assurance Bound):**
 > Every execution assurance framework establishes a formal relation $\mathcal{R}_{\text{assurance}}(\mathcal{A}, \tau, e)$ between an operational artifact $\mathcal{A}$, an execution trace $\tau$, and the resulting terminal effects $e$.
 > 
 > The primary distinction between assurance paradigms is not whether they validate computation, but where in the execution dataflow this validation occurs and what evidence is consumed or produced. If an adversary possesses the capability $c_{\text{arbitrary\_dev}}$ to substitute an unverified operational artifact $\mathcal{A}^*$ directly at the enactment boundary, any security or authority properties established solely during the derivation phase ($\xrightarrow{\text{derive}}$) collapse unless an active Execution Assurance or Artifact Assurance mechanism satisfies:
@@ -132,5 +132,5 @@ By incorporating the insights from `08_Evaluation_Relations.md` and `09_Authorit
 The structural classifications established in this survey enable three explicit analytical vectors for the remaining research blocks:
 
 *   **Assurance Target Analysis:** Which surveyed assurance mechanisms validate purely semantic correctness (e.g., Translation Validation), which validate exclusively authority correctness (e.g., Reference Monitors), and which validate only observational trace compliance (e.g., LTL Runtime Verification)? (Evaluated in `Research/07_Correspondence_Survey.md`)
-*   **Monitor TCB Footprint:** Under what configurations of the parameterized TCB ($T_H, T_S, T_C$) can an inline execution monitor guarantee safety when running an operational artifact $\mathcal{A}$ synthesized entirely by a compromised derivation engine ($c_{\text{derive\_impl}}$)? (Evaluated in `Research/10_Preservation_Relations.md`)
-*   **Hyperproperty Enforcement Boundaries:** Which temporal logic monitoring architectures are mathematically capable of enforcing relational hyperproperties (e.g., non-interference) over non-deterministic distributed traces without introducing global synchronization blocks? (Evaluated in `Research/10_Preservation_Relations.md`)
+*   **Monitor TCB Footprint:** Under what configurations of the parameterized TCB ($T_H, T_S, T_C$) can an inline execution monitor guarantee safety when running an operational artifact $\mathcal{A}$ synthesized entirely by a compromised derivation engine ($c_{\text{derive\_impl}}$)? (Evaluated in `Research/10_Semantic_Relations.md`)
+*   **Hyperproperty Enforcement Boundaries:** Which temporal logic monitoring architectures are mathematically capable of enforcing relational hyperproperties (e.g., non-interference) over non-deterministic distributed traces without introducing global synchronization blocks? (Evaluated in `Research/10_Semantic_Relations.md`)
