@@ -290,4 +290,20 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Proceed to model setup and falsification testing in `Research/FC_04_Adversarial_Falsification.md`.
 
+---
+
+## Entry: 2026.07.19 (Part 12) — Falsification Vector and Enforcement Constraints Mapped
+
+**Target:** FC_04 (Adversarial Falsification & Complete Mediation) instantiated.
+**Status:** Stress-testing of the composed relation closed.
+
+**Progress:**
+- Created `Research/FC_04_Adversarial_Falsification.md` formalizing the **Monitored Transition Monotonicity** assumption required for mediation compliance.
+- Outlined the design of the Capability-Escalation Artifact ($\mathcal{A}^*$) with surface capability invocations and inline forged write execution steps.
+- Formulated the Case A (Monitored bypass failure) and Case B (Trapped fault boundaries) stress tests.
+- Extracted the **Complete Mediation Criterion** defining the sufficient mechanical runtime requirements for the enactment engine.
+
+**Next Step:** Review the complete model repository and establish formal execution semantics.
+
+
 
