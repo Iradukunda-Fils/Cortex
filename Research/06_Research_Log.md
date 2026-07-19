@@ -262,3 +262,17 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 4. **Stress-Testing via Adversarial Falsification**
    Before attempting a full preservation proof, intentionally construct adversarial artifacts $\mathcal{A}^*$ designed to break the relation. If a mutated artifact passes the relational premises but triggers an unallowed effect $e \notin \text{Allowed}$, use that failure witness to immediately tighten the boundary conditions of the monitor model.
+
+---
+
+## Entry: 2026.07.19 (Part 10) — Formal Construction Phase Initiated
+
+**Target:** FC_01 (Authority Preorder) and FC_02 (Logical Relation) instantiated.
+**Status:** Transitioned from blueprint to constructive model design.
+
+**Progress:**
+- Created `Research/FC_01_Authority_Preorder.md` to define the mathematical structure of the dynamic Kripke authority preorder and its world-compatibility transitions ($w \sqsubseteq w'$).
+- Created `Research/FC_02_Logical_Relation.md` defining step-indexed logical value/computation relations ($\mathcal{V}_w\llbracket \tau \rrbracket$, $\mathcal{E}_w\llbracket T \, ! \, \epsilon \rrbracket$) and capability invocations under the $c_{\text{arbitrary\_dev}}$ threat model.
+
+**Next Step:** Proceed to define the composed relation $R_{\text{target}}(\Lambda_t, \mathcal{A}, \tau, e)$ in `Research/FC_03_Composed_Relation.md` and state the Core Preservation Theorem.
+
