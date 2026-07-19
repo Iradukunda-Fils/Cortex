@@ -276,3 +276,18 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Proceed to define the composed relation $R_{\text{target}}(\Lambda_t, \mathcal{A}, \tau, e)$ in `Research/FC_03_Composed_Relation.md` and state the Core Preservation Theorem.
 
+---
+
+## Entry: 2026.07.19 (Part 11) — Composed Relation Structured & Monotonicity Proven
+
+**Target:** FC_03 (Composed Relation & Monotonicity Proof) instantiated.
+**Status:** Unified relational judgment established and fundamental lemma proven.
+
+**Progress:**
+- Created `Research/FC_03_Composed_Relation.md` defining the composed target relation $R_{\text{target}}$ that integrates step-indexed execution, monitor states, trace safety, and terminal effects.
+- Conducted the full inductive proof of the **World Monotonicity Lemma**, confirming the stability of relational constraints under dynamic world refinements ($w' \sqsubseteq w$).
+- Established the formal structural architecture for adversarial testing of malformed artifacts ($\mathcal{A}^*$).
+
+**Next Step:** Proceed to model setup and falsification testing in `Research/FC_04_Adversarial_Falsification.md`.
+
+
