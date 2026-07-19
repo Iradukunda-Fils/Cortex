@@ -12,7 +12,7 @@ If the adversarial analysis reveals that a composition of existing CS frameworks
 
 ## 🏛️ Repository Architecture
 
-To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured thirteen-file sequential research pipeline under `Research/`:
+To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured research pipeline under `Research/`:
 
 ```text
 Research/
@@ -20,15 +20,24 @@ Research/
 ├── 02_Domain_Model.md        <-- Boundaries, mutability, and Safety Properties (LOCKED)
 ├── 03_Terminology.md         <-- Formal glossary grounded in CS primitives (LOCKED)
 ├── 04_Literature_Taxonomy.md <-- The 21 intersecting computer science disciplines (LOCKED)
-├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (ACTIVE - CC-05+ FROZEN)
+├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (LOCKED)
 ├── 06_Research_Log.md        <-- Cumulative evidence registry (ACTIVE)
 ├── 07_Correspondence_Survey.md <-- What relations exist; Admissibility mapping (LOCKED)
 ├── 08_Evaluation_Relations.md   <-- How procedures and operational artifacts are modeled (LOCKED)
-├── 09_Delegation_Semantics.md   <-- How authority behaves during derivation/enactment (LOCKED)
-├── 10_Preservation_Relations.md <-- Taxonomy of theorems, simulations, and logical relations (LOCKED)
+├── 09_Authority_Semantics.md    <-- How authority behaves during derivation/enactment (LOCKED)
+├── 10_Semantic_Relations.md     <-- Taxonomy of theorems, simulations, and logical relations (LOCKED)
 ├── 11_Semantic_Objects.md       <-- Mapping mathematical domains to primary objects (LOCKED)
 ├── 12_Threat_Model.md           <-- Normalizing adversarial and observation models (LOCKED)
-└── 13_Runtime_Assurance.md      <-- Trace monitoring, compliance, and enforcement metrics (LOCKED)
+├── 13_Runtime_Assurance.md      <-- Trace monitoring, compliance, and enforcement metrics (LOCKED)
+├── FC_01_Authority_Preorder.md  <-- Preorder algebra and Kripke access relations (LOCKED)
+├── FC_02_Logical_Relation.md    <-- Step-indexed value and computation predicates (LOCKED)
+├── FC_03_Composed_Relation.md   <-- Inductive target relation & Monotonicity Proof (LOCKED)
+├── FC_04_Adversarial_Falsification.md <-- Test harness, artifact design, mediation bounds (LOCKED)
+├── FC_05_Conditional_Soundness.md   <-- State-mediator bounds, conditional soundness, provenance (LOCKED)
+├── FC_06_Asynchronous_Attenuation.md <-- Epoch-indexed worlds, spatiotemporal preorders, cache mitigations (LOCKED)
+├── FC_07_Fundamental_Theorem.md    <-- Semantic substitutions, FTLR induction, Completeness Matrix (LOCKED)
+├── FC_08_Unified_Soundness.md     <-- Admission bounds, Theorem 3, POPL/CSF publication schemas (LOCKED)
+└── FC_09_Mechanization_Roadmap.md  <-- Iris camera allocations, global invariants, Coq/Lean proof strategy (LOCKED)
 ```
 
 ---
@@ -75,14 +84,15 @@ The program maps system interactions across 21 distinct computer science areas:
 
 ## 📊 Evaluation Status Matrix
 
-Due to findings in CC-01 and CC-04, all downstream composition checks are frozen while Research Question 0's core mapping (Surveys 07–13) is completed.
+Evaluating candidate compositions over safety properties P1–P4 led to the lock phase, which confirmed the need for a unified spatiotemporal semantic layer incorporating versioned epochs and step-indexing. This has been formalized as the **Cortex Spatiotemporal Mechanics** (FC_01–FC_09):
 
 | ID | Composition Structure | P1 | P2 | P3 | P4 | Verdict / Current Status |
 | --- | --- | :---: | :---: | :---: | :---: | :---: |
 | **CC-01** | Whole-System Provenance + Capability Security | **✓** | **✓** | **✗** | **✗** | **Complete (Partially Covered)** |
 | **CC-04** | Capability Security + Program Logics | **✓** | **✓** | **~** | **✗** | **Complete (Partially Covered)** |
-| **CC-05** | Language-Based Security + Trusted Computing | - | - | - | - | **FROZEN** |
-| **CC-08** | Runtime Verification + Capability Security | - | - | - | - | **FROZEN** |
+| **CC-05** | Language-Based Security + Trusted Computing | - | - | - | - | **FROZEN (Identified Semantic Gaps)** |
+| **CC-08** | Runtime Verification + Capability Security | - | - | - | - | **FROZEN (Identified Semantic Gaps)** |
+| **Cortex** | Spatiotemporal Preorders + Epoch-Indexed Value/Trace Relations | **✓** | **✓** | **✓** | **✓** | **FORMALLY PROVEN & ROADMAPPED** |
 
 *Legend: **✓** (Success)  |  **✗** (Failed)  |  **~** (Partial Success)  |  **-** (Not yet evaluated / Frozen)*
 
@@ -90,5 +100,6 @@ Due to findings in CC-01 and CC-04, all downstream composition checks are frozen
 
 ## 🛠️ Repository Administration & Rules
 
-1. **LOCKED State:** Foundational survey and model documents are frozen once complete to maintain strict control over confirmation bias. The repository is actively engaged in empirical survey generation.
+1. **LOCKED State:** Foundational survey, model, and formal construction documents are frozen once complete to maintain strict control over confirmation bias. The repository is actively engaged in operational log entries.
 2. **No Marketing Syntax:** Language must remain strictly technical, quantitative, and neutral.
+

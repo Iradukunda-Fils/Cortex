@@ -43,24 +43,36 @@ Documentation must exhibit strict hierarchy, version control, semantic stability
 To prevent domain pollution and enforce scientific neutrality, documentation is strictly separated into a sequentially locked Research evidence pipeline. The architecture is frozen. Meta-design discussions are terminated.
 
 ```text
+/
+├── master_plan.md
 └── Research/
     ├── 01_Methodology.md          <-- Operational rules & strict stopping criteria
     ├── 02_Domain_Model.md         <-- Baseline, Safety Properties, Formal Model (H_prop)
     ├── 03_Terminology.md          <-- Formal CS-grounded glossary
     ├── 04_Literature_Taxonomy.md  <-- The 21 intersecting computer science disciplines
-    ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (CC-05+ FROZEN)
+    ├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix
     ├── 06_Research_Log.md         <-- Cumulative evidence, logs, and case updates
     ├── 07_Correspondence_Survey.md <-- Baseline correspondence survey
     ├── 08_Evaluation_Relations.md   <-- Disambiguation of computation and planning systems
-    ├── 09_Delegation_Semantics.md   <-- Authority propagation boundaries
-    ├── 10_Preservation_Relations.md <-- Taxonomy of CS preservation theorems
+    ├── 09_Authority_Semantics.md    <-- Representation, evolution, validation matrix
+    ├── 10_Semantic_Relations.md     <-- Simulation, bisimulation, and logical relations catalog
     ├── 11_Semantic_Objects.md       <-- Categories of mathematical structures
     ├── 12_Threat_Model.md           <-- Core structural and adversarial assumptions
-    └── 13_Runtime_Assurance.md      <-- Trace monitoring and runtime execution assurance
+    ├── 13_Runtime_Assurance.md      <-- Trace monitoring and runtime execution assurance
+    ├── FC_01_Authority_Preorder.md  <-- Preorder algebra and Kripke access relations
+    ├── FC_02_Logical_Relation.md    <-- Step-indexed value and computation predicates
+    ├── FC_03_Composed_Relation.md   <-- Inductive target relation & Monotonicity Proof
+    ├── FC_04_Adversarial_Falsification.md <-- Test harness, artifact design, mediation bounds
+    ├── FC_05_Conditional_Soundness.md   <-- State-mediator bounds, conditional soundness, provenance
+    ├── FC_06_Asynchronous_Attenuation.md <-- Epoch-indexed worlds, spatiotemporal preorders, cache mitigations
+    ├── FC_07_Fundamental_Theorem.md    <-- Semantic substitutions, FTLR induction, Completeness Matrix
+    ├── FC_08_Unified_Soundness.md     <-- Admission bounds, Theorem 3, POPL/CSF publication schemas
+    └── FC_09_Mechanization_Roadmap.md  <-- Iris camera allocations, global invariants, Coq/Lean proof strategy
 ```
 
-*   **Research Domain:** Governed by `01_Methodology.md` and its mandatory stopping rule. Documents 01–05 are locked. Mathematical notation is grounded in established CS primitives. The name "Cortex" functions strictly as a non-normative placeholder for a hypothetical semantic layer.
+*   **Research Domain:** Governed by `01_Methodology.md` and its mandatory stopping rule. Documents 01–05 are locked. Mathematical notation is grounded in established CS primitives.
 *   **Survey Mapping Domain:** Documents 07–13 establish the formal literature evaluation vectors directly mapping the target research space.
+*   **Formal Model Construction & ITP Roadmap:** Documents `FC_01` to `FC_09_Mechanization_Roadmap.md` establish the spatiotemporal preorder models, prove structural soundness theorems (FTLR & Theorem 3), and outline the interactive theorem prover strategy.
 
 ---
 
@@ -78,11 +90,20 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
     ├── 06_Research_Log.md
     ├── 07_Correspondence_Survey.md
     ├── 08_Evaluation_Relations.md
-    ├── 09_Delegation_Semantics.md
-    ├── 10_Preservation_Relations.md
+    ├── 09_Authority_Semantics.md
+    ├── 10_Semantic_Relations.md
     ├── 11_Semantic_Objects.md
     ├── 12_Threat_Model.md
-    └── 13_Runtime_Assurance.md
+    ├── 13_Runtime_Assurance.md
+    ├── FC_01_Authority_Preorder.md
+    ├── FC_02_Logical_Relation.md
+    ├── FC_03_Composed_Relation.md
+    ├── FC_04_Adversarial_Falsification.md
+    ├── FC_05_Conditional_Soundness.md
+    ├── FC_06_Asynchronous_Attenuation.md
+    ├── FC_07_Fundamental_Theorem.md
+    ├── FC_08_Unified_Soundness.md
+    └── FC_09_Mechanization_Roadmap.md
 ```
 
 ### 3.1 Document Declarations
@@ -105,11 +126,11 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 
 #### 5. Composition Analysis (`Research/05_Composition_Analysis.md`)
 *   **Purpose:** Subject the Working Hypothesis to adversarial testing against candidate compositions.
-*   **Status:** Active - Frozen pending survey completion.
+*   **Status:** LOCKED.
 
 #### 6. Research Log (`Research/06_Research_Log.md`)
 *   **Purpose:** Cumulative evidence log tracking literature analyses, discoveries, and meta-design phase shifts.
-*   **Status:** Active.
+*   **Status:** ACTIVE.
 
 #### 7. Correspondence Survey (`Research/07_Correspondence_Survey.md`)
 *   **Purpose:** Map fundamental semantic correspondence relations and formalize Admissibility constraints bridging abstraction layers.
@@ -119,12 +140,12 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 *   **Purpose:** Disambiguate big-step, small-step, and trace semantics relative to generated Operational Artifacts ($\mathcal{A}$).
 *   **Status:** LOCKED.
 
-#### 9. Delegation Semantics (`Research/09_Delegation_Semantics.md`)
-*   **Purpose:** Evaluate authority boundaries spanning Models of Enactment Behavior (Immutable, Stateful, Observational).
+#### 9. Authority Semantics (`Research/09_Authority_Semantics.md`)
+*   **Purpose:** Model authority configurations, static vs dynamic bindings, context attenuation, and rights evolution.
 *   **Status:** LOCKED.
 
-#### 10. Preservation Relations (`Research/10_Preservation_Relations.md`)
-*   **Purpose:** Taxonomize preservation theories, simulations, and logical relations.
+#### 10. Semantic Relations (`Research/10_Semantic_Relations.md`)
+*   **Purpose:** Taxonomize preservation theories, simulations, and Kripke logical relation parameters.
 *   **Status:** LOCKED.
 
 #### 11. Semantic Objects (`Research/11_Semantic_Objects.md`)
@@ -139,27 +160,35 @@ To prevent domain pollution and enforce scientific neutrality, documentation is 
 *   **Purpose:** Decouple active trace monitoring algorithms, enforcement monitors, and logical verification during the execution loop.
 *   **Status:** LOCKED.
 
+#### 14. Formal Model Construction Modules (`Research/FC_01` to `Research/FC_09`)
+*   **Purpose:** Fully construct the spatiotemporal algebraic preorder, step-indexed value and computation logical relations, prove the World Monotonicity Lemma, complete the adversarial falsification harness, prove the Conditional Soundness Theorem, handle dynamic authority attenuation, prove the Fundamental Theorem of Logical Relations (FTLR), establish the Unified Soundness Theorem, and formalize the Interactive Theorem Proving roadmap.
+*   **Status:** LOCKED.
+
 ---
 
 ## 4. Documentation Generation Order
 
-Documents are authored and individually locked in the sequence below:
+Documents are authored and locked in the sequence below:
 
 1.  **Phase I: Methodology** *(LOCKED)* -> `Research/01_Methodology.md`
 2.  **Phase II: Domain Model** *(LOCKED)* -> `Research/02_Domain_Model.md`
 3.  **Phase III: Terminology** *(LOCKED)* -> `Research/03_Terminology.md`
 4.  **Phase IV: Literature Taxonomy** *(LOCKED)* -> `Research/04_Literature_Taxonomy.md`
 5.  **Phase V: Blueprint Meta-Design Base** *(LOCKED)* -> `Research/05_Composition_Analysis.md`, `master_plan.md`
-6.  **Phase VI: Detailed Literature Mapping Surveys** *(Active Analysis Phase)*
+6.  **Phase VI: Detailed Literature Mapping Surveys** *(LOCKED)*
     *   `11_Semantic_Objects.md`
     *   `12_Threat_Model.md`
     *   `07_Correspondence_Survey.md`
     *   `08_Evaluation_Relations.md`
-    *   `09_Delegation_Semantics.md`
-    *   `10_Preservation_Relations.md`
+    *   `09_Authority_Semantics.md`
+    *   `10_Semantic_Relations.md`
     *   `13_Runtime_Assurance.md`
-7.  **Phase VII: Research Log Execution** *(Active)* -> `Research/06_Research_Log.md`
+7.  **Phase VII: Formal Model Construction & Soundness Proofs** *(LOCKED)*
+    *   `FC_01_Authority_Preorder.md` through `FC_08_Unified_Soundness.md`
+8.  **Phase VIII: ITP Mechanization Roadmap** *(LOCKED)* -> `FC_09_Mechanization_Roadmap.md`
+9.  **Phase IX: Research Log Execution** *(ACTIVE)* -> `Research/06_Research_Log.md`
 
 ---
 
 *(Repository governance, ADR logic, traceability mechanisms, and review workflows remain standardized as established.)*
+
