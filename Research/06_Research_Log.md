@@ -350,6 +350,22 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Perform repo hygiene checks, update task milestones, and compile final walkthrough records.
 
+---
+
+## Entry: 2026.07.19 (Part 16) — Unified Soundness Framework and Submission Outbox Instantiated
+
+**Target:** FC_08 (Unified Soundness & Publication Architecture) instantiated.
+**Status:** Spatiotemporal formal construction phase complete and closed.
+
+**Progress:**
+- Created `Research/FC_08_Unified_Soundness.md` defining the Admission Boundary under the $\text{Verified}(\pi, \mathcal{A})$ predicate.
+- Formulated **Theorem 3 (Unified Spatiotemporal Soundness)**, binding target relations, verification flags, and monitored trace provenance.
+- Conducted the unified structural proof and case evaluations for entry barriers, valid paths, and dynamic revocations.
+- Outlined the peer-review paper abstract and structural section blueprints for POPL, CSF, or ESOP.
+
+**Next Step:** Perform final repository checks and close task.
+
+
 
 
 
