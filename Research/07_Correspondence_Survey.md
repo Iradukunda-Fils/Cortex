@@ -89,14 +89,16 @@ Based on our formal evaluation protocol and reduction tests, we arrive at a defi
                              │
                              ▼
                  ===> [ CURRENT STATUS ] <===
-                  Specialized Frame Relation
+            Specialized Composed Relation (Working Label)
 ```
 
 ### 7.1 Subsumed
 $R_{\text{target}}$ is **not** fully subsumed by standard, out-of-the-box relations (e.g., standard Hoare Logic or basic simulation) because these systems assume a trusted codebase or a fixed program configuration, failing under $c_{\text{arbitrary\_dev}}$.
 
-### 7.2 Specialized
-$R_{\text{target}}$ **can** be formally expressed as a **Specialized Frame Relation**. By combining elements of Step-Indexed Kripke Logical Relations (to handle dynamic authority worlds $\Lambda_t$ and execution bounds $n$) with Trace Safety Refinement (to model the execution monitor $m$), we can cleanly characterize the preservation of authority boundaries without introducing entirely new, unvetted semantic machinery.
+### 7.2 Specialized Composed Relation (Working Label)
+The current evidence suggests that $R_{\text{target}}$ may be expressible as a composed relation built entirely from existing semantic machinery—specifically, a step-indexed Kripke logical relation over dynamic authority worlds, combined with a trace-safety refinement relation over monitored execution traces. The term "Specialized Composed Relation" is therefore used exclusively as a **provisional working label** for this specific composition, not as a claim that a fundamentally new semantic category has been discovered.
+
+The challenge shifts from inventing new mathematical primitives to executing this formal composition rigorously, proving whether it can absorb the structural violations introduced under the adversary capability $c_{\text{arbitrary\_dev}}$.
 
 ### 7.3 Irreducible
 We **reject** the claim of total irreducibility. The system does not require abandoning established formal methods; rather, it demands the intentional composition of simulation states and dynamic policy contexts to bridge the gap between untrusted artifact derivation and runtime enactment.

@@ -234,4 +234,31 @@ We proceed directly to `Research/13_Runtime_Assurance.md` to survey how runtime 
 07. Correspondence Survey  ── LOCKED
 ```
 
-**Conclusion:** The 7-part literature survey blueprint is complete. All foundational modules are locked and cross-referenced. The working hypothesis $H_{\text{prop}}$ has been formally evaluated and classified as a **Specialized Frame Relation** within the existing formal methods landscape.
+**Conclusion:** The 7-part literature survey blueprint is complete. All foundational modules are locked and cross-referenced. The working hypothesis $H_{\text{prop}}$ has been formally evaluated and classified as a **Specialized Composed Relation (Working Label)** within the existing formal methods landscape.
+
+---
+
+## Entry: 2026.07.19 (Part 9) — LITERATURE-SURVEY PHASE FORMALLY CLOSED
+
+**Target:** Document 07 locked via precision correction. Phase transition to Formal Model Construction.
+**Status:** LITERATURE-SURVEY PHASE FORMALLY CLOSED.
+
+**Progress:**
+- Applied the precision correction to Section 7.2 of `07_Correspondence_Survey.md`: reclassified from "Specialized Frame Relation" to **Specialized Composed Relation (Working Label)**.
+- This explicitly frames the composition as a provisional blueprint, not a novelty claim.
+
+**Phase Transition — Formal Model Construction Roadmap:**
+
+The next phase of the repository transitions from descriptive mapping to constructive engineering across four distinct mathematical steps:
+
+1. **Model Setup: Syntax & Operational Monotonicity**
+   Define the operational semantics of the enactment engine $\xrightarrow{\text{enact}}$ handling an untrusted artifact $\mathcal{A}$, formalizing the exact signature of the runtime monitor state $m \in \Sigma_M$ and trace accumulation.
+
+2. **Kripke World Construction for $\Lambda_t$**
+   Formalize the world structure $w = (\Lambda_t, m, n)$, writing down the explicit accessibility relation $\sqsubseteq$ governing legal world transitions under attenuation, revocation, and consumption, ensuring that step-indexing ($n$) correctly bounds dynamic delegation lifetimes.
+
+3. **The Composed Relation Definition**
+   Formulate the exact inductive definition of the composed relation $R_{\text{target}}(\Lambda_t, \mathcal{A}, \tau, e)$, mapping out how it handles higher-order execution components without a trusted compiler type derivation.
+
+4. **Stress-Testing via Adversarial Falsification**
+   Before attempting a full preservation proof, intentionally construct adversarial artifacts $\mathcal{A}^*$ designed to break the relation. If a mutated artifact passes the relational premises but triggers an unallowed effect $e \notin \text{Allowed}$, use that failure witness to immediately tighten the boundary conditions of the monitor model.
