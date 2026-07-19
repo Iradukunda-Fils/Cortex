@@ -305,5 +305,22 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Review the complete model repository and establish formal execution semantics.
 
+---
+
+## Entry: 2026.07.19 (Part 13) — Conditional Soundness and Provenance Logic Formulated
+
+**Target:** FC_05 (Conditional Soundness & Provenance Logic) instantiated.
+**Status:** Verification complete for the composed soundness bounds; dynamic attenuation initiated.
+
+**Progress:**
+- Created `Research/FC_05_Conditional_Soundness.md` formalizing the Complete Mediation Criterion under the effect-silent trace restriction ($e \neq \text{idle}$).
+- Defined the Monitored Provenance Judgment ($\tau_m \vdash e$) mapping observable events back to initial authority contexts.
+- Completed the proof sketch for the **Conditional Soundness Theorem** linking logical relation correctness to container safety parameters.
+- Mapped the Complete Mediation decision tree separating Logical Unsoundness from Failure of Applicability.
+- Introduced the **Dynamic Authority Attenuation** challenge modeling asynchronous containment races.
+
+**Next Step:** Formulate the temporal world transition laws required to handle asynchronous attenuation in `Research/FC_06_Asynchronous_Attenuation.md`.
+
+
 
 
