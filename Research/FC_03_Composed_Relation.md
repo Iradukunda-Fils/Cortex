@@ -11,14 +11,14 @@ Additionally, this module institutes the adversarial validation framework, defin
 To bridge the gap between abstract state-space constraints and concrete execution traces, we compose our semantic predicates into a unified target judgment.
 
 ### Definition (The Composed Target Relation)
-Let $\Lambda \in A$ be an authority configuration, $\mathcal{A}$ be an operational artifact, $\tau$ be an execution trace, and $e$ be a terminal effect. The composed target relation $R_{\text{target}}(\Lambda, \mathcal{A}, \tau, e)$ holds if and only if:
+Let $\Lambda_0 \in A$ be an authority configuration, $\mathcal{A}$ be an operational artifact, $\tau$ be an execution trace, and $e$ be a terminal effect. The composed target relation $R_{\text{target}}(\Lambda_0, \mathcal{A}, \tau, e)$ holds if and only if it is definitionally equivalent to trace evaluation under the spatiotemporal logical relation:
 
-$$R_{\text{target}}(\Lambda, \mathcal{A}, \tau, e) \iff \forall n \in \mathbb{N}. \; \forall m \in \text{Monitor}. \quad (\mathcal{A}, \tau, e) \in \llbracket \text{Allowed} \rrbracket_{(\Lambda, m, n)} \land \text{Safe}(\tau) \land e \in \text{Allowed}(\Lambda)$$
+$$R_{\text{target}}(\Lambda_0, \mathcal{A}, \tau, e) \triangleq \exists w_0 \in \mathcal{W} \text{ s.t. } w_0.\Lambda = \Lambda_0 \land \mathcal{A} \in \mathcal{E}_{w_0} \llbracket \tau \rrbracket \land \tau \rightsquigarrow e$$
 
 Where:
-*   $\llbracket \text{Allowed} \rrbracket_{(\Lambda, m, n)}$ guarantees step-indexed contextual containment over all monitored transition steps $\xrightarrow{g}_m$.
-*   $\text{Safe}(\tau)$ is a trace-safety refinement relation ensuring that execution trace $\tau$ satisfies global behavioral invariants (e.g., info leakage prevention, non-violation of temporal safety policies).
-*   $e \in \text{Allowed}(\Lambda)$ enforces terminal/static conformance with active authority limits.
+*   $\mathcal{E}_{w_0} \llbracket \tau \rrbracket$ guarantees step-indexed spatiotemporal containment over all monitored transition steps.
+*   $\tau \rightsquigarrow e$ represents the concrete operational trace evaluation stepping to terminal effect $e$.
+
 
 ---
 

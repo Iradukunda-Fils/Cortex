@@ -33,9 +33,12 @@ An operational artifact $\mathcal{A}$ is admitted into the execution environment
 > **Then:**
 > For any operational artifact $\mathcal{A}$, execution trace $\tau$, terminal effect $e$, and initial world $w_0 = (\Lambda_0, m_0, n_0, \nu_0)$, if:
 > $$R_{\text{target}}(\Lambda_0, \mathcal{A}, \tau, e) \land \text{Verified}(\pi, \mathcal{A})$$
+> where the target relation is defined as a strict definitional equivalence mapping directly to the trace logical relation:
+> $$R_{\text{target}}(\Lambda_0, \mathcal{A}, \tau, e) \triangleq \exists w_0' \in \mathcal{W} \text{ s.t. } w_0'.\Lambda = \Lambda_0 \land \mathcal{A} \in \mathcal{E}_{w_0'} \llbracket \tau \rrbracket \land \tau \rightsquigarrow e$$
 > It holds that:
 > $$\exists \tau_m. \quad \left( \tau_m \vdash_{\nu_{\text{final}}} e \land e \in \text{Allowed}(\Lambda_{\text{final}}) \right)$$
 > where $\nu_{\text{final}} \ge \nu_0$ and $\Lambda_{\text{final}} \preceq \Lambda_0$.
+
 
 ---
 

@@ -365,6 +365,23 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Perform final repository checks and close task.
 
+---
+
+## Entry: 2026.07.19 (Part 17) — ITP Mechanization Roadmap Instantiated
+
+**Target:** FC_09 (ITP Mechanization Roadmap) instantiated.
+**Status:** Interactive Theorem Prover roadmap and formalization sequence locked.
+
+**Progress:**
+- Created `Research/FC_09_Mechanization_Roadmap.md` establishing the Coq/Lean/Iris mapping blueprints.
+- Mapped algebraic preorders to structures, spatiotemporal worlds to ghost state authoritative/monotonic counters, and freshness rules to decidable propositions.
+- Formulated the global container invariant ($I_{\text{monitor}}$) and the mechanization proofs layout.
+- Synthesized the step progression checklist for Iris-Coq proof building.
+- Closed the whole verification architecture diagram.
+
+**Next Step:** Update overall repository files, close task checklist, and summarize.
+
+
 
 
 
