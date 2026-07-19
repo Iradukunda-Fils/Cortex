@@ -321,6 +321,22 @@ The next phase of the repository transitions from descriptive mapping to constru
 
 **Next Step:** Formulate the temporal world transition laws required to handle asynchronous attenuation in `Research/FC_06_Asynchronous_Attenuation.md`.
 
+---
+
+## Entry: 2026.07.19 (Part 14) — Spatiotemporal Preorders and Asynchronous Attenuation Formulated
+
+**Target:** FC_06 (Asynchronous Attenuation & Spatiotemporal Preorders) instantiated.
+**Status:** Verification complete for spatiotemporal preorders; Dynamic Authority Attenuation resolved.
+
+**Progress:**
+- Created `Research/FC_06_Asynchronous_Attenuation.md` to define Kripke worlds $w = (\Lambda, m, n, \nu)$ and preorder compatibility $\sqsubseteq$.
+- Formulated the value relation ($\mathcal{V}_w$) and computation trace relation ($\mathcal{E}_w$) incorporating epoch freshness checks.
+- Completed the formal proof of **Theorem 2 (Preservation of World Monotonicity)** under dynamic spatiotemporal expansion.
+- Mapped the operational sequence neutralizing stale-authority cached capability attacks.
+
+**Next Step:** Formulate step-indexing recursion properties and compile-time boundaries.
+
+
 
 
 
