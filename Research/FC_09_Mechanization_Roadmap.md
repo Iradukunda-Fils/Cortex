@@ -1,77 +1,61 @@
 # FC-09: Interactive Theorem Prover (ITP) Mechanization Roadmap
-**Phase:** FORMAL MODEL CONSTRUCTION
-**Status:** ACTIVE
+**Phase:** FORMAL MODEL SKELTON MECHANIZATION
+**Status:** ACTIVE (Roadmapped Proof Development)
 
 ## 1. Purpose and Scope
-This document details the **Formal Mechanization Roadmap** to translate our spatiotemporal semantic architecture into a machine-checked reality in interactive theorem provers (ITPs) like Coq or Lean. 
-
-By leveraging the **Iris** concurrent separation logic framework, we define a modular mapping from the algebraic authority preorder to formal cameras, instantiate step-indexing via built-in step-indexed predicates, represent versioned authority epochs via monotonic counters, and lay a systematic path to compile-time proof verification.
+This document details the **Formal Mechanization Roadmap** of the Cortex spatiotemporal semantic architecture. We transition this framework from abstract system designs directly to concrete, deep-embedded, type-checked code modules in Coq/Rocq, mapping spatiotemporal authority decay to step-indexed Kripke logic.
 
 ---
 
-## 2. Concrete ITP Mechanization Architecture
-To translate our four-layer spatiotemporal proof stack into Coq/Lean, we map the mathematical configurations directly to Iris algebraic structures:
+## 2. Theoretical Core: The Spatiotemporal World Tuple and Kripke Preorder
+To establish a complete, falsifiable blueprint, our pen-and-paper specification maps directly to context structures in `World.v`.
 
-### Layer 1: The Algebraic Preorder (Type to Canonical Structure)
-*   **Mathematical Concept:** Preorder $\mathbb{A} = (A, \preceq, \oplus, \mathbf{0})$ with authority restriction.
-*   **ITP Strategy:** We encode the carrier type $A$ as a Coq `Record` or `Structure` equipped with:
-    *   An associative and commutative operator `op : A -> A -> A`.
-    *   An identity element `zero : A`.
-    *   A decidable preorder relation `le : A -> A -> Prop` accompanied by checked proofs of reflexivity, transitivity, and monotonicity relative to `op` (i.e., $x \preceq y \implies x \oplus z \preceq y \oplus z$).
+### The Spatiotemporal World Tuple
+Each spatiotemporal world $w$ is defined as a 4-tuple:
+$$w = (\Lambda, m, n, \nu)$$
+*   **$\Lambda$ (Spatial Authority)**: Represents the authority carrier. Mathematically, it tracks active and authorized capability identifiers within the execution domain.
+*   **$m$ (Monitor State)**: Tracks the reference monitor's epoch configuration to detect historic trace shifts.
+*   **$n$ (Step-Index Fuel)**: A natural number ($\mathbb{N}$) representing the operational fuel metric. Decrementing this counter across transitions bounds execution loops and prevents infinite recursion.
+*   **$\nu$ (Temporal Epoch Vector)**: The log of logical times or generations. Older capability epoch thresholds ($\nu_c$) are compared against the vector ($\nu \le \nu_c$) to instantly trap stale tokens.
 
-### Layer 2: The Spatiotemporal World (Ghost State camera integration)
-*   **Mathematical Concept:** $w = (\Lambda, m, n, \nu) \in \mathcal{W}$ where access demands $\nu' \ge \nu$.
-*   **ITP Strategy:**
-    1.  **Step-indexing ($n$):** Handled natively by leveraging Iris's built-in step-indexed logic (`uPred`).
-    2.  **Authority Mapping ($\Lambda$):** Represented as an authoritative resource fragment using the Iris Ghost State camera mechanism (`authR`).
-    3.  **Epoch Model ($\nu$):** Encoded via a monotonic counter camera, where possessing a ghost token for epoch version $\nu$ acts as a lower-bound witness, guaranteeing via Iris invariant rules that the global epoch state can never decay below $\nu$.
-
-### Layer 3: Epoch Freshness Validation
-*   **Mathematical Concept:** $\text{Valid}(c, \Lambda, \nu) \iff c \in \Lambda \land \nu \le \nu_c$
-*   **ITP Strategy:** Decided via an inductive boolean returning proposition (`Inductive` or `Fixpoint`). Expressing freshness checks as decidable functions allows Coq/Lean to automatically simplify execution paths during monitored step evaluations using the assistant's computation engine (e.g., `simpl` or `decide` tactics).
+### Kripke Accessibility Preorder ($\sqsubseteq$)
+Progression between worlds follows a Kripke preorder: $w \sqsubseteq w'$ (represented as `world_accessible w w'` in Coq) if and only if:
+1.  **Spatial Authority Contraction ($\Lambda' \subseteq \Lambda$)**: Authority can decay or be restricted over time, represented via the class relation `auth_contains_monotone`.
+2.  **Temporal Epoch Advancement ($\nu \le \nu'$)**: Epoch timelines move monotonically forward.
+3.  **Step-Index Decay (Metric Contraction)**: Monitored computation steps strictly decay the fuel counter ($n' < n$ or `world_fuel w' < world_fuel w`), forcing metric space contraction.
 
 ---
 
-## 3. Mechanical Proof Layout & Ghost State Invariants
-To prove the Unified Spatiotemporal Soundness Theorem, the execution container's Complete Mediation property is formalized as a global state invariant ($I_{\text{monitor}}$) allocated in the Iris namespace throughout the trace lifespan:
+## 3. Concrete Coq/Rocq Mechanization Architecture
+We have constructed a deep-embedded, compilable verification suite in the Cortex namespace:
 
-$$I_{\text{monitor}} \triangleq \exists \Sigma, \Lambda, m, \nu. \quad \text{OwnGhost}(\Lambda, \nu) \land \left( \forall e \neq \text{idle}. \; \text{TraceStep}(\Sigma, e) \implies \text{MonitoredStep}(\Sigma, \Lambda, m, \nu, e) \right)$$
-
-When an untrusted artifact executes under this environment:
-*   **Verified Artifacts:** The user applies the mechanized FTLR lemma. The proof witness $\pi$ unfolds into an Iris path resource, showing that the program satisfies its step-indexed specification.
-*   **Revocation/Attenuation Actions:** The administrative thread updates the global state invariant by writing a new restricted authority set $\Lambda_{\text{final}}$ and incrementing the ghost epoch token to $\nu_{\text{final}}$. 
-*   **Bypass Prevention:** Because the monitor invariant holds the authoritative state, any concurrent thread trying to utilize a cached capability token with a stale version $\nu_c < \nu_{\text{final}}$ will trigger a logical contradiction during evaluation, forcing execution into the safe $e = \text{idle}$ path.
+*   **`AuthorityModel.v`**: Defines the carrier types and classes for authority preorders.
+*   **`World.v`**: Formalizes the `World` tuple, proves the Kripke accessibility preorder (`world_accessible_preorder`), and proves `valid_cap_monotone`.
+*   **`Semantics.v`**: Implements deep-embedded expressions (`e_var`, `e_val`, `e_invoke`, `e_fork`) and lists the fuel-decrementing step relation `step_m` where fresh capability execution preserves the token expression `e_invoke c` on trace outputs.
+*   **`LogicalRelation.v`**: Defines list-lookup typing context validation and the spatiotemporal execution relation `E_w`.
+*   **`FTLR.v`**: Defines the deep inductive typing rules (`typing`) and proves the syntax-directed induction cases of the Fundamental Theorem of Logical Relations.
+*   **`Substitution.v`**: Houses the **active proof engineering boundary** of the mechanization. Proves `V_w_monotonicity` (admitted), `env_valid_monotonicity` (admitted), and the semantic substitution lemma `semantic_substitution_preserves_typing` (admitted).
+*   **`Soundness.v`**: Synthesizes type safety, composing `fundamental_theorem` with complete mediation under `unified_soundness` to verify operational provenance safety.
 
 ---
 
 ## 4. Verification Step Progression
 
-| Step | Phase | Goal | Target Implementation |
-| :--- | :--- | :--- | :--- |
-| **01** | **Base Syntax & Semantics** | Define operational layer small-steps | Split transition rules into concrete execution ($\xrightarrow{g}$) and reference monitor actions ($\xrightarrow{g}_m$). |
-| **02** | **Kripke Frame Setup** | Establish world accessibility | Implement the four-part world configuration in the proof assistant. Prove transitivity and reflexivity lemmas for $\sqsubseteq$. |
-| **03** | **Logical Relation Design** | Mechanize value and trace relations | Construct definitions for $\mathcal{V}_w$ and $\mathcal{E}_w$. Use well-founded induction to prove step-indexed recursion safety. |
-| **04** | **FTLR Lemma Induction** | Direct syntax-directed proof checks | Execute structural induction over syntax-directed derivation rules (alloc, invoke, fork) to prove semantic conformance. |
-| **05** | **Soundness Closure** | Verify Theorem 3 | Bind FTLR output to the reference monitor invariant ($I_{\text{monitor}}$) to extract verified monitored trace provenance. |
+| Step | Phase | Goal | Target Implementation | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **01** | **Base Syntax & Semantics** | Define operational layer small-steps | Split monitored transition rules in `Semantics.v`. | **Completed** |
+| **02** | **Kripke Frame Setup** | Establish world accessibility | Implement the world configuration in `World.v`. | **Completed** |
+| **03** | **Logical Relation Design** | Mechanize value and trace relations | Construct definitions for $V_w$ and $E_w$ in `LogicalRelation.v`. | **Completed** |
+| **04** | **ITP proof layout / skeleton** | Structural induction over typing | Implement typing rules and proof goals in `FTLR.v`. | **Completed** |
+| **05** | **Soundness Composition** | Synthesize complete mediation safety | Compose FTLR lemma and complete mediation in `Soundness.v`. | **Completed** |
+| **06** | **Active Proof Engineering** | Complete structural substitution | Discharge the 3 admitted lemmas in `Substitution.v`. | **ACTIVE** |
 
 ---
 
-## 5. Concrete Publication Baseline
-The mathematical definitions, threat modeling paradigms, and soundness boundaries have converged into a complete, publishable research blueprint:
+## 5. Peer-Reviewed Publication Framing
+By maintaining semantic transparency about the verification boundaries, the paper presents a falsifiable mechanization progress roadmap:
 
-```text
-                  [ Verification Proof Stack ]
-                  
-     Layer 4:  Unified Soundness Theorem (Theorem 3)
-                            ▲
-                            │ Verified via Complete Mediation
-     Layer 3:  Fundamental Theorem (FTLR)
-                            ▲
-                            │ Proven via Spatiotemporal Monotonicity
-     Layer 2:  Logical Relation (E_w ⟦ τ ⟧)
-                            ▲
-                            │ Governed by Preorder Axes
-     Layer 1:  Kripke Worlds (Λ, m, n, ν) with w' ⊑ w
-```
-
-The theoretical construction phase is officially complete and closed. The architecture successfully isolates the execution vulnerabilities of arbitrary device contexts, rendering stale-authority exploitation a provable semantic impossibility. The project is ready to transition to code line entry inside the interactive theorem prover.
+*   **Spatiotemporal World Model**: *"Formally specified Kripke frame mapping authority contraction to step-index decay."*
+*   **Core Operational Monitor**: *"Axiomatized trace-refinement monitor providing a foundational blueprint for complete mediation."*
+*   **Logical Relations Loop**: *"A deep-embedded syntax skeleton establishing the structural continuity of the Fundamental Theorem."*
+*   **Mechanization Progress**: *"Core semantic structures established; proof of the underlying semantic substitution engine is currently under construction (`Substitution.v`)."*

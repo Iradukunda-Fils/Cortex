@@ -1,0 +1,151 @@
+DIGEST 78bf7c0427ac6b01c38bffac843acef3
+FCortex.World
+R15:29 Corelib.Classes.RelationClasses <> <> lib
+R47:66 Corelib.Relations.Relation_Definitions <> <> lib
+R96:109 Cortex.AuthorityModel <> <> lib
+rec 283:287 <> World
+proj 325:336 <> world_lambda
+proj 357:369 <> world_monitor
+proj 381:390 <> world_fuel
+proj 404:414 <> world_epoch
+R294:307 Cortex.AuthorityModel <> AuthorityModel class
+binder 290:290 <> A:1
+R341:352 Cortex.AuthorityModel <> auth_carrier meth
+R373:375 Corelib.Init.Datatypes <> nat ind
+R397:399 Corelib.Init.Datatypes <> nat ind
+R420:422 Corelib.Init.Datatypes <> nat ind
+R439:450 Cortex.World <> world_lambda proj
+R439:450 Cortex.World <> world_lambda proj
+R467:479 Cortex.World <> world_monitor proj
+R467:479 Cortex.World <> world_monitor proj
+R496:505 Cortex.World <> world_fuel proj
+R496:505 Cortex.World <> world_fuel proj
+R522:532 Cortex.World <> world_epoch proj
+R522:532 Cortex.World <> world_epoch proj
+def 551:566 <> world_accessible
+R573:586 Cortex.AuthorityModel <> AuthorityModel class
+binder 569:569 <> A:7
+R598:602 Cortex.World <> World rec
+R604:604 Cortex.World <> A:7 var
+binder 590:591 <> w1:8
+binder 593:594 <> w2:9
+R668:674 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R619:631 Cortex.AuthorityModel <> auth_preorder meth
+R652:663 Cortex.World <> world_lambda proj
+R665:666 Cortex.World <> w1:8 var
+R634:645 Cortex.World <> world_lambda proj
+R647:648 Cortex.World <> w2:9 var
+R675:675 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R712:719 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R692:695 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R676:688 Cortex.World <> world_monitor proj
+R690:691 Cortex.World <> w1:8 var
+R696:708 Cortex.World <> world_monitor proj
+R710:711 Cortex.World <> w2:9 var
+R720:720 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R751:758 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R791:791 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R734:737 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R721:730 Cortex.World <> world_fuel proj
+R732:733 Cortex.World <> w2:9 var
+R738:747 Cortex.World <> world_fuel proj
+R749:750 Cortex.World <> w1:8 var
+R773:776 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R759:769 Cortex.World <> world_epoch proj
+R771:772 Cortex.World <> w2:9 var
+R777:787 Cortex.World <> world_epoch proj
+R789:790 Cortex.World <> w1:8 var
+def 806:814 <> valid_cap
+R821:834 Cortex.AuthorityModel <> AuthorityModel class
+binder 817:817 <> A:10
+R842:851 Cortex.AuthorityModel <> Capability rec
+binder 838:838 <> c:11
+R859:863 Cortex.World <> World rec
+R865:865 Cortex.World <> A:10 var
+binder 855:855 <> w:12
+R912:915 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R880:892 Cortex.AuthorityModel <> auth_contains meth
+R911:911 Cortex.World <> c:11 var
+R895:906 Cortex.World <> world_lambda proj
+R908:908 Cortex.World <> w:12 var
+R929:932 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R916:926 Cortex.World <> world_epoch proj
+R928:928 Cortex.World <> w:12 var
+R933:945 Cortex.AuthorityModel <> cap_max_epoch proj
+R947:947 Cortex.World <> c:11 var
+prf 957:964 <> le_trans
+binder 975:975 <> n:13
+binder 977:977 <> m:14
+binder 979:979 <> p:15
+R988:991 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R983:986 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R982:982 Cortex.World <> n:13 var
+R987:987 Cortex.World <> m:14 var
+R998:1001 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R993:996 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R992:992 Cortex.World <> m:14 var
+R997:997 Cortex.World <> p:15 var
+R1003:1006 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R1002:1002 Cortex.World <> n:13 var
+R1007:1007 Cortex.World <> p:15 var
+R1084:1087 Corelib.Init.Peano <> le_S constr
+R1084:1087 Corelib.Init.Peano <> le_S constr
+prf 1114:1124 <> lt_le_trans
+binder 1135:1135 <> n:16
+binder 1137:1137 <> m:17
+binder 1139:1139 <> p:18
+R1147:1150 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1143:1145 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R1142:1142 Cortex.World <> n:16 var
+R1146:1146 Cortex.World <> m:17 var
+R1157:1160 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1152:1155 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R1151:1151 Cortex.World <> m:17 var
+R1156:1156 Cortex.World <> p:18 var
+R1162:1164 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R1161:1161 Cortex.World <> n:16 var
+R1165:1165 Cortex.World <> p:18 var
+R1241:1244 Corelib.Init.Peano <> le_S constr
+R1241:1244 Corelib.Init.Peano <> le_S constr
+inst 1275:1299 <> world_accessible_preorder
+R1306:1319 Cortex.AuthorityModel <> AuthorityModel class
+binder 1302:1302 <> A:19
+R1324:1331 Corelib.Classes.RelationClasses <> PreOrder class
+R1335:1350 Cortex.World <> world_accessible def
+R1352:1352 Cortex.World <> A:19 var
+R1426:1442 Cortex.AuthorityModel <> auth_preorder_rel meth
+R1503:1506 Corelib.Init.Peano <> le_n constr
+R1503:1506 Corelib.Init.Peano <> le_n constr
+R1503:1506 Corelib.Init.Peano <> le_n constr
+R1503:1506 Corelib.Init.Peano <> le_n constr
+R1662:1678 Cortex.AuthorityModel <> auth_preorder_rel meth
+R1758:1765 Cortex.World <> le_trans thm
+R1758:1765 Cortex.World <> le_trans thm
+R1788:1795 Cortex.World <> le_trans thm
+R1788:1795 Cortex.World <> le_trans thm
+R1818:1825 Cortex.World <> le_trans thm
+R1818:1825 Cortex.World <> le_trans thm
+prf 1847:1864 <> valid_cap_monotone
+R1871:1884 Cortex.AuthorityModel <> AuthorityModel class
+binder 1867:1867 <> A:20
+R1892:1901 Cortex.AuthorityModel <> Capability rec
+binder 1888:1888 <> c:21
+R1913:1917 Cortex.World <> World rec
+R1919:1919 Cortex.World <> A:20 var
+binder 1905:1906 <> w1:22
+binder 1908:1909 <> w2:23
+R1948:1953 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1926:1941 Cortex.World <> world_accessible def
+R1946:1947 Cortex.World <> w2:23 var
+R1943:1944 Cortex.World <> w1:22 var
+R1968:1973 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1954:1962 Cortex.World <> valid_cap def
+R1966:1967 Cortex.World <> w2:23 var
+R1964:1964 Cortex.World <> c:21 var
+R1974:1982 Cortex.World <> valid_cap def
+R1986:1987 Cortex.World <> w1:22 var
+R1984:1984 Cortex.World <> c:21 var
+R2073:2094 Cortex.AuthorityModel <> auth_contains_monotone meth
+R2073:2094 Cortex.AuthorityModel <> auth_contains_monotone meth
+R2115:2122 Cortex.World <> le_trans thm
+R2115:2122 Cortex.World <> le_trans thm

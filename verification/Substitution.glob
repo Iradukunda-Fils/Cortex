@@ -1,0 +1,98 @@
+DIGEST 3cdd79ef4ce4cc29d0d7d53828e3b52a
+FCortex.Substitution
+R27:40 Cortex.AuthorityModel <> <> lib
+R70:74 Cortex.World <> <> lib
+R104:112 Cortex.Semantics <> <> lib
+R142:156 Cortex.LogicalRelation <> <> lib
+R186:189 Cortex.FTLR <> <> lib
+R207:221 Corelib.Classes.RelationClasses <> <> lib
+R239:258 Corelib.Relations.Relation_Definitions <> <> lib
+sec 270:281 <> Substitution
+var  295:295 Substitution A
+R299:312 Cortex.AuthorityModel <> AuthorityModel class
+prf 400:415 <> V_w_monotonicity
+R431:432 Cortex.LogicalRelation <> Ty ind
+binder 427:427 <> t:2
+R443:447 Cortex.World <> World rec
+R449:449 Cortex.Substitution <> Substitution.A var
+binder 436:436 <> w:3
+binder 438:439 <> w':4
+R457:460 Cortex.Semantics <> Expr ind
+binder 453:453 <> v:5
+R489:496 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R468:483 Cortex.World <> world_accessible def
+R487:488 Cortex.Substitution <> w':4 var
+R485:485 Cortex.Substitution <> w:3 var
+R506:513 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R497:499 Cortex.LogicalRelation <> V_w def
+R501:501 Cortex.Substitution <> t:2 var
+R503:503 Cortex.Substitution <> w:3 var
+R505:505 Cortex.Substitution <> v:5 var
+R514:516 Cortex.LogicalRelation <> V_w def
+R518:518 Cortex.Substitution <> t:2 var
+R520:521 Cortex.Substitution <> w':4 var
+R523:523 Cortex.Substitution <> v:5 var
+prf 693:714 <> env_valid_monotonicity
+R731:734 Corelib.Init.Datatypes <> list ind
+R736:737 Cortex.LogicalRelation <> Ty ind
+binder 726:727 <> Γ:6
+R749:752 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R746:748 Corelib.Init.Datatypes <> nat ind
+R753:756 Cortex.Semantics <> Expr ind
+binder 741:742 <> γ:7
+R767:771 Cortex.World <> World rec
+R773:773 Cortex.Substitution <> Substitution.A var
+binder 760:760 <> w:8
+binder 762:763 <> w':9
+R802:809 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R781:796 Cortex.World <> world_accessible def
+R800:801 Cortex.Substitution <> w':9 var
+R798:798 Cortex.Substitution <> w:8 var
+R827:834 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R810:818 Cortex.LogicalRelation <> env_valid def
+R820:820 Cortex.Substitution <> w:8 var
+R822:823 Cortex.Substitution <> Γ:6 var
+R825:826 Cortex.Substitution <> γ:7 var
+R835:843 Cortex.LogicalRelation <> env_valid def
+R845:846 Cortex.Substitution <> w':9 var
+R848:849 Cortex.Substitution <> Γ:6 var
+R851:852 Cortex.Substitution <> γ:7 var
+R920:935 Cortex.Substitution <> V_w_monotonicity prfax
+R920:935 Cortex.Substitution <> V_w_monotonicity prfax
+prf 1116:1153 <> semantic_substitution_preserves_typing
+R1175:1178 Corelib.Init.Datatypes <> list ind
+R1180:1181 Cortex.LogicalRelation <> Ty ind
+binder 1170:1171 <> Γ:10
+R1193:1196 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1190:1192 Corelib.Init.Datatypes <> nat ind
+R1197:1200 Cortex.Semantics <> Expr ind
+binder 1185:1186 <> γ:11
+R1208:1211 Cortex.Semantics <> Expr ind
+binder 1204:1204 <> e:12
+R1219:1220 Cortex.LogicalRelation <> Ty ind
+binder 1215:1215 <> t:13
+R1228:1232 Cortex.World <> World rec
+R1234:1234 Cortex.Substitution <> Substitution.A var
+binder 1224:1224 <> w:14
+R1261:1270 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1244:1252 Cortex.LogicalRelation <> env_valid def
+R1254:1254 Cortex.Substitution <> w:14 var
+R1256:1257 Cortex.Substitution <> Γ:10 var
+R1259:1260 Cortex.Substitution <> γ:11 var
+R1284:1293 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1271:1276 Cortex.FTLR <> typing ind
+R1278:1279 Cortex.Substitution <> Γ:10 var
+R1281:1281 Cortex.Substitution <> e:12 var
+R1283:1283 Cortex.Substitution <> t:13 var
+R1294:1296 Cortex.LogicalRelation <> E_w def
+R1298:1298 Cortex.Substitution <> t:13 var
+R1300:1300 Cortex.Substitution <> w:14 var
+R1302:1302 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1313:1314 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1329:1329 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1307:1307 <> x:15
+R1312:1312 Cortex.Substitution <> x:15 var
+R1315:1323 Cortex.FTLR <> subst_env def
+R1325:1326 Cortex.Substitution <> γ:11 var
+R1328:1328 Cortex.Substitution <> e:12 var
+R1511:1522 Cortex.Substitution Substitution <> sec

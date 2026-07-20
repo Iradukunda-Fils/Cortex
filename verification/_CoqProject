@@ -1,0 +1,8 @@
+-R . Cortex
+AuthorityModel.v
+World.v
+Semantics.v
+LogicalRelation.v
+FTLR.v
+Substitution.v
+Soundness.v
