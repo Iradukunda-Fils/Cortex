@@ -44,6 +44,26 @@ Section Substitution.
     (* Structural induction on typing derivation *)
   Admitted.
 
+  (* 
+     Spatiotemporal Monotonicity Specification for the TCap Value Relation:
+     Proving that if a capability is valid in world w, it either retains its live 
+     semantic identity or safely transitions to the trapped recovery path in w'.
+  *)
+  Lemma V_w_TCap_monotonicity : forall (c : Capability) (w w' : World A),
+    world_accessible w w' ->
+    (auth_contains (world_lambda w) c /\ world_epoch w <= cap_max_epoch c) ->
+    (auth_contains (world_lambda w') c /\ world_epoch w' <= cap_max_epoch c) \/ (e_invoke c = e_val 0).
+  Proof.
+    intros c w w' Hacc [Hauth Hepoch].
+    destruct Hacc as [Hspatial [Hmonitor [Hfuel Htemporal]]].
+    (* 
+       Here lies the real proof friction:
+       If c remains in the contracted authority list (world_lambda w'), the left branch closes.
+       If c is evicted by spatial contraction, the proof must show the operational 
+       semantics natively trap the term, satisfying the right branch (e_val 0).
+    *)
+  Admitted.
+
   (* Core Lemma 1: Value Relation Monotonicity over Kripke World Shifts *)
   Lemma V_w_monotonicity : forall (t : Ty) (w w' : World A) (v : Expr),
     world_accessible w w' ->
