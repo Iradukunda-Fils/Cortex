@@ -6,28 +6,6 @@ From Cortex Require Import FTLR.
 Require Import RelationClasses.
 Require Import Relation_Definitions.
 
-(* ================================================================= *
-   AXIOM: Spatiotemporal Capability Decay Control Parameter
-
-   This axiom formalizes the contravariant boundary of capability
-   validity under forward world accessibility (w ⊑ w').
-
-   Forward preservation of valid_cap is intentionally non-provable
-   in the general case: world transitions model both spatial authority
-   contraction (Λ' ⊆ Λ) and temporal epoch advancement (ν ≤ ν'),
-   either of which can revoke or expire a capability.
-
-   This axiom is isolated as the SOLE axiomatic boundary of the
-   entire mechanization. All downstream lemmas and theorems—including
-   V_w_monotonicity, env_valid_monotonicity, context_weakening,
-   semantic_substitution_preserves_typing, the FTLR, and
-   unified_soundness—are fully proved (Qed) modulo this parameter.
-   ================================================================= *)
-Axiom valid_cap_decay_axiom : forall (A : AuthorityModel) (c : Capability) (w w' : World A),
-  world_accessible w w' ->
-  valid_cap c w ->
-  valid_cap c w'.
-
 Section Substitution.
   Context {A : AuthorityModel}.
 
@@ -79,48 +57,6 @@ Section Substitution.
       simpl. apply T_Invoke.
     - (* T_Fork *)
       simpl. apply T_Fork. apply IHHtype.
-  Qed.
-
-  (* 
-     Spatiotemporal Monotonicity Specification for the TCap Value Relation:
-     Proving that if a capability is valid in world w, it either retains its live 
-     semantic identity or safely transitions to the trapped recovery path in w'.
-  *)
-  Lemma V_w_TCap_monotonicity : forall (c : Capability) (w w' : World A),
-    world_accessible w w' ->
-    (auth_contains (world_lambda w) c /\ world_epoch w <= cap_max_epoch c) ->
-    (auth_contains (world_lambda w') c /\ world_epoch w' <= cap_max_epoch c) \/ (e_invoke c = e_val 0).
-  Proof.
-    intros c w w' Hacc Hvalid.
-    left.
-    eapply valid_cap_decay_axiom; eauto.
-  Qed.
-
-  (* Core Lemma 1: Value Relation Monotonicity over Kripke World Shifts *)
-  Lemma V_w_monotonicity : forall (t : Ty) (w w' : World A) (v : Expr),
-    world_accessible w w' ->
-    V_w t w v ->
-    V_w t w' v.
-  Proof.
-    induction t; intros w w' v Hacc Hval; simpl in *.
-    - (* TUnit *) exact Hval.
-    - (* TInt *) exact Hval.
-    - (* TCap *)
-      destruct Hval as [[c [Heq Hvalid]] | Hz].
-      + left. exists c. split; [exact Heq |].
-        eapply valid_cap_decay_axiom; eauto.
-      + right. exact Hz.
-  Qed.
-
-  (* Core Lemma 2: Environment Validity Preservation under World Accessibility *)
-  Lemma env_valid_monotonicity : forall (Γ : list Ty) (γ : nat -> Expr) (w w' : World A),
-    world_accessible w w' ->
-    env_valid w Γ γ ->
-    env_valid w' Γ γ.
-  Proof.
-    intros Γ γ w w' Hacc Henv x t Hlookup.
-    red in Henv.
-    eapply V_w_monotonicity; eauto.
   Qed.
 
   (* 

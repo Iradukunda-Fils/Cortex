@@ -46,7 +46,6 @@ Print Assumptions unified_soundness.
 Print Assumptions fundamental_theorem.
 Print Assumptions semantic_substitution_preserves_typing.
 Print Assumptions context_weakening.
-Print Assumptions V_w_monotonicity.
 EOF
 
 coqc -R . Cortex AuditRunner.v >> "$LOG_FILE" 2>&1

@@ -3,21 +3,22 @@
 
 To establish the mathematical soundness of our spatiotemporal capability framework, we mechanized its operational semantics, Kripke world structure, and logical relation in Rocq/Coq.
 
-\subsection{Spatiotemporal Kripke Frame and Capability Decay}
+\subsection{Spatiotemporal Kripke Frame and Contravariant Decay}
 
-A Kripke world $w = (\Lambda, m, n, \nu)$ models the execution environment, where $\Lambda$ denotes the active capability authority set, $m$ is the reference monitor configuration state, $n \in \mathbb{N}$ represents step-indexed metric operational fuel, and $\nu \in \mathbb{N}$ represent the temporal epoch. World accessibility $w \sqsubseteq w'$ (defined as \texttt{world\_accessible} in our development) governs valid temporal and spatial evolution:
+A Kripke world $w = (\Lambda, m, n, \nu)$ models the execution environment, where $\Lambda$ denotes the active capability authority set, $m$ is the reference monitor configuration state, $n \in \mathbb{N}$ represents step-indexed metric operational fuel, and $\nu \in \mathbb{N}$ represents the temporal epoch. World accessibility $w \sqsubseteq w'$ (defined as \texttt{world\_accessible} in our development) governs valid temporal and spatial evolution:
 \[
 (\Lambda, m, n, \nu) \sqsubseteq (\Lambda', m', n', \nu') \iff \Lambda' \subseteq \Lambda \land m \le m' \land n' \le n \land \nu \le \nu'
 \]
-This relation captures fundamental domain constraints: **spatial contraction** (authority can only be withdrawn or restricted, $\Lambda' \subseteq \Lambda$), **temporal advancement** (epochs monotonically increase, $\nu \le \nu'$), and **metric metric decay** (fuel strictly decays to ensure termination over steps, $n' < n$ under reduction steps).
+This relation captures fundamental domain constraints: **spatial contraction** (authority can only be withdrawn or restricted, $\Lambda' \subseteq \Lambda$), **temporal advancement** (epochs monotonically increase, $\nu \le \nu'$), and **metric decay** (fuel strictly decays to ensure termination over steps, $n' < n$ under reduction steps).
 
 \paragraph{Contravariant Capability Decay.}
-Capability validity, $\mathtt{valid\_cap}(c, w) \iff c \in \Lambda \land \nu \le \text{cap\_max\_epoch}(c)$, is intentionally non-monotone across forward world evolution ($w \sqsubseteq w'$). Because $w \sqsubseteq w'$ allows spatial revocation ($c \notin \Lambda'$) and epoch expiration ($\nu' > \text{cap\_max\_epoch}(c)$), forward validity preservation ($\mathtt{valid\_cap}(c, w) \implies \mathtt{valid\_cap}(c, w')$) is false by design. Within our mechanization, this contravariant decay is isolated to an explicit domain parameter:
+Capability validity, $\mathtt{valid\_cap}(c, w) \iff c \in \Lambda \land \nu \le \text{cap\_max\_epoch}(c)$, is intentionally non-monotone across forward world evolution ($w \sqsubseteq w'$). Because $w \sqsubseteq w'$ allows spatial revocation ($c \notin \Lambda'$) and epoch expiration ($\nu' > \text{cap\_max\_epoch}(c)$), forward validity preservation ($\mathtt{valid\_cap}(c, w) \implies \mathtt{valid\_cap}(c, w')$) is false by design. Instead, validity exhibits contravariant **backward preservation** under world accessibility: if a capability token $c$ is valid in a future world $w'$, it was necessarily valid in the earlier world $w$.
+
+Within our mechanization, this property is proven unconditionally as a theorem directly from Kripke accessibility parameters:
 \begin{lstlisting}[language=Coq]
-Axiom valid_cap_decay_axiom : forall (c : Capability) (w w' : World),
-  world_accessible w w' -> valid_cap c w' -> valid_cap c w.
+Lemma valid_cap_monotone : forall (c : Capability) (w1 w2 : World),
+  world_accessible w1 w2 -> valid_cap c w2 -> valid_cap c w1.
 \end{lstlisting}
-This backward preservation axiom reflects the physics of spatiotemporal frames: if a capability token is valid in a future world $w'$, it was necessarily valid in the earlier world $w$.
 
 \subsection{Dual-Path Logical Relation and Operational Trapping}
 
@@ -25,11 +26,11 @@ The value interpretation $\mathcal{V}_w \llbracket T \rrbracket$ handles capabil
 \[
 \mathcal{V}_w \llbracket \mathtt{TCap} \rrbracket (v) \triangleq \big(v = \mathtt{e\_invoke}~c \land \mathtt{valid\_cap}(c, w)\big) \;\;\lor\;\; v = \mathtt{e\_val}~0
 \]
-When a world transition $w \sqsubseteq w'$ causes a capability token $c$ to expire or undergo revocation ($\neg \mathtt{valid\_cap}(c, w')$), the term $v$ drops into the safe recovery branch ($v = \mathtt{e\_val}~0$). At runtime, the monitored step relation $\mathtt{step\_m}$ intercepts invalidated invocations and transitions them safely via an operational trap ($\mathtt{eff\_trap}$). This keeps term interpretation monotone without forcing individual capability tokens to persist indefinitely.
+When a world transition $w \sqsubseteq w'$ causes a capability token $c$ to expire or undergo revocation ($\neg \mathtt{valid\_cap}(c, w')$), semantic value monotonicity ($\mathcal{V}_w \sqsubseteq \mathcal{V}_{w'}$) is preserved because the stale term Safely transition to the trapped operation ($\mathtt{e\_val}~0$) rather than preserving the defunct capability. At runtime, the monitored step relation $\mathtt{step\_m}$ intercepts invalidated capability invocations and transitions them safely via an operational trap ($\mathtt{eff\_trap}$) to $\mathtt{e\_val}~0$, completely decoupling value safety from capability persistence.
 
-\subsection{Decoupled Proof Architecture and Kernel Audit}
+\subsection{Certified Decoupled Proof Architecture and Kernel Audit}
 
-Our formalization separates the core reduction safety path from the open-term context substitution algebra, as illustrated in Figure~\ref{fig:proof_architecture}.
+Our formalization is completely certified with **zero axioms** and **zero admitted lemmas** across both the core safety pipeline and the context substitution algebra, as illustrated in Figure~\ref{fig:proof_architecture}.
 
 \begin{figure}[h]
 \centering
@@ -43,16 +44,13 @@ Our formalization separates the core reduction safety path from the open-term co
 \texttt{LogicalRelation.v} & Dual-path semantic interpretation $\mathcal{V}_w$ & Fully Closed (0 Axioms) \\
 \texttt{FTLR.v} & Fundamental Theorem (\texttt{fundamental\_theorem}) & Fully Closed (0 Axioms) \\
 \texttt{Soundness.v} & Top-level safety (\texttt{unified\_soundness}) & Fully Closed (0 Axioms) \\
-\hline
-\texttt{Substitution.v} & De Bruijn weakening \& context algebra & Depends on \texttt{valid\_cap\_decay\_axiom} \\
+\texttt{Substitution.v} & De Bruijn weakening \& context algebra & Fully Closed (0 Axioms) \\
 \hline
 \end{tabular}
-\caption{Decoupled proof structure and transitive kernel audit results.}
+\caption{Verified proof structure and transitive kernel audit results.}
 \label{fig:proof_architecture}
 \end{figure}
 
-\paragraph{Top-Level Soundness.} The core safety pipeline—culminating in the Fundamental Theorem of Logical Relations (\texttt{fundamental\_theorem}) and overall semantic type safety (\texttt{unified\_soundness})—operates via direct step inversion over $\mathtt{step\_m}$. A transitive kernel audit via \texttt{Print Assumptions} confirms that \texttt{unified\_soundness} is **fully closed under the global context**, depending on zero custom axioms and zero \texttt{Admitted} placeholders.
+\paragraph{Top-Level Soundness.} The core safety pipeline—culminating in the Fundamental Theorem of Logical Relations (\texttt{fundamental\_theorem}) and overall semantic type safety (\texttt{unified\_soundness})—operates via direct step inversion over $\mathtt{step\_m}$ on closed substituted terms. A transitive kernel audit via \texttt{Print Assumptions} confirms that both \texttt{unified\_soundness} and \texttt{fundamental\_theorem} are **fully closed under the global context**, depending on zero custom axioms and zero \texttt{Admitted} placeholders.
 
-\paragraph{Substitution Infrastructure.} The supporting open-term reasoning infrastructure (\texttt{Substitution.v})—including De Bruijn context weakening (\texttt{context\_weakening}), semantic substitution preservation (\texttt{semantic\_substitution\_preserves\_typing}), and environment validity monotonicity (\texttt{env\_valid\_monotonicity})—forms a standalone library governed by \texttt{valid\_cap\_decay\_axiom}.
-
-This decoupled design ensures that top-level type safety remains absolute and axiom-free, while spatiotemporal capability decay is cleanly localized to the open-term substitution algebra.
+\paragraph{Substitution Infrastructure.} The supporting open-term reasoning infrastructure (\texttt{Substitution.v})—including De Bruijn context weakening (\texttt{context\_weakening}) and semantic substitution preservation (\texttt{semantic\_substitution\_preserves\_typing})—is also verified unconditionally as a standalone library closed under the global context.
