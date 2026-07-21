@@ -1,0 +1,6 @@
+# Compiled Coq/Rocq artifacts
+*.vo
+*.vok
+*.vos
+*.glob
+.*.aux

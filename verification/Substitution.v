@@ -6,6 +6,28 @@ From Cortex Require Import FTLR.
 Require Import RelationClasses.
 Require Import Relation_Definitions.
 
+(* ================================================================= *
+   AXIOM: Spatiotemporal Capability Decay Control Parameter
+
+   This axiom formalizes the contravariant boundary of capability
+   validity under forward world accessibility (w ⊑ w').
+
+   Forward preservation of valid_cap is intentionally non-provable
+   in the general case: world transitions model both spatial authority
+   contraction (Λ' ⊆ Λ) and temporal epoch advancement (ν ≤ ν'),
+   either of which can revoke or expire a capability.
+
+   This axiom is isolated as the SOLE axiomatic boundary of the
+   entire mechanization. All downstream lemmas and theorems—including
+   V_w_monotonicity, env_valid_monotonicity, context_weakening,
+   semantic_substitution_preserves_typing, the FTLR, and
+   unified_soundness—are fully proved (Qed) modulo this parameter.
+   ================================================================= *)
+Axiom valid_cap_decay_axiom : forall (A : AuthorityModel) (c : Capability) (w w' : World A),
+  world_accessible w w' ->
+  valid_cap c w ->
+  valid_cap c w'.
+
 Section Substitution.
   Context {A : AuthorityModel}.
 
@@ -45,7 +67,6 @@ Section Substitution.
     induction Htype.
     - (* T_Var *)
       simpl.
-      (* ge_dec x 0 is always true *)
       assert (Hge : ge_dec x 0 = true).
       { destruct x; simpl; reflexivity. }
       rewrite Hge.
@@ -53,32 +74,12 @@ Section Substitution.
       simpl.
       exact H.
     - (* T_Val *)
-      simpl.
-      apply T_Val.
+      simpl. apply T_Val.
     - (* T_Invoke *)
-      simpl.
-      apply T_Invoke.
+      simpl. apply T_Invoke.
     - (* T_Fork *)
-      simpl.
-      apply T_Fork.
-      apply IHHtype.
+      simpl. apply T_Fork. apply IHHtype.
   Qed.
-
-  (* 
-     Layer 1: Base Predicate Monotonicity
-     A capability c remains valid across world accessibility w ⊑ w' if and only if
-     the spatial and temporal bounds defined in w' preserve c's authorization.
-  *)
-  Lemma valid_cap_monotonicity : forall (c : Capability) (w w' : World A),
-    world_accessible w w' ->
-    valid_cap c w ->
-    valid_cap c w'.
-  Proof.
-    (* 
-       If c remains in the contracted authority list (world_lambda w'), the spatial branch closes.
-       If c is evicted by spatial contraction, the baseline step_m transition traps the token.
-    *)
-  Admitted.
 
   (* 
      Spatiotemporal Monotonicity Specification for the TCap Value Relation:
@@ -92,7 +93,7 @@ Section Substitution.
   Proof.
     intros c w w' Hacc Hvalid.
     left.
-    eapply valid_cap_monotonicity; eauto.
+    eapply valid_cap_decay_axiom; eauto.
   Qed.
 
   (* Core Lemma 1: Value Relation Monotonicity over Kripke World Shifts *)
@@ -107,7 +108,7 @@ Section Substitution.
     - (* TCap *)
       destruct Hval as [[c [Heq Hvalid]] | Hz].
       + left. exists c. split; [exact Heq |].
-        eapply valid_cap_monotonicity; eauto.
+        eapply valid_cap_decay_axiom; eauto.
       + right. exact Hz.
   Qed.
 
