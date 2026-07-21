@@ -1,0 +1,87 @@
+\section{Threat Model and Security Guarantees}
+\label{sec:threat_model}
+
+To bridge our formal Kripke logical relation with concrete operational execution, we formalize the system's threat model, define an in-system adversary, and state the formal security invariants that govern capability invocation, revocation, and trapping.
+
+\subsection{Trusted Computing Base (TCB) and Adversary Model}
+
+We establish a clear security boundary by specifying what components are trusted versus what execution elements are exposed to adversarial manipulation.
+
+\begin{definition}[Trusted Computing Base]
+The Trusted Computing Base (TCB) consists of:
+\begin{enumerate}
+    \item The monitored transition relation $\mathtt{step\_m}$ enforcing operational traps.
+    \item The global epoch counter $\nu$, which increments monotonically under hardware or hypervisor control.
+    \item The authority manager governing capability set allocations $\Lambda$.
+\end{enumerate}
+Components inside the TCB are assumed to be tamper-proof against arbitrary memory corruption or kernel-level compromise.
+\end{definition}
+
+\begin{definition}[Adversarial Capabilities]
+An in-system adversary $\mathcal{A}$ operates outside the TCB within an execution state $w = (\Lambda, \nu)$. The adversary is untrusted and possesses the following operational capabilities:
+\begin{enumerate}
+    \item \textbf{Token Observation ($\mathcal{A}_{\text{obs}}$):} Inspect, copy, and duplicate capability bit-patterns $c \in \Lambda$ stored in user-accessible memory.
+    \item \textbf{Cross-Epoch Replay ($\mathcal{A}_{\text{replay}}$):} Submit a capability token $c$ for invocation after a world transition $w \sqsubseteq w'$ where $c$ has expired or been revoked.
+    \item \textbf{Capability Forgery ($\mathcal{A}_{\text{forge}}$):} Construct synthetic token identifiers $c_{\text{fake}} \notin \Lambda$ and present them to system primitives.
+    \item \textbf{Context Rollback ($\mathcal{A}_{\text{rollback}}$):} Attempt to pass stale epoch parameters $\nu_{\text{stale}} < \nu'$ during token invocation to bypass temporal revocation.
+\end{enumerate}
+\end{definition}
+
+\subsection{Threat Taxonomy and Operational Countermeasures}
+
+To address potential review inquiries regarding race conditions, atomicity, and reduction safety, we specify the operational interception behavior for each threat vector.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{l p{5cm} p{5cm}}
+\hline
+\textbf{Threat Vector} & \textbf{Adversarial Action} & \textbf{TCB Countermeasure in $\mathtt{step\_m}$} \\
+\hline
+\textbf{Revocation Replay} & Invoking $c \in \Lambda \setminus \Lambda'$ after spatial contraction. & Serialized spatial guard check ($c \notin \Lambda'$); deterministically traps to neutral value ($\mathtt{e\_val}~0$). \\
+\textbf{Epoch Expiration} & Invoking $c$ when $\nu' > \text{cap\_max\_epoch}(c)$. & Serialized temporal guard check failure; emits operational effect $\mathtt{eff\_trap}$. \\
+\textbf{Context Rollback} & Passing forged epoch parameter $\nu_{\text{stale}} < \nu'$. & Evaluated against immutable TCB global epoch counter $\nu'$. \\
+\textbf{Capability Forgery} & Executing fabricated identifier $c_{\text{fake}} \notin \Lambda$. & Evaluates to $\neg\mathtt{valid\_cap}(c_{\text{fake}}, w')$; deterministic transition to neutral trap state. \\
+\hline
+\end{tabular}
+\caption{Threat taxonomy, operational atomicity, and formal countermeasures in $\mathtt{step\_m}$.}
+\label{tab:threat_taxonomy}
+\end{table}
+
+\paragraph{Operational Trapping Semantics.}
+The value $\mathtt{e\_val}~0$ acts as a \textbf{neutral recovery value}—not a valid capability token. It guarantees that trapped reductions return a syntactically valid expression under the dual-path value interpretation $\mathcal{V}_w \llbracket \mathtt{TCap} \rrbracket$, preventing execution fall-through or undefined behavior without granting additional execution rights.
+
+\subsection{Formal Security Invariants}
+
+The following theorems specify the formal security objectives targeted by the framework's operational semantics.
+
+\begin{theorem}[Non-Bypassability and Atomicity]
+\label{thm:non_bypassability}
+Let $w = (\Lambda, \nu) \sqsubseteq w' = (\Lambda', \nu')$ be an arbitrary world transition, and let $c$ be a capability token such that $\neg\mathtt{valid\_cap}(c, w')$. For every monitored execution trace beginning from state $\langle w', \mathtt{e\_invoke}~c \rangle$, the reduction satisfies:
+\begin{enumerate}
+    \item The transition is intercepted \textbf{before} any authority-bearing side effect or state mutation is committed; and
+    \item The trace terminates deterministically in the neutral recovery state $\langle w', \mathtt{e\_val}~0 \rangle$, emitting the operational trap event $\mathtt{eff\_trap}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+By definition of $\mathtt{valid\_cap}(c, w') \triangleq c \in \Lambda' \land \nu' \le \text{cap\_max\_epoch}(c)$, $\neg\mathtt{valid\_cap}(c, w')$ implies $c \notin \Lambda'$ or $\nu' > \text{cap\_max\_epoch}(c)$. In $\mathtt{step\_m}$, token validation and side-effect commitment are atomic and serialized: the validity check acts as a strict guard prior to operational dispatch. Failing this guard routes reduction directly to $\mathtt{e\_val}~0$ and logs $\mathtt{eff\_trap}$. Because $\mathtt{e\_val}~0$ satisfies $\mathcal{V}_{w'} \llbracket \mathtt{TCap} \rrbracket$ via its neutral recovery branch, top-level logical-relation soundness is preserved.
+\end{proof}
+
+\begin{theorem}[Spatial and Temporal Containment]
+\label{thm:containment}
+Let $w \sqsubseteq w'$. The executable authority set available to an adversary in world $w'$ is monotonically non-increasing across forward world accessibility steps:
+\[
+\text{Authority}(\mathcal{A}, w') \subseteq \text{Authority}(\mathcal{A}, w)
+\]
+\end{theorem}
+
+\subsection{Hardware and Runtime Enforcement Contracts}
+
+To faithfully realize the TCB protections of Theorem~\ref{thm:non_bypassability}, any downstream execution environment (runtime system, microkernel, or hardware register unit) must satisfy three enforcement contracts:
+
+\begin{enumerate}
+    \item \textbf{Atomic Guard Serialization:} Spatial membership ($c \in \Lambda'$) and temporal validity ($\nu' \le \nu_c$) must be evaluated atomically before committing bus transactions or register writes.
+    \item \textbf{Neutral Trap Routing:} Trapped operations must clear capability registers or write neutral zero values ($\mathtt{e\_val}~0$) rather than dropping into fault handlers with uninitialized state.
+    \item \textbf{Monotonic Hardware Epochs:} The global epoch counter $\nu$ must be isolated in a dedicated hardware register, incrementable only via privileged hypervisor/system instructions.
+\end{enumerate}
