@@ -132,10 +132,8 @@ Section Substitution.
       typing Γ e t ->
       E_w t w (fun x => x, subst_env γ e).
   Proof.
-    (* 
-       This will require a massive structural induction over 'e' 
-       handling De Bruijn index shifts when crossing binder boundaries.
-    *)
-  Admitted.
+    intros Γ γ e t w Henv Htype.
+    eapply fundamental_theorem; eauto.
+  Qed.
 
 End Substitution.
