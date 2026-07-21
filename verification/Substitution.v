@@ -41,8 +41,28 @@ Section Substitution.
     typing Γ e t ->
     typing (t_fresh :: Γ) (shift 0 e) t.
   Proof.
-    (* Structural induction on typing derivation *)
-  Admitted.
+    intros Γ e t t_fresh Htype.
+    induction Htype.
+    - (* T_Var *)
+      simpl.
+      (* ge_dec x 0 is always true *)
+      assert (Hge : ge_dec x 0 = true).
+      { destruct x; simpl; reflexivity. }
+      rewrite Hge.
+      apply T_Var.
+      simpl.
+      exact H.
+    - (* T_Val *)
+      simpl.
+      apply T_Val.
+    - (* T_Invoke *)
+      simpl.
+      apply T_Invoke.
+    - (* T_Fork *)
+      simpl.
+      apply T_Fork.
+      apply IHHtype.
+  Qed.
 
   (* 
      Layer 1: Base Predicate Monotonicity
