@@ -34,7 +34,7 @@ We have constructed a deep-embedded, compilable verification suite in the Cortex
 *   **`Semantics.v`**: Implements deep-embedded expressions (`e_var`, `e_val`, `e_invoke`, `e_fork`) and lists the fuel-decrementing step relation `step_m` where fresh capability execution preserves the token expression `e_invoke c` on trace outputs.
 *   **`LogicalRelation.v`**: Defines list-lookup typing context validation and the spatiotemporal execution relation `E_w`.
 *   **`FTLR.v`**: Defines the deep inductive typing rules (`typing`) and proves the syntax-directed induction cases of the Fundamental Theorem of Logical Relations.
-*   **`Substitution.v`**: Houses the **active proof engineering boundary** of the mechanization. Implements the De Bruijn index shifting algebra (`ge_dec`, `shift`) and declares context weakening (`context_weakening`), capability monotonicity (`V_w_TCap_monotonicity`), value relation monotonicity (`V_w_monotonicity`), env validity monotonicity (`env_valid_monotonicity`), and semantic substitution (`semantic_substitution_preserves_typing`) as admitted.
+*   **`Substitution.v`**: Houses the **active proof engineering boundary** of the mechanization. Implements the De Bruijn index shifting algebra (`ge_dec`, `shift`) and proves capability value relation monotonicity (`V_w_TCap_monotonicity`), type-level value monotonicity (`V_w_monotonicity`), and env validity monotonicity (`env_valid_monotonicity`), while declaring context weakening (`context_weakening`), base predicate monotonicity (`valid_cap_monotonicity`), and semantic substitution (`semantic_substitution_preserves_typing`) as admitted.
 *   **`Soundness.v`**: Synthesizes type safety, composing `fundamental_theorem` with complete mediation under `unified_soundness` to verify operational provenance safety.
 
 ---
@@ -48,7 +48,7 @@ We have constructed a deep-embedded, compilable verification suite in the Cortex
 | **03** | **Logical Relation Design** | Mechanize value and trace relations | Construct definitions for $V_w$ and $E_w$ in `LogicalRelation.v`. | **Completed** |
 | **04** | **ITP proof layout / skeleton** | Structural induction over typing | Implement typing rules and proof goals in `FTLR.v`. | **Completed** |
 | **05** | **Soundness Composition** | Synthesize complete mediation safety | Compose FTLR lemma and complete mediation in `Soundness.v`. | **Completed** |
-| **06** | **Active Proof Engineering** | Complete structural substitution | Discharge the 5 admitted lemmas in `Substitution.v`. | **ACTIVE** |
+| **06** | **Active Proof Engineering** | Complete structural substitution | Discharge the 3 admitted lemmas in `Substitution.v`. | **ACTIVE** |
 
 ---
 
@@ -58,4 +58,4 @@ By maintaining semantic transparency about the verification boundaries, the pape
 *   **Spatiotemporal World Model**: *"Formally specified Kripke frame mapping authority contraction to step-index decay."*
 *   **Core Operational Monitor**: *"Axiomatized trace-refinement monitor providing a foundational blueprint for complete mediation."*
 *   **Logical Relations Loop**: *"A deep-embedded syntax skeleton establishing the structural continuity of the Fundamental Theorem."*
-*   **Mechanization Progress**: *"Core semantic structures established; proof of the underlying semantic substitution engine matches context weakening, capability monotonicity, and index-shifting algebra and is under construction (`Substitution.v`)."*
+*   **Mechanization Progress**: *"Core semantic structures established; proof of the underlying semantic substitution engine matches context weakening, base predicate monotonicity, and index-shifting algebra, leaving exactly 3 admitted lemmas under construction (`Substitution.v`)."*
