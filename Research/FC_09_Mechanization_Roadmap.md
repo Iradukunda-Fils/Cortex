@@ -42,7 +42,63 @@ We have constructed a deep-embedded, compilable verification suite in the Cortex
 
 ---
 
-## 4. Verification Step Progression
+## 4. Verified Architectural Dependency Hierarchy
+
+The Rocq/Coq development is organized into a decoupled proof architecture separating the core soundness pipeline from the substitution and monotonicity infrastructure.
+
+### 4.1 Core Soundness Pipeline
+The following modules constitute the primary semantic safety path:
+*   `World.v` → `Semantics.v` → `LogicalRelation.v` → `FTLR.v` → `Soundness.v`
+
+This pipeline establishes the Kripke world structure, monitored operational semantics, logical relations, the Fundamental Theorem of Logical Relations (`fundamental_theorem`), and the top-level soundness theorem (`unified_soundness`).
+
+`unified_soundness` proves safety via direct `step_m` inversion and uses `env_valid` as an external hypothesis, rather than importing the substitution and monotonicity lemmas from `Substitution.v`.
+
+### 4.2 Substitution and Monotonicity Infrastructure
+The following module provides supporting infrastructure for open-term reasoning and future language extensions:
+*   `Substitution.v`: `V_w_monotonicity`, `env_valid_monotonicity`, `V_w_TCap_monotonicity`, `context_weakening`, `semantic_substitution_preserves_typing`
+
+These components depend on the explicit domain parameter `valid_cap_decay_axiom`.
+
+### 4.3 Kernel Dependency Audit (`Print Assumptions`)
+The following output was obtained by executing `Print Assumptions` in the Rocq 9.1.1 kernel after a clean `make` build:
+
+```
+Print Assumptions unified_soundness.
+  → Closed under the global context
+
+Print Assumptions fundamental_theorem.
+  → Closed under the global context
+
+Print Assumptions semantic_substitution_preserves_typing.
+  → Closed under the global context
+
+Print Assumptions context_weakening.
+  → Closed under the global context
+
+Print Assumptions V_w_monotonicity.
+  → Axioms: valid_cap_decay_axiom
+
+Print Assumptions env_valid_monotonicity.
+  → Axioms: valid_cap_decay_axiom
+
+Print Assumptions V_w_TCap_monotonicity.
+  → Axioms: valid_cap_decay_axiom
+```
+
+**Interpretation**: The top-level soundness theorem and the FTLR are axiom-free — fully closed under the global context. The monotonicity layer depends on `valid_cap_decay_axiom`. The two layers are decoupled: `unified_soundness` establishes safety via direct operational inversion, bypassing the Kripke monotonicity infrastructure entirely.
+
+To reproduce this audit:
+```coq
+(* In Rocq/Coq interactive shell after loading all modules *)
+From Cortex Require Import Soundness Substitution.
+Print Assumptions unified_soundness.
+Print Assumptions V_w_monotonicity.
+```
+
+---
+
+## 5. Verification Step Progression
 
 | Step | Phase | Goal | Target Implementation | Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -55,7 +111,7 @@ We have constructed a deep-embedded, compilable verification suite in the Cortex
 
 ---
 
-## 5. Artifact Evaluation
+## 6. Artifact Evaluation
 
 ### Build Instructions
 ```bash
@@ -65,19 +121,14 @@ make audit    # Report axiom/admit count across the development
 make clean    # Remove compiled artifacts
 ```
 
-### Axiom Audit
+### Source-Level Audit
 ```
- Axioms:
-   Substitution.v:26: Axiom valid_cap_decay_axiom
-
- Admitted:
-   (none)
+grep -rn "Admitted" *.v   → Exit code 1 (zero matches)
+grep -rn "Axiom" *.v      → Substitution.v:26: Axiom valid_cap_decay_axiom
 ```
 
 ---
 
-## 6. Peer-Reviewed Publication Framing
+## 7. Peer-Reviewed Publication Framing
 
-*"We have fully mechanized the spatiotemporal logical-relation framework and soundness proof in Rocq/Coq. The complete proof pipeline—from operational trace generation and value interpretation monotonicity to De Bruijn substitution and the Fundamental Theorem of Logical Relations—is verified with zero admitted lemmas across all AST, semantic, and typing modules.*
-
-*A single explicit control parameter (`valid_cap_decay_axiom`) is isolated as an axiomatic boundary. This boundary formally represents the contravariant nature of capability decay (revocation and epoch expiration) under forward world accessibility ($w \sqsubseteq w'$), while semantic value monotonicity ($\mathcal{V}_w$) is verified unconditionally via operational trapping."*
+*"We present a mechanized spatiotemporal logical-relation framework in Rocq/Coq with a decoupled architecture separating the core soundness pipeline from the substitution and monotonicity infrastructure. The top-level soundness theorem (`unified_soundness`) and the Fundamental Theorem of Logical Relations (`fundamental_theorem`) are verified with zero axioms or admitted lemmas — fully closed under the global context as confirmed by `Print Assumptions`. The monotonicity layer (`V_w_monotonicity`, `env_valid_monotonicity`) depends on a single explicit domain parameter (`valid_cap_decay_axiom`) representing the contravariant nature of capability decay under forward world accessibility. The two layers are architecturally decoupled: soundness is established via direct operational inversion, while the monotonicity infrastructure provides supporting algebra for open-term reasoning and future language extensions."*
