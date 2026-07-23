@@ -1,0 +1,7 @@
+[+] Verifying 6 execution steps for 2-way (Coq <-> Rust) refinement equivalence...
+    [MATCH] Coq <-> Rust Emulator 1:1 State Equivalence Confirmed.
+[+] Verifying 6 execution steps for 3-way (Rust <-> RTL) refinement equivalence...
+    [MATCH] Rust Emulator <-> Verilator SystemVerilog RTL 1:1 State Equivalence Confirmed.
+==========================================================================
+ SUCCESS: Refinement Equivalence Confirmed Across Evaluated Targets!
+==========================================================================
