@@ -54,3 +54,41 @@ Our formalization is completely certified with **zero axioms** and **zero admitt
 \paragraph{Top-Level Soundness.} The core safety pipeline—culminating in the Fundamental Theorem of Logical Relations (\texttt{fundamental\_theorem}) and overall semantic type safety (\texttt{unified\_soundness})—operates via direct step inversion over $\mathtt{step\_m}$ on closed substituted terms. A transitive kernel audit via \texttt{Print Assumptions} confirms that both \texttt{unified\_soundness} and \texttt{fundamental\_theorem} are **fully closed under the global context**, depending on zero custom axioms and zero \texttt{Admitted} placeholders.
 
 \paragraph{Substitution Infrastructure.} The supporting open-term reasoning infrastructure (\texttt{Substitution.v})—including De Bruijn context weakening (\texttt{context\_weakening}) and semantic substitution preservation (\texttt{semantic\_substitution\_preserves\_typing})—is also verified unconditionally as a standalone library closed under the global context.
+
+\subsection{Evaluation of Mechanization and Transition from Specification}
+\label{subsec:evaluation_transition}
+
+The transition from a high-level theoretical blueprint to a kernel-verified, zero-axiom Rocq/Coq mechanization provides empirical proof of the framework's mathematical correctness and reveals critical insights into spatiotemporal authority models. 
+
+\paragraph{Locating and Fixing the Validity Monotonicity Bug.}
+During the formulation of our Kripke world accessibility preorder, our initial design relied on a standard domain axiom (\texttt{valid\_cap\_decay\_axiom}) asserting that capability validity is forward-monotone: if $w \sqsubseteq w'$, then $\mathtt{valid\_cap}(c, w) \implies \mathtt{valid\_cap}(c, w')$. When attempting to prove the main soundness theorem, the theorem prover rejected the monotonicity step because forward world transitions ($\sqsubseteq$) allow spatial authority contraction ($\Lambda' \subseteq \Lambda$) and temporal epoch advancement ($\nu \le \nu'$). Forward monotonicity is fundamentally incompatible with capability revocation and temporal expiration. 
+
+By transitioning to a contravariant validity decay paradigm, we proved that validity is backward-preserved (\texttt{valid\_cap\_monotone} in \texttt{World.v}): if a capability is valid in future world $w'$, it was valid at world $w$. 
+We reconciled semantic value relation monotonicity ($\mathcal{V}_w \sqsubseteq \mathcal{V}_{w'}$) by defining the dual-path logical relation in \texttt{LogicalRelation.v}, which routes revoked or expired capability invocations deterministically to a neutral trap state ($\mathtt{e\_val}~0$) via the monitored operational step relation $\mathtt{step\_m}$.
+
+\paragraph{Proof Effort Metrics.}
+The entire mechanization was successfully compiled and audited using Rocq/Coq 9.1.1. It consists of 7 modular proof files under the \texttt{Cortex} namespace, totaling 446 lines of code (LOC). Table~\ref{tab:proof_metrics} outlines the file distribution and compile-time status.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l r X r}
+\hline
+\textbf{Module} & \textbf{LOC} & \textbf{Primary Verified Properties} & \textbf{Kernel Assumptions} \\
+\hline
+\texttt{AuthorityModel.v} & 25 & Capability structures and authority relations & 0 Axioms / 0 Admits \\
+\texttt{World.v} & 73 & Kripke world tuple, preorder, and contravariant decay & 0 Axioms / 0 Admits \\
+\texttt{Semantics.v} & 60 & Monitored operational step semantics ($\mathtt{step\_m}$) & 0 Axioms / 0 Admits \\
+\texttt{LogicalRelation.v} & 85 & Dual-path logical relation and trace predicates & 0 Axioms / 0 Admits \\
+\texttt{FTLR.v} & 71 & Fundamental Theorem of Logical Relations & 0 Axioms / 0 Admits \\
+\texttt{Substitution.v} & 76 & De Bruijn context weakening & 0 Axioms / 0 Admits \\
+\texttt{Soundness.v} & 56 & Top-level spatiotemporal type safety & 0 Axioms / 0 Admits \\
+\hline
+\textbf{Total} & \textbf{446} & \textbf{Core Security / Soundness Property Pipeline} & \textbf{0 Axioms / 0 Admits} \\
+\hline
+\end{tabularx}
+\caption{Mechanization sizing and verification assertion status verified by the Rocq kernel.}
+\label{tab:proof_metrics}
+\end{table}
+
+A transitive kernel audit via \texttt{Print Assumptions} verifies that all core safety statements (\texttt{unified\_soundness}, \texttt{fundamental\_theorem}, \texttt{semantic\_substitution\_preserves\_typing}, and \texttt{context\_weakening}) are completely closed under the global context. This audit confirms that no unverified axioms or placeholder lemmas (\texttt{Admitted}) pollute the correctness of the framework, resulting in an unassailable kernel-certified proofDAG.

@@ -34,7 +34,7 @@ To address potential review inquiries regarding race conditions, atomicity, and 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{l p{5cm} p{5cm}}
+\begin{tabularx}{\textwidth}{l X X}
 \hline
 \textbf{Threat Vector} & \textbf{Adversarial Action} & \textbf{TCB Countermeasure in $\mathtt{step\_m}$} \\
 \hline
@@ -43,7 +43,7 @@ To address potential review inquiries regarding race conditions, atomicity, and 
 \textbf{Context Rollback} & Passing forged epoch parameter $\nu_{\text{stale}} < \nu'$. & Evaluated against immutable TCB global epoch counter $\nu'$. \\
 \textbf{Capability Forgery} & Executing fabricated identifier $c_{\text{fake}} \notin \Lambda$. & Evaluates to $\neg\mathtt{valid\_cap}(c_{\text{fake}}, w')$; deterministic transition to neutral trap state. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Threat taxonomy, operational atomicity, and formal countermeasures in $\mathtt{step\_m}$.}
 \label{tab:threat_taxonomy}
 \end{table}
@@ -53,7 +53,7 @@ The value $\mathtt{e\_val}~0$ acts as a \textbf{neutral recovery value}—not a 
 
 \subsection{Formal Security Invariants}
 
-The following theorems specify the formal security objectives targeted by the framework's operational semantics.
+The following theorems specify the formal security objectives of the operational semantics. Their mechanized proof status is determined by the corresponding Rocq/Coq artifact and reported separately via kernel auditing (Print Assumptions).
 
 \begin{theorem}[Non-Bypassability and Atomicity]
 \label{thm:non_bypassability}
@@ -76,12 +76,133 @@ Let $w \sqsubseteq w'$. The executable authority set available to an adversary i
 \]
 \end{theorem}
 
+\begin{proof}[Proof Sketch]
+By the definition of world accessibility $w \sqsubseteq w'$ (i.e., $\mathtt{world\_accessible}~w~w'$), we have spatial contraction $\Lambda' \subseteq \Lambda$ and temporal advancement $\nu \le \nu'$. Any capability $c$ belonging to the executable authority set $\text{Authority}(\mathcal{A}, w') \triangleq \{ c \in \text{Capability} \mid \mathtt{valid\_cap}(c, w') \}$ satisfies the validity predicate $\mathtt{valid\_cap}(c, w') \triangleq c \in \Lambda' \land \nu' \le \text{cap\_max\_epoch}(c)$. By transitivity of the preorder relations (specifically spatial containment via $\mathtt{auth\_contains\_monotone}$ and epoch ordering via $\mathtt{le\_trans}$), we obtain $c \in \Lambda$ and $\nu \le \nu' \le \text{cap\_max\_epoch}(c) \implies \nu \le \text{cap\_max\_epoch}(c)$, which implies $\mathtt{valid\_cap}(c, w)$, i.e., $c \in \text{Authority}(\mathcal{A}, w)$. Thus, the set of executable capabilities is contravariantly contained: $\text{Authority}(\mathcal{A}, w') \subseteq \text{Authority}(\mathcal{A}, w)$. For any capability $c \notin \text{Authority}(\mathcal{A}, w)$, Theorem~\ref{thm:non_bypassability} ensures that attempts at execution are intercepted and routed to the neutral trap state $\mathtt{e\_val}~0$, preventing any unmonitored escalation.
+\end{proof}
+
 \subsection{Hardware and Runtime Enforcement Contracts}
 
-To faithfully realize the TCB protections of Theorem~\ref{thm:non_bypassability}, any downstream execution environment (runtime system, microkernel, or hardware register unit) must satisfy three enforcement contracts:
+To faithfully realize the TCB protections of Theorem~\ref{thm:non_bypassability}, any downstream execution environment (runtime system, microkernel, or hardware hardware-enforced register unit) must satisfy three enforcement contracts:
 
 \begin{enumerate}
     \item \textbf{Atomic Guard Serialization:} Spatial membership ($c \in \Lambda'$) and temporal validity ($\nu' \le \nu_c$) must be evaluated atomically before committing bus transactions or register writes.
     \item \textbf{Neutral Trap Routing:} Trapped operations must clear capability registers or write neutral zero values ($\mathtt{e\_val}~0$) rather than dropping into fault handlers with uninitialized state.
     \item \textbf{Monotonic Hardware Epochs:} The global epoch counter $\nu$ must be isolated in a dedicated hardware register, incrementable only via privileged hypervisor/system instructions.
 \end{enumerate}
+
+\section{Low-Level Hardware and Register Architecture}
+\label{sec:hardware_architecture}
+
+To ground the formal spatiotemporal semantics ($\mathtt{step\_m}$) and satisfy the enforcement contracts of Section~\ref{sec:threat_model}, we present a microarchitectural design for a hardware-enforced capability execution unit. This design introduces the \textbf{Spatiotemporal Capability Register (STCR)}, a dedicated \textbf{Hardware Epoch Counter (HEC)}, and an \textbf{Atomic Guard \& Trap Pipeline}.
+
+\subsection{Spatiotemporal Capability Register (STCR) Layout}
+
+We define a 64-bit hardware capability word format ($\mathtt{STCR}$) that encapsulates spatial authority bounds, temporal expiration limits, and object pointers within a single atomic register unit.
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+ 63   62             48 47                            16 15               0
++---+------------------+--------------------------------+------------------+
+| V |   Spatial Mask   |         Base Address           | Max Epoch (nu_c) |
+|   |  (Authority Set) |       (Object Reference)       | (Temporal Limit) |
++---+------------------+--------------------------------+------------------+
+\end{verbatim}
+\caption{64-bit Spatiotemporal Capability Register ($\mathtt{STCR}$) bit layout.}
+\label{fig:stcr_layout}
+\end{figure}
+
+The fields of the $\mathtt{STCR}$ are defined as follows:
+\begin{itemize}
+    \item \textbf{Valid Bit ($\mathtt{V}$, 1 bit, bit 63):} Hardware validity flag. Set to \texttt{1} for initialized capability descriptors; cleared to \texttt{0} on explicit hardware zeroing or trap routing.
+    \item \textbf{Spatial Authority Mask ($\mathtt{Mask}$, 15 bits, bits 62--48):} A bitmask representing active permissions and spatial domain membership ($\Lambda$). Moving to a restricted world $w' \sqsubseteq w$ corresponds to clearing bits in this mask.
+    \item \textbf{Base Address / Object Pointer ($\mathtt{Base}$, 32 bits, bits 47--16):} The physical or virtual memory address pointing to the target object descriptor or executable entry point.
+    \item \textbf{Maximum Epoch ($\nu_c$, 16 bits, bits 15--0):} The temporal expiration bound. Represents the maximum global epoch index ($\text{cap\_max\_epoch}(c)$) during which this capability remains executable.
+\end{itemize}
+
+\subsection{Hardware Epoch Counter (HEC) and Temporal Evolution}
+
+To support zero-overhead temporal invalidation across millions of active capability descriptors, epoch advancement ($\nu \to \nu'$) must not require linear memory sweeps.
+
+\begin{definition}[Hardware Epoch Counter]
+The \textbf{Hardware Epoch Counter (HEC)} is a privileged, 16-bit monotonic hardware register $\mathtt{REG\_HEC}$ isolated within the CPU's control unit.
+\begin{enumerate}
+    \item \textbf{Monotonic Increment:} $\mathtt{REG\_HEC}$ can only be incremented via a privileged hypervisor instruction (\texttt{hec.inc}). Direct write access from unprivileged ring levels is blocked at the hardware decode stage.
+    \item \textbf{Instantaneous Temporal Invalidation:} When $\mathtt{REG\_HEC}$ increments from $\nu$ to $\nu'$, any $\mathtt{STCR}$ with $\nu_c < \nu'$ becomes instantaneously invalid during pipeline evaluation without requiring memory updates.
+\end{enumerate}
+\end{definition}
+
+\subsection{Atomic Guard \& Trap Pipeline (MMU Integration)}
+
+To fulfill Contract 1 (Atomic Guard Serialization) and Contract 2 (Neutral Trap Routing), the CPU decode/execute pipeline evaluates capability validity in parallel with instruction decoding.
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+              +-----------------------------------+
+              |      Instruction Fetch / Decode   |
+              +-----------------+-----------------+
+                                |
+                                v
+              +-----------------+-----------------+
+              |      STCR Descriptor Extracted    |
+              +-----------------+-----------------+
+                                |
+                                v
+               /---------------------------------\
+              /   ATOMIC PIPELINE GUARD CHECK     \
+             <  1. V == 1                          >
+             <  2. (Spatial_Mask & Requested) != 0 >
+             <  3. REG_HEC <= Max_Epoch (nu_c)    >
+              \                                   /
+               \-----------------+---------------/
+                                |
+               +----------------+----------------+
+               |                                 |
+          [PASSED]                            [FAILED]
+               |                                 |
+               v                                 v
++---------------+---------------+ +---------------+---------------+
+| Execute Capability Invocation | | Zero Target Register (e_val 0) |
+|  Commit Memory/State Changes  | |  Emit Hardware Trap (eff_trap)|
++-------------------------------+ +-------------------------------+
+\end{verbatim}
+\caption{Atomic Guard and Trap routing pipeline execution flow.}
+\label{fig:pipeline_trap}
+\end{figure}
+
+\paragraph{Pipeline Micro-architecture Details.}
+During an \texttt{invoke\_cap} instruction:
+\begin{enumerate}
+    \item \textbf{Parallel Guard Evaluation:} The execution unit compares $\mathtt{REG\_HEC} \le \mathtt{STCR.Max\_Epoch}$ and verifies that the requested permission bit is present in $\mathtt{STCR.Spatial\_Mask}$.
+    \item \textbf{Atomic Commit vs. Trap Routing:}
+    \begin{itemize}
+        \item \textbf{Guard Pass:} The memory access or instruction dispatch is committed to the write-back stage.
+        \item \textbf{Guard Fail:} The execution pipeline inhibits memory bus transactions, clears the destination register to a zeroed bit-pattern ($\mathtt{e\_val}~0$), and sets an architectural status flag corresponding to $\mathtt{eff\_trap}$.
+    \end{itemize}
+\end{enumerate}
+
+This hardware pipeline directly implements the monitored transition relation $\mathtt{step\_m}$: no unauthorized side effects can be committed to the cache or memory hierarchy prior to guard validation.
+
+The spatial and temporal guard checks are designed to execute in parallel with standard address translation and instruction decoding in the pipeline. While the design avoids linear memory sweeps for capability invalidation, the precise microarchitectural latency and timing impact must be quantified through future RTL synthesis, FPGA prototyping, and cycle-accurate simulation.
+
+\subsection{MMU and Operating System Mapping}
+
+When integrated into a microkernel or operating system runtime, the hardware architecture maps to the formal model through three interfaces:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l X X}
+\hline
+\textbf{Formal Concept} & \textbf{Hardware / Microarchitectural Primitive} & \textbf{OS / Runtime Role} \\
+\hline
+World State $w = (\Lambda, \nu)$ & Active $\mathtt{STCR}$ registers + $\mathtt{REG\_HEC}$ & Context state saved during thread context switches. \\
+Epoch Advance $\nu \to \nu'$ & Privilege instruction \texttt{hec.inc} & Issued by kernel timer interrupt or epoch manager. \\
+Spatial Contraction $\Lambda' \subseteq \Lambda$ & Bitwise \texttt{AND} on $\mathtt{STCR.Spatial\_Mask}$ & Performed by microkernel IPC authority delegation. \\
+Operational Trap $\mathtt{eff\_trap}$ & Non-faulting zeroing write ($\mathtt{e\_val}~0$) & Handled gracefully by runtime without process crash. \\
+\hline
+\end{tabularx}
+\caption{Mapping formal Kripke concepts to hardware registers and OS primitives.}
+\label{tab:hardware_mapping}
+\end{table}
