@@ -29,4 +29,6 @@ def generate_canonical_test_bin(output_path: str):
     print(f"[+] Canonical test binary successfully generated at {output_path} ({len(header + payload)} bytes)")
 
 if __name__ == "__main__":
-    generate_canonical_test_bin("tests/canonical_test_program.bin")
+    import sys
+    out_path = sys.argv[1] if len(sys.argv) > 1 else "tests/canonical_test_program.bin"
+    generate_canonical_test_bin(out_path)

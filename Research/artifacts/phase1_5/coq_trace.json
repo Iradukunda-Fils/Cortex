@@ -1,0 +1,1442 @@
+[
+  {
+    "step_id": 1,
+    "pc": 8192,
+    "reg_hec": 0,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": true,
+        "spatial_mask": 28672,
+        "base_address": 8192,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x04010000",
+      "opcode": 1
+    },
+    "outcome": {
+      "status": "COMMIT",
+      "trap_cause": null,
+      "dest_reg_val": 8192
+    }
+  },
+  {
+    "step_id": 2,
+    "pc": 8192,
+    "reg_hec": 0,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": true,
+        "spatial_mask": 28672,
+        "base_address": 8192,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x0c004000",
+      "opcode": 3
+    },
+    "outcome": {
+      "status": "COMMIT",
+      "trap_cause": null,
+      "dest_reg_val": 13835058055819034624
+    }
+  },
+  {
+    "step_id": 3,
+    "pc": 8192,
+    "reg_hec": 0,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": true,
+        "spatial_mask": 16384,
+        "base_address": 8192,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x04020000",
+      "opcode": 1
+    },
+    "outcome": {
+      "status": "EFF_TRAP",
+      "trap_cause": "InsufficientSpatialRights",
+      "dest_reg_val": 0
+    }
+  },
+  {
+    "step_id": 4,
+    "pc": 8192,
+    "reg_hec": 0,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x14000000",
+      "opcode": 5
+    },
+    "outcome": {
+      "status": "COMMIT",
+      "trap_cause": null,
+      "dest_reg_val": 1
+    }
+  },
+  {
+    "step_id": 5,
+    "pc": 8192,
+    "reg_hec": 1,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x04030000",
+      "opcode": 1
+    },
+    "outcome": {
+      "status": "EFF_TRAP",
+      "trap_cause": "InvalidValidityBit",
+      "dest_reg_val": 0
+    }
+  },
+  {
+    "step_id": 6,
+    "pc": 8192,
+    "reg_hec": 1,
+    "stcr_file": [
+      {
+        "id": 0,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 1,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 2,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 3,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 4,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 5,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 6,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 7,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 8,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 9,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 10,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 11,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 12,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 13,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 14,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 15,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 16,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 17,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 18,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 19,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 20,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 21,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 22,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 23,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 24,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 25,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 26,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 27,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 28,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 29,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 30,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      },
+      {
+        "id": 31,
+        "valid": false,
+        "spatial_mask": 0,
+        "base_address": 0,
+        "max_epoch": 0
+      }
+    ],
+    "instruction": {
+      "raw_hex": "0x00000000",
+      "opcode": 0
+    },
+    "outcome": {
+      "status": "EFF_TRAP",
+      "trap_cause": "ReservedOpcode(0)",
+      "dest_reg_val": 0
+    }
+  }
+]
