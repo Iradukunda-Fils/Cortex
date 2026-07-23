@@ -1,3 +1,3 @@
 pub mod logger;
 
-pub use logger::{PostState, PreState, StepTraceRecord, TraceLogger};
+pub use logger::{InstructionTrace, OutcomeTrace, StcrState, StepTraceRecord, TraceLogger};

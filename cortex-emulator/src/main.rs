@@ -1,10 +1,14 @@
 mod hardware;
 mod isa;
+mod loader;
 mod trace;
 
+use std::env;
+use std::fs;
 use hardware::{GuardPipeline, HardwareEpochCounter, StcrFile, TrapCause};
 use isa::{CapabilityDescriptor, Instruction, Opcode, spatial_rights};
-use trace::{PostState, PreState, StepTraceRecord, TraceLogger};
+use loader::load_program;
+use trace::{InstructionTrace, OutcomeTrace, StcrState, StepTraceRecord, TraceLogger};
 
 pub struct SystemState {
     pub pc: u32,
@@ -25,112 +29,173 @@ impl SystemState {
 }
 
 fn main() {
-    println!("===========================================================");
-    println!(" CORTEX SPATIOTEMPORAL EMULATOR v0.1.0 (SDS v1.0 Canonical)");
-    println!("===========================================================");
+    let args: Vec<String> = env::args().collect();
+    let mut export_path: Option<String> = None;
+    let mut bin_path: Option<String> = None;
+
+    let mut i = 1;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--export-trace" | "--trace-out" => {
+                if i + 1 < args.len() {
+                    export_path = Some(args[i + 1].clone());
+                    i += 1;
+                }
+            }
+            "--bin" | "-b" => {
+                if i + 1 < args.len() {
+                    bin_path = Some(args[i + 1].clone());
+                    i += 1;
+                }
+            }
+            arg if !arg.starts_with('-') => {
+                bin_path = Some(arg.to_string());
+            }
+            _ => {}
+        }
+        i += 1;
+    }
 
     let mut state = SystemState::new();
     let mut logger = TraceLogger::new();
 
-    // Setup initial valid capability in STCR 1
+    // Setup initial valid capability in STCR 0 for testing (Max epoch = 0)
     let initial_cap = CapabilityDescriptor::new(
         true,
-        spatial_rights::EXEC | spatial_rights::READ,
+        spatial_rights::EXEC | spatial_rights::READ | spatial_rights::WRITE,
         0x00002000,
-        10, // Max epoch = 10
+        0, // Max epoch = 0
     );
-    state.stcr_file.write_descriptor(1, &initial_cap);
+    state.stcr_file.write_descriptor(0, &initial_cap);
 
-    println!("[INIT] Loaded STCR 1: {:?}", initial_cap);
-    println!("[INIT] Initial REG_HEC = {}", state.hec.value());
+    if let Some(path) = bin_path {
+        println!("[+] Loading binary execution program from: {}", path);
+        match load_program(&path) {
+            Ok(program) => {
+                println!("[+] Successfully loaded {} instructions", program.instruction_count);
+                for (idx, inst) in program.instructions.into_iter().enumerate() {
+                    execute_step(idx + 1, inst, &mut state, &mut logger);
+                }
+            }
+            Err(err) => {
+                eprintln!("[-] Error loading binary: {}", err);
+                std::process::exit(1);
+            }
+        }
+    } else {
+        // Fallback default demonstration loop
+        let raw_inst1 = (0x01u32 << 26) | (0u32 << 21) | (1u32 << 16) | 0x0000;
+        execute_step(1, Instruction::decode(raw_inst1), &mut state, &mut logger);
 
-    // Step 1: Valid Execution (REG_HEC = 0 <= 10)
-    let raw_inst1 = (0x01u32 << 26) | (1u32 << 21) | (3u32 << 16) | 0x0000;
-    execute_step(1, raw_inst1, &mut state, &mut logger);
+        for step_idx in 2..=12 {
+            let raw_hec_inc = 0x05u32 << 26;
+            execute_step(step_idx, Instruction::decode(raw_hec_inc), &mut state, &mut logger);
+        }
 
-    // Step 2: Increment Epoch (hec.inc) until epoch = 11 > 10
-    for _ in 0..11 {
-        let raw_hec_inc = 0x05u32 << 26;
-        execute_step(2, raw_hec_inc, &mut state, &mut logger);
+        execute_step(13, Instruction::decode(raw_inst1), &mut state, &mut logger);
     }
-    println!("[EVENT] Advanced REG_HEC to {}", state.hec.value());
 
-    // Step 3: Expired Execution Attempt (REG_HEC = 11 > 10) -> TRAP
-    execute_step(3, raw_inst1, &mut state, &mut logger);
-
-    println!("\n--- Step-by-Step Refinement Trace (JSON) ---");
     if let Ok(json) = logger.to_json_string() {
-        println!("{}", json);
+        if let Some(path) = export_path {
+            let _ = fs::write(&path, &json);
+            println!("[+] Exported trace to {}", path);
+        } else {
+            println!("{}", json);
+        }
     }
 }
 
 fn execute_step(
-    step_num: u64,
-    raw_inst: u32,
+    step_num: usize,
+    inst: Instruction,
     state: &mut SystemState,
     logger: &mut TraceLogger,
 ) {
-    let inst = Instruction::decode(raw_inst);
     let pre_hec = state.hec.value();
-    let stcr_raw = state.stcr_file.read_raw(inst.stcr_id as usize);
-    let stcr_decoded = state.stcr_file.read_descriptor(inst.stcr_id as usize);
 
-    let mut guard_result = "PASS".to_string();
-    let mut trap_cause: Option<TrapCause> = None;
+    // Capture register state prior to execution
+    let stcr_list: Vec<StcrState> = (0..32)
+        .map(|i| {
+            let desc = state.stcr_file.read_descriptor(i);
+            StcrState {
+                id: i as u8,
+                valid: desc.as_ref().map_or(false, |d| d.valid),
+                spatial_mask: desc.as_ref().map_or(0, |d| d.spatial_mask),
+                base_address: desc.as_ref().map_or(0, |d| d.base_address),
+                max_epoch: desc.as_ref().map_or(0, |d| d.max_epoch),
+            }
+        })
+        .collect();
+
+    let opcode_val = match inst.opcode {
+        Ok(op) => op as u8,
+        Err(code) => code,
+    };
+
+    let mut status = "COMMIT".to_string();
+    let mut trap_cause_str: Option<String> = None;
+    let mut dest_reg_val = 0u64;
 
     match inst.opcode {
         Ok(Opcode::InvokeCap) => {
             let req_perm = spatial_rights::EXEC;
-            match GuardPipeline::evaluate_invoke(stcr_decoded.as_ref(), req_perm, pre_hec) {
+            let cap_desc = state.stcr_file.read_descriptor(inst.stcr_id as usize);
+            match GuardPipeline::evaluate_invoke(cap_desc.as_ref(), req_perm, pre_hec) {
                 Ok(()) => {
-                    if let Some(ref cap) = stcr_decoded {
+                    if let Some(ref cap) = cap_desc {
                         state.pc = cap.base_address;
+                        dest_reg_val = cap.base_address as u64;
                     }
                 }
                 Err(cause) => {
-                    guard_result = "TRAP".to_string();
-                    trap_cause = Some(cause);
+                    status = "EFF_TRAP".to_string();
+                    trap_cause_str = Some(format!("{:?}", cause));
                     state.trap_flag = true;
-                    state.stcr_file.zero_register(inst.stcr_id as usize); // e_val 0 neutral trap write
+                    state.stcr_file.zero_register(inst.stcr_id as usize); // e_val 0 neutral write
+                    dest_reg_val = 0;
                 }
             }
         }
         Ok(Opcode::HecInc) => {
             let _ = state.hec.increment();
+            dest_reg_val = state.hec.value() as u64;
         }
         Ok(Opcode::RestrictCap) => {
-            if let Some(mut cap) = stcr_decoded {
+            if let Some(mut cap) = state.stcr_file.read_descriptor(inst.stcr_id as usize) {
                 cap.spatial_mask &= inst.immediate;
                 state.stcr_file.write_descriptor(inst.stcr_id as usize, &cap);
+                dest_reg_val = cap.encode();
             }
         }
         Ok(Opcode::RevokeCap) => {
             state.stcr_file.zero_register(inst.stcr_id as usize);
+            dest_reg_val = 0;
         }
         Ok(Opcode::GrantCap) => {
-            // Memory descriptor write simulated
+            dest_reg_val = 0;
         }
         Err(reserved_code) => {
-            guard_result = "TRAP".to_string();
-            trap_cause = Some(TrapCause::ReservedOpcode(reserved_code));
+            status = "EFF_TRAP".to_string();
+            trap_cause_str = Some(format!("{:?}", TrapCause::ReservedOpcode(reserved_code)));
             state.trap_flag = true;
             state.stcr_file.zero_register(inst.stcr_id as usize);
+            dest_reg_val = 0;
         }
     }
 
     logger.log_step(StepTraceRecord {
-        step: step_num,
-        instruction: format!("{:?}", inst.opcode),
-        pre_state: PreState {
-            reg_hec: pre_hec,
-            stcr_raw: format!("{:#018x}", stcr_raw),
-            stcr_decoded,
+        step_id: step_num,
+        pc: state.pc,
+        reg_hec: pre_hec,
+        stcr_file: stcr_list,
+        instruction: InstructionTrace {
+            raw_hex: format!("{:#010x}", inst.raw),
+            opcode: opcode_val,
         },
-        guard_result,
-        post_state: PostState {
-            pc: format!("{:#010x}", state.pc),
-            trap_flag: state.trap_flag,
-            trap_cause,
+        outcome: OutcomeTrace {
+            status,
+            trap_cause: trap_cause_str,
+            dest_reg_val,
         },
     });
 }

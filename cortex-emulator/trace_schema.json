@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CortexExecutionStep",
+  "type": "object",
+  "properties": {
+    "step_id": { "type": "integer" },
+    "pc": { "type": "integer" },
+    "reg_hec": { "type": "integer" },
+    "stcr_file": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "valid": { "type": "boolean" },
+          "spatial_mask": { "type": "integer" },
+          "base_address": { "type": "integer" },
+          "max_epoch": { "type": "integer" }
+        },
+        "required": ["id", "valid", "spatial_mask", "base_address", "max_epoch"]
+      }
+    },
+    "instruction": {
+      "type": "object",
+      "properties": {
+        "raw_hex": { "type": "string" },
+        "opcode": { "type": "integer" }
+      },
+      "required": ["raw_hex", "opcode"]
+    },
+    "outcome": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["COMMIT", "EFF_TRAP"] },
+        "trap_cause": { "type": ["string", "null"] },
+        "dest_reg_val": { "type": "integer" }
+      },
+      "required": ["status", "dest_reg_val"]
+    }
+  },
+  "required": ["step_id", "pc", "reg_hec", "stcr_file", "instruction", "outcome"]
+}
