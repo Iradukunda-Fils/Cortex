@@ -33,7 +33,7 @@ void export_rtl_trace(const std::string& filename, const std::vector<TraceStep>&
         const auto& s = trace[i];
         out << "    {\n";
         out << "      \"step\": " << s.step_idx + 1 << ",\n";
-        out << "      \"pc\": " << s.pc << ",\n";
+        out << "      \"pc\": " << std::dec << s.pc << ",\n";
         out << "      \"raw_instruction\": \"0x" << std::hex << std::setw(8) << std::setfill('0') << s.raw_instruction << "\",\n";
         out << "      \"reg_hec\": " << std::dec << s.reg_hec << ",\n";
         out << "      \"eff_trap\": " << (s.eff_trap ? "true" : "false") << ",\n";
@@ -100,6 +100,8 @@ int main(int argc, char** argv) {
 
     // Simulation Loop
     for (size_t i = 0; i < program.size(); ++i) {
+        uint16_t pre_hec = top->current_reg_hec;
+
         top->inst_raw = program[i];
         top->inst_valid = 1;
 
@@ -114,7 +116,7 @@ int main(int argc, char** argv) {
         step.step_idx = step_counter++;
         step.pc = current_pc;
         step.raw_instruction = program[i];
-        step.reg_hec = top->current_reg_hec;
+        step.reg_hec = pre_hec;
         step.eff_trap = top->eff_trap;
         step.trap_cause = top->trap_cause;
 

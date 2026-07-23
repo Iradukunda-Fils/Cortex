@@ -5,7 +5,9 @@
 
 module cortex_stcr_pipeline #(
     parameter int STCR_COUNT = 32,
+    /* verilator lint_off UNUSEDPARAM */
     parameter int ADDR_WIDTH = 32
+    /* verilator lint_on UNUSEDPARAM */
 )(
     input  logic        clk,
     input  logic        rst_n,
@@ -36,8 +38,10 @@ module cortex_stcr_pipeline #(
     // Decoding 32-Bit Instruction Layout (SDS v1.0 Section 4.1)
     wire [5:0]  opcode  = inst_raw[31:26];
     wire [4:0]  stcr_id = inst_raw[25:21];
+    /* verilator lint_off UNUSEDSIGNAL */
     wire [4:0]  arg_reg = inst_raw[20:16];
     wire [15:0] imm16   = inst_raw[15:0];
+    /* verilator lint_on UNUSEDSIGNAL */
 
     // STCR Field Unpacking (SDS v1.0 Layout)
     wire        stcr_v      = stcr_file[stcr_id][63];
@@ -59,6 +63,8 @@ module cortex_stcr_pipeline #(
                     trap_code_internal = 4'h1; // Invalid Validity Bit
                 end else if (reg_hec > stcr_epoch) begin
                     trap_code_internal = 4'h2; // Epoch Expired
+                end else if ((stcr_mask & 15'h1000) == 15'h0) begin // Bit 12 = EXEC permission
+                    trap_code_internal = 4'h1; // Insufficient Spatial Rights
                 end else begin
                     guard_pass = 1'b1;
                 end
@@ -91,6 +97,8 @@ module cortex_stcr_pipeline #(
             for (int i = 0; i < STCR_COUNT; i++) begin
                 stcr_file[i] <= 64'h0;
             end
+            // Initial STCR0 descriptor matching initial capability setup (V=1, mask=0x7000, base=0x2000, epoch=0)
+            stcr_file[0] <= 64'hf000000020000000;
         end else if (inst_valid) begin
             if (!guard_pass) begin
                 // Synchronous Neutral Trap Execution (SDS v1.0 Section 5.2)
