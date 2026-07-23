@@ -34,12 +34,32 @@ def assert_step_equivalence(step_coq: dict, step_emu: dict, step_idx: int):
             assert c_cap["max_epoch"] == e_cap["max_epoch"], f"[Step {step_idx}] STCR[{reg_id}].Max_Epoch mismatch"
 
 def assert_rtl_step_equivalence(step_emu: dict, step_rtl: dict, step_idx: int):
+    # 1. Epoch Counter Check
     assert step_emu["reg_hec"] == step_rtl["reg_hec"], \
         f"[Step {step_idx}] RTL HEC Discrepancy: Emulator={step_emu['reg_hec']}, RTL={step_rtl['reg_hec']}"
 
+    # 2. Trap Status Check
     is_emu_trap = (step_emu["outcome"]["status"] == "EFF_TRAP")
     assert is_emu_trap == step_rtl["eff_trap"], \
         f"[Step {step_idx}] RTL Trap Divergence: Emulator Trap={is_emu_trap}, RTL eff_trap={step_rtl['eff_trap']}"
+
+    # 3. 32x 64-Bit STCR File Decoding & Strict Field Comparison
+    emu_stcrs = {c["id"]: c for c in step_emu["stcr_file"]}
+    rtl_stcr_raw = step_rtl["stcr_registers"]
+
+    for reg_id in range(32):
+        raw_val = int(rtl_stcr_raw[reg_id], 16)
+        r_valid = ((raw_val >> 63) & 1) == 1
+        r_mask = (raw_val >> 48) & 0x7FFF
+        r_base = (raw_val >> 16) & 0xFFFFFFFF
+        r_epoch = raw_val & 0xFFFF
+
+        e_cap = emu_stcrs[reg_id]
+        assert e_cap["valid"] == r_valid, f"[Step {step_idx}] RTL STCR[{reg_id}].valid mismatch: Emu={e_cap['valid']}, RTL={r_valid}"
+        if e_cap["valid"]:
+            assert e_cap["spatial_mask"] == r_mask, f"[Step {step_idx}] RTL STCR[{reg_id}].spatial_mask mismatch: Emu={e_cap['spatial_mask']}, RTL={r_mask}"
+            assert e_cap["base_address"] == r_base, f"[Step {step_idx}] RTL STCR[{reg_id}].base_address mismatch: Emu={e_cap['base_address']}, RTL={r_base}"
+            assert e_cap["max_epoch"] == r_epoch, f"[Step {step_idx}] RTL STCR[{reg_id}].max_epoch mismatch: Emu={e_cap['max_epoch']}, RTL={r_epoch}"
 
 def main():
     if len(sys.argv) < 3:

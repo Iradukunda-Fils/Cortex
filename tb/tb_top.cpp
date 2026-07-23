@@ -101,6 +101,10 @@ int main(int argc, char** argv) {
     // Simulation Loop
     for (size_t i = 0; i < program.size(); ++i) {
         uint16_t pre_hec = top->current_reg_hec;
+        uint64_t pre_stcr[32];
+        for (int r = 0; r < 32; ++r) {
+            pre_stcr[r] = top->rootp->cortex_stcr_pipeline__DOT__stcr_file[r];
+        }
 
         top->inst_raw = program[i];
         top->inst_valid = 1;
@@ -111,7 +115,7 @@ int main(int argc, char** argv) {
         top->clk = 1;
         top->eval();
 
-        // Sample state frame post-edge
+        // Sample state frame
         TraceStep step;
         step.step_idx = step_counter++;
         step.pc = current_pc;
@@ -120,9 +124,9 @@ int main(int argc, char** argv) {
         step.eff_trap = top->eff_trap;
         step.trap_cause = top->trap_cause;
 
-        // Extract 32x 64-bit STCR state directly from Verilated root scope
+        // Extract 32x 64-bit STCR state pre-edge
         for (int r = 0; r < 32; ++r) {
-            step.stcr_file[r] = top->rootp->cortex_stcr_pipeline__DOT__stcr_file[r];
+            step.stcr_file[r] = pre_stcr[r];
         }
 
         execution_trace.push_back(step);
