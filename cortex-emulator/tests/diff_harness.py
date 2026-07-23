@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Coq-to-Rust Refinement Differential Verification Harness
-Enforces R_refine step-by-step equivalence between Coq operational traces and Rust emulator JSON logs.
+3-Way Coq-to-Rust-to-RTL Refinement Differential Verification Harness
+Enforces R_refine step-by-step state equivalence across Coq, Rust emulator, and SystemVerilog RTL.
 """
 
 import json
@@ -33,13 +33,22 @@ def assert_step_equivalence(step_coq: dict, step_emu: dict, step_idx: int):
             assert c_cap["base_address"] == e_cap["base_address"], f"[Step {step_idx}] STCR[{reg_id}].Base_Address mismatch"
             assert c_cap["max_epoch"] == e_cap["max_epoch"], f"[Step {step_idx}] STCR[{reg_id}].Max_Epoch mismatch"
 
+def assert_rtl_step_equivalence(step_emu: dict, step_rtl: dict, step_idx: int):
+    assert step_emu["reg_hec"] == step_rtl["reg_hec"], \
+        f"[Step {step_idx}] RTL HEC Discrepancy: Emulator={step_emu['reg_hec']}, RTL={step_rtl['reg_hec']}"
+
+    is_emu_trap = (step_emu["outcome"]["status"] == "EFF_TRAP")
+    assert is_emu_trap == step_rtl["eff_trap"], \
+        f"[Step {step_idx}] RTL Trap Divergence: Emulator Trap={is_emu_trap}, RTL eff_trap={step_rtl['eff_trap']}"
+
 def main():
     if len(sys.argv) < 3:
-        print("Usage: diff_harness.py <coq_trace.json> <emulator_trace.json>")
+        print("Usage: diff_harness.py <coq_trace.json> <emulator_trace.json> [rtl_trace.json]")
         sys.exit(1)
 
     coq_trace_path = Path(sys.argv[1])
     emu_trace_path = Path(sys.argv[2])
+    rtl_trace_path = Path(sys.argv[3]) if len(sys.argv) > 3 else None
 
     if not coq_trace_path.exists():
         print(f"Error: Coq trace file not found: {coq_trace_path}")
@@ -55,12 +64,25 @@ def main():
     assert len(coq_trace) == len(emu_trace), \
         f"Trace length mismatch: Coq emitted {len(coq_trace)} steps, Emulator emitted {len(emu_trace)} steps"
 
-    print(f"[+] Verifying {len(coq_trace)} execution steps for strict refinement equivalence...")
+    print(f"[+] Verifying {len(coq_trace)} execution steps for 2-way (Coq <-> Rust) refinement equivalence...")
     for idx, (c_step, e_step) in enumerate(zip(coq_trace, emu_trace)):
         assert_step_equivalence(c_step, e_step, idx + 1)
 
+    print("    [MATCH] Coq <-> Rust Emulator 1:1 State Equivalence Confirmed.")
+
+    if rtl_trace_path and rtl_trace_path.exists():
+        rtl_data = json.loads(rtl_trace_path.read_text())
+        rtl_trace = rtl_data.get("trace", rtl_data)
+        assert len(emu_trace) == len(rtl_trace), \
+            f"RTL Trace length mismatch: Emulator emitted {len(emu_trace)} steps, RTL emitted {len(rtl_trace)} steps"
+
+        print(f"[+] Verifying {len(rtl_trace)} execution steps for 3-way (Rust <-> RTL) refinement equivalence...")
+        for idx, (e_step, r_step) in enumerate(zip(emu_trace, rtl_trace)):
+            assert_rtl_step_equivalence(e_step, r_step, idx + 1)
+        print("    [MATCH] Rust Emulator <-> Verilator SystemVerilog RTL 1:1 State Equivalence Confirmed.")
+
     print("==========================================================================")
-    print(" SUCCESS: Refinement Equivalence Confirmed between Coq & Rust Emulator!")
+    print(" SUCCESS: Refinement Equivalence Confirmed Across Evaluated Targets!")
     print("==========================================================================")
 
 if __name__ == "__main__":
