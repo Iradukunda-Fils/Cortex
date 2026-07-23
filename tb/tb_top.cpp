@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
-#include <memory>
+#include <cstdint>
 #include <verilated.h>
 #include "Vcortex_stcr_pipeline.h"
 #include "Vcortex_stcr_pipeline___024root.h"
