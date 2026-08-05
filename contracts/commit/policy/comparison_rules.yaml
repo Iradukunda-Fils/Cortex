@@ -1,0 +1,20 @@
+# Oracle Field Comparison Rules Policy
+policy_version: "1.0.0"
+
+rules:
+  architectural.pc: "ExactBitwiseMatch"
+  architectural.instruction: "ExactBitwiseMatch"
+  architectural.privilege_mode: "ExactMatch"
+  architectural.registers: "ExactBitwiseMatch"
+  architectural.stcr: "ExactBitwiseMatch"
+  architectural.trap: "ExactBitwiseMatch"
+  observation.cycle: "Ignore"
+  observation.timestamp_ns: "Ignore"
+  observation.target_name: "Ignore"
+  observation.commit_id: "Ignore"
+
+divergence_severity:
+  architectural.pc: "CRITICAL_ERROR"
+  architectural.stcr: "CRITICAL_ERROR"
+  architectural.trap: "CRITICAL_ERROR"
+  architectural.registers: "CRITICAL_ERROR"

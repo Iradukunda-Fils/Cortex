@@ -1,0 +1,13 @@
+# Unary Capability Safety Invariants Policy
+policy_version: "1.0.0"
+
+enabled_invariants:
+  - id: "INV_01_SINGLE_RETIREMENT"
+    class: "tools.verification.invariants.capability.SingleRetirementInvariant"
+    severity: "CRITICAL_ERROR"
+  - id: "INV_02_NEUTRAL_TRAP_ZERO_VAL"
+    class: "tools.verification.invariants.capability.NeutralTrapInvariant"
+    severity: "CRITICAL_ERROR"
+  - id: "INV_03_ATOMIC_STCR_UPDATE"
+    class: "tools.verification.invariants.capability.EpochMonotonicityInvariant"
+    severity: "CRITICAL_ERROR"

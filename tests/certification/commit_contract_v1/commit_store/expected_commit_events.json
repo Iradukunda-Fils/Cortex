@@ -1,0 +1,35 @@
+[
+  {
+    "schema_version": 1,
+    "architectural": {
+      "pc": "0x00001000",
+      "instruction": "0x04020000",
+      "privilege_mode": "Machine",
+      "registers": {},
+      "stcr": [
+        {
+          "index": 0,
+          "valid": true,
+          "permissions": 28672,
+          "base_address": 8192,
+          "epoch": 0
+        }
+      ],
+      "trap": {
+        "triggered": false,
+        "cause_code": 0,
+        "cause_name": "None",
+        "trap_val": 0
+      },
+      "memory_commit": null
+    },
+    "observation": {
+      "step": 1,
+      "cycle": 1,
+      "timestamp_ns": 0,
+      "target_name": "canonical",
+      "commit_id": "a484b94",
+      "adapter_version": "1.0.0"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+# Cortex Architectural Commit Contract Specification V1
+contract_version: "1.0.0"
+contract_id: "cortex_architectural_commit_v1"
+description: "Immutable specification defining architectural instruction retirement and commit boundaries"
+
+retirement_semantics:
+  timing: "at_writeback_or_synchronous_trap"
+  atomicity: "all_state_updates_commit_simultaneously"
+  step_monotonicity: true
+  pc_monotonicity: "non_decreasing_except_branches_or_traps"
+
+required_fields:
+  - "architectural.pc"
+  - "architectural.instruction"
+  - "architectural.privilege_mode"
+  - "architectural.registers"
+  - "architectural.stcr"
+  - "architectural.trap"
+
+ordering_guarantees:
+  memory: "strictly_ordered_at_wb"
+  traps: "zero_subsequent_writes_post_trap"

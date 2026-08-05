@@ -1,0 +1,25 @@
+{
+  "scenario_version": "1.0",
+  "metadata": {
+    "seed": "0x4A91C3F8",
+    "contract_id": "cortex_architectural_commit_v1"
+  },
+  "initial_state": {
+    "privilege_mode": "Machine",
+    "pc": 4096,
+    "stcr": [
+      {
+        "index": 0,
+        "valid": true,
+        "permissions": 28672,
+        "base_address": 8192,
+        "epoch": 0
+      }
+    ]
+  },
+  "program": {
+    "instructions": [
+      "0x04020000"
+    ]
+  }
+}
