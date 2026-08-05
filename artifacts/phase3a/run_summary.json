@@ -1,0 +1,21 @@
+{
+  "seed": "0x4A91C3F8",
+  "iterations": 100,
+  "total_steps_evaluated": 600,
+  "status": "PASSED",
+  "metrics": {
+    "opcode_coverage": {
+      "unique_opcodes_seen": 6,
+      "coverage_percentage": 33.3
+    },
+    "trap_coverage": {
+      "trap_cause_codes_seen": [
+        1
+      ],
+      "coverage_percentage": 20.0
+    },
+    "state_space_explored": {
+      "unique_states_explored": 6
+    }
+  }
+}

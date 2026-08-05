@@ -1,0 +1,12 @@
+{
+  "status": "FAIL",
+  "error_type": "StateDivergence",
+  "failing_step": 2,
+  "mismatched_field": "stcr[0].permissions",
+  "canonical_expected": {
+    "rust": 28672
+  },
+  "observed_divergence": {
+    "rtl": 16384
+  }
+}

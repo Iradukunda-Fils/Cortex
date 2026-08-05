@@ -1,0 +1,32 @@
+# Cortex Phase 3A Verification Contract
+schema_version: "1.0.0"
+contract_id: "phase3a_state_and_instruction_fuzzing"
+description: "Property-based differential fuzzing across initial states and instruction streams"
+
+toolchain_requirements:
+  coq: ">= 8.18.0"
+  rustc: ">= 1.80.0"
+  verilator: ">= 5.020"
+  python: ">= 3.10.0"
+
+fuzzing_parameters:
+  default_seed: "0x4A91C3F8"
+  total_iterations: 100
+  fuzz_initial_state: true
+  shrinking_enabled: true
+  max_shrunk_steps: 50
+
+targets:
+  coq_semantics: "Research/artifacts/phase2/coq_trace.json"
+  rust_emulator: "cortex-emulator"
+  rtl_verilator: "Vcortex_stcr_pipeline"
+
+oracle:
+  version: "v2.1.0"
+  strict_trap_cause_matching: true
+  require_dest_zero_on_trap: true
+
+output_requirements:
+  archive_directory: "artifacts/phase3a/"
+  counterexample_directory: "artifacts/counterexamples/"
+  manifest_file: "MANIFEST.sha256"

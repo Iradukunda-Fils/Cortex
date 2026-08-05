@@ -1,0 +1,12 @@
+{
+  "status": "FAIL",
+  "error_type": "TrapStatusMismatch",
+  "failing_step": 3,
+  "mismatched_field": "trap.triggered",
+  "canonical_expected": {
+    "rust": true
+  },
+  "observed_divergence": {
+    "rtl": false
+  }
+}

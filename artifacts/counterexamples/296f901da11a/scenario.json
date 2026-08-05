@@ -1,0 +1,256 @@
+{
+  "seed": "0x4A91C3F8",
+  "original_steps": 6,
+  "shrunk_steps": 3,
+  "initial_state": {
+    "pc": 4096,
+    "privilege_mode": "Machine",
+    "reg_hec": 1,
+    "stcr_registers": [
+      {
+        "index": 0,
+        "valid": true,
+        "permissions": 28672,
+        "base_address": 8192,
+        "epoch": 0
+      },
+      {
+        "index": 1,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 2,
+        "valid": true,
+        "permissions": 16384,
+        "base_address": 4096,
+        "epoch": 65534
+      },
+      {
+        "index": 3,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 4,
+        "valid": true,
+        "permissions": 0,
+        "base_address": 4096,
+        "epoch": 100
+      },
+      {
+        "index": 5,
+        "valid": true,
+        "permissions": 0,
+        "base_address": 4294901760,
+        "epoch": 100
+      },
+      {
+        "index": 6,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 7,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 8,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 9,
+        "valid": true,
+        "permissions": 16384,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 10,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 11,
+        "valid": true,
+        "permissions": 0,
+        "base_address": 4294901760,
+        "epoch": 1
+      },
+      {
+        "index": 12,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 13,
+        "valid": true,
+        "permissions": 8192,
+        "base_address": 4294901760,
+        "epoch": 1
+      },
+      {
+        "index": 14,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 15,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 16,
+        "valid": true,
+        "permissions": 28672,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 17,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 18,
+        "valid": true,
+        "permissions": 8192,
+        "base_address": 0,
+        "epoch": 1
+      },
+      {
+        "index": 19,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 20,
+        "valid": true,
+        "permissions": 0,
+        "base_address": 8192,
+        "epoch": 100
+      },
+      {
+        "index": 21,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 22,
+        "valid": true,
+        "permissions": 4096,
+        "base_address": 4294901760,
+        "epoch": 65534
+      },
+      {
+        "index": 23,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 24,
+        "valid": true,
+        "permissions": 8192,
+        "base_address": 0,
+        "epoch": 100
+      },
+      {
+        "index": 25,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 26,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 27,
+        "valid": true,
+        "permissions": 8192,
+        "base_address": 32768,
+        "epoch": 1
+      },
+      {
+        "index": 28,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 29,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      },
+      {
+        "index": 30,
+        "valid": true,
+        "permissions": 16384,
+        "base_address": 8192,
+        "epoch": 100
+      },
+      {
+        "index": 31,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
+      }
+    ]
+  },
+  "program": [
+    {
+      "opcode_name": "GRANT_CAP",
+      "opcode_val": 2,
+      "raw_hex": "0x0800ffff",
+      "raw_uint32": 134283263
+    },
+    {
+      "opcode_name": "RESTRICT_CAP",
+      "opcode_val": 3,
+      "raw_hex": "0x0c030000",
+      "raw_uint32": 201523200
+    },
+    {
+      "opcode_name": "ILLEGAL_OP",
+      "opcode_val": 15,
+      "raw_hex": "0x00000000",
+      "raw_uint32": 0
+    }
+  ]
+}
