@@ -1,0 +1,38 @@
+name: Hierarchical Verification Substrate Gate
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  certify-substrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Stage 1: Structural & Schema Validation (Golden Hash Check)
+        run: |
+          cd tests/golden/v1.0.0 && sha256sum -c SHA256SUMS
+
+      - name: Stage 2: Conformance & Semantic Equivalence
+        run: |
+          PYTHONPATH=. python3 -m unittest discover -s tests/conformance -v
+
+      - name: Stage 3: Mutation Immunity & Regression Corpus Replay
+        run: |
+          PYTHONPATH=. python3 -m unittest tests/conformance/test_adapter_mutations.py -v
+          python3 scripts/replay_golden_vectors.py --corpus tests/golden/v1.0.0/
+
+      - name: Stage 4: Spec Freeze Integrity Check
+        run: |
+          ./scripts/check_contract_freeze.sh
+
+      - name: Enforcement Gate
+        run: echo "SUCCESS: Hierarchical Verification Substrate Gate Passed. Merge allowed."
