@@ -21,9 +21,10 @@ jobs:
         run: |
           cd tests/golden/v1.0.0 && sha256sum -c SHA256SUMS
 
-      - name: "Stage 2: Conformance & Semantic Equivalence"
+      - name: "Stage 2: Conformance, Kernel Runtime & Semantic Equivalence"
         run: |
           PYTHONPATH=. python3 -m unittest discover -s tests/conformance -v
+          PYTHONPATH=. python3 -m unittest discover -s tests/kernel -v
 
       - name: "Stage 3: Mutation Immunity & Regression Corpus Replay"
         run: |
