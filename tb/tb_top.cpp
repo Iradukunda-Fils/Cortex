@@ -11,7 +11,6 @@
 #include "Vcortex_stcr_pipeline.h"
 #include "Vcortex_stcr_pipeline___024root.h"
 
-// Struct mirroring trace_schema.json frame fields
 struct TraceStep {
     uint64_t step_idx;
     uint32_t pc;
@@ -58,14 +57,9 @@ int main(int argc, char** argv) {
     std::string bin_path = "Research/artifacts/phase1_5/canonical_test_program.bin";
     std::string out_path = "rtl_trace.json";
 
-    if (argc > 1) {
-        bin_path = argv[1];
-    }
-    if (argc > 2) {
-        out_path = argv[2];
-    }
+    if (argc > 1) bin_path = argv[1];
+    if (argc > 2) out_path = argv[2];
 
-    // Read canonical test binary
     std::ifstream bin_file(bin_path, std::ios::binary);
     if (!bin_file.is_open()) {
         std::cerr << "FATAL: Could not open input binary: " << bin_path << std::endl;
@@ -73,7 +67,6 @@ int main(int argc, char** argv) {
     }
 
     std::vector<uint32_t> program;
-    // Skip 12-byte header (6B magic + 2B version + 4B count) if matching CORTEX-v1 spec
     char header_buf[12];
     if (bin_file.read(header_buf, 12)) {
         uint32_t inst = 0;
@@ -83,7 +76,7 @@ int main(int argc, char** argv) {
     }
     bin_file.close();
 
-    // System Reset Sequence
+    // Reset System
     top->clk = 0;
     top->rst_n = 0;
     top->inst_valid = 0;
@@ -95,47 +88,58 @@ int main(int argc, char** argv) {
     top->eval();
 
     std::vector<TraceStep> execution_trace;
-    uint32_t current_pc = 0x00001000;
     uint64_t step_counter = 0;
+    size_t inst_idx = 0;
 
-    // Simulation Loop
-    for (size_t i = 0; i < program.size(); ++i) {
+    // Run until all program instructions retire through Writeback
+    int cycle_count = 0;
+    const int max_cycles = 1000;
+
+    while (execution_trace.size() < program.size() && cycle_count < max_cycles) {
+        cycle_count++;
+
         uint16_t pre_hec = top->current_reg_hec;
         uint64_t pre_stcr[32];
         for (int r = 0; r < 32; ++r) {
             pre_stcr[r] = top->rootp->cortex_stcr_pipeline__DOT__stcr_file[r];
         }
 
-        top->inst_raw = program[i];
-        top->inst_valid = 1;
+        // Feed instruction if available
+        if (inst_idx < program.size()) {
+            top->inst_raw = program[inst_idx];
+            top->inst_valid = 1;
+            inst_idx++;
+        } else {
+            top->inst_valid = 0;
+        }
 
-        // Drive clock edge low -> high
+        // Clock edge low -> high
         top->clk = 0;
         top->eval();
         top->clk = 1;
         top->eval();
 
-        // Sample state frame
-        TraceStep step;
-        step.step_idx = step_counter++;
-        step.pc = current_pc;
-        step.raw_instruction = program[i];
-        step.reg_hec = pre_hec;
-        step.eff_trap = top->eff_trap;
-        step.trap_cause = top->trap_cause;
+        // Sample state frame only when instruction retires at Writeback boundary
+        if (top->wb_inst_retired) {
+            TraceStep step;
+            step.step_idx = step_counter++;
+            step.pc = top->wb_pc;
+            step.raw_instruction = top->wb_inst_raw;
+            step.reg_hec = pre_hec;
+            step.eff_trap = top->eff_trap;
+            step.trap_cause = top->trap_cause;
 
-        // Extract 32x 64-bit STCR state pre-edge
-        for (int r = 0; r < 32; ++r) {
-            step.stcr_file[r] = pre_stcr[r];
+            for (int r = 0; r < 32; ++r) {
+                step.stcr_file[r] = pre_stcr[r];
+            }
+
+            execution_trace.push_back(step);
         }
-
-        execution_trace.push_back(step);
-        current_pc += 4;
     }
 
     export_rtl_trace(out_path, execution_trace);
-    std::cout << "SUCCESS: Verilator simulation complete. Emitted " 
-              << execution_trace.size() << " trace frames to " << out_path << std::endl;
+    std::cout << "SUCCESS: Verilator 4-stage pipeline simulation complete. Emitted " 
+              << execution_trace.size() << " retired commit frames to " << out_path << std::endl;
 
     return 0;
 }
