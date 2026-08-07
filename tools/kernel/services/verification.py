@@ -1,25 +1,27 @@
 """
-Verification Service Kernel Contract & Event Consumer
+Verification Service Kernel Contract & Message Consumer
 """
 
+from typing import Callable, Any, Optional
 from tools.kernel.schema.contract import ServiceContract
 from tools.kernel.schema.event import RawRTLTraceEvent, CommitVerifiedEvent
+from tools.kernel.schema.message import DriverTelemetryEvent, VerificationResultEvent
 from tools.kernel.context import RuntimeContext
 
 class VerificationKernelService:
     contract = ServiceContract(
         service_name="VerificationKernelService",
-        consumes=[RawRTLTraceEvent],
-        produces=[CommitVerifiedEvent]
+        consumes=[RawRTLTraceEvent, DriverTelemetryEvent],
+        produces=[CommitVerifiedEvent, VerificationResultEvent]
     )
 
-    def __init__(self, context: RuntimeContext):
+    def __init__(self, context: RuntimeContext, publish_cb: Optional[Callable[[Any], None]] = None):
         self.context = context
+        self.publish_cb = publish_cb or context.publish
         self.verified_count = 0
 
     def handle_raw_rtl_trace(self, event: RawRTLTraceEvent) -> None:
         self.verified_count += 1
-        # Perform invariant checks (e.g. eff_trap -> trap_cause > 0)
         is_valid = True
         failing_field = None
 
@@ -37,4 +39,20 @@ class VerificationKernelService:
             verified=is_valid,
             failing_field=failing_field
         )
-        self.context.publish(verified_event)
+        self.publish_cb(verified_event)
+
+    def handle_telemetry(self, event: DriverTelemetryEvent) -> VerificationResultEvent:
+        self.verified_count += 1
+        pos = event.payload.get("position", 0.0)
+        passed = abs(pos) <= 100.0
+
+        result = VerificationResultEvent(
+            causation_id=event.event_id,
+            correlation_id=event.correlation_id,
+            root_id=event.root_id,
+            passed=passed,
+            rule_id="BOUNDS_CHECK_V1",
+            metrics={"position": pos}
+        )
+        self.publish_cb(result)
+        return result
