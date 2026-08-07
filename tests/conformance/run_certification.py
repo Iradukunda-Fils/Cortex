@@ -79,7 +79,7 @@ def _run_suite(suite_module: str, reporter: CertificationReporter, category: str
             elif result.failures or result.errors:
                 reporter.add_result(category, f"{suite_module}", "FAIL")
 
-    except Exception as e:
+    except Exception:
         reporter.add_result(category, f"{suite_module} (import error)", "FAIL")
 
 

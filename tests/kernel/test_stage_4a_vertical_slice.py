@@ -10,10 +10,6 @@ from tools.kernel.transport import InMemoryTransport
 from tools.kernel.context import RuntimeContext
 from tools.kernel.schema.message import (
     IntentEvent,
-    PlanGeneratedEvent,
-    CommandIssuedEvent,
-    DriverTelemetryEvent,
-    VerificationResultEvent,
 )
 from tools.kernel.actors.planner import IntentPlannerActor
 from tools.kernel.actors.executor import TaskExecutorActor

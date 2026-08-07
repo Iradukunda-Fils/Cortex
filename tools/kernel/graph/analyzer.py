@@ -2,7 +2,7 @@
 Execution Graph Query, Root-Cause Analysis & Divergence Detection Engine
 """
 
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from tools.kernel.graph.execution_graph import ExecutionGraph, GraphNode
 
 class ExecutionGraphAnalyzer:

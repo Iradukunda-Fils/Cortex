@@ -3,7 +3,7 @@ Domain Event Hierarchy for Cortex Kernel Runtime
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict
 import time
 import uuid
 

@@ -2,7 +2,6 @@
 Runtime Context Provided to Kernel Actors
 """
 
-from typing import Any
 from tools.kernel.mailbox import Mailbox
 from tools.kernel.schema.event import Event
 from tools.kernel.transport import InMemoryTransport

@@ -4,7 +4,6 @@ Plugin System & Capability Negotiation Test Suite
 
 import unittest
 from tools.kernel.plugin.manifest import (
-    PluginManifest,
     ROBOT_ARM_MANIFEST,
     AGENT_PLANNER_MANIFEST,
     VERIFICATION_SERVICE_MANIFEST,
@@ -12,7 +11,6 @@ from tools.kernel.plugin.manifest import (
 from tools.kernel.plugin.loader import (
     PluginRegistry,
     PluginState,
-    CapabilityNegotiator,
 )
 
 

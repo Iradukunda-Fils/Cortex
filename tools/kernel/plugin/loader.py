@@ -7,9 +7,8 @@ to their declared capabilities — never raw kernel internals.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Any
+from typing import Dict, List, Optional, Set
 from tools.kernel.plugin.manifest import PluginManifest
-from tools.kernel.registry import Capability
 
 import enum
 
