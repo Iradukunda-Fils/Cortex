@@ -23,7 +23,7 @@ jobs:
 
       - name: "Stage 2: Conformance, Kernel Runtime & Semantic Equivalence"
         run: |
-          PYTHONPATH=. python3 -m unittest discover -s tests/conformance -v
+          PYTHONPATH=. python3 tests/conformance/run_certification.py
           PYTHONPATH=. python3 -m unittest discover -s tests/kernel -v
 
       - name: "Stage 3: Mutation Immunity & Regression Corpus Replay"

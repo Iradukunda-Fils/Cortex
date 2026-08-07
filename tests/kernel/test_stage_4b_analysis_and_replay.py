@@ -5,12 +5,20 @@ Stage 4B Execution Graph Analysis, Intelligence & Deterministic Replay Test Suit
 import unittest
 from tools.kernel.transport import InMemoryTransport
 from tools.kernel.context import RuntimeContext
-from tools.kernel.schema.message import Intent, Plan, Command, DriverTelemetryEvent, VerificationResultEvent, Event
+from tools.kernel.schema.message import (
+    BaseEvent,
+    IntentEvent,
+    PlanGeneratedEvent,
+    CommandIssuedEvent,
+    DriverTelemetryEvent,
+    VerificationResultEvent,
+)
 from tools.kernel.schema.workflow import Workflow, WorkflowState, WorkflowPolicy
 from tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
 from tools.kernel.services.execution_intelligence import CausalExplainer
 from tools.kernel.services.replay import DeterministicReplayEngine
 from tools.kernel.services.graph_builder import ExecutionGraphBuilderService
+
 
 class TestStage4BAnalysisAndReplay(unittest.TestCase):
     def setUp(self):
@@ -19,24 +27,24 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         self.graph_builder = ExecutionGraphBuilderService()
 
     def test_workflow_primitive_and_causal_explainer(self):
-        # 1. Create Workflow Primitive
+        # 1. Create Workflow primitive
         wf = Workflow(
             name="verification_sweep_01",
             goal="Verify Actuator Limits",
-            policy=WorkflowPolicy(abort_on_verification_failure=True)
+            policy=WorkflowPolicy(abort_on_verification_failure=True),
         )
         self.assertEqual(wf.state, WorkflowState.PENDING)
 
         # 2. Build execution graph
-        intent = Intent(session_id="sess_explain", goal=wf.goal)
+        intent = IntentEvent(session_id="sess_explain", goal=wf.goal)
         wf.root_intent_id = intent.intent_id
         wf.state = WorkflowState.RUNNING
         self.graph_builder.record_message(intent)
 
-        plan = Plan(intent_id=intent.intent_id, steps=[{"action": "test_overdrive"}])
+        plan = PlanGeneratedEvent(intent_id=intent.intent_id, steps=[{"action": "test_overdrive"}])
         self.graph_builder.record_message(plan)
 
-        cmd = Command(plan_id=plan.plan_id, action="test_overdrive", parameters={"force": 200})
+        cmd = CommandIssuedEvent(plan_id=plan.plan_id, action="test_overdrive", parameters={"force": 200})
         self.graph_builder.record_message(cmd)
 
         telemetry = DriverTelemetryEvent(causation_id=cmd.command_id, status="error", payload={"force": 200})
@@ -45,13 +53,13 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         verif_fail = VerificationResultEvent(
             causation_id=telemetry.event_id,
             passed=False,
-            rule_id="TORQUE_LIMIT_SAFEGUARD"
+            rule_id="TORQUE_LIMIT_SAFEGUARD",
         )
         self.graph_builder.record_message(verif_fail)
 
         graph = self.graph_builder.graphs[intent.intent_id]
 
-        # 3. Test CausalExplainer
+        # 3. CausalExplainer
         explainer = CausalExplainer(graph)
         explanation = explainer.explain_failure(verif_fail.event_id)
 
@@ -65,13 +73,13 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         self.assertEqual(wf.state, WorkflowState.ABORTED)
 
     def test_root_cause_analysis_and_graph_diff(self):
-        intent = Intent(session_id="sess_rca", goal="Hazardous Calibration")
+        intent = IntentEvent(session_id="sess_rca", goal="Hazardous Calibration")
         self.graph_builder.record_message(intent)
 
-        plan = Plan(intent_id=intent.intent_id, steps=[{"action": "overdrive_actuator"}])
+        plan = PlanGeneratedEvent(intent_id=intent.intent_id, steps=[{"action": "overdrive_actuator"}])
         self.graph_builder.record_message(plan)
 
-        cmd = Command(plan_id=plan.plan_id, action="overdrive_actuator", parameters={"power": 150})
+        cmd = CommandIssuedEvent(plan_id=plan.plan_id, action="overdrive_actuator", parameters={"power": 150})
         self.graph_builder.record_message(cmd)
 
         telemetry = DriverTelemetryEvent(causation_id=cmd.command_id, status="error", payload={"position": 150.0})
@@ -80,7 +88,7 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         verif_fail = VerificationResultEvent(
             causation_id=telemetry.event_id,
             passed=False,
-            rule_id="MAX_POWER_LIMIT_EXCEEDED"
+            rule_id="MAX_POWER_LIMIT_EXCEEDED",
         )
         self.graph_builder.record_message(verif_fail)
 
@@ -98,18 +106,18 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         self.assertTrue(diff["identical_structure"])
 
     def test_deterministic_replay_stress_1000_events(self):
-        recorded_journal: list[Event] = []
+        recorded_journal: list[BaseEvent] = []
         for i in range(1000):
-            event = Event(
+            event = BaseEvent(
                 event_id=f"evt_{i:04d}",
                 causation_id=f"evt_{i-1:04d}" if i > 0 else "root_intent",
-                correlation_id="sess_stress_1000"
+                correlation_id="sess_stress_1000",
             )
             recorded_journal.append(event)
 
-        replayed_stream: list[Event] = []
+        replayed_stream: list[BaseEvent] = []
         target_transport = InMemoryTransport()
-        target_transport.subscribe(Event, lambda e: replayed_stream.append(e))
+        target_transport.subscribe(BaseEvent, lambda e: replayed_stream.append(e))
 
         replay_engine = DeterministicReplayEngine(target_transport)
         count = replay_engine.replay_journal(recorded_journal)
@@ -119,6 +127,7 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
 
         result = DeterministicReplayEngine.verify_replayed_lineage(recorded_journal, replayed_stream)
         self.assertTrue(result["match"])
+
 
 if __name__ == "__main__":
     unittest.main()
