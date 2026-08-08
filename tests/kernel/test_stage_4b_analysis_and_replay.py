@@ -3,9 +3,10 @@ Stage 4B Execution Graph Analysis, Intelligence & Deterministic Replay Test Suit
 """
 
 import unittest
-from tools.kernel.transport import InMemoryTransport
-from tools.kernel.context import RuntimeContext
-from tools.kernel.schema.message import (
+from typing import cast, override
+from cortex.tools.kernel.transport import InMemoryTransport
+from cortex.tools.kernel.context import RuntimeContext
+from cortex.tools.kernel.schema.message import (
     BaseEvent,
     IntentEvent,
     PlanGeneratedEvent,
@@ -13,14 +14,19 @@ from tools.kernel.schema.message import (
     DriverTelemetryEvent,
     VerificationResultEvent,
 )
-from tools.kernel.schema.workflow import Workflow, WorkflowState, WorkflowPolicy
-from tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
-from tools.kernel.services.execution_intelligence import CausalExplainer
-from tools.kernel.services.replay import DeterministicReplayEngine
-from tools.kernel.services.graph_builder import ExecutionGraphBuilderService
+from cortex.tools.kernel.schema.workflow import Workflow, WorkflowState, WorkflowPolicy
+from cortex.tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
+from cortex.tools.kernel.services.execution_intelligence import CausalExplainer
+from cortex.tools.kernel.services.replay import DeterministicReplayEngine
+from cortex.tools.kernel.services.graph_builder import ExecutionGraphBuilderService
 
 
 class TestStage4BAnalysisAndReplay(unittest.TestCase):
+    transport: InMemoryTransport = cast(InMemoryTransport, cast(object, None))
+    context: RuntimeContext = cast(RuntimeContext, cast(object, None))
+    graph_builder: ExecutionGraphBuilderService = cast(ExecutionGraphBuilderService, cast(object, None))
+
+    @override
     def setUp(self):
         self.transport = InMemoryTransport()
         self.context = RuntimeContext("stage_4b_actor", "sess_4b", self.transport)
@@ -28,11 +34,11 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
 
     def test_workflow_primitive_and_causal_explainer(self):
         # 1. Create Workflow primitive
-        wf = Workflow(
-            name="verification_sweep_01",
-            goal="Verify Actuator Limits",
-            policy=WorkflowPolicy(abort_on_verification_failure=True),
-        )
+        policy = WorkflowPolicy(abort_on_verification_failure=True)
+        wf = Workflow()
+        wf.name = "verification_sweep_01"
+        wf.goal = "Verify Actuator Limits"
+        wf.policy = policy
         self.assertEqual(wf.state, WorkflowState.PENDING)
 
         # 2. Build execution graph
@@ -64,8 +70,10 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         explanation = explainer.explain_failure(verif_fail.event_id)
 
         self.assertEqual(explanation["target_node"], verif_fail.event_id)
-        self.assertIn("TORQUE_LIMIT_SAFEGUARD", explanation["diagnosis"])
-        self.assertEqual(len(explanation["causal_path"]), 5)
+        diagnosis: str = cast(str, explanation["diagnosis"])
+        self.assertIn("TORQUE_LIMIT_SAFEGUARD", diagnosis)
+        causal_path = cast(list[dict[str, object]], explanation["causal_path"])
+        self.assertEqual(len(causal_path), 5)
 
         if wf.policy.abort_on_verification_failure:
             wf.state = WorkflowState.ABORTED
@@ -117,7 +125,7 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
 
         replayed_stream: list[BaseEvent] = []
         target_transport = InMemoryTransport()
-        target_transport.subscribe(BaseEvent, lambda e: replayed_stream.append(e))
+        target_transport.subscribe(BaseEvent, lambda e: replayed_stream.append(cast(BaseEvent, e)))
 
         replay_engine = DeterministicReplayEngine(target_transport)
         count = replay_engine.replay_journal(recorded_journal)
@@ -130,4 +138,4 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()

@@ -1,6 +1,6 @@
 import unittest
-from tools.verification.adapters.coq import CoqAdapter
-from tools.verification.adapters.rtl import RTLAdapter
+from cortex.tools.verification.adapters.coq import CoqAdapter
+from cortex.tools.verification.adapters.rtl import RTLAdapter
 
 class TestAdapterMutations(unittest.TestCase):
     def test_coq_adapter_mutation_detection(self):

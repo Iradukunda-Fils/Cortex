@@ -6,26 +6,33 @@ pipeline using zero-knowledge actors communicating over InMemoryTransport.
 """
 
 import unittest
-from tools.kernel.transport import InMemoryTransport
-from tools.kernel.context import RuntimeContext
-from tools.kernel.schema.message import (
+from typing import cast, override
+from cortex.tools.kernel.transport import InMemoryTransport, AnyEvent
+from cortex.tools.kernel.context import RuntimeContext
+from cortex.tools.kernel.schema.message import (
     IntentEvent,
 )
-from tools.kernel.actors.planner import IntentPlannerActor
-from tools.kernel.actors.executor import TaskExecutorActor
-from tools.kernel.drivers.mock_robot import MockRobotDriver
-from tools.kernel.services.verification import VerificationKernelService
-from tools.kernel.services.graph_builder import ExecutionGraphBuilderService
+from cortex.tools.kernel.actors.planner import IntentPlannerActor
+from cortex.tools.kernel.actors.executor import TaskExecutorActor
+from cortex.tools.kernel.drivers.mock_robot import MockRobotDriver
+from cortex.tools.kernel.services.verification import VerificationKernelService
+from cortex.tools.kernel.services.graph_builder import ExecutionGraphBuilderService
 
 
 class TestStage4AVerticalSlice(unittest.TestCase):
+    transport: InMemoryTransport = cast(InMemoryTransport, cast(object, None))
+    context: RuntimeContext = cast(RuntimeContext, cast(object, None))
+    graph_builder: ExecutionGraphBuilderService = cast(ExecutionGraphBuilderService, cast(object, None))
+    message_bus: list[AnyEvent] = []
+
+    @override
     def setUp(self):
         self.transport = InMemoryTransport()
         self.context = RuntimeContext("actor_stage4a", "sess_stage4a", self.transport)
         self.graph_builder = ExecutionGraphBuilderService()
         self.message_bus = []
 
-    def _publish(self, msg):
+    def _publish(self, msg: AnyEvent) -> None:
         self.message_bus.append(msg)
         self.graph_builder.record_message(msg)
 
@@ -75,4 +82,4 @@ class TestStage4AVerticalSlice(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()

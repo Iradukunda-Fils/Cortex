@@ -3,12 +3,13 @@ Plugin System & Capability Negotiation Test Suite
 """
 
 import unittest
-from tools.kernel.plugin.manifest import (
+from typing import override
+from cortex.tools.kernel.plugin.manifest import (
     ROBOT_ARM_MANIFEST,
     AGENT_PLANNER_MANIFEST,
     VERIFICATION_SERVICE_MANIFEST,
 )
-from tools.kernel.plugin.loader import (
+from cortex.tools.kernel.plugin.loader import (
     PluginRegistry,
     PluginState,
 )
@@ -19,7 +20,7 @@ class TestPluginManifest(unittest.TestCase):
         """Plugin manifests must be frozen (immutable after creation)."""
         m = ROBOT_ARM_MANIFEST
         with self.assertRaises(AttributeError):
-            m.name = "tampered"
+            setattr(m, "name", "tampered")
 
     def test_manifest_event_contract(self):
         """Verify canonical manifest event declarations."""
@@ -31,6 +32,9 @@ class TestPluginManifest(unittest.TestCase):
 
 
 class TestCapabilityNegotiation(unittest.TestCase):
+    platform_caps: set[str] = set()
+
+    @override
     def setUp(self):
         self.platform_caps = {
             "hardware.actuators.execute",
@@ -61,9 +65,9 @@ class TestCapabilityNegotiation(unittest.TestCase):
     def test_multi_plugin_registry(self):
         """Multiple plugins can be registered and queried by state."""
         registry = PluginRegistry(self.platform_caps)
-        registry.register(ROBOT_ARM_MANIFEST)
-        registry.register(AGENT_PLANNER_MANIFEST)
-        registry.register(VERIFICATION_SERVICE_MANIFEST)
+        _ = registry.register(ROBOT_ARM_MANIFEST)
+        _ = registry.register(AGENT_PLANNER_MANIFEST)
+        _ = registry.register(VERIFICATION_SERVICE_MANIFEST)
 
         active = registry.get_active_plugins()
         self.assertEqual(len(active), 3)
@@ -80,13 +84,14 @@ class TestCapabilityNegotiation(unittest.TestCase):
     def test_plugin_lookup(self):
         """Plugins can be retrieved by name."""
         registry = PluginRegistry(self.platform_caps)
-        registry.register(AGENT_PLANNER_MANIFEST)
+        _ = registry.register(AGENT_PLANNER_MANIFEST)
         p = registry.get_plugin("llm-task-planner")
 
         self.assertIsNotNone(p)
+        assert p is not None
         self.assertEqual(p.manifest.name, "llm-task-planner")
         self.assertEqual(p.state, PluginState.ACTIVE)
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()
