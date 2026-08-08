@@ -6,35 +6,93 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  certify-substrate:
+  # 1. Code Quality, Linting & Type Safety Gate (Python)
+  code-quality-python:
+    name: Code Quality & Type Safety (Python)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
+      - name: Install Linting & Type Checking Tools
+        run: pip install ruff pyright
+      - name: Code Quality & Lint Check (Ruff)
+        run: ruff check .
+      - name: Strict Type Safety Analysis (Pyright)
+        run: pyright
+      - name: Spec Freeze Integrity Check
+        run: ./scripts/check_contract_freeze.sh
 
+  # 2. Kernel Runtime & Conformance Test Suite
+  kernel-conformance:
+    name: Kernel Runtime & Conformance Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
       - name: "Stage 1: Structural & Schema Validation (Golden Hash Check)"
-        run: |
-          cd tests/golden/v1.0.0 && sha256sum -c SHA256SUMS
-
+        run: cd tests/golden/v1.0.0 && sha256sum -c SHA256SUMS
       - name: "Stage 2: Conformance, Kernel Runtime & Semantic Equivalence"
         run: |
           PYTHONPATH=. python3 tests/conformance/run_certification.py
-          PYTHONPATH=. python3 -m unittest discover -s tests/kernel -v
-
+          PYTHONPATH=. python3 -m unittest discover -s tests -v
       - name: "Stage 3: Mutation Immunity & Regression Corpus Replay"
         run: |
           PYTHONPATH=. python3 -m unittest tests/conformance/test_adapter_mutations.py -v
           python3 scripts/replay_golden_vectors.py --corpus tests/golden/v1.0.0/
 
-      - name: "Stage 4: Spec Freeze Integrity Check"
-        run: |
-          ./scripts/check_contract_freeze.sh
+  # 3. Rust Emulator Quality & Test Suite
+  rust-emulator-gate:
+    name: Rust Code Quality & Test Suite
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cortex-emulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: cortex-emulator -> target
+      - name: Rust Formatting Check (cargo fmt)
+        run: cargo fmt --check
+      - name: Rust Linter & Static Analysis (cargo clippy)
+        run: cargo clippy -- -D warnings
+      - name: Rust Test Execution
+        run: cargo test --verbose
 
-      - name: Enforcement Gate
+  # 4. Formal Soundness Proofs Gate (Coq)
+  coq-verification-gate:
+    name: Formal Coq Proof Verification
+    runs-on: ubuntu-latest
+    container:
+      image: coqorg/coq:8.18-ocaml-4.14-flambda
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Formal Coq Soundness Proofs
+        run: |
+          cd verification
+          coq_makefile -f _CoqProject -o Makefile.coq
+          make -f Makefile.coq
+
+  # 5. Final Enforcement Gate (Fan-In Aggregator)
+  enforcement-gate:
+    name: Hierarchical Substrate Gate Pass
+    needs: [code-quality-python, kernel-conformance, rust-emulator-gate, coq-verification-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm All Quality & Conformance Gates Passed
         run: |
           echo "SUCCESS: Hierarchical Verification Substrate Gate Passed. Merge allowed."
+

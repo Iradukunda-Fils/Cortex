@@ -43,7 +43,12 @@ mod tests {
 
     #[test]
     fn test_guard_pass() {
-        let cap = CapabilityDescriptor::new(true, spatial_rights::EXEC | spatial_rights::READ, 0x1000, 20);
+        let cap = CapabilityDescriptor::new(
+            true,
+            spatial_rights::EXEC | spatial_rights::READ,
+            0x1000,
+            20,
+        );
         let res = GuardPipeline::evaluate_invoke(Some(&cap), spatial_rights::EXEC, 15);
         assert_eq!(res, Ok(()));
     }

@@ -1,7 +1,7 @@
+use crate::isa::Instruction;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use crate::isa::Instruction;
 
 const MAGIC_CORTEX: &[u8; 6] = b"CORTEX";
 
@@ -22,7 +22,11 @@ impl std::fmt::Display for LoadError {
             LoadError::UnsupportedVersion(v) => write!(f, "Unsupported Version: {}", v),
             LoadError::TruncatedHeader => write!(f, "Truncated Header (< 12 bytes)"),
             LoadError::InstructionCountMismatch { expected, actual } => {
-                write!(f, "Count Mismatch: expected {} bytes payload, got {}", expected, actual)
+                write!(
+                    f,
+                    "Count Mismatch: expected {} bytes payload, got {}",
+                    expected, actual
+                )
             }
         }
     }
@@ -39,7 +43,8 @@ pub struct Program {
 pub fn load_program<P: AsRef<Path>>(path: P) -> Result<Program, LoadError> {
     let mut file = File::open(path).map_err(|e| LoadError::IoError(e.to_string()))?;
     let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer).map_err(|e| LoadError::IoError(e.to_string()))?;
+    file.read_to_end(&mut buffer)
+        .map_err(|e| LoadError::IoError(e.to_string()))?;
 
     if buffer.len() < 12 {
         return Err(LoadError::TruncatedHeader);

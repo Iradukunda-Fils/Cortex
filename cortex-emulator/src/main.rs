@@ -3,11 +3,11 @@ mod isa;
 mod loader;
 mod trace;
 
+use hardware::{GuardPipeline, HardwareEpochCounter, StcrFile, TrapCause};
+use isa::{spatial_rights, CapabilityDescriptor, Instruction, Opcode};
+use loader::load_program;
 use std::env;
 use std::fs;
-use hardware::{GuardPipeline, HardwareEpochCounter, StcrFile, TrapCause};
-use isa::{CapabilityDescriptor, Instruction, Opcode, spatial_rights};
-use loader::load_program;
 use trace::{InstructionTrace, OutcomeTrace, StcrState, StepTraceRecord, TraceLogger};
 
 pub struct SystemState {
@@ -28,6 +28,12 @@ impl SystemState {
     }
 }
 
+impl Default for SystemState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let mut export_path: Option<String> = None;
@@ -36,17 +42,13 @@ fn main() {
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
-            "--export-trace" | "--trace-out" => {
-                if i + 1 < args.len() {
-                    export_path = Some(args[i + 1].clone());
-                    i += 1;
-                }
+            "--export-trace" | "--trace-out" if i + 1 < args.len() => {
+                export_path = Some(args[i + 1].clone());
+                i += 1;
             }
-            "--bin" | "-b" => {
-                if i + 1 < args.len() {
-                    bin_path = Some(args[i + 1].clone());
-                    i += 1;
-                }
+            "--bin" | "-b" if i + 1 < args.len() => {
+                bin_path = Some(args[i + 1].clone());
+                i += 1;
             }
             arg if !arg.starts_with('-') => {
                 bin_path = Some(arg.to_string());
@@ -72,7 +74,10 @@ fn main() {
         println!("[+] Loading binary execution program from: {}", path);
         match load_program(&path) {
             Ok(program) => {
-                println!("[+] Successfully loaded {} instructions", program.instruction_count);
+                println!(
+                    "[+] Successfully loaded {} instructions",
+                    program.instruction_count
+                );
                 for (idx, inst) in program.instructions.into_iter().enumerate() {
                     execute_step(idx + 1, inst, &mut state, &mut logger);
                 }
@@ -84,12 +89,17 @@ fn main() {
         }
     } else {
         // Fallback default demonstration loop
-        let raw_inst1 = (0x01u32 << 26) | (0u32 << 21) | (1u32 << 16) | 0x0000;
+        let raw_inst1 = (0x01u32 << 26) | (1u32 << 16);
         execute_step(1, Instruction::decode(raw_inst1), &mut state, &mut logger);
 
         for step_idx in 2..=12 {
             let raw_hec_inc = 0x05u32 << 26;
-            execute_step(step_idx, Instruction::decode(raw_hec_inc), &mut state, &mut logger);
+            execute_step(
+                step_idx,
+                Instruction::decode(raw_hec_inc),
+                &mut state,
+                &mut logger,
+            );
         }
 
         execute_step(13, Instruction::decode(raw_inst1), &mut state, &mut logger);
@@ -119,7 +129,7 @@ fn execute_step(
             let desc = state.stcr_file.read_descriptor(i);
             StcrState {
                 id: i as u8,
-                valid: desc.as_ref().map_or(false, |d| d.valid),
+                valid: desc.as_ref().is_some_and(|d| d.valid),
                 spatial_mask: desc.as_ref().map_or(0, |d| d.spatial_mask),
                 base_address: desc.as_ref().map_or(0, |d| d.base_address),
                 max_epoch: desc.as_ref().map_or(0, |d| d.max_epoch),
@@ -163,7 +173,9 @@ fn execute_step(
         Ok(Opcode::RestrictCap) => {
             if let Some(mut cap) = state.stcr_file.read_descriptor(inst.stcr_id as usize) {
                 cap.spatial_mask &= inst.immediate;
-                state.stcr_file.write_descriptor(inst.stcr_id as usize, &cap);
+                state
+                    .stcr_file
+                    .write_descriptor(inst.stcr_id as usize, &cap);
                 dest_reg_val = cap.encode();
             }
         }

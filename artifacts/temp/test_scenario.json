@@ -1,9 +1,9 @@
 {
-  "seed": "0x4A91C3F8",
+  "seed": "0x4A91C45B",
   "initial_state": {
     "pc": 4096,
     "privilege_mode": "Machine",
-    "reg_hec": 1,
+    "reg_hec": 0,
     "stcr_registers": [
       {
         "index": 0,
@@ -14,38 +14,38 @@
       },
       {
         "index": 1,
-        "valid": false,
-        "permissions": 0,
-        "base_address": 0,
-        "epoch": 0
-      },
-      {
-        "index": 2,
         "valid": true,
-        "permissions": 16384,
-        "base_address": 4096,
+        "permissions": 8192,
+        "base_address": 8192,
         "epoch": 65534
       },
       {
-        "index": 3,
+        "index": 2,
         "valid": false,
         "permissions": 0,
         "base_address": 0,
         "epoch": 0
       },
       {
-        "index": 4,
+        "index": 3,
         "valid": true,
+        "permissions": 4096,
+        "base_address": 32768,
+        "epoch": 65534
+      },
+      {
+        "index": 4,
+        "valid": false,
         "permissions": 0,
-        "base_address": 4096,
-        "epoch": 100
+        "base_address": 0,
+        "epoch": 0
       },
       {
         "index": 5,
-        "valid": true,
+        "valid": false,
         "permissions": 0,
-        "base_address": 4294901760,
-        "epoch": 100
+        "base_address": 0,
+        "epoch": 0
       },
       {
         "index": 6,
@@ -56,22 +56,22 @@
       },
       {
         "index": 7,
-        "valid": false,
+        "valid": true,
         "permissions": 0,
-        "base_address": 0,
-        "epoch": 0
+        "base_address": 32768,
+        "epoch": 100
       },
       {
         "index": 8,
-        "valid": false,
-        "permissions": 0,
+        "valid": true,
+        "permissions": 16384,
         "base_address": 0,
-        "epoch": 0
+        "epoch": 65535
       },
       {
         "index": 9,
-        "valid": true,
-        "permissions": 16384,
+        "valid": false,
+        "permissions": 0,
         "base_address": 0,
         "epoch": 0
       },
@@ -84,24 +84,24 @@
       },
       {
         "index": 11,
-        "valid": true,
-        "permissions": 0,
-        "base_address": 4294901760,
-        "epoch": 1
-      },
-      {
-        "index": 12,
         "valid": false,
         "permissions": 0,
         "base_address": 0,
         "epoch": 0
       },
       {
-        "index": 13,
+        "index": 12,
         "valid": true,
         "permissions": 8192,
-        "base_address": 4294901760,
+        "base_address": 0,
         "epoch": 1
+      },
+      {
+        "index": 13,
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
       },
       {
         "index": 14,
@@ -112,31 +112,31 @@
       },
       {
         "index": 15,
-        "valid": false,
+        "valid": true,
         "permissions": 0,
-        "base_address": 0,
-        "epoch": 0
+        "base_address": 4096,
+        "epoch": 65535
       },
       {
         "index": 16,
-        "valid": true,
-        "permissions": 28672,
+        "valid": false,
+        "permissions": 0,
         "base_address": 0,
         "epoch": 0
       },
       {
         "index": 17,
-        "valid": false,
-        "permissions": 0,
-        "base_address": 0,
-        "epoch": 0
+        "valid": true,
+        "permissions": 8192,
+        "base_address": 4096,
+        "epoch": 65534
       },
       {
         "index": 18,
         "valid": true,
-        "permissions": 8192,
-        "base_address": 0,
-        "epoch": 1
+        "permissions": 4096,
+        "base_address": 4096,
+        "epoch": 0
       },
       {
         "index": 19,
@@ -147,10 +147,10 @@
       },
       {
         "index": 20,
-        "valid": true,
+        "valid": false,
         "permissions": 0,
-        "base_address": 8192,
-        "epoch": 100
+        "base_address": 0,
+        "epoch": 0
       },
       {
         "index": 21,
@@ -162,9 +162,9 @@
       {
         "index": 22,
         "valid": true,
-        "permissions": 4096,
-        "base_address": 4294901760,
-        "epoch": 65534
+        "permissions": 28672,
+        "base_address": 4096,
+        "epoch": 100
       },
       {
         "index": 23,
@@ -175,10 +175,10 @@
       },
       {
         "index": 24,
-        "valid": true,
-        "permissions": 8192,
+        "valid": false,
+        "permissions": 0,
         "base_address": 0,
-        "epoch": 100
+        "epoch": 0
       },
       {
         "index": 25,
@@ -197,9 +197,9 @@
       {
         "index": 27,
         "valid": true,
-        "permissions": 8192,
-        "base_address": 32768,
-        "epoch": 1
+        "permissions": 0,
+        "base_address": 4096,
+        "epoch": 0
       },
       {
         "index": 28,
@@ -217,10 +217,10 @@
       },
       {
         "index": 30,
-        "valid": true,
-        "permissions": 16384,
-        "base_address": 8192,
-        "epoch": 100
+        "valid": false,
+        "permissions": 0,
+        "base_address": 0,
+        "epoch": 0
       },
       {
         "index": 31,
@@ -233,40 +233,40 @@
   },
   "program": [
     {
+      "opcode_name": "INVOKE_CAP",
+      "opcode_val": 1,
+      "raw_hex": "0x04010000",
+      "raw_uint32": 67174400
+    },
+    {
       "opcode_name": "GRANT_CAP",
       "opcode_val": 2,
-      "raw_hex": "0x0800ffff",
-      "raw_uint32": 134283263
+      "raw_hex": "0x0820ffff",
+      "raw_uint32": 136380415
+    },
+    {
+      "opcode_name": "GRANT_CAP",
+      "opcode_val": 2,
+      "raw_hex": "0x08232000",
+      "raw_uint32": 136519680
     },
     {
       "opcode_name": "RESTRICT_CAP",
       "opcode_val": 3,
-      "raw_hex": "0x0c030000",
-      "raw_uint32": 201523200
+      "raw_hex": "0x0c002000",
+      "raw_uint32": 201334784
+    },
+    {
+      "opcode_name": "INVOKE_CAP",
+      "opcode_val": 1,
+      "raw_hex": "0x04000000",
+      "raw_uint32": 67108864
     },
     {
       "opcode_name": "ILLEGAL_OP",
       "opcode_val": 15,
       "raw_hex": "0x00000000",
       "raw_uint32": 0
-    },
-    {
-      "opcode_name": "INVOKE_CAP",
-      "opcode_val": 1,
-      "raw_hex": "0x04020000",
-      "raw_uint32": 67239936
-    },
-    {
-      "opcode_name": "REVOKE_CAP",
-      "opcode_val": 5,
-      "raw_hex": "0x14000000",
-      "raw_uint32": 335544320
-    },
-    {
-      "opcode_name": "INVOKE_CAP",
-      "opcode_val": 1,
-      "raw_hex": "0x04010000",
-      "raw_uint32": 67174400
     }
   ]
 }

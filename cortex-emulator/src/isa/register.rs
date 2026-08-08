@@ -12,11 +12,11 @@ pub struct CapabilityDescriptor {
 /// Bit constants for Spatial_Mask enumeration (SDS v1.0 Section 3.1)
 #[allow(dead_code)]
 pub mod spatial_rights {
-    pub const READ: u16 = 1 << 14;     // Bit 62
-    pub const WRITE: u16 = 1 << 13;    // Bit 61
-    pub const EXEC: u16 = 1 << 12;     // Bit 60
+    pub const READ: u16 = 1 << 14; // Bit 62
+    pub const WRITE: u16 = 1 << 13; // Bit 61
+    pub const EXEC: u16 = 1 << 12; // Bit 60
     pub const DELEGATE: u16 = 1 << 11; // Bit 59
-    pub const REVOKE: u16 = 1 << 10;   // Bit 58
+    pub const REVOKE: u16 = 1 << 10; // Bit 58
     pub const DOMAIN_MASK: u16 = 0x03FF; // Bits 57..48 (10 bits)
 }
 
@@ -38,7 +38,7 @@ impl CapabilityDescriptor {
         let v_bit = 1u64 << 63;
         let mask_bits = ((self.spatial_mask & 0x7FFF) as u64) << 48;
         let addr_bits = (self.base_address as u64) << 16;
-        let epoch_bits = (self.max_epoch & 0xFFFF) as u64;
+        let epoch_bits = self.max_epoch as u64;
 
         v_bit | mask_bits | addr_bits | epoch_bits
     }
@@ -64,7 +64,12 @@ mod tests {
 
     #[test]
     fn test_encode_decode_roundtrip() {
-        let cap = CapabilityDescriptor::new(true, spatial_rights::READ | spatial_rights::EXEC, 0x00001000, 42);
+        let cap = CapabilityDescriptor::new(
+            true,
+            spatial_rights::READ | spatial_rights::EXEC,
+            0x00001000,
+            42,
+        );
         let encoded = cap.encode();
         let decoded = CapabilityDescriptor::decode(encoded).expect("Decode failed");
         assert_eq!(cap, decoded);

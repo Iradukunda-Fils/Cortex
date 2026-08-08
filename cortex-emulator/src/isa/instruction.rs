@@ -31,9 +31,9 @@ impl TryFrom<u8> for Opcode {
 pub struct Instruction {
     pub raw: u32,
     pub opcode: Result<Opcode, u8>, // Reserved opcodes returned as Err(raw_opcode)
-    pub stcr_id: u8,               // 5 bits (bits 25..21)
-    pub arg_reg: u8,               // 5 bits (bits 20..16)
-    pub immediate: u16,            // 16 bits (bits 15..0)
+    pub stcr_id: u8,                // 5 bits (bits 25..21)
+    pub arg_reg: u8,                // 5 bits (bits 20..16)
+    pub immediate: u16,             // 16 bits (bits 15..0)
 }
 
 impl Instruction {

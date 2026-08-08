@@ -1,3 +1,0 @@
-"""
-Scenario & Machine State Generators
-"""

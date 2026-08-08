@@ -1,0 +1,9 @@
+name: repo-auditor
+version: 0.1.0
+description: Autonomous Repository Auditor Agent
+required_capabilities:
+  - fs:read
+  - exec:git
+  - exec:pytest
+  - workflow.plan.create
+  - workflow.command.issue

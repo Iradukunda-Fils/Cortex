@@ -1,3 +1,0 @@
-"""
-Cortex Kernel Runtime Core
-"""

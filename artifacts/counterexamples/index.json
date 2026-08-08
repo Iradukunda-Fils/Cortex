@@ -15,6 +15,30 @@
       "error_type": "TrapStatusMismatch",
       "mismatched_field": "trap.triggered",
       "failing_step": 3
+    },
+    {
+      "hash": "296f901da11a",
+      "seed": "0x4A91C3F8",
+      "commit_id": "a484b94",
+      "error_type": "TrapStatusMismatch",
+      "mismatched_field": "trap.triggered",
+      "failing_step": 3
+    },
+    {
+      "hash": "296f901da11a",
+      "seed": "0x4A91C3F8",
+      "commit_id": "a484b94",
+      "error_type": "TrapStatusMismatch",
+      "mismatched_field": "trap.triggered",
+      "failing_step": 3
+    },
+    {
+      "hash": "296f901da11a",
+      "seed": "0x4A91C3F8",
+      "commit_id": "a484b94",
+      "error_type": "TrapStatusMismatch",
+      "mismatched_field": "trap.triggered",
+      "failing_step": 3
     }
   ]
 }

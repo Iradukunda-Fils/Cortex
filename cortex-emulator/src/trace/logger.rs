@@ -40,7 +40,9 @@ pub struct TraceLogger {
 
 impl TraceLogger {
     pub fn new() -> Self {
-        Self { records: Vec::new() }
+        Self {
+            records: Vec::new(),
+        }
     }
 
     pub fn log_step(&mut self, record: StepTraceRecord) {
