@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cortex-runtime"
+version = "0.2.0"
+description = "Spatiotemporal authority and semantic verification framework for autonomous workflows"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Iradukunda Fils" }
+]
+keywords = ["verification", "workflow", "sandbox", "agents", "architecture"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "typing-extensions>=4.5.0",
+]
+
+[project.scripts]
+cortex = "cortex.tools.cli.main:cli_entrypoint"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/cortex",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cortex"]
