@@ -10,6 +10,18 @@ If the adversarial analysis reveals that a composition of existing CS frameworks
 
 ---
 
+## 📖 Developer Portal & Quick Links
+
+- 🚀 **[Developer Quickstart](docs/quickstart.md)**: Install `cortex-runtime`, build workflows, and run plugins.
+- 💻 **[CLI Documentation](docs/cli.md)**: Standard CLI command usage (`cortex init`, `workflow run`, `inspect`, `replay`).
+- 🏛️ **[Architecture Overview](docs/architecture.md)**: Universal event hierarchy, domain isolation, and capability sandboxing.
+- 🔐 **[Capability Manifest Specification](docs/manifest_spec.md)**: `PluginManifest` schema and negotiation rules.
+- 🔬 **[Research Documentation](Research/)**: Formal whitepapers, mathematical invariants ($P1$–$P4$), and CS literature taxonomy.
+- 📐 **[Coq Proof Substrate](coq/)**: Interactive formal verification proof scripts.
+- ⚡ **[Rust Emulator Engine](cortex-emulator/)**: Hardware state machine emulator.
+
+---
+
 ## 🏛️ Repository Architecture
 
 To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured research pipeline under `Research/`:
