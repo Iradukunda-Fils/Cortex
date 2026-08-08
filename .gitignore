@@ -1,5 +1,32 @@
+# Python & Build
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Cortex Local Execution & Traces
+.cortex/
+*.trace.json
+canonical_trace.json
+rtl_trace.json
+tmp_*.json
+test_app/
+
+# Rust & Emulator Build Artifacts
+cortex-emulator/target/
+target/
 obj_dir/
+
+# Verification & Temporary Output
 artifacts/temp/
-/tools/verification/temp
+tools/verification/temp
+
+# Environments & IDEs
+.venv/
+venv/
+.vscode/
+.idea/
+.clangd
+.ruff_cache/
