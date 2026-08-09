@@ -25,6 +25,9 @@ tools/verification/temp
 
 # Environments & IDEs
 .venv/
+.uv-venv/
+.uv/
+uv.lock
 venv/
 .vscode/
 .idea/

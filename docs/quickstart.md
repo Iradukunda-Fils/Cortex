@@ -6,10 +6,17 @@ This guide walks you through creating your first Cortex application and custom p
 
 ## Prerequisites & Installation
 
-Cortex requires **Python 3.10+**. Install the package via PyPI:
+Cortex requires **Python 3.10+**. Install the package via PyPI or using `uv`:
 
 ```bash
+# Standard pip
 pip install cortex-runtime
+
+# Fast installation with Astral uv
+uv pip install cortex-runtime
+
+# Or run directly with uv tool
+uvx cortex-runtime --help
 ```
 
 ---

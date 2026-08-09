@@ -18,7 +18,11 @@ def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dic
         raise FileNotFoundError(f"Workflow file not found: {workflow_file}")
 
     with open(workflow_file, "r", encoding="utf-8") as f:
-        data = cast(dict[str, object], json.load(f))
+        if workflow_file.endswith(".yaml") or workflow_file.endswith(".yml"):
+            import yaml
+            data = cast(dict[str, object], yaml.safe_load(f)) or {}
+        else:
+            data = cast(dict[str, object], json.load(f))
 
     client = CortexClient()
 
