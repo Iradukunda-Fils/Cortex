@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ vars.PYTHON_VERSION || '3.11' }}
 
       - name: Install Dependencies
         run: uv pip install --system ".[dev]"
@@ -43,12 +43,12 @@ jobs:
         run: python -m unittest discover -s tests
 
   publish:
-    name: Publish to PyPI via uv (OIDC Trusted Publishing)
+    name: Publish to PyPI via uv
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # Mandatory for PyPI OIDC Trusted Publishing
+      id-token: write  # Enables OIDC Trusted Publishing
 
     steps:
       - name: Checkout Code
@@ -62,10 +62,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ vars.PYTHON_VERSION || '3.11' }}
 
       - name: Build Package Artifacts with uv build
         run: uv build
 
       - name: Publish to PyPI with uv publish
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: uv publish
