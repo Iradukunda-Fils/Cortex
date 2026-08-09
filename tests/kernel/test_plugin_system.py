@@ -21,7 +21,7 @@ class TestPluginManifest(unittest.TestCase):
         """Plugin manifests must be frozen (immutable after creation)."""
         m = ROBOT_ARM_MANIFEST
         with self.assertRaises(AttributeError):
-            object.__setattr__(m, "name", "tampered")
+            m.name = "tampered"  # pyright: ignore[reportAttributeAccessIssue]
 
     def test_manifest_event_contract(self):
         """Verify canonical manifest event declarations."""

@@ -10,13 +10,14 @@ import os
 from typing import cast
 
 from cortex.client import CortexClient
+from cortex.exceptions import WorkflowExecutionError
 from cortex.schema import IntentEvent, WorkflowPolicy
 
 
 def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dict[str, str | int]:
     """Runs a workflow file by instantiating CortexClient thin wrapper."""
     if not os.path.exists(workflow_file):
-        raise FileNotFoundError(f"Workflow file not found: {workflow_file}")
+        raise WorkflowExecutionError(f"Workflow file not found: {workflow_file}")
 
     with open(workflow_file, "r", encoding="utf-8") as f:
         if workflow_file.endswith(".yaml") or workflow_file.endswith(".yml"):
