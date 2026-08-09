@@ -95,11 +95,11 @@ jobs:
           fetch-depth: 0
       - name: Verify Formal Coq Soundness Proofs
         run: |
-          docker run --rm \
+          docker run --rm --user root \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace/verification \
             coqorg/coq:8.18-ocaml-4.14-flambda \
-            sh -c "eval \$(opam env); coq_makefile -f _CoqProject -o Makefile.coq && make -f Makefile.coq"
+            sh -c "COQ_BIN_DIR=\"\$(find /home/coq -name coq_makefile 2>/dev/null | head -n 1 | xargs -r dirname)\"; if [ -n \"\$COQ_BIN_DIR\" ]; then export PATH=\"\$COQ_BIN_DIR:\$PATH\"; fi; coq_makefile -f _CoqProject -o Makefile.coq && make -f Makefile.coq"
 
   # 5. Final Enforcement Gate (Fan-In Aggregator)
   enforcement-gate:
