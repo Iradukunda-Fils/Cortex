@@ -87,6 +87,7 @@ jobs:
       - name: Verify Formal Coq Soundness Proofs
         run: |
           cd verification
+          eval $(opam env 2>/dev/null) || export PATH="/home/coq/.opam/4.14.1/bin:$PATH"
           coq_makefile -f _CoqProject -o Makefile.coq
           make -f Makefile.coq
 
