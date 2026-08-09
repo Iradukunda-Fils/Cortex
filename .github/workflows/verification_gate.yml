@@ -3,6 +3,7 @@ name: Hierarchical Verification Substrate Gate
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, develop ]
 
@@ -83,6 +84,8 @@ jobs:
       image: coqorg/coq:8.18-ocaml-4.14-flambda
       options: --user root
     steps:
+      - name: Prepare Container Certificates
+        run: apt-get update && apt-get install -y --no-install-recommends ca-certificates git
       - uses: actions/checkout@v4
       - name: Verify Formal Coq Soundness Proofs
         run: |
