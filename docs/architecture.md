@@ -88,22 +88,21 @@ To bridge non-technical security governance with core system engineering, Cortex
 sequenceDiagram
     autonumber
     participant Agent as Autonomous Agent
-    participant Script as Script Subshell (script.sh)
-    participant Driver as Guarded Subprocess Driver
-    participant Context as PluginContext
-    participant Bus as Kernel Event Bus
+    participant Kernel as Cortex Kernel
+    participant Sandbox as Capability Sandbox Proxy
+    participant EventStore as Immutable Event Store
 
-    Agent->>Script: Attempt Subshell Indirection (bash script.sh)
-    Script->>Driver: Trigger Subprocess Command (exec:git)
-    Driver->>Context: Check Capability ('exec:git')
+    Agent->>Kernel: Request Execution: exec(bash exploit.sh)
+    Kernel->>Kernel: Evaluate Capability (exec:sh)
     
-    alt Capability Missing
-        Context-->>Driver: False
-        Driver->>Bus: Publish VerificationResultEvent (CAPABILITY_VIOLATION)
-        Bus-->>Agent: Abort Workflow Policy
+    alt Capability Denied
+        Kernel-->>Agent: Return Verification Failure (CAPABILITY_VIOLATION)
+        Kernel->>EventStore: Record Event (CommitEventV1 / VerificationResultEvent)
     else Capability Granted
-        Context-->>Driver: True
-        Driver->>Script: Execute Isolated Command
+        Kernel->>Sandbox: Execute (bash exploit.sh)
+        Sandbox->>Sandbox: Intercept & Trap Syscall (execve / socket)
+        Sandbox-->>Kernel: Inner Capability Violation Intercepted
+        Kernel->>EventStore: Log Intercepted Violation Event
     end
 ```
 
