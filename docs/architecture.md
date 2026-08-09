@@ -137,3 +137,18 @@ sequenceDiagram
 4. **Plugin Sandboxing & Capability Negotiation**:
    - Plugins declare required capabilities in a `PluginManifest`.
    - Runtimes validate grants via `CapabilityNegotiator`. Unregistered capabilities trigger a `CAPABILITY_VIOLATION` verification failure.
+
+---
+
+## 🐍 Python vs. 🦀 Rust: Language Division of Labor
+
+Cortex divides system responsibilities cleanly between Python (Control & Developer Plane) and Rust (Data Verification & Emulation Plane):
+
+| Feature / Responsibility | 🐍 Python (`cortex/`) | 🦀 Rust (`cortex-emulator/`) |
+| :--- | :--- | :--- |
+| **System Domain** | High-Level Control & Developer Plane | High-Performance Verification Plane |
+| **Target Audience** | Application Developers & AI Engineers | Core Kernel & Security Verifiers |
+| **Primary Artifacts** | Workflows, Developer CLI, Plugins, Event Routing | Hardware State Machine, Syscall Traps, Invariant Proofs |
+| **Performance Profile** | Rapid Prototyping, Dynamic Event Dispatch | Native Speed, Memory Safety, Zero GC Pauses |
+| **Security Focus** | Capability Negotiation & API Proxies | Syscall Interception & Micro-Step Invariant Verification |
+
