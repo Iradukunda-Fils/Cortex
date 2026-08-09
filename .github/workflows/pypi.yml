@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v3
@@ -48,10 +50,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # Enables OIDC Trusted Publishing
+      contents: read
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v3
