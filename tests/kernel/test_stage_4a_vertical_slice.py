@@ -6,7 +6,9 @@ pipeline using zero-knowledge actors communicating over InMemoryTransport.
 """
 
 import unittest
-from typing import cast, override
+from typing import cast
+
+from typing_extensions import override
 
 from cortex.tools.kernel.actors.executor import TaskExecutorActor
 from cortex.tools.kernel.actors.planner import IntentPlannerActor

@@ -4,7 +4,7 @@ Repository Auditor Planner Plugin
 Decomposes IntentEvent into structured repository audit steps.
 """
 
-from typing import override
+from typing_extensions import override
 
 from cortex import (
     BaseEvent,

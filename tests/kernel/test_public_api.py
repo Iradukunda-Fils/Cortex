@@ -6,7 +6,9 @@ import os
 import shutil
 import tempfile
 import unittest
-from typing import cast, override
+from typing import cast
+
+from typing_extensions import override
 
 from cortex import (
     BaseEvent,

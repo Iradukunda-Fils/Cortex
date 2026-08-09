@@ -5,7 +5,9 @@ Tests Epoch Monotonicity, Neutral Trap Semantics, and Single Retirement Policy.
 """
 
 import unittest
-from typing import cast, override
+from typing import cast
+
+from typing_extensions import override
 
 from cortex.tools.verification.invariants.capability import (
     EpochMonotonicityInvariant,

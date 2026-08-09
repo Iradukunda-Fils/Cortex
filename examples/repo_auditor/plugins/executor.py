@@ -4,7 +4,9 @@ Repository Auditor Executor Plugin
 Consumes PlanGeneratedEvent and issues individual CommandIssuedEvent steps.
 """
 
-from typing import cast, override
+from typing import cast
+
+from typing_extensions import override
 
 from cortex import (
     BaseEvent,

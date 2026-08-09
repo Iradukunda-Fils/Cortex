@@ -4,7 +4,8 @@ Transport Layer Abstractions & InMemoryTransport Implementation
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import override
+
+from typing_extensions import override
 
 from cortex.tools.kernel.schema.event import Event
 from cortex.tools.kernel.schema.message import BaseEvent
