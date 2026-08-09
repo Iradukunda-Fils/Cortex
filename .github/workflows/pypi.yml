@@ -19,15 +19,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff pyright build hatchling pytest
+        run: uv pip install --system ".[dev]"
 
       - name: Run Ruff Linter
         run: ruff check .
@@ -39,7 +43,7 @@ jobs:
         run: python -m unittest discover -s tests
 
   publish:
-    name: Publish to PyPI (OIDC Trusted Publishing)
+    name: Publish to PyPI via uv (OIDC Trusted Publishing)
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
@@ -50,16 +54,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install Build Tools
-        run: pip install build hatchling
+      - name: Build Package Artifacts with uv build
+        run: uv build
 
-      - name: Build Package Artifacts (sdist & wheel)
-        run: python -m build
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI with uv publish
+        run: uv publish
