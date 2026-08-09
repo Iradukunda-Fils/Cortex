@@ -4,14 +4,15 @@ Plugin System & Capability Negotiation Test Suite
 
 import unittest
 from typing import override
-from cortex.tools.kernel.plugin.manifest import (
-    ROBOT_ARM_MANIFEST,
-    AGENT_PLANNER_MANIFEST,
-    VERIFICATION_SERVICE_MANIFEST,
-)
+
 from cortex.tools.kernel.plugin.loader import (
     PluginRegistry,
     PluginState,
+)
+from cortex.tools.kernel.plugin.manifest import (
+    AGENT_PLANNER_MANIFEST,
+    ROBOT_ARM_MANIFEST,
+    VERIFICATION_SERVICE_MANIFEST,
 )
 
 
@@ -20,7 +21,7 @@ class TestPluginManifest(unittest.TestCase):
         """Plugin manifests must be frozen (immutable after creation)."""
         m = ROBOT_ARM_MANIFEST
         with self.assertRaises(AttributeError):
-            setattr(m, "name", "tampered")
+            object.__setattr__(m, "name", "tampered")
 
     def test_manifest_event_contract(self):
         """Verify canonical manifest event declarations."""

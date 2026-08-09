@@ -5,6 +5,7 @@ Autonomous Repository Auditor External Application Entrypoint
 import argparse
 import sys
 from typing import cast
+
 from cortex import CortexClient, WorkflowState
 from examples.repo_auditor.plugins import (
     AuditorExecutorPlugin,

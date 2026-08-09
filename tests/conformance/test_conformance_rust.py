@@ -3,6 +3,7 @@ Rust Simulator Conformance test suite
 """
 
 import unittest
+
 from cortex.tools.verification.adapters.rust import RustAdapter
 
 

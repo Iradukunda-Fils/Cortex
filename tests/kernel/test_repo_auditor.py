@@ -3,6 +3,7 @@ Autonomous Repository Auditor Dogfood App Test Suite
 """
 
 import unittest
+
 from examples.repo_auditor.main import run_repo_auditor
 
 

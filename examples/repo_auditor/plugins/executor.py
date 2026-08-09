@@ -5,7 +5,14 @@ Consumes PlanGeneratedEvent and issues individual CommandIssuedEvent steps.
 """
 
 from typing import cast, override
-from cortex import BaseEvent, BasePlugin, CommandIssuedEvent, PlanGeneratedEvent, PluginManifest
+
+from cortex import (
+    BaseEvent,
+    BasePlugin,
+    CommandIssuedEvent,
+    PlanGeneratedEvent,
+    PluginManifest,
+)
 
 EXECUTOR_MANIFEST = PluginManifest(
     name="auditor-executor",

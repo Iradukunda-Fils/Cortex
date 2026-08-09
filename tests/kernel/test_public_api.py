@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import unittest
 from typing import cast, override
+
 from cortex import (
     BaseEvent,
     BasePlugin,

@@ -2,11 +2,10 @@
 Cortex Verification Substrate Certification Pipeline
 """
 
-import sys
 import os
-import unittest
+import sys
 import traceback
-from typing import Dict, List, Tuple
+import unittest
 
 
 class CertificationReporter:
@@ -23,7 +22,7 @@ class CertificationReporter:
     ]
 
     def __init__(self):
-        self.sections: Dict[str, List[Tuple[str, str]]] = {
+        self.sections: dict[str, list[tuple[str, str]]] = {
             cat: [] for cat in self.CATEGORIES
         }
 
@@ -61,7 +60,7 @@ class CertificationReporter:
         return all_passed
 
 
-def _run_suite(suite_module: str, reporter: CertificationReporter, category: str, name_mapping: Dict[str, str]) -> None:
+def _run_suite(suite_module: str, reporter: CertificationReporter, category: str, name_mapping: dict[str, str]) -> None:
     """Discovers and runs all tests in a module, recording results."""
     try:
         loader = unittest.TestLoader()

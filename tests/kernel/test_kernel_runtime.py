@@ -4,13 +4,20 @@ Kernel Runtime End-to-End Test Suite
 
 import unittest
 from typing import cast, override
-from cortex.tools.kernel.transport import InMemoryTransport
+
 from cortex.tools.kernel.context import RuntimeContext
-from cortex.tools.kernel.schema.event import Event, RawRTLTraceEvent, CommitVerifiedEvent, MotorFeedbackEvent
 from cortex.tools.kernel.drivers.mock_robot import MockRobotDriver
 from cortex.tools.kernel.drivers.rtl_verilator import RTLVerilatorDriver
-from cortex.tools.kernel.services.verification import VerificationKernelService
+from cortex.tools.kernel.schema.event import (
+    CommitVerifiedEvent,
+    Event,
+    MotorFeedbackEvent,
+    RawRTLTraceEvent,
+)
 from cortex.tools.kernel.services.event_store import EventStoreService
+from cortex.tools.kernel.services.verification import VerificationKernelService
+from cortex.tools.kernel.transport import InMemoryTransport
+
 
 class TestKernelRuntime(unittest.TestCase):
     transport: InMemoryTransport = cast(InMemoryTransport, cast(object, None))

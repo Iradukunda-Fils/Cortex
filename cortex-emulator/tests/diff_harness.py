@@ -8,6 +8,7 @@ import json
 import sys
 from pathlib import Path
 
+
 def assert_step_equivalence(step_coq: dict, step_emu: dict, step_idx: int):
     # 1. Monotonic Global Epoch Equivalence
     assert step_coq["reg_hec"] == step_emu["reg_hec"], \

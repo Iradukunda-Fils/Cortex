@@ -3,6 +3,7 @@ Read-Only Repository Tool Plugin with Capability Security Sandbox Enforcement
 """
 
 from typing import override
+
 from cortex import (
     BaseEvent,
     BasePlugin,

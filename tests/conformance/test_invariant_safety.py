@@ -6,12 +6,17 @@ Tests Epoch Monotonicity, Neutral Trap Semantics, and Single Retirement Policy.
 
 import unittest
 from typing import cast, override
+
 from cortex.tools.verification.invariants.capability import (
     EpochMonotonicityInvariant,
     NeutralTrapInvariant,
     SingleRetirementInvariant,
 )
-from cortex.tools.verification.schema.event import CommitEventV1, PureArchitecturalStateV1, ObservationMetadataV1
+from cortex.tools.verification.schema.event import (
+    CommitEventV1,
+    ObservationMetadataV1,
+    PureArchitecturalStateV1,
+)
 
 
 class TestInvariantSafety(unittest.TestCase):

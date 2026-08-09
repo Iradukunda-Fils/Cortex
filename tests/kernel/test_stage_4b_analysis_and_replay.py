@@ -4,21 +4,22 @@ Stage 4B Execution Graph Analysis, Intelligence & Deterministic Replay Test Suit
 
 import unittest
 from typing import cast, override
-from cortex.tools.kernel.transport import InMemoryTransport
+
 from cortex.tools.kernel.context import RuntimeContext
+from cortex.tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
 from cortex.tools.kernel.schema.message import (
     BaseEvent,
-    IntentEvent,
-    PlanGeneratedEvent,
     CommandIssuedEvent,
     DriverTelemetryEvent,
+    IntentEvent,
+    PlanGeneratedEvent,
     VerificationResultEvent,
 )
-from cortex.tools.kernel.schema.workflow import Workflow, WorkflowState, WorkflowPolicy
-from cortex.tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
+from cortex.tools.kernel.schema.workflow import Workflow, WorkflowPolicy, WorkflowState
 from cortex.tools.kernel.services.execution_intelligence import CausalExplainer
-from cortex.tools.kernel.services.replay import DeterministicReplayEngine
 from cortex.tools.kernel.services.graph_builder import ExecutionGraphBuilderService
+from cortex.tools.kernel.services.replay import DeterministicReplayEngine
+from cortex.tools.kernel.transport import InMemoryTransport
 
 
 class TestStage4BAnalysisAndReplay(unittest.TestCase):

@@ -7,16 +7,17 @@ pipeline using zero-knowledge actors communicating over InMemoryTransport.
 
 import unittest
 from typing import cast, override
-from cortex.tools.kernel.transport import InMemoryTransport, AnyEvent
+
+from cortex.tools.kernel.actors.executor import TaskExecutorActor
+from cortex.tools.kernel.actors.planner import IntentPlannerActor
 from cortex.tools.kernel.context import RuntimeContext
+from cortex.tools.kernel.drivers.mock_robot import MockRobotDriver
 from cortex.tools.kernel.schema.message import (
     IntentEvent,
 )
-from cortex.tools.kernel.actors.planner import IntentPlannerActor
-from cortex.tools.kernel.actors.executor import TaskExecutorActor
-from cortex.tools.kernel.drivers.mock_robot import MockRobotDriver
-from cortex.tools.kernel.services.verification import VerificationKernelService
 from cortex.tools.kernel.services.graph_builder import ExecutionGraphBuilderService
+from cortex.tools.kernel.services.verification import VerificationKernelService
+from cortex.tools.kernel.transport import AnyEvent, InMemoryTransport
 
 
 class TestStage4AVerticalSlice(unittest.TestCase):

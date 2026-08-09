@@ -3,19 +3,19 @@
 Golden Vector Replay Script for Verification Substrate Gate
 """
 
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
-
 from typing import cast
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Replay versioned golden vectors")
     _ = parser.add_argument("--corpus", required=True, help="Path to golden vector directory")
     args = parser.parse_args()
 
-    corpus_dir = cast(str, getattr(args, "corpus"))
+    corpus_dir = cast(str, args.corpus)
     if not os.path.exists(corpus_dir):
         print(f"[!] Golden vector directory not found: {corpus_dir}")
         sys.exit(1)

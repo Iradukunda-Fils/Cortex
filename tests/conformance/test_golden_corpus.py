@@ -2,9 +2,14 @@
 Golden Corpus Scenarios Verification Suite
 """
 
-import unittest
 import json
-from cortex.tools.verification.schema.event import CommitEventV1, PureArchitecturalStateV1, ObservationMetadataV1
+import unittest
+
+from cortex.tools.verification.schema.event import (
+    CommitEventV1,
+    ObservationMetadataV1,
+    PureArchitecturalStateV1,
+)
 
 
 class TestGoldenCorpus(unittest.TestCase):

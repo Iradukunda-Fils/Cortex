@@ -3,6 +3,7 @@ Coq Adapter Conformance test suite
 """
 
 import unittest
+
 from cortex.tools.verification.adapters.coq import CoqAdapter
 
 
