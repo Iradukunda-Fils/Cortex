@@ -9,8 +9,7 @@ import tempfile
 import unittest
 from typing import cast
 
-from typing_extensions import override
-
+from cortex.compat import override
 from cortex.tools.cli.main import main
 from cortex.tools.cli.runner import inspect_workflow, replay_workflow, run_workflow_file
 from cortex.tools.cli.scaffolder import scaffold_project

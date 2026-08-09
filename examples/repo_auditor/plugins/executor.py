@@ -6,8 +6,6 @@ Consumes PlanGeneratedEvent and issues individual CommandIssuedEvent steps.
 
 from typing import cast
 
-from typing_extensions import override
-
 from cortex import (
     BaseEvent,
     BasePlugin,
@@ -15,6 +13,7 @@ from cortex import (
     PlanGeneratedEvent,
     PluginManifest,
 )
+from cortex.compat import override
 
 EXECUTOR_MANIFEST = PluginManifest(
     name="auditor-executor",

@@ -2,8 +2,6 @@
 Read-Only Repository Tool Plugin with Capability Security Sandbox Enforcement
 """
 
-from typing_extensions import override
-
 from cortex import (
     BaseEvent,
     BasePlugin,
@@ -12,6 +10,7 @@ from cortex import (
     PluginManifest,
     VerificationResultEvent,
 )
+from cortex.compat import override
 
 REPO_TOOL_MANIFEST = PluginManifest(
     name="auditor-repo-tool",

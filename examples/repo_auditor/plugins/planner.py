@@ -4,8 +4,6 @@ Repository Auditor Planner Plugin
 Decomposes IntentEvent into structured repository audit steps.
 """
 
-from typing_extensions import override
-
 from cortex import (
     BaseEvent,
     BasePlugin,
@@ -13,6 +11,7 @@ from cortex import (
     PlanGeneratedEvent,
     PluginManifest,
 )
+from cortex.compat import override
 
 PLANNER_MANIFEST = PluginManifest(
     name="auditor-planner",

@@ -5,8 +5,7 @@ Kernel Runtime End-to-End Test Suite
 import unittest
 from typing import cast
 
-from typing_extensions import override
-
+from cortex.compat import override
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.drivers.mock_robot import MockRobotDriver
 from cortex.tools.kernel.drivers.rtl_verilator import RTLVerilatorDriver

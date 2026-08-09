@@ -8,8 +8,6 @@ import tempfile
 import unittest
 from typing import cast
 
-from typing_extensions import override
-
 from cortex import (
     BaseEvent,
     BasePlugin,
@@ -19,6 +17,7 @@ from cortex import (
     PluginManifest,
     WorkflowState,
 )
+from cortex.compat import override
 
 
 class SamplePublicPlugin(BasePlugin):

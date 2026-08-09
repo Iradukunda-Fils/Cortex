@@ -3,7 +3,7 @@ Custom Exceptions for Cortex Platform
 """
 
 
-from typing_extensions import override
+from cortex.compat import override
 
 
 class CortexError(Exception):

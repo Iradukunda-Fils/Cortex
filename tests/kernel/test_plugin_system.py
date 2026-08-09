@@ -4,8 +4,7 @@ Plugin System & Capability Negotiation Test Suite
 
 import unittest
 
-from typing_extensions import override
-
+from cortex.compat import override
 from cortex.tools.kernel.plugin.loader import (
     PluginRegistry,
     PluginState,
