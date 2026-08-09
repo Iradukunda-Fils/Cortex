@@ -1,20 +1,105 @@
-# Adversarial Systems Research: Delegated Authority & Semantic Verification
+# Cortex Platform: Spatiotemporal Authority & Semantic Verification Framework
 
-This repository houses a rigorous, peer-reviewed adversarial falsification program for autonomous systems. The primary function of this research is to validate the **Working Hypothesis ($H_{\text{prop}}$)** (formerly $H_0$):
+[![PyPI Version](https://img.shields.io/pypi/v/cortex-runtime.svg)](https://pypi.org/project/cortex-runtime/)
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Type Checked: Pyright](https://img.shields.io/badge/type--checking-pyright-brightgreen.svg)](https://github.com/microsoft/pyright)
 
-> **Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?**
->
-> *We posit this may be expressible as a relational hyperproperty over operational traces, but leave its classification strictly open pending empirical literature analysis.*
-
-If the adversarial analysis reveals that a composition of existing CS frameworks satisfies all safety properties under $H_{\text{prop}}$, no new semantic layer is required. If the analysis exposes an irreducible semantic gap, that gap defines the formal requirements for a new candidate specification.
+> **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
 
 ---
 
-## 📖 Developer Portal & Quick Links
+## 📖 Narrative Arc: Why Cortex Exists
 
-- 🚀 **[Developer Quickstart](docs/quickstart.md)**: Install `cortex-runtime`, build workflows, and run plugins.
-- 💻 **[CLI Documentation](docs/cli.md)**: Standard CLI command usage (`cortex init`, `workflow run`, `inspect`, `replay`).
-- 🏛️ **[Architecture Overview](docs/architecture.md)**: Universal event hierarchy, domain isolation, and capability sandboxing.
+### 1. The Problem at Scale
+Traditional security systems rely on static user identities (POSIX permissions, IAM roles, cgroups). However, **autonomous AI agents and non-deterministic software break traditional security models**:
+* **Ambient Authority Leakage**: Agents executing inside shell environments inherit full ambient process permissions, allowing unintended file access or dynamic execution.
+* **Subshell Script Bypasses**: Malicious or miscalibrated agents can invoke shell scripts (`.sh`), subprocesses, or eval blocks to bypass high-level application checks.
+* **Non-Deterministic State Drift**: Without causal trace verification, auditing *why* an autonomous agent performed an action after a failure or security breach is impossible.
+
+### 2. The Cortex Value Proposition
+Cortex replaces ambient authority with a **3-Layer Security Boundary**:
+1. **Static Capability Negotiation**: Manifests declare required permissions before plugins access the kernel bus (`CapabilityNegotiator`).
+2. **Runtime Sandbox Proxy**: Guarded resource drivers evaluate capability tokens before firing raw I/O system calls (`PluginContext`).
+3. **Deterministic Replay Audit**: Post-execution trace verification validates $P1$–$P4$ invariants and causal lineage graphs (`cortex workflow replay`).
+
+### 3. Dual-Layer Framing: Non-Technical Analogy vs. Technical Mechanics
+
+```mermaid
+graph TD
+    subgraph Layer 1: Passport Control
+        M[Plugin Manifest] --> N[CapabilityNegotiator]
+        N -->|Match Policy| G[ACTIVE Plugin]
+        N -->|Policy Mismatch| R[REJECTED Plugin]
+    end
+
+    subgraph Layer 2: Boarding Scanner
+        G --> C[PluginContext]
+        C --> D[Guarded Drivers: File / Net / Exec]
+        D -->|has_capability?| E[Execute Action]
+        D -->|Missing Token| V[CAPABILITY_VIOLATION Event]
+    end
+
+    subgraph Layer 3: Flight Blackbox
+        E --> S[Immutable Event Store]
+        V --> S
+        S --> RE[Deterministic Replay Engine]
+        RE --> INV[P1-P4 Invariant Checks]
+    end
+```
+
+| Security Layer | Non-Technical Analogy | Technical Mechanics |
+| :--- | :--- | :--- |
+| **Layer 1: Static Negotiation** | **Passport & Visa Check**<br/>Validates passport and visa credentials before granting entry into the country. | `CapabilityNegotiator.negotiate()` evaluates `PluginManifest.required_capabilities` against `platform_capabilities`. |
+| **Layer 2: Runtime Sandbox Proxy** | **Boarding Gate Scanner**<br/>Ensures passengers present a valid boarding pass for that specific door before entering the aircraft. | `PluginContext.has_capability()` validates tokens before Guarded Resource Drivers fire I/O system calls. |
+| **Layer 3: Verification & Trace Replay** | **Flight Blackbox Recorder**<br/>Records all flight telemetry in a tamper-evident blackbox for post-flight accident investigation. | `DeterministicReplayEngine` re-simulates event streams (`.cortex/events/*.json`), validating $P1$–$P4$ invariants. |
+
+---
+
+## 🚀 Quickstart & Developer Experience
+
+### 1. Installation
+
+Install via PyPI or fast package manager `uv`:
+
+```bash
+# Standard pip
+pip install cortex-runtime
+
+# Fast installation with Astral uv
+uv pip install cortex-runtime
+
+# Or run directly with uv tool
+uvx cortex-runtime --help
+```
+
+### 2. Scaffold a New Project
+
+```bash
+cortex init my_app --type app
+cd my_app
+```
+
+### 3. Execute, Inspect, and Replay Workflows
+
+```bash
+# Execute workflow
+cortex workflow run workflow.json
+
+# Inspect causal execution graph
+cortex workflow inspect .cortex/events/<workflow_id>.json
+
+# Perform 100% deterministic replay audit
+cortex workflow replay .cortex/events/<workflow_id>.json
+```
+
+---
+
+## 📚 Developer Portal & Quick Links
+
+- 🚀 **[Developer Quickstart Guide](docs/quickstart.md)**: Install `cortex-runtime`, build workflows, and run plugins.
+- 💻 **[CLI Reference Documentation](docs/cli.md)**: Standard CLI command usage (`init`, `workflow run`, `inspect`, `replay`).
+- 🏛️ **[Architecture & Security Model](docs/architecture.md)**: 3-layer security boundary, dual-layer framing, and threat neutralization.
 - 🔐 **[Capability Manifest Specification](docs/manifest_spec.md)**: `PluginManifest` schema and negotiation rules.
 - 🔬 **[Research Documentation](Research/)**: Formal whitepapers, mathematical invariants ($P1$–$P4$), and CS literature taxonomy.
 - 📐 **[Coq Proof Substrate](coq/)**: Interactive formal verification proof scripts.
@@ -22,54 +107,34 @@ If the adversarial analysis reveals that a composition of existing CS frameworks
 
 ---
 
-## 🏛️ Repository Architecture
+## 🔬 Adversarial Systems Research: Working Hypothesis ($H_{\text{prop}}$)
 
-To maintain absolute scientific neutrality and avoid confirmation bias, the repository follows a structured research pipeline under `Research/`:
+This repository houses a rigorous, peer-reviewed adversarial falsification program for autonomous systems. The primary function of this research is to validate the **Working Hypothesis ($H_{\text{prop}}$)**:
 
-```text
-Research/
-├── 01_Methodology.md         <-- Operational rules & Semantic Inversion Stopping Rule (LOCKED)
-├── 02_Domain_Model.md        <-- Boundaries, mutability, and Safety Properties (LOCKED)
-├── 03_Terminology.md         <-- Formal glossary grounded in CS primitives (LOCKED)
-├── 04_Literature_Taxonomy.md <-- The 21 intersecting computer science disciplines (LOCKED)
-├── 05_Composition_Analysis.md <-- Standardized analytical testing matrix (LOCKED)
-├── 06_Research_Log.md        <-- Cumulative evidence registry (ACTIVE)
-├── 07_Correspondence_Survey.md <-- What relations exist; Admissibility mapping (LOCKED)
-├── 08_Evaluation_Relations.md   <-- How procedures and operational artifacts are modeled (LOCKED)
-├── 09_Authority_Semantics.md    <-- How authority behaves during derivation/enactment (LOCKED)
-├── 10_Semantic_Relations.md     <-- Taxonomy of theorems, simulations, and logical relations (LOCKED)
-├── 11_Semantic_Objects.md       <-- Mapping mathematical domains to primary objects (LOCKED)
-├── 12_Threat_Model.md           <-- Normalizing adversarial and observation models (LOCKED)
-├── 13_Runtime_Assurance.md      <-- Trace monitoring, compliance, and enforcement metrics (LOCKED)
-├── FC_01_Authority_Preorder.md  <-- Preorder algebra and Kripke access relations (LOCKED)
-├── FC_02_Logical_Relation.md    <-- Step-indexed value and computation predicates (LOCKED)
-├── FC_03_Composed_Relation.md   <-- Inductive target relation & Monotonicity Proof (LOCKED)
-├── FC_04_Adversarial_Falsification.md <-- Test harness, artifact design, mediation bounds (LOCKED)
-├── FC_05_Conditional_Soundness.md   <-- State-mediator bounds, conditional soundness, provenance (LOCKED)
-├── FC_06_Asynchronous_Attenuation.md <-- Epoch-indexed worlds, spatiotemporal preorders, cache mitigations (LOCKED)
-├── FC_07_Fundamental_Theorem.md    <-- Semantic substitutions, FTLR induction, Completeness Matrix (LOCKED)
-├── FC_08_Unified_Soundness.md     <-- Admission bounds, Theorem 3, POPL/CSF publication schemas (LOCKED)
-└── FC_09_Mechanization_Roadmap.md  <-- Iris camera allocations, global invariants, Coq/Lean proof strategy (LOCKED)
-```
+> **Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?**
+>
+> *We posit this may be expressible as a relational hyperproperty over operational traces, but leave its classification strictly open pending empirical literature analysis.*
+
+If adversarial analysis reveals that a composition of existing CS frameworks satisfies all safety properties under $H_{\text{prop}}$, no new semantic layer is required. If the analysis exposes an irreducible semantic gap, that gap defines the formal requirements for a new candidate specification.
 
 ---
 
-## 🛡️ The Safety Properties Catalog
+## 🛡️ The Safety Properties Catalog ($P1$–$P4$)
 
 Every composition is evaluated against four orthogonal, non-overlapping safety properties under the **Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$)** mapping input streams ($I$) to terminal target actions ($e$) through intermediate **Operational Artifacts ($\mathcal{A}$)**:
 
 $$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \mathcal{A} \in \text{Adm}(\Lambda) \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
 
 *   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
-*   **P2 — Execution Integrity:** The byte-level parameter state of an executed action must remain structurally unaltered between the generation boundary and the interface enforcement perimeters under the stated threat model. *(Environmental Assumption)*
+*   **P2 — Execution Integrity:** The byte-level parameter state of an executed action must remain structurally unaltered between the generation boundary and the interface enforcement perimeters under the stated threat model.
 *   **P3 — Semantic Consequence Preservation:** Every externally observable, irreversible effect must be demonstrably and traceably derivable from the active delegation constraints: $\Sigma \models \text{Preserves}(\Lambda, e)$.
-*   **P4 — Independent Verifiability (Rectified):** An external, post-facto verifier must be capable of establishing the validity of P3 without trusting the execution runtime beyond the boundaries of an explicitly declared Trusted Computing Base (TCB).
+*   **P4 — Independent Verifiability:** An external, post-facto verifier must be capable of establishing the validity of P3 without trusting the execution runtime beyond the boundaries of an explicitly declared Trusted Computing Base (TCB).
 
 ---
 
 ## 🔬 Literature Taxonomy (21 Disciplines)
 
-The program maps system interactions across 21 distinct computer science areas:
+The research program maps system interactions across 21 distinct computer science areas:
 1. **Capability Security** (Confinement & Ambient Authority Elimination)
 2. **Programming Languages** (Type Safety, Scoped-Use Semantics)
 3. **Delegated Authorization** (Offline-Verifiable Attenuation)
@@ -110,8 +175,7 @@ Evaluating candidate compositions over safety properties P1–P4 led to the lock
 
 ---
 
-## 🛠️ Repository Administration & Rules
+## 🛠️ Repository Rules & Governance
 
-1. **LOCKED State:** Foundational survey, model, and formal construction documents are frozen once complete to maintain strict control over confirmation bias. The repository is actively engaged in operational log entries.
-2. **No Marketing Syntax:** Language must remain strictly technical, quantitative, and neutral.
-
+1. **LOCKED State:** Foundational survey, model, and formal construction documents are frozen once complete to maintain strict control over confirmation bias.
+2. **No Marketing Syntax:** Language remains strictly technical, quantitative, and neutral.
