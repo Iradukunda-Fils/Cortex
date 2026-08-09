@@ -4,6 +4,7 @@ Execution Intelligence & Causal Explainer Kernel Service
 
 from cortex.tools.kernel.graph.execution_graph import ExecutionGraph, GraphNode
 
+
 class CausalExplainer:
     """Analyzes an ExecutionGraph to provide root-cause diagnostics and lineage traces."""
     graph: ExecutionGraph

@@ -4,13 +4,15 @@ Unique Architectural State Explorer Metric Tracker
 
 import hashlib
 import json
-from typing import Dict, Any, Set
+from typing import Any
+
 from cortex.tools.verification.metrics.base import BaseMetric
 from cortex.tools.verification.schema import CanonicalState
 
+
 class StateSpaceMetric(BaseMetric):
     def __init__(self):
-        self.visited_states: Set[str] = set()
+        self.visited_states: set[str] = set()
 
     def record_step(self, step: CanonicalState):
         state_dict = step.to_dict()
@@ -18,7 +20,7 @@ class StateSpaceMetric(BaseMetric):
         state_hash = hashlib.sha256(state_str).hexdigest()[:16]
         self.visited_states.add(state_hash)
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         return {
             "unique_states_explored": len(self.visited_states)
         }

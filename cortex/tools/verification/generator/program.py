@@ -3,13 +3,14 @@ Instruction Stream Fuzzing Generator for Cortex Capabilities
 """
 
 import random
-from typing import List, Dict, Any
+from typing import Any
+
 
 class ProgramGenerator:
     def __init__(self, seed: int):
         self.rng = random.Random(seed)
 
-    def generate_program(self, num_instructions: int = 8) -> List[Dict[str, Any]]:
+    def generate_program(self, num_instructions: int = 8) -> list[dict[str, Any]]:
         instructions = []
 
         opcodes = [
@@ -28,9 +29,7 @@ class ProgramGenerator:
 
             if op_name == "RESTRICT_CAP":
                 raw = raw_base | (src_reg << 16) | imm
-            elif op_name == "INVOKE_CAP":
-                raw = raw_base | (src_reg << 16)
-            elif op_name == "REVOKE_CAP":
+            elif op_name == "INVOKE_CAP" or op_name == "REVOKE_CAP":
                 raw = raw_base | (src_reg << 16)
             elif op_name == "GRANT_CAP":
                 raw = raw_base | (src_reg << 16) | (dst_reg << 20) | imm

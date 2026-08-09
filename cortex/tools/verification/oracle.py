@@ -2,8 +2,10 @@
 Structured Verification Oracle for 3-Way Trace Equivalence
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from cortex.tools.verification.schema import CanonicalState
+
 
 class VerificationOracle:
     def __init__(self, version: str = "v2.1.0", strict_trap_matching: bool = True):
@@ -12,10 +14,10 @@ class VerificationOracle:
 
     def evaluate_equivalence(
         self,
-        coq_trace: List[CanonicalState],
-        rust_trace: List[CanonicalState],
-        rtl_trace: Optional[List[CanonicalState]] = None
-    ) -> Dict[str, Any]:
+        coq_trace: list[CanonicalState],
+        rust_trace: list[CanonicalState],
+        rtl_trace: list[CanonicalState] | None = None
+    ) -> dict[str, Any]:
         """
         Evaluates step-by-step equivalence across CanonicalState objects.
         Returns structured diagnostic object.

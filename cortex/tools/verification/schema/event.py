@@ -2,7 +2,8 @@
 Frozen CommitEventV1 Schema for Architectural Retirement Events
 """
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+
 
 @dataclass(frozen=True)
 class PureArchitecturalStateV1:

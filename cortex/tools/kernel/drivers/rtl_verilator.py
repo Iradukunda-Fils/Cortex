@@ -2,11 +2,13 @@
 RTL Verilator Driver for Hardware Telemetry & Trace Ingestion
 """
 
-import os
 import json
+import os
 from typing import cast
+
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.schema.event import RawRTLTraceEvent
+
 
 class RTLVerilatorDriver:
     context: RuntimeContext

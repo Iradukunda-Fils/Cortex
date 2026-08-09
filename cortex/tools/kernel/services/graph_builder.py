@@ -11,13 +11,14 @@ message identity fields (intent_id, plan_id, command_id, causation_id).
 """
 
 from typing import Any
+
 from cortex.tools.kernel.graph.execution_graph import ExecutionGraph
 from cortex.tools.kernel.schema.message import (
     BaseEvent,
-    IntentEvent,
-    PlanGeneratedEvent,
     CommandIssuedEvent,
     DriverTelemetryEvent,
+    IntentEvent,
+    PlanGeneratedEvent,
     VerificationResultEvent,
 )
 

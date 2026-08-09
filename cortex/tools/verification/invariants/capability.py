@@ -3,6 +3,7 @@ Capability Safety Invariants Engine
 """
 
 from dataclasses import dataclass
+
 from cortex.tools.verification.schema.event import CommitEventV1
 
 # Define invariant boundary constants to avoid magic numbers

@@ -6,6 +6,7 @@ Enables executing the Cortex Developer CLI directly via Python module dispatch:
 """
 
 import sys
+
 from cortex.tools.cli.main import main
 
 if __name__ == "__main__":

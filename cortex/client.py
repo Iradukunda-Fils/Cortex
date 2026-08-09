@@ -8,6 +8,7 @@ enforcing capability sandboxes, inspecting traces, and executing deterministic r
 import json
 import os
 from typing import cast
+
 from cortex.plugin import BasePlugin, PluginContext
 from cortex.schema.events import (
     BaseEvent,
@@ -20,7 +21,11 @@ from cortex.schema.events import (
     event_to_dict,
 )
 from cortex.tools.kernel.graph.analyzer import ExecutionGraphAnalyzer
-from cortex.tools.kernel.plugin.loader import PluginRegistration, PluginRegistry, PluginState
+from cortex.tools.kernel.plugin.loader import (
+    PluginRegistration,
+    PluginRegistry,
+    PluginState,
+)
 from cortex.tools.kernel.services.event_store import EventStoreService
 from cortex.tools.kernel.services.graph_builder import ExecutionGraphBuilderService
 from cortex.tools.kernel.services.replay import DeterministicReplayEngine

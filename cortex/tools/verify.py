@@ -3,10 +3,12 @@
 Cortex Contract-Driven Formal Verification CLI Entry Point
 """
 
-import sys
 import argparse
+import sys
+
 from cortex.tools.verification.contract import VerificationContract
 from cortex.tools.verification.engine import VerificationEngine
+
 
 def main():
     parser = argparse.ArgumentParser(description="Cortex Contract-Driven Formal Verification Tool")

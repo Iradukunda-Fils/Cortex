@@ -1,5 +1,7 @@
 from dataclasses import replace
+
 from cortex.tools.verification.schema import CanonicalState
+
 
 class FaultMutationEngine:
     failure_vector: str

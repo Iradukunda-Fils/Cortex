@@ -4,6 +4,7 @@ Bounded, Priority-Aware Mailbox for Kernel Actors
 
 import heapq
 
+
 class Mailbox:
     capacity: int
     _queue: list[tuple[int, int, object]]

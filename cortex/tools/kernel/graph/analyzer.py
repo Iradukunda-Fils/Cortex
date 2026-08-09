@@ -4,6 +4,7 @@ Execution Graph Query, Root-Cause Analysis & Divergence Detection Engine
 
 from cortex.tools.kernel.graph.execution_graph import ExecutionGraph, GraphNode
 
+
 class ExecutionGraphAnalyzer:
     """Provides analytical, root-cause, and graph-differencing capabilities."""
     graph: ExecutionGraph

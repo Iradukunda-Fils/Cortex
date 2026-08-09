@@ -2,21 +2,23 @@
 Core Verification Engine Orchestrator
 """
 
-import os
 import json
-from typing import Dict, Any, Optional
+import os
+from typing import Any
+
+from cortex.tools.verification.adapters.coq import CoqAdapter
+from cortex.tools.verification.adapters.rtl import RTLAdapter
+from cortex.tools.verification.adapters.rust import RustAdapter
+from cortex.tools.verification.archive import CounterexampleArchive
 from cortex.tools.verification.contract import VerificationContract
 from cortex.tools.verification.generator.composer import ScenarioComposer
-from cortex.tools.verification.adapters.coq import CoqAdapter
-from cortex.tools.verification.adapters.rust import RustAdapter
-from cortex.tools.verification.adapters.rtl import RTLAdapter
+from cortex.tools.verification.metrics.opcode import OpcodeMetric
+from cortex.tools.verification.metrics.state_space import StateSpaceMetric
+from cortex.tools.verification.metrics.trap import TrapMetric
+from cortex.tools.verification.mutation import FaultMutationEngine
 from cortex.tools.verification.oracle import VerificationOracle
 from cortex.tools.verification.shrink import SemanticShrinker
-from cortex.tools.verification.archive import CounterexampleArchive
-from cortex.tools.verification.metrics.opcode import OpcodeMetric
-from cortex.tools.verification.metrics.trap import TrapMetric
-from cortex.tools.verification.metrics.state_space import StateSpaceMetric
-from cortex.tools.verification.mutation import FaultMutationEngine
+
 
 class VerificationEngine:
     def __init__(self, contract: VerificationContract, seed_val: int):
@@ -40,8 +42,8 @@ class VerificationEngine:
     def run_verification(
         self,
         iterations: int = 100,
-        inject_failure: Optional[str] = None
-    ) -> Dict[str, Any]:
+        inject_failure: str | None = None
+    ) -> dict[str, Any]:
         coq_adapter = CoqAdapter()
         rust_adapter = RustAdapter()
         rtl_adapter = RTLAdapter()

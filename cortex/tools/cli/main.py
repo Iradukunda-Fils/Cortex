@@ -9,8 +9,12 @@ Usage:
 """
 
 import argparse
+import os
 import sys
-from typing import Sequence, cast
+from collections.abc import Sequence
+from typing import cast
+
+from cortex.exceptions import CortexError
 from cortex.tools.cli.runner import inspect_workflow, replay_workflow, run_workflow_file
 from cortex.tools.cli.scaffolder import scaffold_project
 
@@ -62,65 +66,73 @@ def main(argv: Sequence[str] | None = None) -> int:
     cmd = str(getattr(args, "command", ""))
     wf_cmd = str(getattr(args, "wf_command", ""))
 
-    if cmd == "init":
-        p_name = str(getattr(args, "project_name", "my_cortex_app"))
-        p_type = str(getattr(args, "type", "app"))
-        path = scaffold_project(p_name, project_type=p_type)
-        print(f"[+] Successfully scaffolded Cortex {p_type} project at: {path}")
-        return 0
-
-    elif cmd == "workflow":
-        if wf_cmd == "run":
-            wf_file = str(getattr(args, "workflow_file", ""))
-            out_file = cast(str | None, getattr(args, "output", None))
-            res = run_workflow_file(wf_file, output_file=out_file)
-            print("[+] Workflow execution finished.")
-            print(f"    ID:          {res['workflow_id']}")
-            print(f"    State:       {res['state']}")
-            print(f"    Events Log:  {res['event_count']}")
-            print(f"    Trace Saved: {res['output_file']}")
+    try:
+        if cmd == "init":
+            p_name = str(getattr(args, "project_name", "my_cortex_app"))
+            p_type = str(getattr(args, "type", "app"))
+            path = scaffold_project(p_name, project_type=p_type)
+            print(f"[+] Successfully scaffolded Cortex {p_type} project at: {path}")
             return 0
 
-        elif wf_cmd == "inspect":
-            wf_id = str(getattr(args, "workflow_id", ""))
-            res = inspect_workflow(wf_id)
-            causality_tree = cast(list[str], res.get("causality_tree", []))
-            failed_nodes = cast(list[dict[str, object]], res.get("failed_nodes", []))
+        elif cmd == "workflow":
+            if wf_cmd == "run":
+                wf_file = str(getattr(args, "workflow_file", ""))
+                out_file = cast(str | None, getattr(args, "output", None))
+                res = run_workflow_file(wf_file, output_file=out_file)
+                print("[+] Workflow execution finished.")
+                print(f"    ID:          {res['workflow_id']}")
+                print(f"    State:       {res['state']}")
+                print(f"    Events Log:  {res['event_count']}")
+                print(f"    Trace Saved: {res['output_file']}")
+                return 0
 
-            print("=== Cortex Execution Graph Inspection ===")
-            print(f"Workflow ID:   {res['workflow_id']}")
-            print(f"Name:          {res['name']}")
-            print(f"Goal:          {res['goal']}")
-            print(f"State:         {res['state']}")
-            print(f"Total Nodes:   {res['node_count']}")
-            print("\n--- Causality Tree ---")
-            for line in causality_tree:
-                print(f"  {line}")
-            if failed_nodes:
-                print(f"\n[!] Verification Failures ({len(failed_nodes)}):")
-                for node in failed_nodes:
-                    print(f"    - Node {node['id']}: {node['payload']}")
+            elif wf_cmd == "inspect":
+                wf_id = str(getattr(args, "workflow_id", ""))
+                res = inspect_workflow(wf_id)
+                causality_tree = cast(list[str], res.get("causality_tree", []))
+                failed_nodes = cast(list[dict[str, object]], res.get("failed_nodes", []))
+
+                print("=== Cortex Execution Graph Inspection ===")
+                print(f"Workflow ID:   {res['workflow_id']}")
+                print(f"Name:          {res['name']}")
+                print(f"Goal:          {res['goal']}")
+                print(f"State:         {res['state']}")
+                print(f"Total Nodes:   {res['node_count']}")
+                print("\n--- Causality Tree ---")
+                for line in causality_tree:
+                    print(f"  {line}")
+                if failed_nodes:
+                    print(f"\n[!] Verification Failures ({len(failed_nodes)}):")
+                    for node in failed_nodes:
+                        print(f"    - Node {node['id']}: {node['payload']}")
+                else:
+                    print("\n[+] Verification Status: ALL PASSED")
+                return 0
+
+            elif wf_cmd == "replay":
+                wf_id = str(getattr(args, "workflow_id", ""))
+                res = replay_workflow(wf_id)
+                print("=== Cortex Deterministic Replay Engine ===")
+                print(f"Workflow ID:      {res['workflow_id']}")
+                print(f"Events Replayed:  {res['events_replayed']}")
+                print(f"Status:           {'SUCCESS' if res['deterministic'] else 'FAILED'}")
+                print(f"Result:           {res['verification_result']}")
+                return 0 if res["deterministic"] else 1
+
             else:
-                print("\n[+] Verification Status: ALL PASSED")
-            return 0
-
-        elif wf_cmd == "replay":
-            wf_id = str(getattr(args, "workflow_id", ""))
-            res = replay_workflow(wf_id)
-            print("=== Cortex Deterministic Replay Engine ===")
-            print(f"Workflow ID:      {res['workflow_id']}")
-            print(f"Events Replayed:  {res['events_replayed']}")
-            print(f"Status:           {'SUCCESS' if res['deterministic'] else 'FAILED'}")
-            print(f"Result:           {res['verification_result']}")
-            return 0 if res["deterministic"] else 1
+                wf_parser.print_help(sys.stderr)
+                return 1
 
         else:
-            wf_parser.print_help()
+            parser.print_help(sys.stderr)
             return 1
 
-    else:
-        parser.print_help()
-        return 1
+    except CortexError as err:
+        print(f"[!] Cortex Error: {err.message}", file=sys.stderr)
+        return err.exit_code
+    except Exception as err:
+        print(f"[!] Unexpected Error: {err}", file=sys.stderr)
+        return getattr(os, "EX_SOFTWARE", 1)
 
 
 if __name__ == "__main__":

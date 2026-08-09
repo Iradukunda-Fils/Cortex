@@ -3,7 +3,8 @@ Runtime Context Provided to Kernel Actors
 """
 
 from cortex.tools.kernel.mailbox import Mailbox
-from cortex.tools.kernel.transport import InMemoryTransport, AnyEvent
+from cortex.tools.kernel.transport import AnyEvent, InMemoryTransport
+
 
 class RuntimeContext:
     actor_id: str

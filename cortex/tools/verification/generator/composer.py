@@ -4,9 +4,11 @@ Scenario Composer: Merges Machine State and Instruction Stream into Reproducible
 
 import json
 import struct
-from typing import Dict, Any
-from cortex.tools.verification.generator.state import StateGenerator
+from typing import Any
+
 from cortex.tools.verification.generator.program import ProgramGenerator
+from cortex.tools.verification.generator.state import StateGenerator
+
 
 class ScenarioComposer:
     def __init__(self, seed: int):
@@ -14,7 +16,7 @@ class ScenarioComposer:
         self.state_gen = StateGenerator(seed)
         self.prog_gen = ProgramGenerator(seed)
 
-    def compose_scenario(self, num_instructions: int = 8) -> Dict[str, Any]:
+    def compose_scenario(self, num_instructions: int = 8) -> dict[str, Any]:
         initial_state = self.state_gen.generate_initial_state()
         program = self.prog_gen.generate_program(num_instructions)
 
@@ -24,7 +26,7 @@ class ScenarioComposer:
             "program": program
         }
 
-    def export_artifacts(self, scenario: Dict[str, Any], json_path: str, bin_path: str):
+    def export_artifacts(self, scenario: dict[str, Any], json_path: str, bin_path: str):
         with open(json_path, "w") as f:
             json.dump(scenario, f, indent=2)
 

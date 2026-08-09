@@ -10,7 +10,9 @@ The executor has zero knowledge of which driver will consume
 the command — it only knows the message contract.
 """
 
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
+
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.schema.message import CommandIssuedEvent, PlanGeneratedEvent
 from cortex.tools.kernel.transport import AnyEvent

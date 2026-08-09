@@ -2,10 +2,11 @@
 Index-backed Counterexample Database Archiver
 """
 
-import os
-import json
 import hashlib
-from typing import Dict, Any
+import json
+import os
+from typing import Any
+
 
 class CounterexampleArchive:
     def __init__(self, archive_dir: str = "artifacts/counterexamples/"):
@@ -18,8 +19,8 @@ class CounterexampleArchive:
 
     def archive_failure(
         self,
-        scenario: Dict[str, Any],
-        diagnostic: Dict[str, Any],
+        scenario: dict[str, Any],
+        diagnostic: dict[str, Any],
         seed: str,
         commit_id: str = "a484b94"
     ) -> str:

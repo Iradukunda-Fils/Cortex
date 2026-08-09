@@ -3,12 +3,18 @@ Rust Reference Emulator Trace Adapter
 """
 
 import json
-from typing import List, Any
+from typing import Any
+
 from cortex.tools.verification.adapters.base import BaseAdapter
-from cortex.tools.verification.schema import CanonicalState, CanonicalSTCR, CanonicalTrap
+from cortex.tools.verification.schema import (
+    CanonicalState,
+    CanonicalSTCR,
+    CanonicalTrap,
+)
+
 
 class RustAdapter(BaseAdapter):
-    def parse_trace(self, trace_input: Any) -> List[CanonicalState]:
+    def parse_trace(self, trace_input: Any) -> list[CanonicalState]:
         if isinstance(trace_input, str):
             with open(trace_input) as f:
                 data = json.load(f)

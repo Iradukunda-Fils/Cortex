@@ -2,18 +2,18 @@
 Domain Event Hierarchy for Cortex Kernel Runtime
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, Dict
 import time
 import uuid
+from dataclasses import dataclass, field
+
 
 @dataclass(frozen=True)
 class Event:
     """Universal Base Envelope for Kernel Runtime IPC Events."""
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    parent_event_id: Optional[str] = None
-    root_event_id: Optional[str] = None
-    causation_id: Optional[str] = None
+    parent_event_id: str | None = None
+    root_event_id: str | None = None
+    causation_id: str | None = None
     correlation_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str = ""
     sequence_number: int = 0
@@ -22,7 +22,6 @@ class Event:
 @dataclass(frozen=True)
 class VerificationEvent(Event):
     """Event category for hardware, formal, and simulation correctness."""
-    pass
 
 @dataclass(frozen=True)
 class RawRTLTraceEvent(VerificationEvent):
@@ -31,14 +30,14 @@ class RawRTLTraceEvent(VerificationEvent):
     raw_instruction: str = ""
     eff_trap: bool = False
     trap_cause: int = 0
-    stcr_registers: Dict[int, str] = field(default_factory=dict)
+    stcr_registers: dict[int, str] = field(default_factory=dict)
 
 @dataclass(frozen=True)
 class CommitVerifiedEvent(VerificationEvent):
     """Domain decision event emitted after formal oracle state verification."""
     step: int = 0
     verified: bool = True
-    failing_field: Optional[str] = None
+    failing_field: str | None = None
 
 @dataclass(frozen=True)
 class MotorFeedbackEvent(Event):

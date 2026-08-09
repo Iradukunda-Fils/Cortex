@@ -4,6 +4,7 @@ Real-Time Causal Execution Graph Representation & Tree Renderer
 
 from dataclasses import dataclass, field
 
+
 @dataclass
 class GraphNode:
     node_id: str

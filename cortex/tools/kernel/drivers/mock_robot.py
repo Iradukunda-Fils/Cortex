@@ -13,7 +13,9 @@ verification domain tests that operate through the event.py
 MotorFeedbackEvent hierarchy.
 """
 
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
+
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.schema.event import MotorFeedbackEvent
 from cortex.tools.kernel.schema.message import CommandIssuedEvent, DriverTelemetryEvent

@@ -9,7 +9,9 @@ actionable steps. The planner has zero knowledge of downstream
 executors or drivers — it only knows the message contract.
 """
 
-from typing import Callable, Any
+from collections.abc import Callable
+from typing import Any
+
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.schema.message import IntentEvent, PlanGeneratedEvent
 

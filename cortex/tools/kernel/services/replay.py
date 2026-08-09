@@ -5,8 +5,8 @@ Replays recorded event journals and validates that causal lineage
 (event_id, causation_id ordering) is perfectly preserved.
 """
 
-from cortex.tools.kernel.transport import EventPublisher
 from cortex.tools.kernel.schema.message import BaseEvent
+from cortex.tools.kernel.transport import EventPublisher
 
 
 class DeterministicReplayEngine:

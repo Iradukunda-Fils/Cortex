@@ -12,11 +12,15 @@ This is an intentional design decision — the verification service is the
 only component that legitimately spans both domains.
 """
 
-from typing import Callable
+from collections.abc import Callable
+
 from cortex.tools.kernel.context import RuntimeContext
 from cortex.tools.kernel.schema.contract import ServiceContract
 from cortex.tools.kernel.schema.event import CommitVerifiedEvent, RawRTLTraceEvent
-from cortex.tools.kernel.schema.message import DriverTelemetryEvent, VerificationResultEvent
+from cortex.tools.kernel.schema.message import (
+    DriverTelemetryEvent,
+    VerificationResultEvent,
+)
 from cortex.tools.kernel.transport import AnyEvent
 
 

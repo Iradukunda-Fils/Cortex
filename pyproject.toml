@@ -12,21 +12,52 @@ requires-python = ">=3.10"
 authors = [
     { name = "Iradukunda Fils" }
 ]
-keywords = ["verification", "workflow", "sandbox", "agents", "architecture"]
+keywords = [
+    "verification",
+    "workflow",
+    "sandbox",
+    "agents",
+    "capability-security",
+    "spatiotemporal",
+    "architecture",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
 ]
 dependencies = [
-    "pydantic>=2.0.0",
-    "pyyaml>=6.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "pyyaml>=6.0.0,<7.0.0",
     "typing-extensions>=4.5.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "pyright>=1.1.0",
+    "pytest>=7.0.0",
+    "build>=1.0.0",
+    "twine>=4.0.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Iradukunda-Fils/Cortex"
+Documentation = "https://github.com/Iradukunda-Fils/Cortex#readme"
+Repository = "https://github.com/Iradukunda-Fils/Cortex.git"
+Issues = "https://github.com/Iradukunda-Fils/Cortex/issues"
 
 [project.scripts]
 cortex = "cortex.tools.cli.main:cli_entrypoint"
@@ -40,3 +71,11 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["cortex"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

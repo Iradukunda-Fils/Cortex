@@ -4,18 +4,19 @@ YAML Contract Parser & Schema Validator for Verification Runs
 
 import os
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
+
 
 @dataclass
 class VerificationContract:
     schema_version: str
     contract_id: str
     description: str
-    toolchain_requirements: Dict[str, str]
-    fuzzing_parameters: Dict[str, Any]
-    targets: Dict[str, str]
-    oracle: Dict[str, Any]
-    output_requirements: Dict[str, str]
+    toolchain_requirements: dict[str, str]
+    fuzzing_parameters: dict[str, Any]
+    targets: dict[str, str]
+    oracle: dict[str, Any]
+    output_requirements: dict[str, str]
 
     @classmethod
     def load(cls, contract_path: str) -> "VerificationContract":
@@ -23,7 +24,7 @@ class VerificationContract:
             raise FileNotFoundError(f"Contract file not found: {contract_path}")
 
         # Basic lightweight YAML parser without third-party requirement
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
         current_key = None
 
         with open(contract_path, "r") as f:
@@ -50,7 +51,7 @@ class VerificationContract:
                             val = False
                         elif val.isdigit():
                             val = int(val)
-                        
+
                         if current_key and line.startswith("  "):
                             data[current_key][key] = val
                         else:

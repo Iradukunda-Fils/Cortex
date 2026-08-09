@@ -8,6 +8,7 @@ replay directly to the public CortexClient API. Contains zero state machine logi
 import json
 import os
 from typing import cast
+
 from cortex.client import CortexClient
 from cortex.schema import IntentEvent, WorkflowPolicy
 

@@ -3,8 +3,9 @@ Public Plugin Interface & Capability Management for Cortex Platform
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
+
 from cortex.schema.events import BaseEvent
 from cortex.tools.kernel.plugin.manifest import PluginManifest
 
@@ -47,4 +48,3 @@ class BasePlugin(ABC):
     @abstractmethod
     def on_event(self, event: BaseEvent) -> None:
         """Handle incoming events matching the plugin's consumed event contracts."""
-        pass

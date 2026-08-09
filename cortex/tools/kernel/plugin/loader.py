@@ -6,8 +6,9 @@ Plugins receive only the Resource Handles and Runtime Context scoped
 to their declared capabilities — never raw kernel internals.
 """
 
-from dataclasses import dataclass, field
 import enum
+from dataclasses import dataclass, field
+
 from cortex.tools.kernel.plugin.manifest import PluginManifest
 
 

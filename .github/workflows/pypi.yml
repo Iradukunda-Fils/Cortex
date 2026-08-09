@@ -1,0 +1,65 @@
+name: PyPI Release & Test Automation
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test & Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pyright build hatchling pytest
+
+      - name: Run Ruff Linter
+        run: ruff check .
+
+      - name: Run Pyright Type Checker
+        run: pyright .
+
+      - name: Run Python Test Suite
+        run: python -m unittest discover -s tests
+
+  publish:
+    name: Publish to PyPI (OIDC Trusted Publishing)
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Mandatory for PyPI OIDC Trusted Publishing
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Build Tools
+        run: pip install build hatchling
+
+      - name: Build Package Artifacts (sdist & wheel)
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

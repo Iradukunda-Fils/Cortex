@@ -3,13 +3,14 @@ Initial STCR & Machine Register State Fuzzing Generator
 """
 
 import random
-from typing import Dict, Any
+from typing import Any
+
 
 class StateGenerator:
     def __init__(self, seed: int):
         self.rng = random.Random(seed)
 
-    def generate_initial_state(self) -> Dict[str, Any]:
+    def generate_initial_state(self) -> dict[str, Any]:
         stcr_file = []
 
         # STCR0 always starts as root execution capability by default or random

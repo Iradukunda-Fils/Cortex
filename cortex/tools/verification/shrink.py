@@ -2,13 +2,14 @@
 Semantic Delta-Debugging Shrinker for Minimizing Failing Scenarios
 """
 
-from typing import Dict, Any
+from typing import Any
+
 
 class SemanticShrinker:
     def __init__(self, max_shrunk_steps: int = 50):
         self.max_shrunk_steps = max_shrunk_steps
 
-    def shrink_scenario(self, scenario: Dict[str, Any], failing_step: int) -> Dict[str, Any]:
+    def shrink_scenario(self, scenario: dict[str, Any], failing_step: int) -> dict[str, Any]:
         """
         Reduces program instructions down to failing step minimum reproducer.
         """
