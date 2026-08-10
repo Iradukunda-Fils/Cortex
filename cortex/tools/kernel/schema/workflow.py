@@ -9,6 +9,11 @@ from dataclasses import dataclass, field
 
 
 class WorkflowState(str, enum.Enum):
+    """Lifecycle state of a Cortex workflow execution.
+
+    Transitions: PENDING → RUNNING → COMPLETED | FAILED | ABORTED
+    """
+
     PENDING = "PENDING"
     RUNNING = "RUNNING"
     COMPLETED = "COMPLETED"

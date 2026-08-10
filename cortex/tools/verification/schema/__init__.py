@@ -2,6 +2,9 @@
 Typed Verification Schemas Package
 """
 
+__all__: list[str] = []
+
+
 from dataclasses import asdict, dataclass
 
 

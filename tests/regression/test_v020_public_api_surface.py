@@ -2,10 +2,13 @@
 v0.2.0 Regression: Public API Surface Contract
 
 Freezes the exact set of symbols exported from `cortex.__init__.__all__`
-and validates that each symbol is importable and of the expected type.
+and validates that each symbol is importable, of the expected type,
+has complete documentation, and that no internal kernel symbols leak
+through the public boundary.
 """
 
 import enum
+import importlib
 import unittest
 from abc import ABC
 from dataclasses import fields, is_dataclass
@@ -35,7 +38,27 @@ V020_PUBLIC_SYMBOLS = frozenset({
     "WorkflowExecutionError",
     "WorkflowPolicy",
     "WorkflowState",
+    "override",
 })
+
+# Internal subpackages that must NOT re-export symbols via wildcard imports
+INTERNAL_PACKAGES = [
+    "cortex.tools",
+    "cortex.tools.cli",
+    "cortex.tools.kernel",
+    "cortex.tools.kernel.actors",
+    "cortex.tools.kernel.drivers",
+    "cortex.tools.kernel.graph",
+    "cortex.tools.kernel.plugin",
+    "cortex.tools.kernel.schema",
+    "cortex.tools.kernel.services",
+    "cortex.tools.verification",
+    "cortex.tools.verification.adapters",
+    "cortex.tools.verification.generator",
+    "cortex.tools.verification.invariants",
+    "cortex.tools.verification.metrics",
+    "cortex.tools.verification.schema",
+]
 
 
 class TestPublicAPISurface(unittest.TestCase):
@@ -138,6 +161,76 @@ class TestPublicAPISurface(unittest.TestCase):
         self.assertEqual(cortex.WorkflowExecutionError("t").exit_code, 1)
         self.assertEqual(cortex.CapabilityViolationError("t").exit_code, 2)
         self.assertEqual(cortex.ManifestError("t").exit_code, 3)
+
+
+class TestPublicAPIDocstrings(unittest.TestCase):
+    """All public symbols must have complete docstrings."""
+
+    def test_all_public_symbols_have_docstrings(self) -> None:
+        """Every symbol in cortex.__all__ must have a non-empty docstring."""
+        for symbol_name in sorted(cortex.__all__):
+            with self.subTest(symbol=symbol_name):
+                obj = getattr(cortex, symbol_name)
+                doc = getattr(obj, "__doc__", None)
+                self.assertTrue(
+                    doc and len(doc.strip()) > 0,
+                    f"Public symbol '{symbol_name}' is missing a docstring",
+                )
+
+
+class TestPublicAPIBoundaryEnforcement(unittest.TestCase):
+    """Validate that internal modules do not leak into the public API."""
+
+    def test_no_private_symbols_in_all(self) -> None:
+        """No underscore-prefixed symbols should appear in cortex.__all__."""
+        private = [s for s in cortex.__all__ if s.startswith("_")]
+        self.assertEqual(
+            private,
+            [],
+            f"Private symbols leaked into cortex.__all__: {private}",
+        )
+
+    def test_no_kernel_symbols_in_all(self) -> None:
+        """No 'kernel' or 'tools' module objects should appear in cortex.__all__."""
+        import types
+        for symbol_name in cortex.__all__:
+            with self.subTest(symbol=symbol_name):
+                obj = getattr(cortex, symbol_name)
+                if isinstance(obj, types.ModuleType):
+                    self.fail(
+                        f"Module object '{symbol_name}' leaked into cortex.__all__"
+                    )
+
+    def test_internal_packages_have_empty_all(self) -> None:
+        """All internal subpackages must define __all__ = [] to block wildcard imports."""
+        for pkg_path in INTERNAL_PACKAGES:
+            with self.subTest(package=pkg_path):
+                mod = importlib.import_module(pkg_path)
+                pkg_all = getattr(mod, "__all__", None)
+                self.assertIsNotNone(
+                    pkg_all,
+                    f"Internal package '{pkg_path}' does not define __all__",
+                )
+                self.assertEqual(
+                    list(pkg_all),  # type: ignore[arg-type]
+                    [],
+                    f"Internal package '{pkg_path}' has non-empty __all__: {pkg_all}",
+                )
+
+    def test_override_is_callable(self) -> None:
+        """The override compatibility shim must be a callable decorator."""
+        self.assertTrue(
+            callable(cortex.override),
+            "cortex.override must be callable",
+        )
+
+    def test_symbol_count_is_exact(self) -> None:
+        """The public API must have exactly 21 symbols."""
+        self.assertEqual(
+            len(cortex.__all__),
+            21,
+            f"Expected 21 public symbols, got {len(cortex.__all__)}",
+        )
 
 
 if __name__ == "__main__":

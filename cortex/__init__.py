@@ -6,6 +6,7 @@ workflow boundary management, sandboxed capability negotiation, and verification
 """
 
 from cortex.client import CortexClient
+from cortex.compat import override
 from cortex.exceptions import (
     CapabilityViolationError,
     CortexError,
@@ -48,4 +49,5 @@ __all__ = [
     "WorkflowExecutionError",
     "WorkflowPolicy",
     "WorkflowState",
+    "override",
 ]

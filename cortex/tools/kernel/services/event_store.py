@@ -7,6 +7,12 @@ from cortex.tools.kernel.transport import AnyEvent
 
 
 class EventStoreService:
+    """Append-only event journal that records all domain events for a workflow.
+
+    Provides ordered event retrieval for trace persistence, inspection,
+    and deterministic replay. This is the public EventStore interface
+    re-exported as ``cortex.EventStore``.
+    """
     _log: list[AnyEvent]
 
     contract: ServiceContract = ServiceContract(
