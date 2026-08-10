@@ -125,5 +125,72 @@ class TestExceptionExitCodes(unittest.TestCase):
         self.assertIsInstance(ManifestError("t"), CortexError)
 
 
+class TestCLIDiagnosticOutputFormatting(unittest.TestCase):
+    """Validate CLI human diagnostic blocks and machine JSON stream separation."""
+
+    def test_missing_workflow_file_human_error_format(self) -> None:
+        """Missing workflow file outputs formatted diagnostic block to stderr with exit code 1."""
+        import io
+        import sys
+
+        stderr_buf = io.StringIO()
+        old_stderr = sys.stderr
+        try:
+            sys.stderr = stderr_buf
+            exit_code = main(["workflow", "run", "/nonexistent/path/wf.json"])
+        finally:
+            sys.stderr = old_stderr
+
+        self.assertEqual(exit_code, 1)
+        err_output = stderr_buf.getvalue()
+        self.assertIn("CORTEX CLI DIAGNOSTIC ERROR REPORT", err_output)
+        self.assertIn("WORKFLOW_FAILED (Exit Code 1)", err_output)
+
+    def test_missing_workflow_file_json_error_format(self) -> None:
+        """Missing workflow file with --json outputs valid JSON to stderr with exit code 1."""
+        import io
+        import sys
+
+        stderr_buf = io.StringIO()
+        old_stderr = sys.stderr
+        try:
+            sys.stderr = stderr_buf
+            exit_code = main(["--json", "workflow", "run", "/nonexistent/path/wf.json"])
+        finally:
+            sys.stderr = old_stderr
+
+        self.assertEqual(exit_code, 1)
+        err_output = stderr_buf.getvalue()
+        payload = json.loads(err_output)
+        self.assertEqual(payload["status"], "error")
+        self.assertEqual(payload["error_code"], "WORKFLOW_FAILED")
+        self.assertEqual(payload["exit_code"], 1)
+        self.assertIn("remediation", payload)
+
+    def test_successful_init_json_format_to_stdout(self) -> None:
+        """Successful init --json outputs success payload to stdout with exit code 0."""
+        import io
+        import sys
+
+        test_dir = tempfile.mkdtemp(prefix="cortex_cli_json_test_")
+        stdout_buf = io.StringIO()
+        stderr_buf = io.StringIO()
+        old_stdout, old_stderr = sys.stdout, sys.stderr
+        try:
+            sys.stdout, sys.stderr = stdout_buf, stderr_buf
+            target = os.path.join(test_dir, "json_app")
+            exit_code = main(["--json", "init", target])
+        finally:
+            sys.stdout, sys.stderr = old_stdout, old_stderr
+            shutil.rmtree(test_dir, ignore_errors=True)
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr_buf.getvalue(), "")
+        payload = json.loads(stdout_buf.getvalue())
+        self.assertEqual(payload["status"], "success")
+        self.assertEqual(payload["command"], "init")
+
+
 if __name__ == "__main__":
     _ = unittest.main()
+

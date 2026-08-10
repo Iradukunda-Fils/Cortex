@@ -10,8 +10,8 @@ import os
 from typing import cast
 
 from cortex.client import CortexClient
-from cortex.exceptions import WorkflowExecutionError
-from cortex.schema import IntentEvent, WorkflowPolicy
+from cortex.exceptions import CapabilityViolationError, WorkflowExecutionError
+from cortex.schema import IntentEvent, VerificationResultEvent, WorkflowPolicy, WorkflowState
 
 
 def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dict[str, str | int]:
@@ -54,6 +54,23 @@ def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dic
         output_file = os.path.join(cortex_dir, f"{executed_wf.workflow_id}.json")
 
     saved_path = client.save_trace(executed_wf.workflow_id, output_file, name=wf_name, goal=wf_goal)
+
+    if executed_wf.state == WorkflowState.FAILED:
+        cap_failures = [
+            e for e in client.event_store.get_log()
+            if isinstance(e, VerificationResultEvent) and not e.passed and (e.rule_id == "CAPABILITY_VIOLATION" or "capability" in e.details)
+        ]
+        if cap_failures:
+            detail = cap_failures[0].details
+            cap_name = str(detail.get("capability", detail.get("required_capability", "unknown")))
+            raise CapabilityViolationError(
+                f"Workflow execution failed due to capability violation: '{cap_name}'",
+                capability=cap_name,
+            )
+        raise WorkflowExecutionError(
+            f"Workflow '{wf_name}' ({executed_wf.workflow_id}) failed verification checks.",
+            workflow_id=executed_wf.workflow_id,
+        )
 
     return {
         "workflow_id": executed_wf.workflow_id,
