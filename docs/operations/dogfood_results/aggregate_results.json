@@ -1,0 +1,347 @@
+[
+  {
+    "profile_name": "minimal",
+    "profile_description": "Baseline synthetic workload (small utility library scale)",
+    "step_count": 3,
+    "workload_type": "synthetic",
+    "workflow_state": "COMPLETED",
+    "timestamp_iso": "2026-08-10T14:59:53+0100",
+    "timings": {
+      "registration_s": 0.0019266929998593696,
+      "execution_s": 0.017985537000186014,
+      "trace_save_s": 0.01709411199999522,
+      "inspect_s": 0.012548259999675793,
+      "replay_s": 0.013037494999935006,
+      "total_s": 0.06285202900016884
+    },
+    "events": {
+      "total": 11,
+      "intent": 1,
+      "plan": 1,
+      "command": 3,
+      "telemetry": 3,
+      "verification_pass": 3,
+      "verification_fail": 0,
+      "capability_violation": 0,
+      "other": 0
+    },
+    "memory": {
+      "peak_traced_mb": 0.073,
+      "current_traced_mb": 0.04,
+      "measurement_method": "tracemalloc (Python allocations only)"
+    },
+    "trace_size_bytes": 6520,
+    "replay": {
+      "executed_successfully": true,
+      "proven_equivalent": true,
+      "events_replayed": 11,
+      "reason": "100% Deterministic Lineage Preservation Confirmed"
+    },
+    "capabilities": {
+      "requested": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "fs:read",
+        "exec:git",
+        "exec:pytest",
+        "hardware.telemetry.read"
+      ],
+      "granted": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "exec:pytest",
+        "hardware.telemetry.read",
+        "exec:git",
+        "fs:read"
+      ],
+      "denied": [],
+      "violation_count": 0
+    },
+    "plugin_count": 3,
+    "events_per_second": 611.6,
+    "environment": {
+      "python_version": "3.13.8",
+      "cortex_version": "0.2.0",
+      "os_name": "Linux",
+      "os_version": "7.0.5-arch1-1",
+      "architecture": "x86_64",
+      "uv_version": ""
+    }
+  },
+  {
+    "profile_name": "standard",
+    "profile_description": "Normal synthetic workload (medium web framework scale)",
+    "step_count": 10,
+    "workload_type": "synthetic",
+    "workflow_state": "COMPLETED",
+    "timestamp_iso": "2026-08-10T14:59:53+0100",
+    "timings": {
+      "registration_s": 0.0009358199999951466,
+      "execution_s": 0.017732890999923256,
+      "trace_save_s": 0.028514471000107733,
+      "inspect_s": 0.024988522000057856,
+      "replay_s": 0.011819269999705284,
+      "total_s": 0.08427692399982334
+    },
+    "events": {
+      "total": 32,
+      "intent": 1,
+      "plan": 1,
+      "command": 10,
+      "telemetry": 10,
+      "verification_pass": 10,
+      "verification_fail": 0,
+      "capability_violation": 0,
+      "other": 0
+    },
+    "memory": {
+      "peak_traced_mb": 0.153,
+      "current_traced_mb": 0.061,
+      "measurement_method": "tracemalloc (Python allocations only)"
+    },
+    "trace_size_bytes": 19084,
+    "replay": {
+      "executed_successfully": true,
+      "proven_equivalent": true,
+      "events_replayed": 32,
+      "reason": "100% Deterministic Lineage Preservation Confirmed"
+    },
+    "capabilities": {
+      "requested": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "fs:read",
+        "exec:git",
+        "exec:pytest",
+        "hardware.telemetry.read"
+      ],
+      "granted": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "exec:pytest",
+        "hardware.telemetry.read",
+        "exec:git",
+        "fs:read"
+      ],
+      "denied": [],
+      "violation_count": 0
+    },
+    "plugin_count": 3,
+    "events_per_second": 1804.6,
+    "environment": {
+      "python_version": "3.13.8",
+      "cortex_version": "0.2.0",
+      "os_name": "Linux",
+      "os_version": "7.0.5-arch1-1",
+      "architecture": "x86_64",
+      "uv_version": ""
+    }
+  },
+  {
+    "profile_name": "large",
+    "profile_description": "Scaling synthetic workload (large monorepo scale)",
+    "step_count": 50,
+    "workload_type": "synthetic",
+    "workflow_state": "COMPLETED",
+    "timestamp_iso": "2026-08-10T14:59:53+0100",
+    "timings": {
+      "registration_s": 0.0003050199998142489,
+      "execution_s": 0.06480962199975693,
+      "trace_save_s": 0.15552563300025213,
+      "inspect_s": 0.17247436700017715,
+      "replay_s": 0.08440606300018771,
+      "total_s": 0.4776383650000753
+    },
+    "events": {
+      "total": 152,
+      "intent": 1,
+      "plan": 1,
+      "command": 50,
+      "telemetry": 50,
+      "verification_pass": 50,
+      "verification_fail": 0,
+      "capability_violation": 0,
+      "other": 0
+    },
+    "memory": {
+      "peak_traced_mb": 0.67,
+      "current_traced_mb": 0.202,
+      "measurement_method": "tracemalloc (Python allocations only)"
+    },
+    "trace_size_bytes": 90744,
+    "replay": {
+      "executed_successfully": true,
+      "proven_equivalent": true,
+      "events_replayed": 152,
+      "reason": "100% Deterministic Lineage Preservation Confirmed"
+    },
+    "capabilities": {
+      "requested": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "fs:read",
+        "exec:git",
+        "exec:pytest",
+        "hardware.telemetry.read"
+      ],
+      "granted": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "exec:pytest",
+        "hardware.telemetry.read",
+        "exec:git",
+        "fs:read"
+      ],
+      "denied": [],
+      "violation_count": 0
+    },
+    "plugin_count": 3,
+    "events_per_second": 2345.3,
+    "environment": {
+      "python_version": "3.13.8",
+      "cortex_version": "0.2.0",
+      "os_name": "Linux",
+      "os_version": "7.0.5-arch1-1",
+      "architecture": "x86_64",
+      "uv_version": ""
+    }
+  },
+  {
+    "profile_name": "stress",
+    "profile_description": "Stress synthetic workload (enterprise codebase scale)",
+    "step_count": 200,
+    "workload_type": "synthetic",
+    "workflow_state": "COMPLETED",
+    "timestamp_iso": "2026-08-10T14:59:54+0100",
+    "timings": {
+      "registration_s": 0.0020510770000328193,
+      "execution_s": 0.3145292210001571,
+      "trace_save_s": 0.4705916499997329,
+      "inspect_s": 0.5677740769997399,
+      "replay_s": 0.30500027700009014,
+      "total_s": 1.6601476949999778
+    },
+    "events": {
+      "total": 602,
+      "intent": 1,
+      "plan": 1,
+      "command": 200,
+      "telemetry": 200,
+      "verification_pass": 200,
+      "verification_fail": 0,
+      "capability_violation": 0,
+      "other": 0
+    },
+    "memory": {
+      "peak_traced_mb": 2.614,
+      "current_traced_mb": 0.742,
+      "measurement_method": "tracemalloc (Python allocations only)"
+    },
+    "trace_size_bytes": 359824,
+    "replay": {
+      "executed_successfully": true,
+      "proven_equivalent": true,
+      "events_replayed": 602,
+      "reason": "100% Deterministic Lineage Preservation Confirmed"
+    },
+    "capabilities": {
+      "requested": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "fs:read",
+        "exec:git",
+        "exec:pytest",
+        "hardware.telemetry.read"
+      ],
+      "granted": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "exec:pytest",
+        "hardware.telemetry.read",
+        "exec:git",
+        "fs:read"
+      ],
+      "denied": [],
+      "violation_count": 0
+    },
+    "plugin_count": 3,
+    "events_per_second": 1914.0,
+    "environment": {
+      "python_version": "3.13.8",
+      "cortex_version": "0.2.0",
+      "os_name": "Linux",
+      "os_version": "7.0.5-arch1-1",
+      "architecture": "x86_64",
+      "uv_version": ""
+    }
+  },
+  {
+    "profile_name": "violation",
+    "profile_description": "Capability enforcement test (sandbox security path)",
+    "step_count": 3,
+    "workload_type": "synthetic",
+    "workflow_state": "FAILED",
+    "timestamp_iso": "2026-08-10T14:59:56+0100",
+    "timings": {
+      "registration_s": 0.0008878270000423072,
+      "execution_s": 0.005980846000056772,
+      "trace_save_s": 0.010147796000183007,
+      "inspect_s": 0.00868481099996643,
+      "replay_s": 0.004760515999805648,
+      "total_s": 0.030596214000070177
+    },
+    "events": {
+      "total": 8,
+      "intent": 1,
+      "plan": 1,
+      "command": 3,
+      "telemetry": 0,
+      "verification_pass": 0,
+      "verification_fail": 3,
+      "capability_violation": 3,
+      "other": 0
+    },
+    "memory": {
+      "peak_traced_mb": 0.051,
+      "current_traced_mb": 0.022,
+      "measurement_method": "tracemalloc (Python allocations only)"
+    },
+    "trace_size_bytes": 5335,
+    "replay": {
+      "executed_successfully": true,
+      "proven_equivalent": true,
+      "events_replayed": 8,
+      "reason": "100% Deterministic Lineage Preservation Confirmed"
+    },
+    "capabilities": {
+      "requested": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "fs:read",
+        "exec:git",
+        "exec:pytest",
+        "hardware.telemetry.read"
+      ],
+      "granted": [
+        "workflow.plan.create",
+        "workflow.command.issue",
+        "exec:pytest",
+        "hardware.telemetry.read",
+        "exec:git",
+        "fs:read"
+      ],
+      "denied": [],
+      "violation_count": 3
+    },
+    "plugin_count": 3,
+    "events_per_second": 1337.6,
+    "environment": {
+      "python_version": "3.13.8",
+      "cortex_version": "0.2.0",
+      "os_name": "Linux",
+      "os_version": "7.0.5-arch1-1",
+      "architecture": "x86_64",
+      "uv_version": ""
+    }
+  }
+]

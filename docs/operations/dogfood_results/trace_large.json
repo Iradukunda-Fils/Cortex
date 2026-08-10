@@ -1,0 +1,2936 @@
+{
+  "name": "dogfood_large",
+  "goal": "Scaling synthetic workload (large monorepo scale)",
+  "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+  "event_count": 152,
+  "events": [
+    {
+      "event_id": "634179be-fa4a-4820-93d0-f6bcd9687a2a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": null,
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393891465629,
+      "metadata": {},
+      "intent_id": "a40fbb89-92ad-4265-952d-d9431a64a110",
+      "session_id": "",
+      "goal": "Synthetic workload: Scaling synthetic workload (large monorepo scale)",
+      "parameters": {},
+      "_event_type": "IntentEvent"
+    },
+    {
+      "event_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "634179be-fa4a-4820-93d0-f6bcd9687a2a",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393892381872,
+      "metadata": {},
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "intent_id": "a40fbb89-92ad-4265-952d-d9431a64a110",
+      "steps": [
+        {
+          "step": 1,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 0
+          }
+        },
+        {
+          "step": 2,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 1
+          }
+        },
+        {
+          "step": 3,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 2
+          }
+        },
+        {
+          "step": 4,
+          "action": "dependency_audit",
+          "params": {
+            "path": ".",
+            "iteration": 3
+          }
+        },
+        {
+          "step": 5,
+          "action": "license_compliance_check",
+          "params": {
+            "path": ".",
+            "iteration": 4
+          }
+        },
+        {
+          "step": 6,
+          "action": "security_vulnerability_scan",
+          "params": {
+            "path": ".",
+            "iteration": 5
+          }
+        },
+        {
+          "step": 7,
+          "action": "code_coverage_analysis",
+          "params": {
+            "path": ".",
+            "iteration": 6
+          }
+        },
+        {
+          "step": 8,
+          "action": "documentation_lint",
+          "params": {
+            "path": ".",
+            "iteration": 7
+          }
+        },
+        {
+          "step": 9,
+          "action": "type_check",
+          "params": {
+            "path": ".",
+            "iteration": 8
+          }
+        },
+        {
+          "step": 10,
+          "action": "integration_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 9
+          }
+        },
+        {
+          "step": 11,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 10
+          }
+        },
+        {
+          "step": 12,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 11
+          }
+        },
+        {
+          "step": 13,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 12
+          }
+        },
+        {
+          "step": 14,
+          "action": "dependency_audit",
+          "params": {
+            "path": ".",
+            "iteration": 13
+          }
+        },
+        {
+          "step": 15,
+          "action": "license_compliance_check",
+          "params": {
+            "path": ".",
+            "iteration": 14
+          }
+        },
+        {
+          "step": 16,
+          "action": "security_vulnerability_scan",
+          "params": {
+            "path": ".",
+            "iteration": 15
+          }
+        },
+        {
+          "step": 17,
+          "action": "code_coverage_analysis",
+          "params": {
+            "path": ".",
+            "iteration": 16
+          }
+        },
+        {
+          "step": 18,
+          "action": "documentation_lint",
+          "params": {
+            "path": ".",
+            "iteration": 17
+          }
+        },
+        {
+          "step": 19,
+          "action": "type_check",
+          "params": {
+            "path": ".",
+            "iteration": 18
+          }
+        },
+        {
+          "step": 20,
+          "action": "integration_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 19
+          }
+        },
+        {
+          "step": 21,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 20
+          }
+        },
+        {
+          "step": 22,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 21
+          }
+        },
+        {
+          "step": 23,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 22
+          }
+        },
+        {
+          "step": 24,
+          "action": "dependency_audit",
+          "params": {
+            "path": ".",
+            "iteration": 23
+          }
+        },
+        {
+          "step": 25,
+          "action": "license_compliance_check",
+          "params": {
+            "path": ".",
+            "iteration": 24
+          }
+        },
+        {
+          "step": 26,
+          "action": "security_vulnerability_scan",
+          "params": {
+            "path": ".",
+            "iteration": 25
+          }
+        },
+        {
+          "step": 27,
+          "action": "code_coverage_analysis",
+          "params": {
+            "path": ".",
+            "iteration": 26
+          }
+        },
+        {
+          "step": 28,
+          "action": "documentation_lint",
+          "params": {
+            "path": ".",
+            "iteration": 27
+          }
+        },
+        {
+          "step": 29,
+          "action": "type_check",
+          "params": {
+            "path": ".",
+            "iteration": 28
+          }
+        },
+        {
+          "step": 30,
+          "action": "integration_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 29
+          }
+        },
+        {
+          "step": 31,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 30
+          }
+        },
+        {
+          "step": 32,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 31
+          }
+        },
+        {
+          "step": 33,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 32
+          }
+        },
+        {
+          "step": 34,
+          "action": "dependency_audit",
+          "params": {
+            "path": ".",
+            "iteration": 33
+          }
+        },
+        {
+          "step": 35,
+          "action": "license_compliance_check",
+          "params": {
+            "path": ".",
+            "iteration": 34
+          }
+        },
+        {
+          "step": 36,
+          "action": "security_vulnerability_scan",
+          "params": {
+            "path": ".",
+            "iteration": 35
+          }
+        },
+        {
+          "step": 37,
+          "action": "code_coverage_analysis",
+          "params": {
+            "path": ".",
+            "iteration": 36
+          }
+        },
+        {
+          "step": 38,
+          "action": "documentation_lint",
+          "params": {
+            "path": ".",
+            "iteration": 37
+          }
+        },
+        {
+          "step": 39,
+          "action": "type_check",
+          "params": {
+            "path": ".",
+            "iteration": 38
+          }
+        },
+        {
+          "step": 40,
+          "action": "integration_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 39
+          }
+        },
+        {
+          "step": 41,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 40
+          }
+        },
+        {
+          "step": 42,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 41
+          }
+        },
+        {
+          "step": 43,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 42
+          }
+        },
+        {
+          "step": 44,
+          "action": "dependency_audit",
+          "params": {
+            "path": ".",
+            "iteration": 43
+          }
+        },
+        {
+          "step": 45,
+          "action": "license_compliance_check",
+          "params": {
+            "path": ".",
+            "iteration": 44
+          }
+        },
+        {
+          "step": 46,
+          "action": "security_vulnerability_scan",
+          "params": {
+            "path": ".",
+            "iteration": 45
+          }
+        },
+        {
+          "step": 47,
+          "action": "code_coverage_analysis",
+          "params": {
+            "path": ".",
+            "iteration": 46
+          }
+        },
+        {
+          "step": 48,
+          "action": "documentation_lint",
+          "params": {
+            "path": ".",
+            "iteration": 47
+          }
+        },
+        {
+          "step": 49,
+          "action": "type_check",
+          "params": {
+            "path": ".",
+            "iteration": 48
+          }
+        },
+        {
+          "step": 50,
+          "action": "integration_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 49
+          }
+        }
+      ],
+      "_event_type": "PlanGeneratedEvent"
+    },
+    {
+      "event_id": "67bbd6b4-669e-454d-bec3-e17064ffb522",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393893016658,
+      "metadata": {},
+      "command_id": "a541f616-f206-48e2-9064-1780cad92f50",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 0
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "d319504f-bfe4-4f7a-8a66-18c5ba048c98",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a541f616-f206-48e2-9064-1780cad92f50",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393893649540,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "git_status_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "752db83c-8496-4454-aa3d-43d019dd22e5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a541f616-f206-48e2-9064-1780cad92f50",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393894078006,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "git_status_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "65d96792-3804-41cf-b0a1-675c66d586a2",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393894569425,
+      "metadata": {},
+      "command_id": "c4020351-76cd-469d-ac87-bb3f3eba9786",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 1
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "39ad1924-a57c-4df3-8163-118d81505c7b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "c4020351-76cd-469d-ac87-bb3f3eba9786",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393895228181,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "syntax_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "95592178-1b0f-4495-ae03-8352e13acfa5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "c4020351-76cd-469d-ac87-bb3f3eba9786",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393895656822,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "syntax_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "610253a1-6e31-4b72-b102-536f52a9272a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393896049435,
+      "metadata": {},
+      "command_id": "e269d937-25dd-4ec0-8f28-b319c3592d66",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 2
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "6fb7f178-6d8e-4583-9fed-80eca0aa73c7",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "e269d937-25dd-4ec0-8f28-b319c3592d66",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393896610192,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "unit_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "451014b0-c376-49e5-88df-30acb46b0824",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "e269d937-25dd-4ec0-8f28-b319c3592d66",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393896973033,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "unit_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "aa273056-0814-42b2-a84a-58ead14dcc97",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393897367522,
+      "metadata": {},
+      "command_id": "65359da6-9850-4403-9559-ea44bba36ff1",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "dependency_audit",
+      "parameters": {
+        "path": ".",
+        "iteration": 3
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "74368a3f-0a30-4635-b089-002d50983332",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "65359da6-9850-4403-9559-ea44bba36ff1",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393898002434,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "dependency_audit",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "26826bed-dece-4023-98d9-490253951a8b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "65359da6-9850-4403-9559-ea44bba36ff1",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393898421906,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "dependency_audit",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "6ce2ed6c-ba7b-4a2e-af1e-950274ee63f6",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393898848448,
+      "metadata": {},
+      "command_id": "ea6ef6a5-72a6-453e-86e1-a4b42f6c7046",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "license_compliance_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 4
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "0ca9ef84-04c1-46f3-bb62-b62f3da64ace",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "ea6ef6a5-72a6-453e-86e1-a4b42f6c7046",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393899540697,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "license_compliance_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "83123440-3d8d-443f-a9fa-7fa54c76b9d4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "ea6ef6a5-72a6-453e-86e1-a4b42f6c7046",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393899977505,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "license_compliance_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "97d413a6-c9eb-4b31-9f9b-b0a4e70805fd",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393900398882,
+      "metadata": {},
+      "command_id": "730ddf3f-bedf-470c-9bc7-c1ed5d4586ce",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "security_vulnerability_scan",
+      "parameters": {
+        "path": ".",
+        "iteration": 5
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "a28ebdf7-a728-4e75-b221-47c1e9d6d9bf",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "730ddf3f-bedf-470c-9bc7-c1ed5d4586ce",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393900722146,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "security_vulnerability_scan",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "008df686-16be-49ee-9e07-0f8a6203c8ca",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "730ddf3f-bedf-470c-9bc7-c1ed5d4586ce",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393900922338,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "security_vulnerability_scan",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "47c943c8-fc2a-4663-b874-ccca09de7152",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393901119822,
+      "metadata": {},
+      "command_id": "70c8cdc9-887e-465d-96f8-541b387128e6",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "code_coverage_analysis",
+      "parameters": {
+        "path": ".",
+        "iteration": 6
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "fa10910f-1ab9-4025-8987-550b63a9ae68",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "70c8cdc9-887e-465d-96f8-541b387128e6",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393901650789,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "code_coverage_analysis",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "1f62ffe5-e8ef-4b60-8e80-cf4593ef83ca",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "70c8cdc9-887e-465d-96f8-541b387128e6",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393901941067,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "code_coverage_analysis",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "643479b8-e4cb-4814-a73b-c6e09f1770a9",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393902276704,
+      "metadata": {},
+      "command_id": "6040a8a7-350f-4f41-a872-e8369b980e00",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "documentation_lint",
+      "parameters": {
+        "path": ".",
+        "iteration": 7
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "a24ca0ac-eeb9-43d2-88d1-c04db519414c",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6040a8a7-350f-4f41-a872-e8369b980e00",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393902790661,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "documentation_lint",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "2ba6d88e-7192-403c-93bb-f94a0fd35ea7",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6040a8a7-350f-4f41-a872-e8369b980e00",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393903173891,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "documentation_lint",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "303e9238-398f-4b38-8762-d22df457bf4b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393903544933,
+      "metadata": {},
+      "command_id": "22a4d639-82ed-4517-94d9-d67995033897",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "type_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 8
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "15738353-0da6-4e5f-9843-f9271620d0e7",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "22a4d639-82ed-4517-94d9-d67995033897",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393903864438,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "type_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "15658a19-db63-4f3d-b37f-ff24de8c25ba",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "22a4d639-82ed-4517-94d9-d67995033897",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393904057601,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "type_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "a88b4f42-8249-49bc-bb9d-95715d58c1ed",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393904275442,
+      "metadata": {},
+      "command_id": "b00cfa51-aa49-4e3d-90f0-5efc58a8dbd7",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "integration_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 9
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "4f2b3c92-f29f-4fb4-9885-05c8cd2c12c5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "b00cfa51-aa49-4e3d-90f0-5efc58a8dbd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393904564949,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "integration_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "c9e7b57b-d096-4ff5-b1d6-61575f8f1aff",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "b00cfa51-aa49-4e3d-90f0-5efc58a8dbd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393904747763,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "integration_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "9b32cb35-a472-4e08-8ee7-68ab9b32a63e",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393904985495,
+      "metadata": {},
+      "command_id": "a8ad36ea-27b6-4e34-9fd9-c91239943a11",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 10
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "dc48665b-0748-49b1-a8ff-6635a323f9fb",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a8ad36ea-27b6-4e34-9fd9-c91239943a11",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393905601978,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "git_status_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "3d1dffe9-e699-4e4a-a5bb-ea5951cffc95",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a8ad36ea-27b6-4e34-9fd9-c91239943a11",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393905989877,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "git_status_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "a76c7c93-0896-465f-b65f-632996c78bf1",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393906433448,
+      "metadata": {},
+      "command_id": "d40d2f47-c05c-4928-b1ee-7fa9a433158c",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 11
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "be225d45-49a4-489e-ab5e-16a550228f8e",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d40d2f47-c05c-4928-b1ee-7fa9a433158c",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393907098673,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "syntax_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "b19195d6-41c9-4051-b542-4939a47f6d1a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d40d2f47-c05c-4928-b1ee-7fa9a433158c",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393907560254,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "syntax_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "194f4ab2-5f7d-4a88-8298-80d353c52aa4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393907965609,
+      "metadata": {},
+      "command_id": "e2a4159d-bd08-4357-bc18-28bb0a3ede26",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 12
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "9ac28931-ae6c-464e-99a5-744e8609b56f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "e2a4159d-bd08-4357-bc18-28bb0a3ede26",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393908574758,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "unit_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "81c708cf-8912-42f5-aad4-de7789270931",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "e2a4159d-bd08-4357-bc18-28bb0a3ede26",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393908947336,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "unit_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "55426c2a-bb3c-41ef-a0c7-7b1ec9b5e4a4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393909359756,
+      "metadata": {},
+      "command_id": "5a44e446-50b9-44dd-82c4-35573c3058a4",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "dependency_audit",
+      "parameters": {
+        "path": ".",
+        "iteration": 13
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "45a3251f-6962-49ef-8ec8-f10f1f184112",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5a44e446-50b9-44dd-82c4-35573c3058a4",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393909960261,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "dependency_audit",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "9ad41cac-6cbc-4a4c-96f0-f9dec0ae22dc",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5a44e446-50b9-44dd-82c4-35573c3058a4",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393910353407,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "dependency_audit",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "3e2b5b26-4fc3-4274-9031-b9ad4c2dad65",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393910609476,
+      "metadata": {},
+      "command_id": "ffc0ddf9-77d5-4374-965d-303644b7db04",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "license_compliance_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 14
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "974c9c7b-4b3d-4413-9694-06debe9570e4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "ffc0ddf9-77d5-4374-965d-303644b7db04",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393910986802,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "license_compliance_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "d9cac748-f5ad-4361-b1d4-a0c89f1ca601",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "ffc0ddf9-77d5-4374-965d-303644b7db04",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393911333779,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "license_compliance_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "81b42471-6f0d-4e96-abdb-3927d4a8d9fb",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393911690687,
+      "metadata": {},
+      "command_id": "223653fa-7599-4142-b8e9-31405c5d8ee6",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "security_vulnerability_scan",
+      "parameters": {
+        "path": ".",
+        "iteration": 15
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "46f81bca-eaf1-43ea-8e14-c822bb011f5f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "223653fa-7599-4142-b8e9-31405c5d8ee6",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393912361451,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "security_vulnerability_scan",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "21edd00f-03a2-42c5-843b-b92af6fca522",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "223653fa-7599-4142-b8e9-31405c5d8ee6",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393912669592,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "security_vulnerability_scan",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "6015271b-c1c0-4e19-8c01-d07848f46afe",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393912880385,
+      "metadata": {},
+      "command_id": "42e396db-c1cc-4c75-9c01-4560da241636",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "code_coverage_analysis",
+      "parameters": {
+        "path": ".",
+        "iteration": 16
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "5e5c980e-95cc-4427-942b-01265b9707d2",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "42e396db-c1cc-4c75-9c01-4560da241636",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393913171745,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "code_coverage_analysis",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "eb986904-af54-4cc1-8061-a13c6079d272",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "42e396db-c1cc-4c75-9c01-4560da241636",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393913497841,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "code_coverage_analysis",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "bfafb7e6-5cab-46eb-a3df-0830a3567bbe",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393913708761,
+      "metadata": {},
+      "command_id": "bf7b8eb1-7552-4183-8517-221827b65341",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "documentation_lint",
+      "parameters": {
+        "path": ".",
+        "iteration": 17
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "f566c162-1c68-4e14-bc50-23562bb4cf22",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "bf7b8eb1-7552-4183-8517-221827b65341",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393914339815,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "documentation_lint",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "abfd232e-467c-46da-a672-6c10b903c592",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "bf7b8eb1-7552-4183-8517-221827b65341",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393914751081,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "documentation_lint",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "3cf15f46-1b41-4547-be99-328b71456140",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393915028419,
+      "metadata": {},
+      "command_id": "6e8dbb9a-fb14-42f4-97cd-951ba34cf5d0",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "type_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 18
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "aa4d6e7b-6ab9-4209-8121-4fdba0a9bfee",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6e8dbb9a-fb14-42f4-97cd-951ba34cf5d0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393915423825,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "type_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "f5ceea37-4d1c-4c04-b853-33b9141451fb",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6e8dbb9a-fb14-42f4-97cd-951ba34cf5d0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393915750339,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "type_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "7af42fa7-4e74-4a57-baaf-846d0e997549",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393916178473,
+      "metadata": {},
+      "command_id": "3154b858-e2b6-4e10-8501-7535772666ce",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "integration_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 19
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "4102c91c-6dde-4682-bd88-1d55986eec31",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "3154b858-e2b6-4e10-8501-7535772666ce",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393916827673,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "integration_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "c3eab563-51dc-4006-82ee-ce2691d051ae",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "3154b858-e2b6-4e10-8501-7535772666ce",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393917234746,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "integration_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "5d41213d-c96c-414b-8116-c9e0056f240b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393917608223,
+      "metadata": {},
+      "command_id": "72280d00-963c-4741-8287-0b69fcd0c169",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 20
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "b5e03920-2da1-4cee-bb39-880094e95556",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "72280d00-963c-4741-8287-0b69fcd0c169",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393918182200,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "git_status_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "4d68296f-2e61-458b-8b7c-e300e8118cd5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "72280d00-963c-4741-8287-0b69fcd0c169",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393918562076,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "git_status_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "4a089c76-a277-4a43-9d7d-9ceeaf0e8eea",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393918961635,
+      "metadata": {},
+      "command_id": "1654603c-b385-4799-8063-88c6a43ba37b",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 21
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "7cdcf3e3-a3e0-45fc-b6f4-4a1bb53b7d98",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1654603c-b385-4799-8063-88c6a43ba37b",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393919479807,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "syntax_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "b3f544b3-ec1a-49e2-b8f7-9a576b696835",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1654603c-b385-4799-8063-88c6a43ba37b",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393919818402,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "syntax_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "0f6fafa8-23ee-4b95-b5a3-c2fe8317c585",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393920170885,
+      "metadata": {},
+      "command_id": "5f5c1a6b-8997-49ce-90e2-07b7f5f5b258",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 22
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "5690bd0d-c773-4441-ae54-b4b339b80875",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5f5c1a6b-8997-49ce-90e2-07b7f5f5b258",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393920714397,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "unit_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "00f88f6b-41d2-4a6c-8301-cac7f32f610a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5f5c1a6b-8997-49ce-90e2-07b7f5f5b258",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393921063434,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "unit_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "d1d4555a-d15b-4d88-bc8d-7628cc008451",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393921429921,
+      "metadata": {},
+      "command_id": "fb92ed16-b47a-478c-a88d-6a4e3cc334b4",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "dependency_audit",
+      "parameters": {
+        "path": ".",
+        "iteration": 23
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "b9fcfe73-cd97-4936-ba99-166975daac3b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "fb92ed16-b47a-478c-a88d-6a4e3cc334b4",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393921979581,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "dependency_audit",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "2c10468d-f76b-4d17-b773-cc498f991097",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "fb92ed16-b47a-478c-a88d-6a4e3cc334b4",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393922351977,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "dependency_audit",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "e8d683c4-acc0-477d-8eb6-ce311d76c57a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393922714088,
+      "metadata": {},
+      "command_id": "36ea9870-ea42-487b-bafc-2acc2eaeb46e",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "license_compliance_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 24
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "4ff124fd-dcea-4850-86f6-9ec654762277",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "36ea9870-ea42-487b-bafc-2acc2eaeb46e",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393923281325,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "license_compliance_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "767316fa-0b26-4505-8205-1d8eac9d2c67",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "36ea9870-ea42-487b-bafc-2acc2eaeb46e",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393923624812,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "license_compliance_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "de5263d7-7de4-4e3c-b75b-75edad3fee82",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393923999767,
+      "metadata": {},
+      "command_id": "d1055b37-f18a-4047-8e0a-a0db3058a433",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "security_vulnerability_scan",
+      "parameters": {
+        "path": ".",
+        "iteration": 25
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "54bed938-acad-4eb6-823a-0caab1c065a8",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d1055b37-f18a-4047-8e0a-a0db3058a433",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393924580465,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "security_vulnerability_scan",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "537ec708-8567-4aed-a12b-6551fe1324a5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d1055b37-f18a-4047-8e0a-a0db3058a433",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393925004859,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "security_vulnerability_scan",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "ae92d826-9b77-4f82-92e0-68f7e59fe593",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393925434681,
+      "metadata": {},
+      "command_id": "61b5c4d7-5910-4a94-b461-0b9fbe39f8f8",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "code_coverage_analysis",
+      "parameters": {
+        "path": ".",
+        "iteration": 26
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "ba5bdc6c-a1bc-4a3d-9179-0643ed5cf31f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "61b5c4d7-5910-4a94-b461-0b9fbe39f8f8",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393926125818,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "code_coverage_analysis",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "e529312e-a8cc-4645-94ed-e3b3427511e4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "61b5c4d7-5910-4a94-b461-0b9fbe39f8f8",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393926557324,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "code_coverage_analysis",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "453e6772-07d5-4087-ba33-a6a4ed3d8946",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393926997400,
+      "metadata": {},
+      "command_id": "9f5a6103-59e6-4209-9e98-505747a94316",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "documentation_lint",
+      "parameters": {
+        "path": ".",
+        "iteration": 27
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "c0c20e24-6d1e-4e10-a899-98783351ded8",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "9f5a6103-59e6-4209-9e98-505747a94316",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393927679266,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "documentation_lint",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "7941e9b4-4928-4d7b-8f55-7358a2db0c32",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "9f5a6103-59e6-4209-9e98-505747a94316",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393928046532,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "documentation_lint",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "d743b067-de3c-47b0-959b-269c0b5915e9",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393928511460,
+      "metadata": {},
+      "command_id": "1e39c96d-84e3-49b5-8107-cef955f03117",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "type_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 28
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "2766e46b-1b7f-4ecf-a8a7-131c066f37c0",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1e39c96d-84e3-49b5-8107-cef955f03117",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393929125378,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "type_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "78ed9047-3e0a-4db8-a886-a141fc368059",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1e39c96d-84e3-49b5-8107-cef955f03117",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393929482609,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "type_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "c97ccaee-028c-4509-a659-18274651bf18",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393929700011,
+      "metadata": {},
+      "command_id": "d4679271-fde4-4a20-ab4c-358833a0ff14",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "integration_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 29
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "db1b08ef-e289-4e15-bc57-e02622d869f4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d4679271-fde4-4a20-ab4c-358833a0ff14",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393930010279,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "integration_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "64c8d5a9-747d-46db-a64c-47fce9194a47",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d4679271-fde4-4a20-ab4c-358833a0ff14",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393930278802,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "integration_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "d1987e4e-ec56-48b0-afe7-afd9e4438202",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393930566340,
+      "metadata": {},
+      "command_id": "13f240ab-282e-4f82-b16d-433b66910143",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 30
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "4e01ef7b-bc4d-4099-a069-b3dbfefffd6f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "13f240ab-282e-4f82-b16d-433b66910143",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393930877038,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "git_status_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "ca36298b-e1bf-4567-ade8-746b56416daa",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "13f240ab-282e-4f82-b16d-433b66910143",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393931065485,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "git_status_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "64cc5fe6-3581-4cc8-88ba-ecc71e7b358e",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393931312600,
+      "metadata": {},
+      "command_id": "34a74710-f050-4ac8-b7f1-e17928484f88",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 31
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "61e10e3a-b7e0-495a-a137-48f57283db2a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "34a74710-f050-4ac8-b7f1-e17928484f88",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393931614867,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "syntax_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "15238910-c9f3-435b-a4e9-7524876ddf03",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "34a74710-f050-4ac8-b7f1-e17928484f88",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393931899986,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "syntax_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "c329766d-eefd-4af1-93b2-2eab9d7a7812",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393932367047,
+      "metadata": {},
+      "command_id": "06641aaa-e0fd-434f-9753-1213f5c817d5",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 32
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "19fca174-b5c0-401d-953b-7706e4af53b1",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "06641aaa-e0fd-434f-9753-1213f5c817d5",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393932934490,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "unit_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "0104dd13-5496-4993-b7df-2a5c449c09b3",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "06641aaa-e0fd-434f-9753-1213f5c817d5",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393933319022,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "unit_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "3a2c9ea0-ee72-4046-9b94-45063dfe292d",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393933701630,
+      "metadata": {},
+      "command_id": "907f20b9-8a05-40f0-a2ad-40fbfe0e3281",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "dependency_audit",
+      "parameters": {
+        "path": ".",
+        "iteration": 33
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "12bd46df-0d69-4da7-9b02-bc637e08c687",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "907f20b9-8a05-40f0-a2ad-40fbfe0e3281",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393934305211,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "dependency_audit",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "d6d33e2c-480c-4bb0-b607-517334c562e3",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "907f20b9-8a05-40f0-a2ad-40fbfe0e3281",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393934630563,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "dependency_audit",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "91e32c71-4a1b-4514-9575-ee45a09f7429",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393934987087,
+      "metadata": {},
+      "command_id": "d3910ec1-8553-4312-b378-f88d9c6cfada",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "license_compliance_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 34
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "b7cd4098-1e13-45bf-87bc-5adeb528ced1",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d3910ec1-8553-4312-b378-f88d9c6cfada",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393935522406,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "license_compliance_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "42c98230-93b8-411a-8a7e-cbd0fb737349",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "d3910ec1-8553-4312-b378-f88d9c6cfada",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393935968188,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "license_compliance_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "9991135e-8ff5-41b6-a128-ba6dc3b2e365",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393936502148,
+      "metadata": {},
+      "command_id": "7ca3feea-cc44-41cf-88e2-49b8b46b65be",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "security_vulnerability_scan",
+      "parameters": {
+        "path": ".",
+        "iteration": 35
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "90e0a66d-ffe5-4d6e-954b-cde463ec69a0",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "7ca3feea-cc44-41cf-88e2-49b8b46b65be",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393937014306,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "security_vulnerability_scan",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "b88bf136-03b5-430e-8c15-cf0c93f0fb62",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "7ca3feea-cc44-41cf-88e2-49b8b46b65be",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393937381046,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "security_vulnerability_scan",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "d1f1c2f9-626a-4aec-a43d-80aa296e67b7",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393937679983,
+      "metadata": {},
+      "command_id": "bcceaa9a-9058-4b88-907f-a1fac80ed6dd",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "code_coverage_analysis",
+      "parameters": {
+        "path": ".",
+        "iteration": 36
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "c8485adf-b5cf-47b0-9e65-e0cb926b65ec",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "bcceaa9a-9058-4b88-907f-a1fac80ed6dd",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393938111726,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "code_coverage_analysis",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "12ea6a13-eb39-4738-8b7e-ddb396fc85bb",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "bcceaa9a-9058-4b88-907f-a1fac80ed6dd",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393938440329,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "code_coverage_analysis",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "7c2e386f-3b55-4b6a-b5b6-32200f0826ec",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393938728857,
+      "metadata": {},
+      "command_id": "a11ff35d-b120-4a02-b046-ddba538dc19a",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "documentation_lint",
+      "parameters": {
+        "path": ".",
+        "iteration": 37
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "5c9aa08a-6c5f-47ee-bf02-6720f82f5f4c",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a11ff35d-b120-4a02-b046-ddba538dc19a",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393939284182,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "documentation_lint",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "9afb698c-ba11-415e-ad87-3c392e8cb018",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a11ff35d-b120-4a02-b046-ddba538dc19a",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393939616011,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "documentation_lint",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "fd6bf024-72bb-4ba0-825e-ef783f06e410",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393939907570,
+      "metadata": {},
+      "command_id": "7b9da4ab-debe-4da0-ba56-6ca863cb2281",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "type_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 38
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "1a70e87a-61fe-496d-9b65-5b69f75dd5d6",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "7b9da4ab-debe-4da0-ba56-6ca863cb2281",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393940631898,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "type_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "b6aea262-2678-491a-beba-3e98bffd003c",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "7b9da4ab-debe-4da0-ba56-6ca863cb2281",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393941037144,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "type_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "416a7123-5ce2-4478-ae2f-d8169b937dc0",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393941445351,
+      "metadata": {},
+      "command_id": "779880a9-4627-4d4c-9130-116522abf043",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "integration_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 39
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "a28f2d61-8f4c-4a16-95e1-6b0a33b97413",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "779880a9-4627-4d4c-9130-116522abf043",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393941875227,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "integration_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "46030cec-38a0-46d0-b88e-58622ffae9b1",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "779880a9-4627-4d4c-9130-116522abf043",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393942129889,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "integration_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "620f2270-0e1f-4252-8a08-2d45ac7e44e9",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393942487440,
+      "metadata": {},
+      "command_id": "a651e8fa-adcd-4bcb-a742-d2cd64271b2c",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 40
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "db3985a1-6758-4d40-97e8-2c73f7c13537",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a651e8fa-adcd-4bcb-a742-d2cd64271b2c",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393943004921,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "git_status_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "22ee2b30-090a-41b3-a45a-09036fd478a3",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a651e8fa-adcd-4bcb-a742-d2cd64271b2c",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393943380356,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "git_status_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "5d8e01ab-e5a9-4f23-81d1-ea68bdcd47a9",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393943712807,
+      "metadata": {},
+      "command_id": "a59a8631-36c5-4e2f-96fa-b81952051d9a",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 41
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "fa4a6505-2e1f-4821-b2ab-fd6c15e688ff",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a59a8631-36c5-4e2f-96fa-b81952051d9a",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393944274664,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "syntax_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "2ad019f6-f8a1-45f6-9c97-e6a75b1cb040",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "a59a8631-36c5-4e2f-96fa-b81952051d9a",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393944625460,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "syntax_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "0bdbe20f-4fcd-4278-9424-0a8d9684068f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393944845974,
+      "metadata": {},
+      "command_id": "1cf95253-f9cf-43cf-82f4-ace1bcd1e084",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 42
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "678b3f27-81cf-441e-b4de-49bd36fbd727",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1cf95253-f9cf-43cf-82f4-ace1bcd1e084",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393945335190,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "unit_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "f3c2b195-7243-4dfb-aec0-f30863891051",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1cf95253-f9cf-43cf-82f4-ace1bcd1e084",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393945705240,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "unit_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "32689aa8-ec7f-44b7-9706-3f6959249c03",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393946123146,
+      "metadata": {},
+      "command_id": "6674ab02-7f44-4375-afc7-73ed30e5c5f0",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "dependency_audit",
+      "parameters": {
+        "path": ".",
+        "iteration": 43
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "5a440213-c285-40fb-87de-e9fefad7983b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6674ab02-7f44-4375-afc7-73ed30e5c5f0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393946695376,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "dependency_audit",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "03d601b0-31d8-4817-9c29-6629600e731b",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6674ab02-7f44-4375-afc7-73ed30e5c5f0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393947092102,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "dependency_audit",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "82a5a450-8bfc-4179-a814-8355aab63c9a",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393947526260,
+      "metadata": {},
+      "command_id": "13d97de9-61cd-4e5b-8101-9dae92eda4d2",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "license_compliance_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 44
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "45ea2740-034a-45be-a058-871bd70c61ad",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "13d97de9-61cd-4e5b-8101-9dae92eda4d2",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393948085374,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "license_compliance_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "ff97bdc1-0e9c-4b26-843a-d30f834fc2d1",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "13d97de9-61cd-4e5b-8101-9dae92eda4d2",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393948497049,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "license_compliance_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "c98fd95f-f999-41c9-b643-09e4af9a1d16",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393948925358,
+      "metadata": {},
+      "command_id": "caea20b5-b00a-45f3-b9a5-6390464706e8",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "security_vulnerability_scan",
+      "parameters": {
+        "path": ".",
+        "iteration": 45
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "c6fa22ad-37f7-405a-93b4-57f25f5b4d91",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "caea20b5-b00a-45f3-b9a5-6390464706e8",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393949548236,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "security_vulnerability_scan",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "68422243-702e-48d1-925e-d10746f3700f",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "caea20b5-b00a-45f3-b9a5-6390464706e8",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393949952315,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "security_vulnerability_scan",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "571ab20a-adea-44f6-9dc3-7991f724ced8",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393950340479,
+      "metadata": {},
+      "command_id": "b6b72b8e-8b44-4865-8b7c-0090241c1296",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "code_coverage_analysis",
+      "parameters": {
+        "path": ".",
+        "iteration": 46
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "2cb42698-b4fc-432b-ae60-a72e56247b55",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "b6b72b8e-8b44-4865-8b7c-0090241c1296",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393950927512,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "code_coverage_analysis",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "f9a89e20-6638-4c66-9cd3-191aa85a1ba5",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "b6b72b8e-8b44-4865-8b7c-0090241c1296",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393951379198,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "code_coverage_analysis",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "411d52b3-2cf6-48a5-8218-c320b9f0bbf9",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393951767532,
+      "metadata": {},
+      "command_id": "6deaa7e3-41b1-4771-8760-88341826846b",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "documentation_lint",
+      "parameters": {
+        "path": ".",
+        "iteration": 47
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "74794802-afb5-4c55-8d5a-f22d1f0b1c56",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6deaa7e3-41b1-4771-8760-88341826846b",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393952371409,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "documentation_lint",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "9fd89577-9c6a-4301-9440-ee1fc7a99f2e",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "6deaa7e3-41b1-4771-8760-88341826846b",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393952762992,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "documentation_lint",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "a6056c9d-430b-45e5-83ec-7ee8325c27c8",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393953145826,
+      "metadata": {},
+      "command_id": "1d51da77-58b4-4e07-992b-3b2614710f07",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "type_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 48
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "3acf1bbe-044a-4fa9-9cde-03032064ae41",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1d51da77-58b4-4e07-992b-3b2614710f07",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393953753088,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "type_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "0794e4dd-5a6a-4c46-af0b-7b4d139dc6c2",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "1d51da77-58b4-4e07-992b-3b2614710f07",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393954175870,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "type_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "fe8ae7cc-4478-441d-a97e-003f0f133e72",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "5859db30-dbee-45ce-b241-5cf3a6cb1fd7",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393954596205,
+      "metadata": {},
+      "command_id": "fe0860e1-9364-4bd7-beee-cc98dcd30bcd",
+      "plan_id": "3c596797-4ac6-4c69-ae6b-c0e9cec10b91",
+      "action": "integration_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 49
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "c0a079ba-3b26-435c-85e5-b8a49468dc97",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "fe0860e1-9364-4bd7-beee-cc98dcd30bcd",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393955212857,
+      "metadata": {},
+      "driver_id": "repo_tool_driver",
+      "status": "ok",
+      "payload": {
+        "action": "integration_test_check",
+        "result": "clean"
+      },
+      "_event_type": "DriverTelemetryEvent"
+    },
+    {
+      "event_id": "f2c52378-be39-46af-b5c8-b220db7eb2c4",
+      "workflow_id": "fd9137de-48c0-4525-9e42-6d81bb4da74f",
+      "causation_id": "fe0860e1-9364-4bd7-beee-cc98dcd30bcd",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370393955577854,
+      "metadata": {},
+      "passed": true,
+      "rule_id": "REPO_AUDIT_PASS",
+      "details": {
+        "action": "integration_test_check",
+        "status": "VERIFIED"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    }
+  ]
+}

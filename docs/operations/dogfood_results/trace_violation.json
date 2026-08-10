@@ -1,0 +1,165 @@
+{
+  "name": "dogfood_violation",
+  "goal": "Capability enforcement test (sandbox security path)",
+  "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+  "event_count": 8,
+  "events": [
+    {
+      "event_id": "5b22f7a9-7ea1-4297-a39e-257aa4095fff",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": null,
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396038353242,
+      "metadata": {},
+      "intent_id": "c39dc710-0d0b-4941-a779-2d1d0f83872a",
+      "session_id": "",
+      "goal": "Synthetic workload: Capability enforcement test (sandbox security path)",
+      "parameters": {},
+      "_event_type": "IntentEvent"
+    },
+    {
+      "event_id": "e62c2383-14bc-4cf5-ae5c-6907d802c7a0",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "5b22f7a9-7ea1-4297-a39e-257aa4095fff",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396039156720,
+      "metadata": {},
+      "plan_id": "437e28ee-d161-4f20-ad38-cc2aa3701f09",
+      "intent_id": "c39dc710-0d0b-4941-a779-2d1d0f83872a",
+      "steps": [
+        {
+          "step": 1,
+          "action": "git_status_check",
+          "params": {
+            "path": ".",
+            "iteration": 0
+          }
+        },
+        {
+          "step": 2,
+          "action": "syntax_check",
+          "params": {
+            "path": ".",
+            "iteration": 1
+          }
+        },
+        {
+          "step": 3,
+          "action": "unit_test_check",
+          "params": {
+            "path": ".",
+            "iteration": 2
+          }
+        }
+      ],
+      "_event_type": "PlanGeneratedEvent"
+    },
+    {
+      "event_id": "b124a2b0-c4dd-4d2a-ae57-dc058e57986a",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "e62c2383-14bc-4cf5-ae5c-6907d802c7a0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396039748172,
+      "metadata": {},
+      "command_id": "0943eaf3-ff36-4ebf-b2b8-b3f69be4b295",
+      "plan_id": "437e28ee-d161-4f20-ad38-cc2aa3701f09",
+      "action": "git_status_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 0
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "7981955f-e0e6-448c-b81c-ce85b946dc8f",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "0943eaf3-ff36-4ebf-b2b8-b3f69be4b295",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396040404605,
+      "metadata": {},
+      "passed": false,
+      "rule_id": "CAPABILITY_VIOLATION",
+      "details": {
+        "attempted_capability": "fs:write",
+        "action": "git_status_check",
+        "reason": "Unauthorized file system write operation rejected by CapabilitySandbox"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "e558d786-da74-45a2-b768-98b6765cf535",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "e62c2383-14bc-4cf5-ae5c-6907d802c7a0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396040822534,
+      "metadata": {},
+      "command_id": "833aa84d-e1e9-4a79-a334-178c27a4b7f3",
+      "plan_id": "437e28ee-d161-4f20-ad38-cc2aa3701f09",
+      "action": "syntax_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 1
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "592beb16-66dd-4a34-b836-01a5cd513eec",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "833aa84d-e1e9-4a79-a334-178c27a4b7f3",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396041519931,
+      "metadata": {},
+      "passed": false,
+      "rule_id": "CAPABILITY_VIOLATION",
+      "details": {
+        "attempted_capability": "fs:write",
+        "action": "syntax_check",
+        "reason": "Unauthorized file system write operation rejected by CapabilitySandbox"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    },
+    {
+      "event_id": "88626de6-8ee6-4717-b2f0-d838e539cd1c",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "e62c2383-14bc-4cf5-ae5c-6907d802c7a0",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396041915284,
+      "metadata": {},
+      "command_id": "cf37636e-3eab-4642-9c43-55c7110af6a5",
+      "plan_id": "437e28ee-d161-4f20-ad38-cc2aa3701f09",
+      "action": "unit_test_check",
+      "parameters": {
+        "path": ".",
+        "iteration": 2
+      },
+      "_event_type": "CommandIssuedEvent"
+    },
+    {
+      "event_id": "5ec9e9f8-01b1-4072-8229-da75cd62d8e5",
+      "workflow_id": "a30bf478-a02d-4dec-aafa-951f447d2a5b",
+      "causation_id": "cf37636e-3eab-4642-9c43-55c7110af6a5",
+      "correlation_id": "",
+      "root_id": "",
+      "timestamp_ns": 1786370396042527741,
+      "metadata": {},
+      "passed": false,
+      "rule_id": "CAPABILITY_VIOLATION",
+      "details": {
+        "attempted_capability": "fs:write",
+        "action": "unit_test_check",
+        "reason": "Unauthorized file system write operation rejected by CapabilitySandbox"
+      },
+      "metrics": {},
+      "_event_type": "VerificationResultEvent"
+    }
+  ]
+}
