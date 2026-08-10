@@ -9,7 +9,7 @@ to their declared capabilities — never raw kernel internals.
 import enum
 from dataclasses import dataclass, field
 
-from cortex.tools.kernel.plugin.manifest import PluginManifest
+from cortex.tools.kernel.plugin.manifest import PluginManifest, validate_manifest
 
 
 class PluginState(str, enum.Enum):
@@ -40,6 +40,7 @@ class CapabilityNegotiator:
     def negotiate(self, manifest: PluginManifest) -> PluginRegistration:
         """Evaluates a plugin manifest and returns a PluginRegistration
         with granted/denied capability sets."""
+        validate_manifest(manifest)
         registration = PluginRegistration(manifest=manifest, state=PluginState.NEGOTIATING)
 
         granted: set[str] = set()

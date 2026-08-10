@@ -76,6 +76,12 @@ class CortexClient:
 
     def register_plugin(self, plugin: BasePlugin) -> PluginRegistration:
         """Register a plugin with capability negotiation."""
+        # Prevent duplicate transport subscriptions if exact plugin instance is re-registered
+        if plugin in self.registered_plugins:
+            existing = self.registry.get_plugin(plugin.manifest.name)
+            if existing:
+                return existing
+
         registration = self.registry.register(plugin.manifest)
         if registration.state == PluginState.ACTIVE:
             context = PluginContext(
@@ -99,7 +105,23 @@ class CortexClient:
     def _dispatch_to_plugin(self, plugin: BasePlugin, event: AnyEvent) -> None:
         """Helper to safely dispatch event to plugin if active and consuming."""
         if plugin.context and isinstance(event, BaseEvent) and type(event).__name__ in plugin.manifest.consumes_events:
-            plugin.on_event(event)
+            try:
+                plugin.on_event(event)
+            except Exception as err:
+                failure_event = VerificationResultEvent(
+                    workflow_id=event.workflow_id,
+                    causation_id=event.event_id,
+                    passed=False,
+                    rule_id="PLUGIN_EXECUTION_ERROR",
+                    details={
+                        "plugin": plugin.manifest.name,
+                        "error_type": type(err).__name__,
+                        "error_message": str(err),
+                        "consumed_event_id": event.event_id,
+                        "consumed_event_type": type(event).__name__,
+                    },
+                )
+                self.transport.publish(failure_event)
 
     def create_workflow(self, name: str, goal: str, policy: WorkflowPolicy | None = None) -> Workflow:
         """Instantiate a new Workflow primitive."""
