@@ -31,17 +31,11 @@ jobs:
         with:
           python-version: ${{ vars.PYTHON_VERSION || '3.13' }}
 
-      - name: Install Dependencies
-        run: uv pip install --system ".[dev]"
+      - name: Install Dependencies from Lockfile
+        run: uv sync --all-extras
 
-      - name: Run Ruff Linter
-        run: ruff check .
-
-      - name: Run Pyright Type Checker
-        run: pyright .
-
-      - name: Run Python Test Suite
-        run: python -m unittest discover -s tests
+      - name: Run Canonical Verification Gate
+        run: ./scripts/verify.sh
 
   publish:
     name: Publish Package to PyPI

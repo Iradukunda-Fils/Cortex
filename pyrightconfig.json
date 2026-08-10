@@ -1,0 +1,17 @@
+{
+    "pythonVersion": "3.10",
+    "pythonPlatform": "All",
+    "venvPath": ".",
+    "venv": ".venv",
+    "include": ["cortex"],
+    "exclude": [
+        "cortex-emulator",
+        "verification",
+        "rtl",
+        "Research",
+        "obj_dir"
+    ],
+    "typeCheckingMode": "standard",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false
+}

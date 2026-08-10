@@ -43,14 +43,34 @@ uv sync --all-extras
 This creates a `.venv/` virtual environment and installs all runtime and development dependencies, including:
 - `ruff` — linting and formatting
 - `pyright` — strict type checking
-- `pytest` — test runner
-- `build` / `twine` — packaging and publishing
+- `pre-commit` — git commit hook management
+- `build` — package building
 
-### 4. Verify Your Setup
-
-Run the full verification suite:
+### 4. Enable Pre-Commit Hooks (Recommended)
 
 ```bash
+uv run pre-commit install
+```
+
+This installs lightweight git commit hooks that run formatting and linting automatically before each commit.
+
+### 5. Verify Your Setup
+
+Run the canonical one-command verification gate:
+
+```bash
+./scripts/verify.sh
+```
+
+Or execute individual steps:
+
+```bash
+# Lockfile validation
+uv lock --check
+
+# Spec freeze check
+./scripts/check_contract_freeze.sh
+
 # Lint check
 uv run ruff check .
 
@@ -62,6 +82,15 @@ uv run python -m unittest discover -s tests -v
 ```
 
 All commands should complete without errors.
+
+---
+
+## Reproducible Dependency Policy (`uv.lock`)
+
+Cortex uses `uv.lock` to guarantee 100% deterministic dependencies across local development and CI pipelines:
+- **Lockfile Enforcement**: `uv.lock` is committed to git and validated in CI via `uv lock --check`.
+- **Synchronization**: Always use `uv sync --all-extras` to update your local `.venv/` to match `uv.lock`.
+- **Modifying Dependencies**: Edit `pyproject.toml` and run `uv lock` to update the lockfile. Commit both `pyproject.toml` and `uv.lock` together.
 
 ---
 

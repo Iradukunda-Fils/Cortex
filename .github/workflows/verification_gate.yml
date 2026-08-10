@@ -23,18 +23,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ vars.PYTHON_VERSION || '3.13' }}
-          cache: 'pip'
-      - name: Install Dependencies & Type Stubs
-        run: pip install -e ".[dev]"
-      - name: Code Quality & Lint Check (Ruff)
-        run: ruff check .
-      - name: Strict Type Safety Analysis (Pyright)
-        run: pyright
-      - name: Spec Freeze Integrity Check
-        run: ./scripts/check_contract_freeze.sh
+      - name: Install Dependencies from Lockfile
+        run: uv sync --all-extras
+      - name: Run Canonical Verification Gate
+        run: ./scripts/verify.sh
 
   # 2. Kernel Runtime & Conformance Test Suite
   kernel-conformance:
@@ -44,22 +42,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ vars.PYTHON_VERSION || '3.13' }}
-          cache: 'pip'
-      - name: Install Dependencies
-        run: pip install -e ".[dev]"
+      - name: Install Dependencies from Lockfile
+        run: uv sync --all-extras
       - name: "Stage 1: Structural & Schema Validation (Golden Hash Check)"
         run: cd tests/golden/v1.0.0 && sha256sum -c SHA256SUMS
       - name: "Stage 2: Conformance, Kernel Runtime & Semantic Equivalence"
         run: |
-          PYTHONPATH=. python3 tests/conformance/run_certification.py
-          PYTHONPATH=. python3 -m unittest discover -s tests -v
+          uv run python tests/conformance/run_certification.py
+          uv run python -m unittest discover -s tests -v
       - name: "Stage 3: Mutation Immunity & Regression Corpus Replay"
         run: |
-          PYTHONPATH=. python3 -m unittest tests/conformance/test_adapter_mutations.py -v
-          python3 scripts/replay_golden_vectors.py --corpus tests/golden/v1.0.0/
+          uv run python -m unittest tests/conformance/test_adapter_mutations.py -v
+          uv run python scripts/replay_golden_vectors.py --corpus tests/golden/v1.0.0/
 
   # 3. Rust Emulator Quality & Test Suite
   rust-emulator-gate:
