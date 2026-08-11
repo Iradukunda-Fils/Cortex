@@ -1,0 +1,75 @@
+{
+  "timestamp_utc": "2026-08-11T13:58:01Z",
+  "environment": {
+    "python_version": "3.14.4",
+    "os": "Linux",
+    "arch": "x86_64"
+  },
+  "scenarios": {
+    "scenario_a": {
+      "title": "Scenario A: Pre-Execution Cancellation",
+      "initial_state": "PENDING",
+      "final_state": "FAILED",
+      "events_emitted": 0,
+      "zero_journal_pollution": true
+    },
+    "scenario_b": {
+      "title": "Scenario B: Mid-Workflow Cooperative Cancellation",
+      "final_state": "FAILED",
+      "events_emitted_before_cancellation": 3,
+      "stage_1_events_preserved": true,
+      "downstream_stage_3_halted": true,
+      "timeout_policy_event_recorded": true
+    },
+    "scenario_c": {
+      "title": "Scenario C: Cooperative Plugin Timeout",
+      "final_state": "COMPLETED",
+      "handler_duration_sec": 0.0204,
+      "cooperative_execution_succeded": true,
+      "in_process_cooperative_cancellation": "Cooperative plugins inspect timeout_seconds or event rules to halt execution gracefully."
+    },
+    "scenario_d": {
+      "title": "Scenario D: Non-Cooperative / Blocking Plugin Execution",
+      "final_state": "COMPLETED",
+      "main_thread_blocked_sec": 0.0312,
+      "single_process_limitation": "Single-process CPython GIL runtime cannot preemptively kill or interrupt a blocking Python handler thread without multi-process SIGKILL boundary."
+    },
+    "scenario_e": {
+      "title": "Scenario E: Event Journal Lineage Post-Cancellation",
+      "total_journal_events": 3,
+      "lineage_graph_intact": true,
+      "pre_cancellation_events_replayable": true
+    },
+    "scenario_f": {
+      "title": "Scenario F: Subsequent Workflow Isolation",
+      "workflow_1_final_state": "FAILED",
+      "workflow_2_final_state": "COMPLETED",
+      "subsequent_workflow_healthy": true,
+      "zero_residual_locks": true
+    },
+    "scenario_g": {
+      "title": "Scenario G: Deterministic Cancellation State",
+      "iteration_count": 10,
+      "observed_states": [
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED",
+        "FAILED"
+      ],
+      "deterministic_cancellation": true
+    }
+  },
+  "summary": {
+    "cooperative_cancellation_functional": true,
+    "non_cooperative_preemption_requires_v03": true,
+    "journal_lineage_preserved_on_cancellation": true,
+    "key_architectural_finding": "Cooperative in-process cancellation cleanly preserves prior event journal lineage and isolates subsequent workflows. However, non-cooperative thread blocking (time.sleep, GIL-bound loops) stalls the single-process thread, providing strong empirical evidence that v0.3 multi-process isolation (Issue #14) is required for hard resource preemption.",
+    "readiness_for_issue_13": true
+  }
+}
