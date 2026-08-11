@@ -1,0 +1,103 @@
+{
+  "timestamp_utc": "2026-08-11T14:07:56Z",
+  "environment": {
+    "python_version": "3.14.4",
+    "os": "Linux",
+    "arch": "x86_64"
+  },
+  "empirical_evidence": {
+    "issue_10_telemetry": {
+      "baseline_p50_ms": 0.2265,
+      "multistage_p50_ms": 0.5014,
+      "tail_p99_ms": 4.0892,
+      "event_propagation_scaling": "Observed approximately linear growth over tested workload range",
+      "public_api_symbols": 21
+    },
+    "issue_11_crash_semantics": {
+      "ordinary_python_exception_trapped": true,
+      "cortex_error_classification_preserved": true,
+      "capability_rejection_security_intact": true,
+      "chained_execution_prior_events_preserved": true,
+      "subsequent_workflow_isolated": true,
+      "single_process_limit": "Low-level process crashes (SIGSEGV, sys.exit) escape single-process boundary"
+    },
+    "issue_12_timeout_cancellation": {
+      "pre_execution_cancellation_clean": true,
+      "mid_workflow_cooperative_halt": true,
+      "event_journal_lineage_post_cancellation_intact": true,
+      "subsequent_workflow_healthy": true,
+      "deterministic_cancellation": true,
+      "single_process_limitation": "Non-cooperative thread blocking (time.sleep, GIL loops) stalls main event thread"
+    }
+  },
+  "synthesis": {
+    "q1_recovery_targets": {
+      "authoritative_source": "EventStore append-only journal log",
+      "volatile_components": [
+        "In-memory event queues",
+        "Active plugin handler frames",
+        "Transient client state"
+      ],
+      "persistent_components": [
+        "EventStore journal log",
+        "Workflow dataclass state",
+        "PluginManifest records"
+      ],
+      "state_reconstruction_method": "Replaying event journal from t=0 to crash point t_crash"
+    },
+    "q2_eventstore_guarantees": {
+      "persistence_model": "Synchronous append upon context.publish()",
+      "lineage_integrity": "Strict DAG ordering via event_id -> causation_id -> correlation_id",
+      "replay_determinism": "Replaying log against clean client reproduces identical state machine sequence",
+      "crash_point_semantics": {
+        "pre_side_effect_crash": "Operation unexecuted; safe to re-run on restart",
+        "mid_side_effect_crash": "Operation partially performed; event missing -> requires IN_DOUBT state",
+        "post_side_effect_crash": "Operation complete; event committed -> safe replay"
+      }
+    },
+    "q3_side_effect_semantics": {
+      "unconfirmed_side_effect_problem": "Runtime crashes after external side effect but before completion event is persisted",
+      "chosen_contract_option": "Option B (IN_DOUBT state) + Option C (Required Idempotency Keys)",
+      "rationale": "Prevents catastrophic double-execution of non-idempotent external operations while giving operators explicit CLI resolution tools."
+    },
+    "q4_recovery_contract_spec": {
+      "event_delivery": "At-least-once with deduplication by event_id",
+      "plugin_execution": "At-most-once per event emission",
+      "workflow_recovery": "Deterministic EventStore journal replay",
+      "side_effects": "Idempotency keys required for side-effect capabilities",
+      "crash_point": "Arbitrary instruction / signal boundary",
+      "state_reconstruction": "Pure function of EventStore log: S_t = f(S_0, E_1, ..., E_t)",
+      "unknown_operation": "Explicit IN_DOUBT workflow state",
+      "cancellation": "Cooperative (in-process) / Forced (SIGKILL worker process)",
+      "recovery_control": "Automatic for deterministic events; Operator-assisted for IN_DOUBT operations"
+    },
+    "q5_architectural_topology_comparison": {
+      "topologies_evaluated": [
+        {
+          "name": "Topology 1: Process-per-Plugin",
+          "pros": "Maximum isolation; crashed plugin cannot kill host or peer plugins",
+          "cons": "High process creation & IPC latency overhead",
+          "cortex_fit": "Suitable for untrusted / high-risk plugins only"
+        },
+        {
+          "name": "Topology 2: Shared Worker Pool",
+          "pros": "Lower process overhead than 1:1",
+          "cons": "Crash in worker process affects all plugins assigned to worker",
+          "cortex_fit": "Suitable for medium-risk plugin groups"
+        },
+        {
+          "name": "Topology 3: Tiered / Hybrid Isolation (RECOMMENDED)",
+          "pros": "Sub-millisecond performance (P50 = 0.226ms) for trusted plugins in-process; SIGKILL preemption and fault containment for untrusted / heavy plugins in worker processes",
+          "cons": "Requires trust/isolation metadata in capability manifests",
+          "cortex_fit": "PERFECT FIT with Cortex capability security model"
+        }
+      ],
+      "recommended_architecture": "Topology 3: Tiered Hybrid Isolation Model"
+    }
+  },
+  "gate_decision": {
+    "architecture_gate_passed": true,
+    "recommendation": "Proceed to Issue #13 (Runtime Restart & Workflow Recovery Semantics) with IN_DOUBT state contracts and Tiered Hybrid Architecture principles established.",
+    "issue_13_authorized": true
+  }
+}
