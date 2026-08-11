@@ -20,6 +20,7 @@ Cortex is a spatiotemporal authority and semantic verification framework designe
 - **[Architecture & Security Model](architecture/overview.md)**: System philosophy, dual-layer framing, 3-layer security boundary, and structural Mermaid diagrams.
 - **[API Stability Policy](architecture/api-stability-policy.md)**: SemVer 2.0.0 rules, pre/post-1.0 stability guarantees, deprecation lifecycle, and the frozen 21-symbol public boundary.
 - **[Plugin Manifest Specification](manifest_spec.md)**: `PluginManifest` schema (JSON/YAML), standard capability namespaces, and capability negotiation lifecycle states.
+- **[Plugin Runtime Threat Model](architecture/threat_model.md)**: Formal threat model, in-process security guarantees (Matrix A-M), frozenset immutability invariant, and out-of-scope risks.
 
 ### 🔬 Operational Reports & Evidence
 - **[v0.2 Dogfood Operational Evidence Report](operations/v0.2-dogfood-report.md)**: Empirical stress test and performance profile results (602 events/1.66s, 2.61MB peak RSS).
