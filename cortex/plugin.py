@@ -20,8 +20,11 @@ class Capability:
 class PluginContext:
     """Runtime context provided to plugins, scoped strictly to granted capabilities."""
     session_id: str
-    granted_capabilities: set[str]
+    granted_capabilities: set[str] | frozenset[str]
     publish_func: Callable[[BaseEvent], None]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "granted_capabilities", frozenset(self.granted_capabilities))
 
     def publish(self, event: BaseEvent) -> None:
         """Publish an event to the runtime event bus."""
