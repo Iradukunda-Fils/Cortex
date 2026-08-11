@@ -1,0 +1,78 @@
+{
+  "timestamp_utc": "2026-08-11T13:34:48Z",
+  "environment": {
+    "python_version": "3.14.4",
+    "os": "Linux",
+    "arch": "x86_64"
+  },
+  "scenarios": {
+    "scenario_a": {
+      "title": "Scenario A: Ordinary Uncaught Exception",
+      "host_survived": true,
+      "final_state": "FAILED",
+      "event_count": 2,
+      "verification_failure_emitted": true,
+      "rule_id": "PLUGIN_EXECUTION_ERROR",
+      "error_type": "ValueError",
+      "error_message": "Simulated uncaught ValueError in plugin handler",
+      "lineage_preserved": true
+    },
+    "scenario_b": {
+      "title": "Scenario B: Framework Error Preservation",
+      "host_survived": true,
+      "final_state": "FAILED",
+      "event_count": 2,
+      "verification_failure_emitted": true,
+      "error_type": "CapabilityViolationError",
+      "error_message": "Simulated framework CapabilityViolationError inside handler",
+      "lineage_preserved": true
+    },
+    "scenario_c": {
+      "title": "Scenario C: Capability Violation Interaction",
+      "host_survived": true,
+      "registration_state": "REJECTED",
+      "final_state": "FAILED",
+      "denied_capabilities": [
+        "sys.forbidden_root_access"
+      ],
+      "capability_violation_event_emitted": true
+    },
+    "scenario_d": {
+      "title": "Scenario D: Chained Execution Failure (A -> B -> C)",
+      "host_survived": true,
+      "final_state": "FAILED",
+      "stage_a_produced_events": true,
+      "stage_b_crashed": true,
+      "stage_c_executed": false,
+      "prior_events_preserved_in_store": true,
+      "event_count": 3
+    },
+    "scenario_e": {
+      "title": "Scenario E: Multi-Plugin Failure Contamination",
+      "host_survived": true,
+      "final_state": "FAILED",
+      "failure_events_recorded": 2,
+      "errors": [
+        "TypeError",
+        "KeyError"
+      ]
+    },
+    "scenario_f": {
+      "title": "Scenario F: Subsequent Workflow Isolation",
+      "host_survived": true,
+      "workflow_1_final_state": "FAILED",
+      "workflow_2_final_state": "COMPLETED",
+      "subsequent_workflow_isolated": true
+    }
+  },
+  "summary": {
+    "all_scenarios_host_survived": true,
+    "exception_trapping_operational": true,
+    "event_journal_lineage_intact": true,
+    "single_process_limitations": [
+      "Synchronous execution: Uncaught exception in plugin handler traps into VerificationResultEvent but halts downstream event propagation in the same chain.",
+      "Process availability boundary: Host Python process survives caught Python exceptions, but unhandled SIGKILL/SIGSEGV or CPU infinite loops would block/kill the single process."
+    ],
+    "readiness_for_issue_12": true
+  }
+}
