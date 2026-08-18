@@ -1,21 +1,25 @@
-<p align="center">
-  <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="360" />
-</p>
+<table align="left" width="100%">
+  <tr>
+    <td width="110" align="center" valign="middle">
+      <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="90" />
+    </td>
+    <td valign="middle">
+      <h2 style="margin:0;">Cortex Platform</h2>
+      <sub><b>Spatiotemporal Authority & Semantic Verification Framework</b></sub>
+      <br/><br/>
+      <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a>
+      <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a>
+      <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a>
+      <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a>
+      <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-136%2F136%20PASS-brightgreen.svg" alt="Certification: 136/136 PASS"></a>
+    </td>
+  </tr>
+</table>
 
-<h1 align="center">Cortex Platform</h1>
-<p align="center">
-  <b>Spatiotemporal Authority & Semantic Verification Framework</b>
-</p>
-
-<p align="center">
-  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a>
-  <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a>
-  <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-136%2F136%20PASS-brightgreen.svg" alt="Certification: 136/136 PASS"></a>
-</p>
+<br clear="all"/>
 
 > **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
+
 
 
 ---
