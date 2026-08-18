@@ -21,18 +21,54 @@ use std::path::PathBuf;
 
 // Pre-existing frozen SHA-256 manifest constants (Oracle Oracle)
 const FROZEN_MANIFEST_SHA256: &[(&str, &str)] = &[
-    ("tv-a.cbe", "64b199ea01a788553cc95b193629d25d46b03f76f960b1d4f50ac420f82f4125"),
-    ("tv-a.sha1", "9602e438601eaf9f570ae7fc98854a9adaca30ffb1c74e3705cf6a3301c4c341"),
-    ("tv-a.uuid", "3d6ec74d4f9c482d54a9b8710a0a8751c8c46fa24c59467a8611778b10ed6f8e"),
-    ("tv-b.cbe", "6bb283fc20ae27e2f793c21e8d2d2264a6fb0fda7ba73e4544d1ded09bd8e512"),
-    ("tv-b.sha1", "48f6c6c9111de3084b8812263ddf4f1f2c81cc9ce5bef2b4fce363897d0981c0"),
-    ("tv-b.uuid", "625634e04dfd4727a51c778dc7c78cc5159500112accb221590ac37c9d5940eb"),
-    ("tv-c.cbe", "96cac57eb5941a8ec367ffe5e98bbff061858cc8387fa404cb5d9ad428151cbf"),
-    ("tv-c.sha1", "a70e80615ad52d01b1e95f198b667b5dfd62827e9555c4359d8a5cce335d3a88"),
-    ("tv-c.uuid", "15034006695120f7cec81617c463653a1353e347f92e9111df16fadabee84336"),
-    ("tv-root.cbe", "86fad8e2978d61dcef218a1eb6fce53a39913f040a60eec71eafaad231e1d589"),
-    ("tv-root.sha1", "c786cbdb18eea02e56546dd8282ccec91471fe7c3ab21af16efa32eca0976002"),
-    ("tv-root.uuid", "4a6455bfe447f0e36386f7e19d854e4d8b4b1bd8393ac72b17e09318d3036a62"),
+    (
+        "tv-a.cbe",
+        "64b199ea01a788553cc95b193629d25d46b03f76f960b1d4f50ac420f82f4125",
+    ),
+    (
+        "tv-a.sha1",
+        "9602e438601eaf9f570ae7fc98854a9adaca30ffb1c74e3705cf6a3301c4c341",
+    ),
+    (
+        "tv-a.uuid",
+        "3d6ec74d4f9c482d54a9b8710a0a8751c8c46fa24c59467a8611778b10ed6f8e",
+    ),
+    (
+        "tv-b.cbe",
+        "6bb283fc20ae27e2f793c21e8d2d2264a6fb0fda7ba73e4544d1ded09bd8e512",
+    ),
+    (
+        "tv-b.sha1",
+        "48f6c6c9111de3084b8812263ddf4f1f2c81cc9ce5bef2b4fce363897d0981c0",
+    ),
+    (
+        "tv-b.uuid",
+        "625634e04dfd4727a51c778dc7c78cc5159500112accb221590ac37c9d5940eb",
+    ),
+    (
+        "tv-c.cbe",
+        "96cac57eb5941a8ec367ffe5e98bbff061858cc8387fa404cb5d9ad428151cbf",
+    ),
+    (
+        "tv-c.sha1",
+        "a70e80615ad52d01b1e95f198b667b5dfd62827e9555c4359d8a5cce335d3a88",
+    ),
+    (
+        "tv-c.uuid",
+        "15034006695120f7cec81617c463653a1353e347f92e9111df16fadabee84336",
+    ),
+    (
+        "tv-root.cbe",
+        "86fad8e2978d61dcef218a1eb6fce53a39913f040a60eec71eafaad231e1d589",
+    ),
+    (
+        "tv-root.sha1",
+        "c786cbdb18eea02e56546dd8282ccec91471fe7c3ab21af16efa32eca0976002",
+    ),
+    (
+        "tv-root.uuid",
+        "4a6455bfe447f0e36386f7e19d854e4d8b4b1bd8393ac72b17e09318d3036a62",
+    ),
 ];
 
 fn get_artifact_dir() -> PathBuf {
@@ -52,8 +88,12 @@ fn verify_manifest_integrity() {
     let dir = get_artifact_dir();
     for (filename, expected_sha256) in FROZEN_MANIFEST_SHA256 {
         let file_path = dir.join(filename);
-        let content = fs::read(&file_path)
-            .unwrap_or_else(|_| panic!("MANIFEST INTEGRITY ERROR: Missing artifact file {:?}", file_path));
+        let content = fs::read(&file_path).unwrap_or_else(|_| {
+            panic!(
+                "MANIFEST INTEGRITY ERROR: Missing artifact file {:?}",
+                file_path
+            )
+        });
         let mut hasher = Sha256::new();
         hasher.update(&content);
         let actual_sha256 = to_hex_string(&hasher.finalize());
@@ -102,8 +142,8 @@ fn test_vector_conformance(name: &str) -> (String, usize, String, String, String
     );
 
     // 3. Re-encode AST and check exact byte match
-    let re_encoded_bytes = encode(&ast_node)
-        .unwrap_or_else(|e| panic!("Failed to re-encode {} AST: {}", name, e));
+    let re_encoded_bytes =
+        encode(&ast_node).unwrap_or_else(|e| panic!("Failed to re-encode {} AST: {}", name, e));
 
     assert_eq!(
         re_encoded_bytes, expected_cbe_bytes,
@@ -142,8 +182,14 @@ fn test_vector_conformance(name: &str) -> (String, usize, String, String, String
 
     println!("============================================================");
     println!("CRYPTOGRAPHIC INPUT PROVENANCE PROOF: {}", name);
-    println!("  namespace_hex:                   {}", to_hex_string(&NAMESPACE_CORTEX_SYSTEM_BYTES));
-    println!("  cbe_hex:                         {}", to_hex_string(&expected_cbe_bytes));
+    println!(
+        "  namespace_hex:                   {}",
+        to_hex_string(&NAMESPACE_CORTEX_SYSTEM_BYTES)
+    );
+    println!(
+        "  cbe_hex:                         {}",
+        to_hex_string(&expected_cbe_bytes)
+    );
     println!("  concatenated_sha1_preimage_hex:  {}", preimage_hex);
     println!("  sha1_digest_hex:                 {}", computed_sha1_hex);
     println!("  frozen_uuid:                     {}", expected_uuid_str);

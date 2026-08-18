@@ -120,7 +120,8 @@ pub fn encode(val: &CortexValue) -> Result<Vec<u8>, CBEError> {
         }
         CortexValue::Map(pairs) => {
             let mut pairs_with_bytes: Vec<(&[u8], &String, &CortexValue)> = Vec::new();
-            let mut seen_keys: std::collections::HashSet<Vec<u8>> = std::collections::HashSet::new();
+            let mut seen_keys: std::collections::HashSet<Vec<u8>> =
+                std::collections::HashSet::new();
 
             for (k, v) in pairs {
                 let k_bytes = k.as_bytes();
@@ -226,8 +227,8 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
                 return Err(CBEError::InvalidLength("Truncated Float D tag".into()));
             }
             let hex_bytes = &data[1..17];
-            let hex_str = std::str::from_utf8(hex_bytes)
-                .map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
+            let hex_str =
+                std::str::from_utf8(hex_bytes).map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
 
             let bits = u64::from_str_radix(hex_str, 16)
                 .map_err(|_| CBEError::FloatNonFinite(format!("Invalid float hex: {}", hex_str)))?;
@@ -297,7 +298,10 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             }
             Ok((CortexValue::Map(pairs), curr))
         }
-        _ => Err(CBEError::UnknownTag(format!("Unknown tag: {}", tag as char))),
+        _ => Err(CBEError::UnknownTag(format!(
+            "Unknown tag: {}",
+            tag as char
+        ))),
     }
 }
 
@@ -307,10 +311,12 @@ fn parse_length_prefix(data: &[u8]) -> Result<(usize, usize), CBEError> {
         curr += 1;
     }
     if curr >= data.len() {
-        return Err(CBEError::InvalidLength("Missing length colon prefix".into()));
+        return Err(CBEError::InvalidLength(
+            "Missing length colon prefix".into(),
+        ));
     }
-    let len_str = std::str::from_utf8(&data[..curr])
-        .map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
+    let len_str =
+        std::str::from_utf8(&data[..curr]).map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
     let len: usize = len_str
         .parse()
         .map_err(|_| CBEError::InvalidLength(len_str.into()))?;

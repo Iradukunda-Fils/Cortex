@@ -71,10 +71,8 @@ impl ProfileASupervisor {
     pub fn unshare_namespaces() -> Result<(), SandboxError> {
         #[cfg(target_os = "linux")]
         {
-            let flags = libc::CLONE_NEWPID
-                | libc::CLONE_NEWNET
-                | libc::CLONE_NEWNS
-                | libc::CLONE_NEWIPC;
+            let flags =
+                libc::CLONE_NEWPID | libc::CLONE_NEWNET | libc::CLONE_NEWNS | libc::CLONE_NEWIPC;
             let res = unsafe { libc::unshare(flags) };
             if res != 0 {
                 return Err(SandboxError::NamespaceUnshareFailed(res));

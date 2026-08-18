@@ -53,7 +53,11 @@ pub struct CortexFrame {
 }
 
 impl CortexFrame {
-    pub fn new(frame_type: FrameType, sequence: u32, payload: Vec<u8>) -> Result<Self, CbeFrameError> {
+    pub fn new(
+        frame_type: FrameType,
+        sequence: u32,
+        payload: Vec<u8>,
+    ) -> Result<Self, CbeFrameError> {
         if payload.len() > MAX_FRAME_SIZE {
             return Err(CbeFrameError::FrameTooLarge(payload.len()));
         }
@@ -79,7 +83,8 @@ impl CortexFrame {
                 if payload.is_empty() {
                     return Err(CbeFrameError::DataEmpty);
                 }
-            }        }
+            }
+        }
 
         Ok(CortexFrame {
             frame_type,
@@ -100,7 +105,10 @@ impl CortexFrame {
     }
 }
 
-pub fn decode_frame(data: &[u8], expected_sequence: Option<u32>) -> Result<CortexFrame, CbeFrameError> {
+pub fn decode_frame(
+    data: &[u8],
+    expected_sequence: Option<u32>,
+) -> Result<CortexFrame, CbeFrameError> {
     if data.len() < HEADER_SIZE {
         return Err(CbeFrameError::TruncatedHeader(data.len()));
     }
@@ -151,7 +159,11 @@ impl StreamEncoder {
         }
     }
 
-    pub fn encode(&mut self, frame_type: FrameType, payload: Vec<u8>) -> Result<Vec<u8>, CbeFrameError> {
+    pub fn encode(
+        &mut self,
+        frame_type: FrameType,
+        payload: Vec<u8>,
+    ) -> Result<Vec<u8>, CbeFrameError> {
         let seq = self.next_sequence.ok_or(CbeFrameError::SequenceOverflow)?;
         let frame = CortexFrame::new(frame_type, seq, payload)?;
         let encoded = frame.encode();
@@ -190,8 +202,18 @@ impl StreamDecoder {
             }
 
             let _frame_type = FrameType::try_from(self.buffer[2])?;
-            let sequence = u32::from_be_bytes([self.buffer[3], self.buffer[4], self.buffer[5], self.buffer[6]]);
-            let payload_len = u32::from_be_bytes([self.buffer[7], self.buffer[8], self.buffer[9], self.buffer[10]]) as usize;
+            let sequence = u32::from_be_bytes([
+                self.buffer[3],
+                self.buffer[4],
+                self.buffer[5],
+                self.buffer[6],
+            ]);
+            let payload_len = u32::from_be_bytes([
+                self.buffer[7],
+                self.buffer[8],
+                self.buffer[9],
+                self.buffer[10],
+            ]) as usize;
 
             // Allocation protection check BEFORE buffer allocation
             if payload_len > MAX_FRAME_SIZE {
@@ -203,7 +225,9 @@ impl StreamDecoder {
                 break; // Await more payload bytes
             }
 
-            let expected_seq = self.expected_sequence.ok_or(CbeFrameError::SequenceOverflow)?;
+            let expected_seq = self
+                .expected_sequence
+                .ok_or(CbeFrameError::SequenceOverflow)?;
             if sequence != expected_seq {
                 return Err(CbeFrameError::SequenceGap {
                     expected: expected_seq,
