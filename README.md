@@ -22,29 +22,32 @@ Traditional security architectures rely on static user identity roles (POSIX per
 
 Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Security Boundary**:
 
-```text
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (Gate K / ADR-008)                         │
- │ Manifests declare required permissions before plugins access the kernel bus.                 │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ SignedIntent Payload (CBE Format)
-                                                ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 2. EXECUTION TOKEN INTENT PARITY & ACTUATION GATE (Gate H / P2)                             │
- │ Single-use ExecutionTokens bind tokens strictly to intent hashes: D3 == D2                 │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Governed Side-Effect Execution
-                                                ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 3. ROLLING CAUSAL WITNESS JOURNALING (Gate I / P3)                                          │
- │ Emits tamper-evident rolling hash commitments: W_{t+1} = SHA256(W_t || D_E || D_I)          │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Raw Evidence Traces (R, E)
-                                                ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (Gate J / P4)                             │
- │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE│
- └─────────────────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph L1["1. Static Capability Negotiation & STCR Mapping (Gate K / ADR-008)"]
+        node1["Manifests declare required permissions before plugins access kernel bus"]
+    end
+
+    subgraph L2["2. Execution Token Intent Parity & Actuation Gate (Gate H / P2)"]
+        node2["Single-use ExecutionTokens bind strictly to intent hashes: D3 ≡ D2"]
+    end
+
+    subgraph L3["3. Rolling Causal Witness Journaling (Gate I / P3)"]
+        node3["Emits tamper-evident commitments: W_{t+1} = SHA256(W_t ∥ D_E ∥ D_I)"]
+    end
+
+    subgraph L4["4. Zero-Dependency Independent Untrusted Verifier (Gate J / P4)"]
+        node4["tools/cortex_verifier CLI evaluates traces ➔ VALID | INVALID | INDETERMINATE"]
+    end
+
+    L1 -->|"SignedIntent Payload (CBE Format)"| L2
+    L2 -->|"Governed Side-Effect Execution"| L3
+    L3 -->|"Raw Evidence Traces (R, E)"| L4
+
+    style L1 fill:#0d1117,stroke:#00f2fe,stroke-width:2px,color:#e6edf3
+    style L2 fill:#0d1117,stroke:#4facfe,stroke-width:2px,color:#e6edf3
+    style L3 fill:#0d1117,stroke:#ffb300,stroke-width:2px,color:#e6edf3
+    style L4 fill:#0d1117,stroke:#2ea043,stroke-width:2px,color:#e6edf3
 ```
 
 ---

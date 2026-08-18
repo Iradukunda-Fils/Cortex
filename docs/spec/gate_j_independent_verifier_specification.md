@@ -30,13 +30,27 @@ Prior to Gate J, verification of Cortex execution logs relied upon local replay 
 
 An `EvidenceBundle` presented to `cortex-verifier` contains:
 
-```text
-EvidenceBundle
- ├── trusted_anchor.json       # Trusted W_0, Node Public Key, and Capability Root
- ├── signed_intents.json       # Array of SignedIntents (IntentBody + Sig + PubKey)
- ├── execution_tokens.json     # Array of ExecutionTokens (intent_hash + epoch + nonce + sig)
- ├── events.json               # Array of concrete Execution Events
- └── witness_chain.json        # Array of WitnessEntries (sequence + prev_w + digests + W_t + sig)
+```mermaid
+graph TD
+    EB["EvidenceBundle (Raw Evidence Input)"]
+    TA["trusted_anchor.json<br/>(Trusted W_0, Node Public Key & Cap Root)"]
+    SI["signed_intents.json<br/>(Array of SignedIntents)"]
+    ET["execution_tokens.json<br/>(Array of ExecutionTokens)"]
+    EV["events.json<br/>(Array of concrete Execution Events)"]
+    WC["witness_chain.json<br/>(Array of WitnessEntries)"]
+
+    EB --> TA
+    EB --> SI
+    EB --> ET
+    EB --> EV
+    EB --> WC
+
+    style EB fill:#0d1117,stroke:#00f2fe,stroke-width:2px,color:#e6edf3
+    style TA fill:#0d1117,stroke:#4facfe,stroke-width:1px,color:#e6edf3
+    style SI fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style ET fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style EV fill:#0d1117,stroke:#2ea043,stroke-width:1px,color:#e6edf3
+    style WC fill:#0d1117,stroke:#a371f7,stroke-width:1px,color:#e6edf3
 ```
 
 ---

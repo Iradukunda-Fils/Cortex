@@ -32,33 +32,36 @@ Rather than embedding specific OS mechanisms into the core semantic definition o
 | **5. Seccomp-BPF** | Default-deny BPF syscall filter | Low-level system call attack-surface reduction (`SIGSYS`). |
 | **6. Cortex Gateway** | Host TCB Process over Unix IPC | Semantic intent evaluation, token issuance, and witness chaining. |
 
-```text
-                           UNTRUSTED WORKLOAD
-                                   │
-                                   ▼
-          ┌─────────────────────────────────────────────────┐
-          │ CONCRETE HARDENED WORKER SANDBOX                │
-          │ Profile A: Native Linux (seccomp-bpf + Landlock)│
-          │ Profile B: WASM Module (WASI Host Imports)      │
-          └────────────────────────┬────────────────────────┘
-                                   │ Restricted Unix IPC Socket
-                                   │ (No direct OS effect access)
-                                   ▼
-          ┌─────────────────────────────────────────────────┐
-          │ CORTEX HOST ENFORCEMENT GATEWAY (TCB BOUNDARY)  │
-          ├─────────────────────────────────────────────────┤
-          │ 1. Validate IPC Frame & Replay Counters         │
-          │ 2. Evaluate STCR Capability Bitmask             │
-          │ 3. Mint Internal ExecutionToken (D3 == D2)      │
-          │ 4. Actuate Privileged Side Effect               │
-          │ 5. Advance Rolling Witness Chain (W_{t+1})      │
-          └────────────────────────┬────────────────────────┘
-                                   │
-                                   ▼
-                         EXTERNALLY OBSERVABLE EFFECT
-                                   │
-                                   ▼
-                      INDEPENDENT VERIFIER (GATE J)
+```mermaid
+flowchart TD
+    WORKLOAD["UNTRUSTED WORKLOAD"]
+
+    subgraph SANDBOX["CONCRETE HARDENED WORKER SANDBOX"]
+        PROFA["Profile A: Native Linux (seccomp-bpf + Landlock)"]
+        PROFB["Profile B: WASM Module (WASI Host Imports)"]
+    end
+
+    subgraph TCB["CORTEX HOST ENFORCEMENT GATEWAY (TCB BOUNDARY)"]
+        TCB1["1. Validate IPC Frame & Replay Counters"]
+        TCB2["2. Evaluate STCR Capability Bitmask"]
+        TCB3["3. Mint Internal ExecutionToken (D3 ≡ D2)"]
+        TCB4["4. Actuate Privileged Side Effect"]
+        TCB5["5. Advance Rolling Witness Chain (W_{t+1})"]
+    end
+
+    EFFECT["EXTERNALLY OBSERVABLE EFFECT"]
+    VERIFIER["INDEPENDENT VERIFIER (GATE J)"]
+
+    WORKLOAD --> SANDBOX
+    SANDBOX -->|"Restricted Unix IPC Socket<br/>(No direct OS effect access)"| TCB
+    TCB --> EFFECT
+    EFFECT --> VERIFIER
+
+    style WORKLOAD fill:#0d1117,stroke:#00f2fe,stroke-width:2px,color:#e6edf3
+    style SANDBOX fill:#0d1117,stroke:#4facfe,stroke-width:2px,color:#e6edf3
+    style TCB fill:#0d1117,stroke:#ffb300,stroke-width:2px,color:#e6edf3
+    style EFFECT fill:#0d1117,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+    style VERIFIER fill:#0d1117,stroke:#a371f7,stroke-width:2px,color:#e6edf3
 ```
 
 ---
@@ -67,43 +70,30 @@ Rather than embedding specific OS mechanisms into the core semantic definition o
 
 To defeat race conditions where untrusted code executes before security filters are active, the Host Supervisor MUST enforce a **7-Step Sequential Initialization Order**:
 
-```text
-                  HARDENED WORKER INITIALIZATION LIFECYCLE
-                                     │
- 1. Supervisor Pre-Exec Setup        ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Host Supervisor spawns worker process skeleton                         │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 2. Credential Drop & Privs Lockout  ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Drop ambient privileges + Call prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 3. File Descriptor Sanitation       ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Close all inherited FDs except stdin, stdout, stderr, and IPC socket  │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 4. Namespace Isolation              ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Unshare CLONE_NEWPID, CLONE_NEWNET, CLONE_NEWNS, CLONE_NEWIPC          │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 5. Landlock Resource Policy         ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Apply Landlock ruleset (Filesystem, Net, IPC, and Device I/O scoping) │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 6. Syscall Surface Reduction        ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Load default-deny `seccomp-bpf` filter                                │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
- 7. IPC Readiness & Untrusted Entry  ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │ Establish non-inheritable Unix socketpair -> Transfer control to code │
- └────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    STEP1["1. Supervisor Pre-Exec Setup<br/><code>Host Supervisor spawns worker process skeleton</code>"]
+    STEP2["2. Credential Drop & Privs Lockout<br/><code>Drop ambient privileges + Call prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)</code>"]
+    STEP3["3. File Descriptor Sanitation<br/><code>Close all inherited FDs except stdin, stdout, stderr, and IPC socket</code>"]
+    STEP4["4. Namespace Isolation<br/><code>Unshare CLONE_NEWPID, CLONE_NEWNET, CLONE_NEWNS, CLONE_NEWIPC</code>"]
+    STEP5["5. Landlock Resource Policy<br/><code>Apply Landlock ruleset (Filesystem, Net, IPC, and Device I/O scoping)</code>"]
+    STEP6["6. Syscall Surface Reduction<br/><code>Load default-deny seccomp-bpf filter</code>"]
+    STEP7["7. IPC Readiness & Untrusted Entry<br/><code>Establish non-inheritable Unix socketpair ➔ Transfer control to code</code>"]
+
+    STEP1 --> STEP2
+    STEP2 --> STEP3
+    STEP3 --> STEP4
+    STEP4 --> STEP5
+    STEP5 --> STEP6
+    STEP6 --> STEP7
+
+    style STEP1 fill:#0d1117,stroke:#00f2fe,stroke-width:1px,color:#e6edf3
+    style STEP2 fill:#0d1117,stroke:#00f2fe,stroke-width:1px,color:#e6edf3
+    style STEP3 fill:#0d1117,stroke:#4facfe,stroke-width:1px,color:#e6edf3
+    style STEP4 fill:#0d1117,stroke:#4facfe,stroke-width:1px,color:#e6edf3
+    style STEP5 fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style STEP6 fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style STEP7 fill:#0d1117,stroke:#2ea043,stroke-width:2px,color:#e6edf3
 ```
 
 ---

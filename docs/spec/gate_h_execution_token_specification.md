@@ -17,30 +17,22 @@ Gate H enforces Invariant $P2$ (**Execution-Intent Cryptographic Parity**):
 
 ## 2. Cryptographic Digest & Binding Formulas
 
-```
-                                  GATE H CRYPTOGRAPHIC BINDING
-                                                │
-  1. Intent Generation                          ▼
-  ┌─────────────────────────────────────────────────────────────────────────────┐
-  │ IntentDigest = SHA256( Version || CBE(IntentBody) || TargetID || CapID )   │
-  └─────────────────────────────────────┬───────────────────────────────────────┘
-                                        │
-  2. Cryptographic Token Issuance       ▼
-  ┌─────────────────────────────────────────────────────────────────────────────┐
-  │ ExecutionToken = Sign_K_private( IntentDigest || Epoch || Nonce || NodeID )  │
-  └─────────────────────────────────────┬───────────────────────────────────────┘
-                                        │
-  3. Controlled Actuation Boundary      ▼
-  ┌─────────────────────────────────────────────────────────────────────────────┐
-  │ ExecutionDigest = SHA256( Version || CBE(ExecPayload) || TargetID || CapID )│
-  │ Verify: ExecutionDigest == Token.intent_digest                              │
-  │ Verify: Token.epoch == Current_Hardware_Epoch                               │
-  │ Verify: CAS(Token.state, UNUSED -> CONSUMED) == TRUE                        │
-  └─────────────────────────────────────┬───────────────────────────────────────┘
-                                        │
-                      ┌─────────────────┴─────────────────┐
-                      ▼                                   ▼
-             [ MATCH: ACTUATE ]                  [ MISMATCH: TRAP ]
+```mermaid
+flowchart TD
+    S1["1. Intent Generation<br/><code>IntentDigest = SHA256(Version ∥ CBE(IntentBody) ∥ TargetID ∥ CapID)</code>"]
+    S2["2. Cryptographic Token Issuance<br/><code>ExecutionToken = Sign_K_private(IntentDigest ∥ Epoch ∥ Nonce ∥ NodeID)</code>"]
+    S3["3. Controlled Actuation Boundary<br/><code>ExecutionDigest = SHA256(Version ∥ CBE(ExecPayload) ∥ TargetID ∥ CapID)</code><br/>• Verify: <code>ExecutionDigest ≡ Token.intent_digest</code><br/>• Verify: <code>Token.epoch ≡ Current_Hardware_Epoch</code><br/>• Verify: <code>CAS(Token.state, UNUSED ➔ CONSUMED) ≡ TRUE</code>"]
+
+    S1 --> S2
+    S2 --> S3
+    S3 -->|"Parity Verified"| MATCH["ACTUATE (Governed Side-Effect)"]
+    S3 -->|"Mismatch / Replay"| TRAP["TRAP (INTENT_EXECUTION_MISMATCH)"]
+
+    style S1 fill:#0d1117,stroke:#00f2fe,stroke-width:2px,color:#e6edf3
+    style S2 fill:#0d1117,stroke:#4facfe,stroke-width:2px,color:#e6edf3
+    style S3 fill:#0d1117,stroke:#ffb300,stroke-width:2px,color:#e6edf3
+    style MATCH fill:#0d1117,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+    style TRAP fill:#0d1117,stroke:#da3633,stroke-width:2px,color:#e6edf3
 ```
 
 ### 2.1 Intent Digest Formula ($D_I$)
@@ -79,21 +71,24 @@ ExecutionToken {
 
 Single-use enforcement MUST NOT rely on non-atomic boolean checks. The kernel token registry MUST execute an **atomic Compare-And-Swap (CAS)** state transition:
 
-```text
-               ATOMIC TOKEN CONSUMPTION STATE MACHINE
-                                 │
-                         [ STATE: UNUSED ]
-                                 │
-                      Atomic CAS(UNUSED -> IN_PROGRESS)
-                                 │
-               ┌─────────────────┴─────────────────┐
-               ▼                                   ▼
-        [ CAS SUCCESS ]                     [ CAS FAIL / REPLAY ]
-        Proceed to Digest Check             Raise TOKEN_REPLAY_TRAP
-               │
-      Digest Match & Actuation
-               │
-    [ STATE: CONSUMED ]
+```mermaid
+flowchart TD
+    UNUSED["STATE: UNUSED"]
+    CAS["Atomic CAS(UNUSED ➔ IN_PROGRESS)"]
+    SUCCESS["CAS SUCCESS<br/>(Proceed to Digest Check)"]
+    FAIL["CAS FAIL / REPLAY<br/>(Raise TOKEN_REPLAY_TRAP)"]
+    CONSUMED["STATE: CONSUMED<br/>(Digest Match & Actuation)"]
+
+    UNUSED --> CAS
+    CAS -->|"CAS Succeeded"| SUCCESS
+    CAS -->|"CAS Failed / Token Missing"| FAIL
+    SUCCESS -->|"Parity Verified"| CONSUMED
+
+    style UNUSED fill:#0d1117,stroke:#00f2fe,stroke-width:2px,color:#e6edf3
+    style CAS fill:#0d1117,stroke:#4facfe,stroke-width:2px,color:#e6edf3
+    style SUCCESS fill:#0d1117,stroke:#ffb300,stroke-width:2px,color:#e6edf3
+    style FAIL fill:#0d1117,stroke:#da3633,stroke-width:2px,color:#e6edf3
+    style CONSUMED fill:#0d1117,stroke:#2ea043,stroke-width:2px,color:#e6edf3
 ```
 
 1. **Initial State**: `UNUSED`.

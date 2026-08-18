@@ -36,14 +36,37 @@ Where:
 
 A `WitnessEntry` consists of the following fixed binary payload layout prior to signing:
 
-```text
-+-----------------------------------------------------------------------+
-| Version (1B) | Sequence (8B) | Timestamp (8B) | Prev Witness W_t (32B) |
-+-----------------------------------------------------------------------+
-| Event Digest D_E (32B)        | Intent Digest D_I (32B)                |
-+-----------------------------------------------------------------------+
-| Rolling Witness W_{t+1} (32B) | Node Signature (32B/64B)               |
-+-----------------------------------------------------------------------+
+```mermaid
+flowchart LR
+    subgraph Header["Header Envelope"]
+        V["Version (1B)"]
+        S["Sequence (8B)"]
+        T["Timestamp (8B)"]
+        PW["Prev Witness W_t (32B)"]
+    end
+
+    subgraph Digests["Cryptographic Digests"]
+        ED["Event Digest D_E (32B)"]
+        ID["Intent Digest D_I (32B)"]
+    end
+
+    subgraph Commitment["Rolling Commitment & Auth"]
+        RW["Rolling Witness W_{t+1} (32B)"]
+        SIG["Node Signature (32B/64B)"]
+    end
+
+    V --- S --- T --- PW
+    PW --- ED --- ID
+    ID --- RW --- SIG
+
+    style V fill:#0d1117,stroke:#00f2fe,stroke-width:1px,color:#e6edf3
+    style S fill:#0d1117,stroke:#00f2fe,stroke-width:1px,color:#e6edf3
+    style T fill:#0d1117,stroke:#00f2fe,stroke-width:1px,color:#e6edf3
+    style PW fill:#0d1117,stroke:#4facfe,stroke-width:1px,color:#e6edf3
+    style ED fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style ID fill:#0d1117,stroke:#ffb300,stroke-width:1px,color:#e6edf3
+    style RW fill:#0d1117,stroke:#2ea043,stroke-width:1px,color:#e6edf3
+    style SIG fill:#0d1117,stroke:#a371f7,stroke-width:1px,color:#e6edf3
 ```
 
 ### 3.1 Field Specification
