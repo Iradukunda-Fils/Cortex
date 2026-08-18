@@ -1,0 +1,48 @@
+{
+  "$id": "https://cortex.security/schemas/assurance_manifest_v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cortex Assurance Manifest Schema",
+  "description": "Normative schema defining the canonical structure of the Cortex Assurance Manifest.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "manifest_version",
+    "generated_at",
+    "last_verified_commit",
+    "repository",
+    "overall_status",
+    "formal_baseline",
+    "certification_accounting",
+    "claims"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "manifest_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "last_verified_commit": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "overall_status": {
+      "type": "object"
+    },
+    "formal_baseline": {
+      "type": "object"
+    },
+    "certification_accounting": {
+      "type": "object"
+    },
+    "claims": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": false
+}
