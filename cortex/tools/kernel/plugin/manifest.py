@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 class PluginManifest:
     """Immutable declaration of a plugin's identity, event contract,
     and required kernel capabilities."""
+
     name: str
     version: str
     description: str
@@ -58,7 +59,6 @@ def validate_manifest(manifest: PluginManifest) -> None:
     for item in manifest.required_capabilities:
         if not isinstance(item, str) or not item.strip():
             raise ManifestError("Plugin manifest 'required_capabilities' elements must be non-empty strings")
-
 
 
 # -----------------------------------------------------------------------

@@ -202,7 +202,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                 res = replay_workflow(wf_id)
                 is_deterministic = bool(res.get("deterministic", False))
                 if json_mode:
-                    print(json.dumps({"status": "success" if is_deterministic else "error", "command": "workflow replay", "result": res}))
+                    print(
+                        json.dumps(
+                            {
+                                "status": "success" if is_deterministic else "error",
+                                "command": "workflow replay",
+                                "result": res,
+                            }
+                        )
+                    )
                 else:
                     print("=== Cortex Deterministic Replay Engine ===")
                     print(f"Workflow ID:      {res['workflow_id']}")
@@ -212,13 +220,18 @@ def main(argv: Sequence[str] | None = None) -> int:
 
                 if not is_deterministic:
                     if not json_mode:
-                        _ = _handle_cli_error(WorkflowExecutionError(f"Replay divergence detected for workflow trace: {wf_id}"), json_mode=False)
+                        _ = _handle_cli_error(
+                            WorkflowExecutionError(f"Replay divergence detected for workflow trace: {wf_id}"),
+                            json_mode=False,
+                        )
                     return 1
                 return 0
 
             else:
                 wf_parser.print_help(sys.stderr if not json_mode else sys.stdout)
-                return _handle_cli_error(WorkflowExecutionError("Missing or invalid workflow subcommand"), json_mode=json_mode)
+                return _handle_cli_error(
+                    WorkflowExecutionError("Missing or invalid workflow subcommand"), json_mode=json_mode
+                )
 
         else:
             parser.print_help(sys.stderr if not json_mode else sys.stdout)
@@ -226,7 +239,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     except Exception as err:
         return _handle_cli_error(err, json_mode=json_mode)
-
 
 
 if __name__ == "__main__":

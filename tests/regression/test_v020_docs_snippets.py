@@ -47,7 +47,7 @@ class TestDocSnippetsPublicSDKImports(unittest.TestCase):
                     self.assertEqual(
                         matches,
                         [],
-                        f"Doc file '{md_path.relative_to(docs_dir)}' code block #{i+1} contains internal import 'from cortex.tools'",
+                        f"Doc file '{md_path.relative_to(docs_dir)}' code block #{i + 1} contains internal import 'from cortex.tools'",
                     )
 
 

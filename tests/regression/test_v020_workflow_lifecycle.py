@@ -26,12 +26,14 @@ class LifecyclePlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "lifecycle_step"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "lifecycle_step"}],
+                )
+            )
 
     def __init__(self) -> None:
         manifest = PluginManifest(

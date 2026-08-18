@@ -75,9 +75,7 @@ def encode(val: CortexValue) -> bytes:
             nfc_k_bytes = nfc_k_str.encode("utf-8")
 
             if nfc_k_bytes in seen_keys:
-                raise CBEDuplicateKeyError(
-                    f"Duplicate key after NFC normalization: {k.value!r}"
-                )
+                raise CBEDuplicateKeyError(f"Duplicate key after NFC normalization: {k.value!r}")
             seen_keys.add(nfc_k_bytes)
             pairs_with_utf8_keys.append((nfc_k_bytes, k, v))
 

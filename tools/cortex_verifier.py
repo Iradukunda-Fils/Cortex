@@ -121,7 +121,7 @@ class IndependentVerifier:
             expected_intent_sig = sign_bytes(intent_body_cbe)
 
             if not intent_sig_hex or bytes.fromhex(intent_sig_hex) != expected_intent_sig:
-                return Verdict.INVALID, f"TRAP_SIGNATURE_INVALID_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_SIGNATURE_INVALID_AT_STEP_{idx + 1}"
 
             # B. ExecutionToken Parity Assertion D_3 == D_2
             if token:
@@ -129,28 +129,28 @@ class IndependentVerifier:
                 expected_token_intent_hash = hashlib.sha256(signed_intent_cbe).hexdigest()
                 actual_token_hash = token.get("intent_hash", "")
                 if actual_token_hash != expected_token_intent_hash:
-                    return Verdict.INVALID, f"TRAP_TOKEN_PARITY_MISMATCH_AT_STEP_{idx+1}"
+                    return Verdict.INVALID, f"TRAP_TOKEN_PARITY_MISMATCH_AT_STEP_{idx + 1}"
 
             # C. Sequence Monotonicity Check
             seq = entry.get("sequence", 0)
             if seq != idx + 1:
-                return Verdict.INVALID, f"TRAP_SEQUENCE_GAP_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_SEQUENCE_GAP_AT_STEP_{idx + 1}"
 
             # D. Chain Continuity Assertion prev_witness == W_t
             entry_prev_w_hex = entry.get("prev_witness", "")
             if bytes.fromhex(entry_prev_w_hex) != expected_prev_witness:
-                return Verdict.INVALID, f"TRAP_CHAIN_BROKEN_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_CHAIN_BROKEN_AT_STEP_{idx + 1}"
 
             # E. Digest Re-computation & Rolling Witness Assertion W_{t+1}
             event_cbe = encode_cbe_standalone(event)
             actual_event_digest = hashlib.sha256(event_cbe).digest()
             if entry.get("event_digest", "") != actual_event_digest.hex():
-                return Verdict.INVALID, f"TRAP_EVENT_DIGEST_MISMATCH_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_EVENT_DIGEST_MISMATCH_AT_STEP_{idx + 1}"
 
             intent_cbe = encode_cbe_standalone(intent)
             actual_intent_digest = hashlib.sha256(intent_cbe).digest()
             if entry.get("intent_digest", "") != actual_intent_digest.hex():
-                return Verdict.INVALID, f"TRAP_INTENT_DIGEST_MISMATCH_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_INTENT_DIGEST_MISMATCH_AT_STEP_{idx + 1}"
 
             # Recompute W_{t+1} = SHA256( W_t || D_E || D_I )
             w_hasher = hashlib.sha256()
@@ -160,21 +160,21 @@ class IndependentVerifier:
             computed_witness = w_hasher.digest()
 
             if entry.get("witness", "") != computed_witness.hex():
-                return Verdict.INVALID, f"TRAP_WITNESS_REWRITE_MISMATCH_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_WITNESS_REWRITE_MISMATCH_AT_STEP_{idx + 1}"
 
             # F. Entry Signature Validation
             signable_bytes = (
-                bytes([entry.get("version", 1)]) +
-                seq.to_bytes(8, byteorder="big") +
-                int(entry.get("timestamp_ns", 0)).to_bytes(8, byteorder="big") +
-                bytes.fromhex(entry_prev_w_hex) +
-                actual_event_digest +
-                actual_intent_digest +
-                computed_witness
+                bytes([entry.get("version", 1)])
+                + seq.to_bytes(8, byteorder="big")
+                + int(entry.get("timestamp_ns", 0)).to_bytes(8, byteorder="big")
+                + bytes.fromhex(entry_prev_w_hex)
+                + actual_event_digest
+                + actual_intent_digest
+                + computed_witness
             )
             expected_entry_sig = sign_bytes(signable_bytes)
             if entry.get("signature", "") != expected_entry_sig.hex():
-                return Verdict.INVALID, f"TRAP_WITNESS_ENTRY_SIGNATURE_INVALID_AT_STEP_{idx+1}"
+                return Verdict.INVALID, f"TRAP_WITNESS_ENTRY_SIGNATURE_INVALID_AT_STEP_{idx + 1}"
 
             # Update expected prev witness for step t+1
             expected_prev_witness = computed_witness

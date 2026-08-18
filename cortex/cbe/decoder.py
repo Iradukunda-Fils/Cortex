@@ -131,9 +131,7 @@ def decode(data: bytes, offset: int = 0) -> tuple[CortexValue, int]:
 
         # Strict NFC validation — DO NOT SILENTLY NORMALIZE!
         if unicodedata.normalize("NFC", decoded_str) != decoded_str:
-            raise CBENonNFCError(
-                f"String payload is not in canonical NFC form: {decoded_str!r}"
-            )
+            raise CBENonNFCError(f"String payload is not in canonical NFC form: {decoded_str!r}")
 
         return String(decoded_str), payload_offset + length
 
@@ -159,13 +157,9 @@ def decode(data: bytes, offset: int = 0) -> tuple[CortexValue, int]:
 
             if prev_k_bytes is not None:
                 if utf8_k_bytes < prev_k_bytes:
-                    raise CBENonCanonicalMapError(
-                        f"Unsorted map key encountered: {k_node.value!r}"
-                    )
+                    raise CBENonCanonicalMapError(f"Unsorted map key encountered: {k_node.value!r}")
                 elif utf8_k_bytes == prev_k_bytes:
-                    raise CBEDuplicateKeyError(
-                        f"Duplicate map key encountered: {k_node.value!r}"
-                    )
+                    raise CBEDuplicateKeyError(f"Duplicate map key encountered: {k_node.value!r}")
 
             v_node, curr = decode(data, curr)
             pairs.append((k_node, v_node))

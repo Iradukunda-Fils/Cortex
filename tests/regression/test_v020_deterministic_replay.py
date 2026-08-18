@@ -29,12 +29,14 @@ class ReplayTestPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "replay_test"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "replay_test"}],
+                )
+            )
 
     def __init__(self) -> None:
         manifest = PluginManifest(
@@ -94,7 +96,8 @@ class TestDeterministicReplay(unittest.TestCase):
         actual_keys = set(data.keys())
         missing = required_keys - actual_keys
         self.assertEqual(
-            missing, set(),
+            missing,
+            set(),
             f"Trace file missing required keys: {missing}",
         )
 
@@ -105,10 +108,7 @@ class TestDeterministicReplay(unittest.TestCase):
         workflow = client.create_workflow(name="count_wf", goal="Test count")
         executed = client.run_workflow(workflow)
 
-        in_memory_count = len([
-            e for e in client.event_store.get_log()
-            if isinstance(e, BaseEvent)
-        ])
+        in_memory_count = len([e for e in client.event_store.get_log() if isinstance(e, BaseEvent)])
 
         trace_path = os.path.join(self.test_dir, "count_trace.json")
         _ = client.save_trace(executed.workflow_id, trace_path)
@@ -135,7 +135,8 @@ class TestDeterministicReplay(unittest.TestCase):
         for i, event_dict in enumerate(data["events"]):
             with self.subTest(event_index=i):
                 self.assertIn(
-                    "_event_type", event_dict,
+                    "_event_type",
+                    event_dict,
                     f"Event at index {i} missing _event_type marker",
                 )
 
@@ -146,10 +147,7 @@ class TestDeterministicReplay(unittest.TestCase):
         workflow = client.create_workflow(name="replay_count_wf", goal="Test replay count")
         executed = client.run_workflow(workflow)
 
-        in_memory_count = len([
-            e for e in client.event_store.get_log()
-            if isinstance(e, BaseEvent)
-        ])
+        in_memory_count = len([e for e in client.event_store.get_log() if isinstance(e, BaseEvent)])
 
         trace_path = os.path.join(self.test_dir, "replay_count_trace.json")
         _ = client.save_trace(executed.workflow_id, trace_path)

@@ -26,6 +26,7 @@ class TestRecoveryResearchSuite(unittest.TestCase):
     def test_internal_package_has_empty_all(self) -> None:
         """cortex._research subpackage must define __all__ = []."""
         import cortex._research
+
         self.assertEqual(cortex._research.__all__, [])
 
     def test_experiments_a_through_e_execution(self) -> None:

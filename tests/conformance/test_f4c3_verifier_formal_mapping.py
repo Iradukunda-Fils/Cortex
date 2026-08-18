@@ -10,10 +10,10 @@ strictly corresponds to the Coq formal specification (verification/GateF_F4c_Ver
 """
 
 import copy
-import json
 import unittest
-from tools.cortex_verifier import IndependentVerifier, Verdict
+
 from tests.conformance.test_gate_j_independent_verifier import generate_valid_evidence_bundle
+from tools.cortex_verifier import IndependentVerifier, Verdict
 
 
 class TestF4c3VerifierFormalMapping(unittest.TestCase):

@@ -32,9 +32,7 @@ class CertificationReporter:
     ]
 
     def __init__(self):
-        self.sections: dict[str, list[tuple[str, str]]] = {
-            cat: [] for cat in self.CATEGORIES
-        }
+        self.sections: dict[str, list[tuple[str, str]]] = {cat: [] for cat in self.CATEGORIES}
 
     def add_result(self, category: str, test_name: str, status: str) -> None:
         if category in self.sections:
@@ -78,6 +76,7 @@ def _run_suite(suite_module: str, reporter: CertificationReporter, category: str
 
         # Build list of all run tests recursively using generic iteration BEFORE running
         run_tests = []
+
         def collect_tests(suite_item):
             if isinstance(suite_item, unittest.TestCase):
                 run_tests.append(suite_item)
@@ -87,13 +86,14 @@ def _run_suite(suite_module: str, reporter: CertificationReporter, category: str
                         collect_tests(sub_item)
                 except TypeError:
                     pass
+
         collect_tests(suite)
 
         # Now run the suite
         runner = unittest.TextTestRunner(stream=open(os.devnull, "w"), verbosity=0)
         result = runner.run(suite)
 
-        failed_tests = {str(test.id().split('.')[-1]) for test, _ in result.failures + result.errors}
+        failed_tests = {str(test.id().split(".")[-1]) for test, _ in result.failures + result.errors}
 
         for test in run_tests:
             method_name = str(test.id().split(".")[-1])
@@ -218,7 +218,7 @@ def run_certification_pipeline() -> bool:
     profile_a_recert_map = {
         "test_g_000_legitimate_mediated_intent": "Gate H Parity via Profile A (SignedIntent -> Gateway -> ExecutionToken)",
         "test_g_011_crash_post_actuate_indeterminate": "Gate I Witness via Profile A (State Chain & Crash UNKNOWN Marker)",
-        "test_g_000_legitimate_mediated_intent": "Gate J Independent Verifier via Profile A (Evidence Bundle Verification)",
+        "test_g_012_gateway_fail_closed_guarantee": "Gate J Independent Verifier via Profile A (Evidence Bundle Verification)",
     }
 
     namespace_map = {
@@ -259,15 +259,45 @@ def run_certification_pipeline() -> bool:
     _run_suite("tests.conformance.test_conformance_rtl", reporter, "RTL ADAPTER CONFORMANCE", rtl_map)
     _run_suite("tests.conformance.test_adapter_mutations", reporter, "MUTATION IMMUNITY", mutation_map)
     _run_suite("tests.conformance.test_invariant_safety", reporter, "INVARIANT SAFETY", invariant_map)
-    _run_suite("tests.conformance.test_gate_h_canonicalization", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_canon_map)
-    _run_suite("tests.conformance.test_gate_h_adversarial", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_adv_map)
-    _run_suite("tests.conformance.test_gate_h_actuation_boundary", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_act_map)
-    _run_suite("tests.conformance.test_gate_i_causal_witness", reporter, "CRYPTOGRAPHIC CAUSAL WITNESS (GATE I)", gate_i_map)
-    _run_suite("tests.conformance.test_gate_j_independent_verifier", reporter, "INDEPENDENT UNTRUSTED VERIFIER (GATE J)", gate_j_map)
-    _run_suite("tests.conformance.test_f4c3_verifier_formal_mapping", reporter, "INDEPENDENT UNTRUSTED VERIFIER (GATE J)", f4c3_map)
-    _run_suite("tests.conformance.test_f4c4_domain_closure_audit", reporter, "INDEPENDENT UNTRUSTED VERIFIER (GATE J)", f4c4_map)
-    _run_suite("tests.conformance.test_gate_g_adversarial", reporter, "WORKER ISOLATION & MEDIATION (GATE G)", gate_g_map)
-    _run_suite("tests.conformance.test_gate_g_adversarial", reporter, "BOUNDED RE-CERTIFICATION THROUGH PROFILE A (H/I/J)", profile_a_recert_map)
+    _run_suite(
+        "tests.conformance.test_gate_h_canonicalization", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_canon_map
+    )
+    _run_suite(
+        "tests.conformance.test_gate_h_adversarial", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_adv_map
+    )
+    _run_suite(
+        "tests.conformance.test_gate_h_actuation_boundary", reporter, "EXECUTION-INTENT PARITY (GATE H)", gate_h_act_map
+    )
+    _run_suite(
+        "tests.conformance.test_gate_i_causal_witness", reporter, "CRYPTOGRAPHIC CAUSAL WITNESS (GATE I)", gate_i_map
+    )
+    _run_suite(
+        "tests.conformance.test_gate_j_independent_verifier",
+        reporter,
+        "INDEPENDENT UNTRUSTED VERIFIER (GATE J)",
+        gate_j_map,
+    )
+    _run_suite(
+        "tests.conformance.test_f4c3_verifier_formal_mapping",
+        reporter,
+        "INDEPENDENT UNTRUSTED VERIFIER (GATE J)",
+        f4c3_map,
+    )
+    _run_suite(
+        "tests.conformance.test_f4c4_domain_closure_audit",
+        reporter,
+        "INDEPENDENT UNTRUSTED VERIFIER (GATE J)",
+        f4c4_map,
+    )
+    _run_suite(
+        "tests.conformance.test_gate_g_adversarial", reporter, "WORKER ISOLATION & MEDIATION (GATE G)", gate_g_map
+    )
+    _run_suite(
+        "tests.conformance.test_gate_g_adversarial",
+        reporter,
+        "BOUNDED RE-CERTIFICATION THROUGH PROFILE A (H/I/J)",
+        profile_a_recert_map,
+    )
 
     return reporter.render_report()
 

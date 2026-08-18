@@ -17,29 +17,31 @@ from typing import Any
 import cortex
 
 # Frozen v0.2.0 public API surface — 21 symbols
-V020_PUBLIC_SYMBOLS = frozenset({
-    "BaseEvent",
-    "BasePlugin",
-    "Capability",
-    "CapabilityViolationError",
-    "CommandIssuedEvent",
-    "CortexClient",
-    "CortexError",
-    "DriverTelemetryEvent",
-    "EventStore",
-    "IntentEvent",
-    "ManifestError",
-    "PlanGeneratedEvent",
-    "PluginContext",
-    "PluginManifest",
-    "TelemetryEvent",
-    "VerificationResultEvent",
-    "Workflow",
-    "WorkflowExecutionError",
-    "WorkflowPolicy",
-    "WorkflowState",
-    "override",
-})
+V020_PUBLIC_SYMBOLS = frozenset(
+    {
+        "BaseEvent",
+        "BasePlugin",
+        "Capability",
+        "CapabilityViolationError",
+        "CommandIssuedEvent",
+        "CortexClient",
+        "CortexError",
+        "DriverTelemetryEvent",
+        "EventStore",
+        "IntentEvent",
+        "ManifestError",
+        "PlanGeneratedEvent",
+        "PluginContext",
+        "PluginManifest",
+        "TelemetryEvent",
+        "VerificationResultEvent",
+        "Workflow",
+        "WorkflowExecutionError",
+        "WorkflowPolicy",
+        "WorkflowState",
+        "override",
+    }
+)
 
 # Internal subpackages that must NOT re-export symbols via wildcard imports
 INTERNAL_PACKAGES = [
@@ -112,8 +114,13 @@ class TestPublicAPISurface(unittest.TestCase):
     def test_base_event_has_lineage_fields(self) -> None:
         """BaseEvent must carry the v0.2.0 causal lineage field set."""
         required_fields = {
-            "event_id", "workflow_id", "causation_id",
-            "correlation_id", "root_id", "timestamp_ns", "metadata",
+            "event_id",
+            "workflow_id",
+            "causation_id",
+            "correlation_id",
+            "root_id",
+            "timestamp_ns",
+            "metadata",
         }
         actual_fields = {f.name for f in fields(cortex.BaseEvent)}
         missing = required_fields - actual_fields
@@ -193,13 +200,12 @@ class TestPublicAPIBoundaryEnforcement(unittest.TestCase):
     def test_no_kernel_symbols_in_all(self) -> None:
         """No 'kernel' or 'tools' module objects should appear in cortex.__all__."""
         import types
+
         for symbol_name in cortex.__all__:
             with self.subTest(symbol=symbol_name):
                 obj = getattr(cortex, symbol_name)
                 if isinstance(obj, types.ModuleType):
-                    self.fail(
-                        f"Module object '{symbol_name}' leaked into cortex.__all__"
-                    )
+                    self.fail(f"Module object '{symbol_name}' leaked into cortex.__all__")
 
     def test_internal_packages_have_empty_all(self) -> None:
         """All internal subpackages must define __all__ = [] to block wildcard imports."""

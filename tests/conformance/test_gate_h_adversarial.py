@@ -10,6 +10,7 @@ import time
 import unittest
 import uuid
 from dataclasses import dataclass
+
 from cortex.cbe import encode_python
 
 # Normative Constants
@@ -21,6 +22,7 @@ NODE_ID = uuid.uuid5(NS_CORTEX, "node:worker_01")
 
 class SecurityTrapException(Exception):
     """Raised when an adversarial attack vector is trapped at the actuation boundary."""
+
     pass
 
 
@@ -40,21 +42,22 @@ class ExecutionToken:
 
     def to_signable_bytes(self) -> bytes:
         return (
-            bytes([self.version]) +
-            self.token_id.bytes +
-            self.intent_digest +
-            self.target_id.bytes +
-            self.capability_id.bytes +
-            self.authority_epoch.to_bytes(8, byteorder="big") +
-            self.execution_nonce +
-            self.subject_node_id.bytes +
-            self.issued_at_ns.to_bytes(8, byteorder="big") +
-            self.expires_at_ns.to_bytes(8, byteorder="big")
+            bytes([self.version])
+            + self.token_id.bytes
+            + self.intent_digest
+            + self.target_id.bytes
+            + self.capability_id.bytes
+            + self.authority_epoch.to_bytes(8, byteorder="big")
+            + self.execution_nonce
+            + self.subject_node_id.bytes
+            + self.issued_at_ns.to_bytes(8, byteorder="big")
+            + self.expires_at_ns.to_bytes(8, byteorder="big")
         )
 
 
 class TokenRegistry:
     """Atomic Single-Use Token Registry enforcing CAS transitions (UNUSED -> CONSUMED)."""
+
     def __init__(self):
         self._consumed_tokens: set[uuid.UUID] = set()
 
@@ -87,7 +90,7 @@ def mint_valid_token(payload: dict, epoch: int = 42, ttl_ns: int = 600_000_000_0
     token_id = uuid.uuid4()
     nonce = os.urandom(16)
     now_ns = time.time_ns()
-    
+
     token = ExecutionToken(
         version=1,
         token_id=token_id,
@@ -99,7 +102,7 @@ def mint_valid_token(payload: dict, epoch: int = 42, ttl_ns: int = 600_000_000_0
         subject_node_id=NODE_ID,
         issued_at_ns=now_ns,
         expires_at_ns=now_ns + ttl_ns,
-        signature=b""
+        signature=b"",
     )
     token.signature = sign_token(token.to_signable_bytes())
     return token, payload
@@ -110,7 +113,7 @@ def verify_actuation_boundary(
     execution_payload: dict,
     registry: TokenRegistry,
     current_epoch: int = 42,
-    current_node_id: uuid.UUID = NODE_ID
+    current_node_id: uuid.UUID = NODE_ID,
 ) -> bool:
     """Actuation boundary gate implementing Gate H verification algorithm."""
     # 1. Signature Verification
@@ -131,7 +134,9 @@ def verify_actuation_boundary(
         raise SecurityTrapException("NODE_BINDING_MISMATCH")
 
     # 5. Execution Digest Computation & Parity Check (D_I == D_E)
-    exec_digest = compute_digest(token.version, execution_payload, token.target_id, token.capability_id, token.authority_epoch)
+    exec_digest = compute_digest(
+        token.version, execution_payload, token.target_id, token.capability_id, token.authority_epoch
+    )
     if token.intent_digest != exec_digest:
         raise SecurityTrapException("INTENT_EXECUTION_PARITY_MISMATCH")
 
@@ -206,7 +211,7 @@ class TestGateHAdversarial(unittest.TestCase):
         registry = TokenRegistry()
         payload = {"action": "fs_write", "path": "/tmp/test.dat"}
         token, payload = mint_valid_token(payload)
-        
+
         self.assertTrue(verify_actuation_boundary(token, payload, registry))
         with self.assertRaisesRegex(SecurityTrapException, "EXECUTION_TOKEN_ALREADY_CONSUMED"):
             verify_actuation_boundary(token, payload, registry)
@@ -275,7 +280,7 @@ class TestGateHAdversarial(unittest.TestCase):
         registry = TokenRegistry()
         payload = {"action": "fs_write", "path": "/tmp/test.dat"}
         token, payload = mint_valid_token(payload)
-        
+
         token.signature = b"\xff" * 32
 
         with self.assertRaisesRegex(SecurityTrapException, "TOKEN_SIGNATURE_INVALID"):

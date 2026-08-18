@@ -13,8 +13,10 @@ class GraphNode:
     parent_id: str | None = None
     children: list[str] = field(default_factory=list)
 
+
 class ExecutionGraph:
     """First-class Causal Execution Graph representation."""
+
     root_id: str
     nodes: dict[str, GraphNode]
 

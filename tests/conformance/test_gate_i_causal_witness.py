@@ -4,11 +4,11 @@ Author: Iradukunda Fils <iradukundafils1@gmail.com>
 """
 
 import hashlib
-import os
 import time
 import unittest
 import uuid
 from dataclasses import dataclass
+
 from cortex.cbe import encode_python
 
 # Normative Constants
@@ -18,6 +18,7 @@ NODE_ID = uuid.uuid5(NS_CORTEX, "node:worker_01")
 
 class WitnessTrapException(Exception):
     """Raised when an adversarial state or witness chain attack is detected."""
+
     pass
 
 
@@ -39,13 +40,13 @@ class WitnessEntry:
 
     def to_signable_bytes(self) -> bytes:
         return (
-            bytes([self.version]) +
-            self.sequence.to_bytes(8, byteorder="big") +
-            self.timestamp_ns.to_bytes(8, byteorder="big") +
-            self.prev_witness +
-            self.event_digest +
-            self.intent_digest +
-            self.witness
+            bytes([self.version])
+            + self.sequence.to_bytes(8, byteorder="big")
+            + self.timestamp_ns.to_bytes(8, byteorder="big")
+            + self.prev_witness
+            + self.event_digest
+            + self.intent_digest
+            + self.witness
         )
 
 
@@ -56,34 +57,34 @@ class RollingWitnessChain:
         self.node_id = node_id
         self.genesis_epoch = genesis_epoch
         self.sequence = 0
-        
+
         # Genesis witness W_0
         hasher = hashlib.sha256()
         hasher.update(NS_CORTEX.bytes)
         hasher.update(node_id.bytes)
         hasher.update(genesis_epoch.to_bytes(8, byteorder="big"))
         self.current_witness = hasher.digest()
-        
+
         self.chain: list[WitnessEntry] = []
 
     def append_transition(self, event_payload: dict, intent_payload: dict) -> WitnessEntry:
         """Appends a new state transition (t -> t+1) to the rolling witness chain."""
         self.sequence += 1
         now_ns = time.time_ns()
-        
+
         event_cbe = encode_python(event_payload)
         intent_cbe = encode_python(intent_payload)
-        
+
         event_digest = hashlib.sha256(event_cbe).digest()
         intent_digest = hashlib.sha256(intent_cbe).digest()
-        
+
         # W_{t+1} = SHA256( W_t || D_E || D_I )
         hasher = hashlib.sha256()
         hasher.update(self.current_witness)
         hasher.update(event_digest)
         hasher.update(intent_digest)
         next_witness = hasher.digest()
-        
+
         entry = WitnessEntry(
             version=1,
             sequence=self.sequence,
@@ -92,10 +93,10 @@ class RollingWitnessChain:
             event_digest=event_digest,
             intent_digest=intent_digest,
             witness=next_witness,
-            signature=b""
+            signature=b"",
         )
         entry.signature = sign_bytes(entry.to_signable_bytes())
-        
+
         self.current_witness = next_witness
         self.chain.append(entry)
         return entry
@@ -158,7 +159,7 @@ class TestGateICausalWitness(unittest.TestCase):
         """I-TEST-002: Tampering an event digest causes witness mismatch TRAP."""
         chain_engine = RollingWitnessChain()
         entry1 = chain_engine.append_transition({"event": "start"}, {"action": "op"})
-        
+
         # Tamper event_digest
         tampered_entry = WitnessEntry(
             version=entry1.version,
@@ -168,7 +169,7 @@ class TestGateICausalWitness(unittest.TestCase):
             event_digest=hashlib.sha256(b"TAMPERED_EVENT").digest(),
             intent_digest=entry1.intent_digest,
             witness=entry1.witness,
-            signature=entry1.signature
+            signature=entry1.signature,
         )
         # Update signature for sign check so digest check fails
         tampered_entry.signature = sign_bytes(tampered_entry.to_signable_bytes())
@@ -180,7 +181,7 @@ class TestGateICausalWitness(unittest.TestCase):
         """I-TEST-003: Tampering intent digest causes witness mismatch TRAP."""
         chain_engine = RollingWitnessChain()
         entry1 = chain_engine.append_transition({"event": "start"}, {"action": "op"})
-        
+
         tampered_entry = WitnessEntry(
             version=entry1.version,
             sequence=entry1.sequence,
@@ -189,7 +190,7 @@ class TestGateICausalWitness(unittest.TestCase):
             event_digest=entry1.event_digest,
             intent_digest=hashlib.sha256(b"TAMPERED_INTENT").digest(),
             witness=entry1.witness,
-            signature=entry1.signature
+            signature=entry1.signature,
         )
         tampered_entry.signature = sign_bytes(tampered_entry.to_signable_bytes())
 
@@ -200,7 +201,7 @@ class TestGateICausalWitness(unittest.TestCase):
         """I-TEST-004: Omitting an entry in the chain breaks sequence and prev_witness linkage."""
         chain_engine = RollingWitnessChain()
         e1 = chain_engine.append_transition({"event": "step1"}, {"action": "op1"})
-        e2 = chain_engine.append_transition({"event": "step2"}, {"action": "op2"})
+        _ = chain_engine.append_transition({"event": "step2"}, {"action": "op2"})
         e3 = chain_engine.append_transition({"event": "step3"}, {"action": "op3"})
 
         # Omit step 2 -> [e1, e3]

@@ -7,6 +7,7 @@ from cortex.tools.kernel.graph.execution_graph import ExecutionGraph, GraphNode
 
 class ExecutionGraphAnalyzer:
     """Provides analytical, root-cause, and graph-differencing capabilities."""
+
     graph: ExecutionGraph
 
     def __init__(self, graph: ExecutionGraph):
@@ -48,5 +49,5 @@ class ExecutionGraphAnalyzer:
         return {
             "identical_structure": len(golden.nodes) == len(candidate.nodes) and not missing_types,
             "node_count_diff": node_count_diff,
-            "missing_node_types": missing_types
+            "missing_node_types": missing_types,
         }

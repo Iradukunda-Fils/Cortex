@@ -13,12 +13,14 @@ from cortex.tools.kernel.plugin.manifest import PluginManifest
 @dataclass(frozen=True)
 class Capability:
     """Public capability representation for permission grants."""
+
     name: str
 
 
 @dataclass
 class PluginContext:
     """Runtime context provided to plugins, scoped strictly to granted capabilities."""
+
     session_id: str
     granted_capabilities: set[str] | frozenset[str]
     publish_func: Callable[[BaseEvent], None]
@@ -37,6 +39,7 @@ class PluginContext:
 
 class BasePlugin(ABC):
     """Abstract Base Class for all external Cortex plugins."""
+
     manifest: PluginManifest
     context: PluginContext | None
 

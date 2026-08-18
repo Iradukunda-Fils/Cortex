@@ -30,14 +30,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 def run_cmd(command: list[str], cwd: str = REPO_ROOT) -> tuple[int, str, str]:
     """Execute a shell command and return (exit_code, stdout, stderr)."""
     try:
-        res = subprocess.run(
-            command,
-            cwd=cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=False
-        )
+        res = subprocess.run(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
         return res.returncode, res.stdout.strip(), res.stderr.strip()
     except Exception as e:
         return 1, "", str(e)
@@ -55,7 +48,7 @@ class ReleaseReadinessEvaluator:
         self.counts = {
             "total_repository_test_cases": 0,
             "standalone_unittest_methods": 0,
-            "integrated_certification_checks": 0
+            "integrated_certification_checks": 0,
         }
 
     def evaluate(self) -> str:
@@ -67,7 +60,7 @@ class ReleaseReadinessEvaluator:
 
         # 2. Gate 1: Source Unit/Integration Tests
         code, out, err = run_cmd([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
-        test_pass = (code == 0)
+        test_pass = code == 0
         # Extract actual test count from unittest stderr (e.g. "Ran 275 tests")
         test_count = 0
         for line in (err or "").splitlines():
@@ -81,11 +74,12 @@ class ReleaseReadinessEvaluator:
 
         # 3. Gate 2: Certification Pipeline
         code, out, _ = run_cmd([sys.executable, "tests/conformance/run_certification.py"])
-        cert_pass = (code == 0 and "OVERALL RESULT: CERTIFICATION: PASS" in out)
+        cert_pass = code == 0 and "OVERALL RESULT: CERTIFICATION: PASS" in out
         # Extract actual certification count from output (e.g. "PASS (136/136 Checks Verified)")
         cert_count = 0
         if cert_pass:
             import re
+
             m = re.search(r"PASS \((\d+)/(\d+) Checks Verified\)", out)
             if m:
                 cert_count = int(m.group(1))
@@ -96,7 +90,7 @@ class ReleaseReadinessEvaluator:
         # 4. Gate 3: Coq Artifact Integrity
         coq_dir = os.path.join(REPO_ROOT, "verification")
         vo_files = [f for f in os.listdir(coq_dir) if f.endswith(".vo")] if os.path.exists(coq_dir) else []
-        coq_pass = (len(vo_files) >= 26)
+        coq_pass = len(vo_files) >= 26
         self.gate_results["Coq Compilation"] = "PASS" if coq_pass else "FAIL"
 
         # 5. Gate 4: Coq Audit / Axiom Check
@@ -106,18 +100,13 @@ class ReleaseReadinessEvaluator:
         manifest_path = os.path.join(REPO_ROOT, "cortex_assurance_manifest.json")
         schema_path = os.path.join(REPO_ROOT, "docs", "architecture", "assurance_manifest_v1.schema.json")
         profile_schema = os.path.join(REPO_ROOT, "docs", "spec", "evidence_profile_v1.schema.json")
-        schema_pass = (
-            os.path.exists(manifest_path) and 
-            os.path.exists(schema_path) and 
-            os.path.exists(profile_schema)
-        )
+        schema_pass = os.path.exists(manifest_path) and os.path.exists(schema_path) and os.path.exists(profile_schema)
         self.gate_results["Schema Validation"] = "PASS" if schema_pass else "FAIL"
 
         # 7. Gate 6: Git & Symlink Integrity
         symlink_path = os.path.join(REPO_ROOT, "docs", "architecture", "cortex_assurance_manifest.json")
         symlink_pass = (
-            os.path.islink(symlink_path) and 
-            os.readlink(symlink_path) == "../../cortex_assurance_manifest.json"
+            os.path.islink(symlink_path) and os.readlink(symlink_path) == "../../cortex_assurance_manifest.json"
         )
         self.gate_results["Git & Symlink Integrity"] = "PASS" if symlink_pass else "FAIL"
 
@@ -128,28 +117,30 @@ class ReleaseReadinessEvaluator:
         self.open_assumptions = [
             "sha256_bytes trusted primitive boundary",
             "Linux kernel seccomp/landlock ABI host availability",
-            "Coq 8.16+ machine-checked formal proof foundation"
+            "Coq 8.16+ machine-checked formal proof foundation",
         ]
 
         self.unverified_boundaries = [
             "F4c Universal Verifier Domain Equivalence (Open)",
             "SystemVerilog RTL ↔ Coq Trace Extraction Bridge (Bounded Refinement — 12/12 trace bridge tests pass, full extraction proof open)",
             "Independent External Security Review & Assumption Audit (Incomplete)",
-            "P0–P13 Production Readiness Checklist (Blocked)"
+            "P0–P13 Production Readiness Checklist (Blocked)",
         ]
 
         # 10. Compute Final Decision
-        critical_pass = all([
-            self.gate_results.get("Source Tests") == "PASS",
-            self.gate_results.get("Certification Checks") == "PASS",
-            self.gate_results.get("Coq Compilation") == "PASS",
-            self.gate_results.get("Schema Validation") == "PASS",
-            self.gate_results.get("Git & Symlink Integrity") == "PASS",
-        ])
+        critical_pass = all(
+            [
+                self.gate_results.get("Source Tests") == "PASS",
+                self.gate_results.get("Certification Checks") == "PASS",
+                self.gate_results.get("Coq Compilation") == "PASS",
+                self.gate_results.get("Schema Validation") == "PASS",
+                self.gate_results.get("Git & Symlink Integrity") == "PASS",
+            ]
+        )
 
         if not critical_pass:
             return "NOT_RELEASEABLE"
-        
+
         # Production readiness rule: STRICTLY BLOCKED while open boundaries exist!
         return "CONTROLLED_EXPERIMENTAL"
 
@@ -181,7 +172,7 @@ class ReleaseReadinessEvaluator:
         lines.append("")
         lines.append("========================================================================")
         lines.append(f"FINAL DECISION: {decision}")
-        lines.append(f"PRODUCTION STATUS: BLOCKED (Pending P0–P13 & Security Audit)")
+        lines.append("PRODUCTION STATUS: BLOCKED (Pending P0–P13 & Security Audit)")
         lines.append("========================================================================")
         lines.append(f"RELEASE_STATUS={decision}")
         return "\n".join(lines)
@@ -199,7 +190,7 @@ def main():
             "gates": evaluator.gate_results,
             "counts": evaluator.counts,
             "open_assumptions": evaluator.open_assumptions,
-            "unverified_boundaries": evaluator.unverified_boundaries
+            "unverified_boundaries": evaluator.unverified_boundaries,
         }
         print(json.dumps(output, indent=2))
     else:

@@ -28,7 +28,7 @@ class FaultMutationEngine:
                 reg_hec=step.reg_hec,
                 registers=dict(step.registers),
                 stcr=stcr_clone,
-                trap=trap_clone
+                trap=trap_clone,
             )
             mutated.append(c_step)
 

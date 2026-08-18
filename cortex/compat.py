@@ -14,9 +14,9 @@ else:
     try:
         from typing_extensions import override as override  # type: ignore[no-redef]
     except ImportError:
+
         def override(method: F, /) -> F:  # type: ignore[no-redef]
             return method
 
 
 __all__ = ["override"]
-

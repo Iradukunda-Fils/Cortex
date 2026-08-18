@@ -22,5 +22,5 @@ class SemanticShrinker:
             "original_steps": len(program),
             "shrunk_steps": len(shrunk_program),
             "initial_state": scenario.get("initial_state", {}),
-            "program": shrunk_program
+            "program": shrunk_program,
         }

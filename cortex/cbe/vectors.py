@@ -38,9 +38,7 @@ def derive_logical_event_id(
     Canonical P_semantic 4-Tuple Construction:
     [workflow_id, command_type, causation_id, payload] -> CBE Bytes -> SHA1 -> UUIDv5
     """
-    tuple_ast = CortexValue.from_python(
-        [workflow_id, command_type, causation_id, payload]
-    )
+    tuple_ast = CortexValue.from_python([workflow_id, command_type, causation_id, payload])
     cbe_bytes = encode(tuple_ast)
     hex_str = cbe_bytes.hex()
     sha1_hex, uuid_str = compute_raw_uuidv5(NAMESPACE_CORTEX_SYSTEM_BYTES, cbe_bytes)

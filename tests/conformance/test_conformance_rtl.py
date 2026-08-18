@@ -86,6 +86,7 @@ class TestSVCoqTraceBridge(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         import json
+
         with open("research/formalization/artifacts/phase2/rtl_trace.json") as f:
             cls.rtl_data = json.load(f)
         cls.rtl_trace = cls.rtl_data["trace"]
@@ -96,44 +97,32 @@ class TestSVCoqTraceBridge(unittest.TestCase):
     def test_trace_step_count_parity(self):
         """Both engines must retire the same number of instructions."""
         self.assertEqual(
-            self.rtl_data["total_steps"],
-            len(self.emu_trace),
-            "RTL and emulator trace step counts diverge"
+            self.rtl_data["total_steps"], len(self.emu_trace), "RTL and emulator trace step counts diverge"
         )
 
     def test_opcode_parity_all_steps(self):
         """Every step's decoded opcode must match between RTL and emulator."""
-        for i, (rtl_step, emu_step) in enumerate(
-            zip(self.rtl_trace, self.emu_trace)
-        ):
+        for i, (rtl_step, emu_step) in enumerate(zip(self.rtl_trace, self.emu_trace)):
             rtl_op = _decode_rtl_opcode(rtl_step["raw_instruction"])
             emu_op = emu_step["instruction"]["opcode"]
-            self.assertEqual(
-                rtl_op, emu_op,
-                f"Step {i+1}: opcode mismatch RTL=0x{rtl_op:02x} Emu=0x{emu_op:02x}"
-            )
+            self.assertEqual(rtl_op, emu_op, f"Step {i + 1}: opcode mismatch RTL=0x{rtl_op:02x} Emu=0x{emu_op:02x}")
 
     def test_raw_instruction_parity_all_steps(self):
         """RTL and emulator must execute the identical instruction words."""
-        for i, (rtl_step, emu_step) in enumerate(
-            zip(self.rtl_trace, self.emu_trace)
-        ):
+        for i, (rtl_step, emu_step) in enumerate(zip(self.rtl_trace, self.emu_trace)):
             self.assertEqual(
                 rtl_step["raw_instruction"],
                 emu_step["instruction"]["raw_hex"],
-                f"Step {i+1}: raw instruction mismatch"
+                f"Step {i + 1}: raw instruction mismatch",
             )
 
     def test_reg_hec_parity_all_steps(self):
         """reg_hec must agree between RTL and emulator at every step."""
-        for i, (rtl_step, emu_step) in enumerate(
-            zip(self.rtl_trace, self.emu_trace)
-        ):
+        for i, (rtl_step, emu_step) in enumerate(zip(self.rtl_trace, self.emu_trace)):
             self.assertEqual(
                 rtl_step["reg_hec"],
                 emu_step["reg_hec"],
-                f"Step {i+1}: reg_hec mismatch RTL={rtl_step['reg_hec']} "
-                f"Emu={emu_step['reg_hec']}"
+                f"Step {i + 1}: reg_hec mismatch RTL={rtl_step['reg_hec']} Emu={emu_step['reg_hec']}",
             )
 
     def test_reg_hec_monotonicity(self):
@@ -145,9 +134,9 @@ class TestSVCoqTraceBridge(unittest.TestCase):
         prev_hec = 0
         for i, step in enumerate(self.rtl_trace):
             self.assertGreaterEqual(
-                step["reg_hec"], prev_hec,
-                f"Step {i+1}: reg_hec decreased from {prev_hec} to "
-                f"{step['reg_hec']} — monotonicity violated"
+                step["reg_hec"],
+                prev_hec,
+                f"Step {i + 1}: reg_hec decreased from {prev_hec} to {step['reg_hec']} — monotonicity violated",
             )
             prev_hec = step["reg_hec"]
 
@@ -158,10 +147,7 @@ class TestSVCoqTraceBridge(unittest.TestCase):
         (GateL1_EpochMonotonicity.v §3).
         """
         for i, step in enumerate(self.rtl_trace):
-            self.assertLess(
-                step["reg_hec"], 65536,
-                f"Step {i+1}: reg_hec={step['reg_hec']} exceeds 16-bit bound"
-            )
+            self.assertLess(step["reg_hec"], 65536, f"Step {i + 1}: reg_hec={step['reg_hec']} exceeds 16-bit bound")
 
     def test_trap_agreement_all_steps(self):
         """RTL eff_trap must agree with emulator outcome.trap_cause presence.
@@ -170,15 +156,14 @@ class TestSVCoqTraceBridge(unittest.TestCase):
           trapped=false ↔ commit
           trapped=true  ↔ trap fires, state preserved
         """
-        for i, (rtl_step, emu_step) in enumerate(
-            zip(self.rtl_trace, self.emu_trace)
-        ):
+        for i, (rtl_step, emu_step) in enumerate(zip(self.rtl_trace, self.emu_trace)):
             rtl_trapped = rtl_step["eff_trap"]
             emu_trapped = emu_step["outcome"]["trap_cause"] is not None
             self.assertEqual(
-                rtl_trapped, emu_trapped,
-                f"Step {i+1}: trap agreement failure "
-                f"RTL.eff_trap={rtl_trapped} Emu.trap={emu_step['outcome']['trap_cause']}"
+                rtl_trapped,
+                emu_trapped,
+                f"Step {i + 1}: trap agreement failure "
+                f"RTL.eff_trap={rtl_trapped} Emu.trap={emu_step['outcome']['trap_cause']}",
             )
 
     def test_wb_transition_opcode_classification(self):
@@ -191,17 +176,10 @@ class TestSVCoqTraceBridge(unittest.TestCase):
             opcode = _decode_rtl_opcode(step["raw_instruction"])
             if opcode in COQ_OPCODE_MAP:
                 coq_name = COQ_OPCODE_MAP[opcode]
-                self.assertIsNotNone(
-                    coq_name,
-                    f"Step {i+1}: opcode 0x{opcode:02x} mapped to {coq_name}"
-                )
+                self.assertIsNotNone(coq_name, f"Step {i + 1}: opcode 0x{opcode:02x} mapped to {coq_name}")
             else:
                 # OP_INVALID: must have trapped
-                self.assertTrue(
-                    step["eff_trap"],
-                    f"Step {i+1}: opcode 0x{opcode:02x} is OP_INVALID but "
-                    f"did not trap"
-                )
+                self.assertTrue(step["eff_trap"], f"Step {i + 1}: opcode 0x{opcode:02x} is OP_INVALID but did not trap")
 
     def test_invoke_preserves_hec(self):
         """OP_INVOKE_CAP (0x01) must not modify reg_hec.
@@ -215,9 +193,9 @@ class TestSVCoqTraceBridge(unittest.TestCase):
             opcode = _decode_rtl_opcode(step["raw_instruction"])
             if opcode == 0x01 and not step["eff_trap"]:
                 self.assertEqual(
-                    step["reg_hec"], next_step["reg_hec"],
-                    f"Step {i+1}: invoke_cap modified reg_hec from "
-                    f"{step['reg_hec']} to {next_step['reg_hec']}"
+                    step["reg_hec"],
+                    next_step["reg_hec"],
+                    f"Step {i + 1}: invoke_cap modified reg_hec from {step['reg_hec']} to {next_step['reg_hec']}",
                 )
 
     def test_hec_inc_monotonic_or_trap(self):
@@ -234,15 +212,14 @@ class TestSVCoqTraceBridge(unittest.TestCase):
                 if step["eff_trap"]:
                     # Trapped: reg_hec must be preserved
                     self.assertEqual(
-                        step["reg_hec"], next_step["reg_hec"],
-                        f"Step {i+1}: hec.inc trapped but reg_hec changed"
+                        step["reg_hec"], next_step["reg_hec"], f"Step {i + 1}: hec.inc trapped but reg_hec changed"
                     )
                 else:
                     # Committed: reg_hec must have incremented by 1
                     self.assertEqual(
-                        next_step["reg_hec"], step["reg_hec"] + 1,
-                        f"Step {i+1}: hec.inc committed but reg_hec did not "
-                        f"increment by 1"
+                        next_step["reg_hec"],
+                        step["reg_hec"] + 1,
+                        f"Step {i + 1}: hec.inc committed but reg_hec did not increment by 1",
                     )
 
     def test_invalid_opcode_always_traps(self):
@@ -254,10 +231,7 @@ class TestSVCoqTraceBridge(unittest.TestCase):
         for i, step in enumerate(self.rtl_trace):
             opcode = _decode_rtl_opcode(step["raw_instruction"])
             if opcode not in COQ_OPCODE_MAP:
-                self.assertTrue(
-                    step["eff_trap"],
-                    f"Step {i+1}: OP_INVALID (0x{opcode:02x}) did not trap"
-                )
+                self.assertTrue(step["eff_trap"], f"Step {i + 1}: OP_INVALID (0x{opcode:02x}) did not trap")
 
     def test_pc_reset_vector_and_trace_correctness(self):
         """CA-002 & CA-003: Validate bit-perfect reset vector alignment (0x1000 / 4096)
@@ -272,10 +246,7 @@ class TestSVCoqTraceBridge(unittest.TestCase):
 
         # CA-003: Assert per-retirement PC monotonicity across traces
         for i in range(1, len(rtl_pcs)):
-            self.assertGreater(
-                rtl_pcs[i], rtl_pcs[i - 1],
-                f"RTL PC non-monotonic at step {i+1}"
-            )
+            self.assertGreater(rtl_pcs[i], rtl_pcs[i - 1], f"RTL PC non-monotonic at step {i + 1}")
 
 
 if __name__ == "__main__":

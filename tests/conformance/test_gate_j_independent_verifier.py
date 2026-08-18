@@ -4,16 +4,10 @@ Author: Iradukunda Fils <iradukundafils1@gmail.com>
 """
 
 import hashlib
-import json
 import unittest
 import uuid
-from tools.cortex_verifier import (
-    IndependentVerifier,
-    Verdict,
-    NS_CORTEX,
-    encode_cbe_standalone,
-    sign_bytes
-)
+
+from tools.cortex_verifier import NS_CORTEX, IndependentVerifier, Verdict, encode_cbe_standalone, sign_bytes
 
 NODE_ID = uuid.uuid5(NS_CORTEX, "node:worker_01")
 
@@ -27,11 +21,7 @@ def generate_valid_evidence_bundle(steps: int = 3) -> dict:
     hasher_w0.update(genesis_epoch.to_bytes(8, byteorder="big"))
     current_w = hasher_w0.digest()
 
-    anchor = {
-        "node_id": str(NODE_ID),
-        "genesis_epoch": genesis_epoch,
-        "expected_w0": current_w.hex()
-    }
+    anchor = {"node_id": str(NODE_ID), "genesis_epoch": genesis_epoch, "expected_w0": current_w.hex()}
 
     intents = []
     tokens = []
@@ -68,13 +58,13 @@ def generate_valid_evidence_bundle(steps: int = 3) -> dict:
 
         timestamp_ns = 1700000000000000000 + seq
         signable_bytes = (
-            bytes([1]) +
-            seq.to_bytes(8, byteorder="big") +
-            timestamp_ns.to_bytes(8, byteorder="big") +
-            current_w +
-            event_digest +
-            intent_digest +
-            next_w
+            bytes([1])
+            + seq.to_bytes(8, byteorder="big")
+            + timestamp_ns.to_bytes(8, byteorder="big")
+            + current_w
+            + event_digest
+            + intent_digest
+            + next_w
         )
         entry_sig = sign_bytes(signable_bytes).hex()
 
@@ -86,18 +76,12 @@ def generate_valid_evidence_bundle(steps: int = 3) -> dict:
             "event_digest": event_digest.hex(),
             "intent_digest": intent_digest.hex(),
             "witness": next_w.hex(),
-            "signature": entry_sig
+            "signature": entry_sig,
         }
         witness_chain.append(entry)
         current_w = next_w
 
-    return {
-        "anchor": anchor,
-        "intents": intents,
-        "tokens": tokens,
-        "events": events,
-        "witness_chain": witness_chain
-    }
+    return {"anchor": anchor, "intents": intents, "tokens": tokens, "events": events, "witness_chain": witness_chain}
 
 
 class TestGateJIndependentVerifier(unittest.TestCase):

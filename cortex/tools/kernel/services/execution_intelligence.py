@@ -7,6 +7,7 @@ from cortex.tools.kernel.graph.execution_graph import ExecutionGraph, GraphNode
 
 class CausalExplainer:
     """Analyzes an ExecutionGraph to provide root-cause diagnostics and lineage traces."""
+
     graph: ExecutionGraph
 
     def __init__(self, graph: ExecutionGraph):
@@ -30,14 +31,8 @@ class CausalExplainer:
         return {
             "target_node": failed_node_id,
             "root_intent": chain[0].payload if chain else None,
-            "causal_path": [
-                {
-                    "node_id": n.node_id,
-                    "type": n.node_type,
-                    "summary": n.payload
-                } for n in chain
-            ],
-            "diagnosis": self._derive_diagnosis(chain)
+            "causal_path": [{"node_id": n.node_id, "type": n.node_type, "summary": n.payload} for n in chain],
+            "diagnosis": self._derive_diagnosis(chain),
         }
 
     def _derive_diagnosis(self, chain: list[GraphNode]) -> str:

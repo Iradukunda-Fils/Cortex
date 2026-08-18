@@ -6,6 +6,7 @@ Author: Iradukunda Fils <iradukundafils1@gmail.com>
 import hashlib
 import unittest
 import uuid
+
 from cortex.cbe import encode_python
 
 # Normative Namespace Constants

@@ -20,6 +20,7 @@ MAX_SEQUENCE: Final[int] = 4_294_967_295  # UINT32_MAX
 
 class FrameType(IntEnum):
     """Cortex Layer 2 Frame Type Enums."""
+
     DATA = 0x01
     PING = 0x02
     PONG = 0x03
@@ -30,57 +31,68 @@ class FrameType(IntEnum):
 # Streaming Exception Taxonomy
 class CBEFrameError(CBEError):
     """Base exception for Layer 2 framing errors."""
+
     code: str = "CBE_FRAME_ERROR"
 
 
 class CBEMagicMismatchError(CBEFrameError):
     """Raised when header magic bytes do not equal b'CF'."""
+
     code: str = "CBE_FRAME_MAGIC_MISMATCH"
 
 
 class CBEUnknownFrameTypeError(CBEFrameError):
     """Raised when an unrecognized frame type byte is encountered."""
+
     code: str = "CBE_FRAME_UNKNOWN_TYPE"
 
 
 class CBEFrameTooLargeError(CBEFrameError):
     """Raised when payload length prefix exceeds 16 MiB limit."""
+
     code: str = "CBE_FRAME_TOO_LARGE"
 
 
 class CBESequenceGapError(CBEFrameError):
     """Raised when frame sequence number does not match expected sequence."""
+
     code: str = "CBE_FRAME_SEQUENCE_GAP"
 
 
 class CBESequenceOverflowError(CBEFrameError):
     """Raised when sequence counter exceeds UINT32_MAX."""
+
     code: str = "CBE_FRAME_SEQUENCE_OVERFLOW"
 
 
 class CBETruncatedHeaderError(CBEFrameError):
     """Raised when stream ends before reading complete 11-byte header."""
+
     code: str = "CBE_FRAME_TRUNCATED_HEADER"
 
 
 class CBETruncatedPayloadError(CBEFrameError):
     """Raised when stream ends before reading N payload bytes."""
+
     code: str = "CBE_FRAME_TRUNCATED_PAYLOAD"
 
 
 class CBEInvalidControlPayloadError(CBEFrameError):
     """Raised when control frame payload length violates rules (N!=0 or N!=4 for ERROR)."""
+
     code: str = "CBE_FRAME_INVALID_CONTROL_PAYLOAD"
 
 
 class CBEDataEmptyError(CBEFrameError):
     """Raised when a DATA frame is sent with N=0 payload."""
+
     code: str = "CBE_FRAME_DATA_EMPTY"
 
 
 @dataclass(frozen=True)
 class CortexFrame:
     """Represents a Layer 2 Transport Frame."""
+
     frame_type: FrameType
     sequence: int
     payload: bytes = b""
@@ -100,9 +112,7 @@ class CortexFrame:
                 )
         elif self.frame_type == FrameType.ERROR:
             if len(self.payload) != 4:
-                raise CBEInvalidControlPayloadError(
-                    f"ERROR frame must have 4-byte payload, got {len(self.payload)}"
-                )
+                raise CBEInvalidControlPayloadError(f"ERROR frame must have 4-byte payload, got {len(self.payload)}")
         elif self.frame_type == FrameType.DATA:
             if len(self.payload) == 0:
                 raise CBEDataEmptyError("DATA frame cannot have empty payload")
@@ -208,9 +218,7 @@ class StreamDecoder:
                 break  # Await more payload bytes
 
             if sequence != self._expected_sequence:
-                raise CBESequenceGapError(
-                    f"Expected sequence {self._expected_sequence}, got {sequence}"
-                )
+                raise CBESequenceGapError(f"Expected sequence {self._expected_sequence}, got {sequence}")
 
             frame_data = bytes(self._buffer[:total_frame_len])
             del self._buffer[:total_frame_len]

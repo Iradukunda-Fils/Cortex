@@ -48,12 +48,14 @@ class DummyAuthorizedPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "execute_authorized"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "execute_authorized"}],
+                )
+            )
 
 
 class DummyUnauthorizedPlugin(BasePlugin):
@@ -174,7 +176,8 @@ class TestCapabilityEnforcementSecurityAudit(unittest.TestCase):
         self.assertEqual(executed.state, WorkflowState.FAILED)
 
         violations = [
-            e for e in client.event_store.get_log()
+            e
+            for e in client.event_store.get_log()
             if isinstance(e, VerificationResultEvent) and e.rule_id == "CAPABILITY_VIOLATION"
         ]
         self.assertEqual(len(violations), 1)
@@ -355,7 +358,9 @@ class TestCapabilityEnforcementSecurityAudit(unittest.TestCase):
 
         self.assertEqual(executed.state, WorkflowState.FAILED)
         events = client.event_store.get_log()
-        self.assertTrue(any(isinstance(e, VerificationResultEvent) and e.rule_id == "CAPABILITY_VIOLATION" for e in events))
+        self.assertTrue(
+            any(isinstance(e, VerificationResultEvent) and e.rule_id == "CAPABILITY_VIOLATION" for e in events)
+        )
 
     # -------------------------------------------------------------------------
     # Category L: CLI Propagation & Exit Code 2
@@ -389,7 +394,9 @@ class TestCapabilityEnforcementSecurityAudit(unittest.TestCase):
             # When runner processes a FAILED workflow with capability violations, it raises CapabilityViolationError
             with self.assertRaises(CapabilityViolationError) as ctx:
                 # Mock or simulate runner raise path
-                raise CapabilityViolationError("Plugins rejected due to unauthorized capabilities: ['workflow.plan.create']")
+                raise CapabilityViolationError(
+                    "Plugins rejected due to unauthorized capabilities: ['workflow.plan.create']"
+                )
 
             self.assertEqual(ctx.exception.exit_code, 2)
 

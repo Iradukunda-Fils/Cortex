@@ -8,24 +8,22 @@ replay protection, worker/gateway crash dynamics, and Gate J verification output
 the 13 mandatory Gate G test scenarios (G-TEST-000 through G-TEST-012).
 """
 
-import os
-import sys
-import socket
-import struct
-import subprocess
-import unittest
 import hashlib
+import os
+import socket
+import subprocess
+import sys
+import unittest
 from pathlib import Path
-from typing import Tuple, Dict, Any
 
 # Ensure project root is in path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-from tools.cortex_verifier import (
+from tools.cortex_verifier import (  # noqa: E402
     IndependentVerifier,
-    encode_cbe_standalone,
     Verdict,
+    encode_cbe_standalone,
 )
 
 
@@ -51,10 +49,10 @@ class TestGateGAdversarialSuite(unittest.TestCase):
         }
         encoded = encode_cbe_standalone(intent)
         intent_hash = hashlib.sha256(encoded).hexdigest()
-        
+
         # Verify intent canonicalization and witness chain compatibility
         self.assertEqual(len(intent_hash), 64)
-        
+
         # Verify verifier initializes correctly
         self.assertIsNotNone(self.verifier)
 
@@ -68,7 +66,7 @@ class TestGateGAdversarialSuite(unittest.TestCase):
         test_target = "/tmp/cortex_unmediated_file_test.txt"
         if os.path.exists(test_target):
             os.remove(test_target)
-            
+
         try:
             with open(test_target, "w") as f:
                 f.write("unauthorized_write")
@@ -92,7 +90,7 @@ class TestGateGAdversarialSuite(unittest.TestCase):
     def test_g_003_subprocess_creation_trapped(self) -> None:
         """G-TEST-003: Subprocess fork/execve attempt is trapped."""
         try:
-            res = subprocess.run(["/bin/echo", "escaped"], capture_output=True, timeout=1)
+            _ = subprocess.run(["/bin/echo", "escaped"], capture_output=True, timeout=1)
             # In sandboxed worker context, execve returns non-zero / error
         except (PermissionError, OSError, subprocess.SubprocessError):
             pass  # Trapped by seccomp execve filter

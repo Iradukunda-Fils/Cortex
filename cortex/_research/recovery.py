@@ -51,7 +51,9 @@ class MockExternalService:
 class SideEffectResearchPlugin(BasePlugin):
     """Plugin invoking MockExternalService to test B1, B2, B3 crash boundaries."""
 
-    def __init__(self, external_service: MockExternalService, crash_point: str | None = None, use_idempotency: bool = False) -> None:
+    def __init__(
+        self, external_service: MockExternalService, crash_point: str | None = None, use_idempotency: bool = False
+    ) -> None:
         self.service = external_service
         self.crash_point = crash_point
         self.use_idempotency = use_idempotency
@@ -81,12 +83,14 @@ class SideEffectResearchPlugin(BasePlugin):
                 os._exit(102)
 
             # Publish event to EventStore
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "side_effect_complete"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "side_effect_complete"}],
+                )
+            )
 
             # Crash Point B3: Post-Execution (event published, before workflow final return)
             if self.crash_point == "B3":
@@ -278,6 +282,10 @@ def generate_recovery_semantics_artifacts(json_output_path: str) -> dict[str, An
 if __name__ == "__main__":
     report_file = os.path.join("research", "recovery", "recovery_semantics_report.json")
     res = generate_recovery_semantics_artifacts(report_file)
-    print(f"Experiment A (Memory Loss): In-Memory Survived={res['experiments']['experiment_a']['in_memory_state_survived']}")
-    print(f"Experiment C (Deduplication): Duplicate Without Key={res['experiments']['experiment_c']['replay_without_idempotency_mutations']} | With Key={res['experiments']['experiment_c']['replay_with_idempotency_mutations']}")
+    print(
+        f"Experiment A (Memory Loss): In-Memory Survived={res['experiments']['experiment_a']['in_memory_state_survived']}"
+    )
+    print(
+        f"Experiment C (Deduplication): Duplicate Without Key={res['experiments']['experiment_c']['replay_without_idempotency_mutations']} | With Key={res['experiments']['experiment_c']['replay_with_idempotency_mutations']}"
+    )
     print(f"Deduplication Proof: {res['experiments']['experiment_c']['idempotency_eliminates_duplication']}")

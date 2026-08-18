@@ -46,12 +46,14 @@ class CooperativeTimeoutPlugin(BasePlugin):
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
             time.sleep(self.delay_sec)
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "cooperative_done"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "cooperative_done"}],
+                )
+            )
 
 
 class NonCooperativeBlockingPlugin(BasePlugin):
@@ -75,12 +77,14 @@ class NonCooperativeBlockingPlugin(BasePlugin):
             # Synchronously blocks main thread without checking cancellation flags
             time.sleep(self.blocking_sec)
             if self.context:
-                self.context.publish(PlanGeneratedEvent(
-                    workflow_id=event.workflow_id,
-                    intent_id=event.intent_id,
-                    causation_id=event.event_id,
-                    steps=[{"step": 1, "action": "blocking_done"}],
-                ))
+                self.context.publish(
+                    PlanGeneratedEvent(
+                        workflow_id=event.workflow_id,
+                        intent_id=event.intent_id,
+                        causation_id=event.event_id,
+                        steps=[{"step": 1, "action": "blocking_done"}],
+                    )
+                )
 
 
 class ChainedStage1Plugin(BasePlugin):
@@ -100,12 +104,14 @@ class ChainedStage1Plugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "stage_1_done"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "stage_1_done"}],
+                )
+            )
 
 
 class ChainedStage2Plugin(BasePlugin):
@@ -126,13 +132,15 @@ class ChainedStage2Plugin(BasePlugin):
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, PlanGeneratedEvent) and self.context:
             # Emits verification failure representing timeout / policy abort
-            self.context.publish(VerificationResultEvent(
-                workflow_id=event.workflow_id,
-                causation_id=event.event_id,
-                passed=False,
-                rule_id="POLICY_TIMEOUT_EXCEEDED",
-                details={"reason": "Workflow policy timeout budget exceeded (0.01s < 0.10s required)"},
-            ))
+            self.context.publish(
+                VerificationResultEvent(
+                    workflow_id=event.workflow_id,
+                    causation_id=event.event_id,
+                    passed=False,
+                    rule_id="POLICY_TIMEOUT_EXCEEDED",
+                    details={"reason": "Workflow policy timeout budget exceeded (0.01s < 0.10s required)"},
+                )
+            )
 
 
 class ChainedStage3Plugin(BasePlugin):
@@ -189,7 +197,9 @@ def execute_timeout_cancellation_research() -> dict[str, Any]:
     # -------------------------------------------------------------------------
     # Scenario B: Mid-Workflow Cooperative Cancellation
     # -------------------------------------------------------------------------
-    client_b = CortexClient(platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"})
+    client_b = CortexClient(
+        platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"}
+    )
     _ = client_b.register_plugin(ChainedStage1Plugin())
     _ = client_b.register_plugin(ChainedStage2Plugin())
     plugin_c3 = ChainedStage3Plugin()
@@ -200,7 +210,9 @@ def execute_timeout_cancellation_research() -> dict[str, Any]:
 
     executed_b = client_b.run_workflow(wf_b)
     log_b = client_b.event_store.get_log()
-    violations_b = [e for e in log_b if isinstance(e, VerificationResultEvent) and e.rule_id == "POLICY_TIMEOUT_EXCEEDED"]
+    violations_b = [
+        e for e in log_b if isinstance(e, VerificationResultEvent) and e.rule_id == "POLICY_TIMEOUT_EXCEEDED"
+    ]
 
     results["scenarios"]["scenario_b"] = {
         "title": "Scenario B: Mid-Workflow Cooperative Cancellation",
@@ -287,7 +299,8 @@ def execute_timeout_cancellation_research() -> dict[str, Any]:
         "title": "Scenario F: Subsequent Workflow Isolation",
         "workflow_1_final_state": executed_f1.state.value,
         "workflow_2_final_state": executed_f2.state.value,
-        "subsequent_workflow_healthy": executed_f1.state == WorkflowState.FAILED and executed_f2.state == WorkflowState.COMPLETED,
+        "subsequent_workflow_healthy": executed_f1.state == WorkflowState.FAILED
+        and executed_f2.state == WorkflowState.COMPLETED,
         "zero_residual_locks": True,
     }
 
@@ -338,7 +351,15 @@ def generate_timeout_cancellation_report(output_filepath: str) -> dict[str, Any]
 if __name__ == "__main__":
     report_file = os.path.join("research", "fault-tolerance", "timeout_cancellation_report.json")
     res = generate_timeout_cancellation_report(report_file)
-    print(f"Scenario B (Mid-Workflow Cancellation): Final State={res['scenarios']['scenario_b']['final_state']} | Stage 3 Halted={res['scenarios']['scenario_b']['downstream_stage_3_halted']}")
-    print(f"Scenario D (Non-Cooperative Blocking): Main Thread Blocked={res['scenarios']['scenario_d']['main_thread_blocked_sec']}s")
-    print(f"Scenario F (Subsequent Isolation): WF1={res['scenarios']['scenario_f']['workflow_1_final_state']} | WF2={res['scenarios']['scenario_f']['workflow_2_final_state']}")
-    print(f"Scenario G (Deterministic Cancellation): Deterministic={res['scenarios']['scenario_g']['deterministic_cancellation']}")
+    print(
+        f"Scenario B (Mid-Workflow Cancellation): Final State={res['scenarios']['scenario_b']['final_state']} | Stage 3 Halted={res['scenarios']['scenario_b']['downstream_stage_3_halted']}"
+    )
+    print(
+        f"Scenario D (Non-Cooperative Blocking): Main Thread Blocked={res['scenarios']['scenario_d']['main_thread_blocked_sec']}s"
+    )
+    print(
+        f"Scenario F (Subsequent Isolation): WF1={res['scenarios']['scenario_f']['workflow_1_final_state']} | WF2={res['scenarios']['scenario_f']['workflow_2_final_state']}"
+    )
+    print(
+        f"Scenario G (Deterministic Cancellation): Deterministic={res['scenarios']['scenario_g']['deterministic_cancellation']}"
+    )

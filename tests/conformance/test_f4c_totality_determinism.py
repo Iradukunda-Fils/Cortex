@@ -12,8 +12,9 @@ import copy
 import json
 import os
 import unittest
-from tools.cortex_verifier import IndependentVerifier, Verdict
+
 from tests.conformance.test_gate_j_independent_verifier import generate_valid_evidence_bundle
+from tools.cortex_verifier import IndependentVerifier, Verdict
 
 
 class TestF4cTotalityAndDeterminism(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestF4cTotalityAndDeterminism(unittest.TestCase):
         """F4c.2-001: Valid bundle evaluates deterministically to Verdict.VALID (0)."""
         v1, m1 = self.verifier.verify_evidence_bundle(self.valid_bundle)
         v2, m2 = self.verifier.verify_evidence_bundle(self.valid_bundle)
-        
+
         self.assertIn(v1, [Verdict.VALID, Verdict.INVALID, Verdict.INDETERMINATE])
         self.assertEqual(v1, Verdict.VALID)
         self.assertEqual(v1, v2)
@@ -37,10 +38,10 @@ class TestF4cTotalityAndDeterminism(unittest.TestCase):
         """F4c.2-002: Corrupted bundle evaluates deterministically to Verdict.INVALID (1)."""
         corrupted = copy.deepcopy(self.valid_bundle)
         corrupted["intents"][0]["signature"] = "0" * 64
-        
+
         v1, m1 = self.verifier.verify_evidence_bundle(corrupted)
         v2, m2 = self.verifier.verify_evidence_bundle(corrupted)
-        
+
         self.assertIn(v1, [Verdict.VALID, Verdict.INVALID, Verdict.INDETERMINATE])
         self.assertEqual(v1, Verdict.INVALID)
         self.assertEqual(v1, v2)
@@ -50,10 +51,10 @@ class TestF4cTotalityAndDeterminism(unittest.TestCase):
         """F4c.2-003: Incomplete bundle evaluates deterministically to Verdict.INDETERMINATE (2)."""
         incomplete = copy.deepcopy(self.valid_bundle)
         incomplete["is_incomplete"] = True
-        
+
         v1, m1 = self.verifier.verify_evidence_bundle(incomplete)
         v2, m2 = self.verifier.verify_evidence_bundle(incomplete)
-        
+
         self.assertIn(v1, [Verdict.VALID, Verdict.INVALID, Verdict.INDETERMINATE])
         self.assertEqual(v1, Verdict.INDETERMINATE)
         self.assertEqual(v1, v2)
@@ -69,9 +70,15 @@ class TestF4cTotalityAndDeterminism(unittest.TestCase):
             {},
             {"anchor": {}},
             {"anchor": None, "intents": [], "tokens": [], "events": [], "witness_chain": []},
-            {"anchor": {"node_id": "invalid_uuid", "genesis_epoch": "abc"}, "intents": [1], "tokens": [1], "events": [1], "witness_chain": [1]},
+            {
+                "anchor": {"node_id": "invalid_uuid", "genesis_epoch": "abc"},
+                "intents": [1],
+                "tokens": [1],
+                "events": [1],
+                "witness_chain": [1],
+            },
         ]
-        
+
         for inp in malformed_inputs:
             v, msg = self.verifier.verify_evidence_bundle(inp)
             self.assertIn(v, [Verdict.VALID, Verdict.INVALID, Verdict.INDETERMINATE])

@@ -18,6 +18,7 @@ class PureArchitecturalStateV1:
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
 
+
 @dataclass(frozen=True)
 class ObservationMetadataV1:
     step: int
@@ -30,6 +31,7 @@ class ObservationMetadataV1:
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
 
+
 @dataclass(frozen=True)
 class CommitEventV1:
     schema_version: int = 1
@@ -40,5 +42,5 @@ class CommitEventV1:
         return {
             "schema_version": self.schema_version,
             "architectural": self.architectural.to_dict() if self.architectural else {},
-            "observation": self.observation.to_dict() if self.observation else {}
+            "observation": self.observation.to_dict() if self.observation else {},
         }

@@ -12,6 +12,7 @@ MAX_EPOCH = 65535
 NEUTRAL_TRAP_EXPECTED_VAL = 0
 MIN_RETIREMENT_STEP = 1
 
+
 @dataclass
 class InvariantResult:
     passed: bool
@@ -29,6 +30,7 @@ class InvariantResult:
 
 class EpochMonotonicityInvariant:
     """INV_03: Capability epochs must remain in valid 16-bit range."""
+
     def check(self, event: CommitEventV1) -> InvariantResult:
         if event.architectural is None:
             return InvariantResult.FAIL("INV_03_ATOMIC_STCR_UPDATE", "Missing architectural state")
@@ -41,6 +43,7 @@ class EpochMonotonicityInvariant:
 
 class NeutralTrapInvariant:
     """INV_02: Verifies that committed neutral traps maintain trap_val == 0."""
+
     def check(self, event: CommitEventV1) -> InvariantResult:
         if event.architectural is None:
             return InvariantResult.FAIL("INV_02_NEUTRAL_TRAP_ZERO_VAL", "Missing architectural state")
@@ -54,6 +57,7 @@ class NeutralTrapInvariant:
 
 class SingleRetirementInvariant:
     """INV_01: Exactly one architectural retirement event per execution step."""
+
     def check(self, event: CommitEventV1) -> InvariantResult:
         if event.observation is None:
             return InvariantResult.FAIL("INV_01_SINGLE_RETIREMENT", "Missing observation metadata")

@@ -19,5 +19,6 @@ class TestAdapterMutations(unittest.TestCase):
         # Check spatial mask bit decoding for STCR0
         self.assertEqual(states[0].stcr[0].permissions, 28672)
 
+
 if __name__ == "__main__":
     unittest.main()

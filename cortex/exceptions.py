@@ -2,7 +2,6 @@
 Custom Exceptions for Cortex Platform
 """
 
-
 from cortex.compat import override
 
 

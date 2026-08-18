@@ -19,7 +19,4 @@ class OpcodeMetric(BaseMetric):
     def get_summary(self) -> dict[str, Any]:
         count = len(self.seen_opcodes)
         pct = min(100.0, (count / float(self.total_opcodes)) * 100.0)
-        return {
-            "unique_opcodes_seen": count,
-            "coverage_percentage": round(pct, 1)
-        }
+        return {"unique_opcodes_seen": count, "coverage_percentage": round(pct, 1)}

@@ -42,7 +42,7 @@ class RTLVerilatorDriver:
                 raw_instruction=raw_inst,
                 eff_trap=eff_trap,
                 trap_cause=trap_cause,
-                stcr_registers=stcr_regs
+                stcr_registers=stcr_regs,
             )
             self.context.publish(event)
 

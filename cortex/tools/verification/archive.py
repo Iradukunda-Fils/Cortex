@@ -18,11 +18,7 @@ class CounterexampleArchive:
                 json.dump({"counterexamples": []}, f, indent=2)
 
     def archive_failure(
-        self,
-        scenario: dict[str, Any],
-        diagnostic: dict[str, Any],
-        seed: str,
-        commit_id: str = "a484b94"
+        self, scenario: dict[str, Any], diagnostic: dict[str, Any], seed: str, commit_id: str = "a484b94"
     ) -> str:
         payload_str = json.dumps(scenario, sort_keys=True).encode("utf-8")
         entry_hash = hashlib.sha256(payload_str).hexdigest()[:12]
@@ -43,14 +39,16 @@ class CounterexampleArchive:
         with open(self.index_path, "r") as f:
             index_data = json.load(f)
 
-        index_data["counterexamples"].append({
-            "hash": entry_hash,
-            "seed": seed,
-            "commit_id": commit_id,
-            "error_type": diagnostic.get("error_type", "Unknown"),
-            "mismatched_field": diagnostic.get("mismatched_field", "Unknown"),
-            "failing_step": diagnostic.get("failing_step", 0)
-        })
+        index_data["counterexamples"].append(
+            {
+                "hash": entry_hash,
+                "seed": seed,
+                "commit_id": commit_id,
+                "error_type": diagnostic.get("error_type", "Unknown"),
+                "mismatched_field": diagnostic.get("mismatched_field", "Unknown"),
+                "failing_step": diagnostic.get("failing_step", 0),
+            }
+        )
 
         with open(self.index_path, "w") as f:
             json.dump(index_data, f, indent=2)

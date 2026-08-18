@@ -106,12 +106,14 @@ class ChainedPluginA(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "chained_stage_1"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "chained_stage_1"}],
+                )
+            )
 
 
 class ChainedPluginB(BasePlugin):
@@ -278,7 +280,9 @@ def execute_crash_semantics_research() -> dict[str, Any]:
     # -------------------------------------------------------------------------
     # Scenario D: Chained Execution Failure (A -> B -> C)
     # -------------------------------------------------------------------------
-    client_d = CortexClient(platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"})
+    client_d = CortexClient(
+        platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"}
+    )
     _ = client_d.register_plugin(ChainedPluginA())
     _ = client_d.register_plugin(ChainedPluginB())
     plugin_c = ChainedPluginC()
@@ -342,7 +346,8 @@ def execute_crash_semantics_research() -> dict[str, Any]:
         "host_survived": True,
         "workflow_1_final_state": executed_f1.state.value,
         "workflow_2_final_state": executed_f2.state.value,
-        "subsequent_workflow_isolated": executed_f1.state == WorkflowState.FAILED and executed_f2.state == WorkflowState.COMPLETED,
+        "subsequent_workflow_isolated": executed_f1.state == WorkflowState.FAILED
+        and executed_f2.state == WorkflowState.COMPLETED,
     }
 
     # Overall Summary
@@ -372,6 +377,12 @@ def generate_crash_semantics_report(output_filepath: str) -> dict[str, Any]:
 if __name__ == "__main__":
     report_file = os.path.join("research", "recovery", "crash_semantics_report.json")
     res = generate_crash_semantics_report(report_file)
-    print(f"Scenario A (Ordinary Exception): Host Survived={res['scenarios']['scenario_a']['host_survived']} | State={res['scenarios']['scenario_a']['final_state']}")
-    print(f"Scenario D (Chained Failure): Stage C Executed={res['scenarios']['scenario_d']['stage_c_executed']} | Prior Events Preserved={res['scenarios']['scenario_d']['prior_events_preserved_in_store']}")
-    print(f"Scenario F (Subsequent Isolation): WF1={res['scenarios']['scenario_f']['workflow_1_final_state']} | WF2={res['scenarios']['scenario_f']['workflow_2_final_state']}")
+    print(
+        f"Scenario A (Ordinary Exception): Host Survived={res['scenarios']['scenario_a']['host_survived']} | State={res['scenarios']['scenario_a']['final_state']}"
+    )
+    print(
+        f"Scenario D (Chained Failure): Stage C Executed={res['scenarios']['scenario_d']['stage_c_executed']} | Prior Events Preserved={res['scenarios']['scenario_d']['prior_events_preserved_in_store']}"
+    )
+    print(
+        f"Scenario F (Subsequent Isolation): WF1={res['scenarios']['scenario_f']['workflow_1_final_state']} | WF2={res['scenarios']['scenario_f']['workflow_2_final_state']}"
+    )

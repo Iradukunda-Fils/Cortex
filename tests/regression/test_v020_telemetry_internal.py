@@ -28,6 +28,7 @@ class TestInternalTelemetryHarness(unittest.TestCase):
     def test_internal_package_has_empty_all(self) -> None:
         """cortex._telemetry subpackage must define __all__ = []."""
         import cortex._telemetry
+
         self.assertEqual(cortex._telemetry.__all__, [])
 
     def test_calculate_quantiles_accuracy(self) -> None:

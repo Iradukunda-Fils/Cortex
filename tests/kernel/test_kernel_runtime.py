@@ -53,7 +53,9 @@ class TestKernelRuntime(unittest.TestCase):
         self.transport.subscribe(Event, lambda e: event_store.record_event(cast(Event, e)))
 
         verif_service = VerificationKernelService(self.context)
-        self.transport.subscribe(RawRTLTraceEvent, lambda e: verif_service.handle_raw_rtl_trace(cast(RawRTLTraceEvent, e)))
+        self.transport.subscribe(
+            RawRTLTraceEvent, lambda e: verif_service.handle_raw_rtl_trace(cast(RawRTLTraceEvent, e))
+        )
 
         rtl_driver = RTLVerilatorDriver(self.context)
         count = rtl_driver.ingest_trace_file("rtl_trace.json")
@@ -69,6 +71,7 @@ class TestKernelRuntime(unittest.TestCase):
         verified_events = [e for e in log if isinstance(e, CommitVerifiedEvent)]
         self.assertEqual(len(verified_events), count)
         self.assertTrue(all(ve.verified for ve in verified_events))
+
 
 if __name__ == "__main__":
     _ = unittest.main()

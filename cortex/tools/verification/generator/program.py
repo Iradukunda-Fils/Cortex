@@ -36,11 +36,8 @@ class ProgramGenerator:
             else:
                 raw = 0x00000000
 
-            instructions.append({
-                "opcode_name": op_name,
-                "opcode_val": op_code,
-                "raw_hex": f"0x{raw:08x}",
-                "raw_uint32": raw
-            })
+            instructions.append(
+                {"opcode_name": op_name, "opcode_val": op_code, "raw_hex": f"0x{raw:08x}", "raw_uint32": raw}
+            )
 
         return instructions

@@ -21,6 +21,4 @@ class StateSpaceMetric(BaseMetric):
         self.visited_states.add(state_hash)
 
     def get_summary(self) -> dict[str, Any]:
-        return {
-            "unique_states_explored": len(self.visited_states)
-        }
+        return {"unique_states_explored": len(self.visited_states)}

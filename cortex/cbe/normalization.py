@@ -42,7 +42,5 @@ def check_int64_bounds(val: int) -> int:
     Raises CBEIntOverflowError if out of bounds.
     """
     if val < INT64_MIN or val > INT64_MAX:
-        raise CBEIntOverflowError(
-            f"Integer {val} exceeds signed 64-bit bounds [{INT64_MIN}, {INT64_MAX}]"
-        )
+        raise CBEIntOverflowError(f"Integer {val} exceeds signed 64-bit bounds [{INT64_MIN}, {INT64_MAX}]")
     return val

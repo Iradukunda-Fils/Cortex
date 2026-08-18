@@ -127,7 +127,7 @@ class TestCBEStreaming(unittest.TestCase):
 
     def test_truncated_payload_rejection(self) -> None:
         # Header len 10, but payload is 4 bytes
-        hdr = b"CF\x01\x00\x00\x00\x00\x00\x00\x00\x0A1234"
+        hdr = b"CF\x01\x00\x00\x00\x00\x00\x00\x00\x0a1234"
         with self.assertRaises(CBETruncatedPayloadError):
             decode_frame(hdr)
 

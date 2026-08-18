@@ -41,9 +41,7 @@ class TestCBENormativeVectors(unittest.TestCase):
                 vec["expected_cbe"],
                 f"CBE mismatch for {v_id}",
             )
-            self.assertEqual(
-                uuid_str, vec["expected_uuid"], f"UUIDv5 mismatch for {v_id}"
-            )
+            self.assertEqual(uuid_str, vec["expected_uuid"], f"UUIDv5 mismatch for {v_id}")
 
 
 class TestCBEEdgeCasesAndInvariants(unittest.TestCase):
@@ -169,6 +167,7 @@ class TestCBEEdgeCasesAndInvariants(unittest.TestCase):
         enc = encode(ast)
         dec_ast, offset = decode(enc)
         self.assertEqual(offset, len(enc))
+
     def test_trailing_bytes_offset_detection(self) -> None:
         """Decoder returns exact consumed byte count, allowing caller to detect trailing bytes."""
         valid_wire = b"I42"

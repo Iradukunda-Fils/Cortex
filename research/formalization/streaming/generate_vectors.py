@@ -37,12 +37,7 @@ with open(os.path.join(VALID_DIR, "st-02-multi-frame.cbeframe"), "wb") as f:
     f.write(v_st02)
 
 # 3. st-03-control-sequence.cbeframe
-v_st03 = (
-    make_frame(0x01, 0, TV_A)
-    + make_frame(0x02, 1, b"")
-    + make_frame(0x03, 2, b"")
-    + make_frame(0x01, 3, TV_B)
-)
+v_st03 = make_frame(0x01, 0, TV_A) + make_frame(0x02, 1, b"") + make_frame(0x03, 2, b"") + make_frame(0x01, 3, TV_B)
 with open(os.path.join(VALID_DIR, "st-03-control-sequence.cbeframe"), "wb") as f:
     f.write(v_st03)
 
@@ -86,12 +81,12 @@ with open(os.path.join(INVALID_DIR, "st-err-02-truncated-header.cbeframe"), "wb"
     f.write(v_err02)
 
 # 11. st-err-03-truncated-payload.cbeframe
-v_err03 = b"CF\x01\x00\x00\x00\x00\x00\x00\x00\x4A" + TV_A[:20]
+v_err03 = b"CF\x01\x00\x00\x00\x00\x00\x00\x00\x4a" + TV_A[:20]
 with open(os.path.join(INVALID_DIR, "st-err-03-truncated-payload.cbeframe"), "wb") as f:
     f.write(v_err03)
 
 # 12. st-err-04-bad-magic.cbeframe (Magic XY)
-v_err04 = b"XY\x01\x00\x00\x00\x00\x00\x00\x00\x0A1234567890"
+v_err04 = b"XY\x01\x00\x00\x00\x00\x00\x00\x00\x0a1234567890"
 with open(os.path.join(INVALID_DIR, "st-err-04-bad-magic.cbeframe"), "wb") as f:
     f.write(v_err04)
 

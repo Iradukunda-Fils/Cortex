@@ -94,6 +94,7 @@ class CortexClient:
             def create_plugin_handler(p: BasePlugin) -> EventHandler:
                 def plugin_handler(e: AnyEvent) -> None:
                     self._dispatch_to_plugin(p, e)
+
                 return plugin_handler
 
             for _ in plugin.manifest.consumes_events:
@@ -160,8 +161,7 @@ class CortexClient:
 
         # Check for any failed verification events in store
         failed_verifications = [
-            e for e in self.event_store.get_log()
-            if isinstance(e, VerificationResultEvent) and not e.passed
+            e for e in self.event_store.get_log() if isinstance(e, VerificationResultEvent) and not e.passed
         ]
 
         if failed_verifications:
@@ -197,12 +197,14 @@ class CortexClient:
         if graph:
             analyzer = ExecutionGraphAnalyzer(graph)
             for node in analyzer.find_failed_nodes():
-                failed_nodes.append({
-                    "id": node.node_id,
-                    "type": node.node_type,
-                    "payload": node.payload,
-                    "parent_id": node.parent_id,
-                })
+                failed_nodes.append(
+                    {
+                        "id": node.node_id,
+                        "type": node.node_type,
+                        "payload": node.payload,
+                        "parent_id": node.parent_id,
+                    }
+                )
 
             for node_id, node in graph.nodes.items():
                 parent_info = f" -> parent: {node.parent_id[:8]}" if node.parent_id else " (ROOT)"

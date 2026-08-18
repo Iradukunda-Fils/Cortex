@@ -136,4 +136,6 @@ if __name__ == "__main__":
     report_file = os.path.join("research", "synthesis", "architecture_gate_synthesis.json")
     res = generate_architecture_gate_artifacts(report_file)
     print(f"Architecture Gate Decision: Passed={res['gate_decision']['architecture_gate_passed']}")
-    print(f"Recommended v0.3 Topology: {res['synthesis']['q5_architectural_topology_comparison']['recommended_architecture']}")
+    print(
+        f"Recommended v0.3 Topology: {res['synthesis']['q5_architectural_topology_comparison']['recommended_architecture']}"
+    )

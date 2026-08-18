@@ -19,7 +19,9 @@ class TelemetryCollector:
         self.client = client
         self.plugin_metrics: dict[str, PluginInvocationMetric] = {}
 
-    def collect_workflow_metrics(self, workflow: Workflow, start_time_ns: int, end_time_ns: int) -> WorkflowTelemetryRecord:
+    def collect_workflow_metrics(
+        self, workflow: Workflow, start_time_ns: int, end_time_ns: int
+    ) -> WorkflowTelemetryRecord:
         """Analyzes executed workflow and event store log to build a TelemetryRecord."""
         duration_ms = (end_time_ns - start_time_ns) / 1e6
         events = self.client.event_store.get_log()

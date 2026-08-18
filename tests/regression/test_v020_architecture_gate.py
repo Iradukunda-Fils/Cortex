@@ -24,6 +24,7 @@ class TestArchitectureResearchGate(unittest.TestCase):
     def test_internal_package_has_empty_all(self) -> None:
         """cortex._research subpackage must define __all__ = []."""
         import cortex._research
+
         self.assertEqual(cortex._research.__all__, [])
 
     def test_architecture_gate_synthesis_decision(self) -> None:
@@ -43,7 +44,9 @@ class TestArchitectureResearchGate(unittest.TestCase):
         self.assertIn("IN_DOUBT", synthesis["q3_side_effect_semantics"]["chosen_contract_option"])
 
         # Question 5
-        self.assertIn("Tiered Hybrid Isolation", synthesis["q5_architectural_topology_comparison"]["recommended_architecture"])
+        self.assertIn(
+            "Tiered Hybrid Isolation", synthesis["q5_architectural_topology_comparison"]["recommended_architecture"]
+        )
 
         # Gate decision
         self.assertTrue(gate["architecture_gate_passed"])

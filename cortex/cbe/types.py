@@ -103,9 +103,7 @@ class Int(CortexValue):
         if isinstance(value, bool) or not isinstance(value, int):
             raise TypeError(f"Expected int, got {type(value)}")
         if value < INT64_MIN or value > INT64_MAX:
-            raise CBEIntOverflowError(
-                f"Integer {value} exceeds signed 64-bit bounds [{INT64_MIN}, {INT64_MAX}]"
-            )
+            raise CBEIntOverflowError(f"Integer {value} exceeds signed 64-bit bounds [{INT64_MIN}, {INT64_MAX}]")
         self._value = value
 
     @property
@@ -257,9 +255,7 @@ class Map(CortexValue):
             # Check key collision under NFC -> UTF-8 bytes
             nfc_k_bytes = unicodedata.normalize("NFC", k.value).encode("utf-8")
             if nfc_k_bytes in seen_utf8_keys:
-                raise CBEDuplicateKeyError(
-                    f"Duplicate map key after NFC normalization: {k.value!r}"
-                )
+                raise CBEDuplicateKeyError(f"Duplicate map key after NFC normalization: {k.value!r}")
             seen_utf8_keys.add(nfc_k_bytes)
             validated_pairs.append((k, v))
 

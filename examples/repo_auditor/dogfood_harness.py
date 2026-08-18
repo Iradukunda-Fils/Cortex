@@ -273,7 +273,8 @@ def run_profile(profile: dict[str, object], output_dir: str) -> ProfileResult:
 
     trace_path = os.path.join(output_dir, f"trace_{name}.json")
     _ = client.save_trace(
-        executed.workflow_id, trace_path,
+        executed.workflow_id,
+        trace_path,
         name=f"dogfood_{name}",
         goal=description,
     )
@@ -354,7 +355,12 @@ def run_dogfood_harness(output_base: str | None = None) -> list[ProfileResult]:
     """Execute all controlled synthetic workload profiles and save telemetry."""
     if output_base is None:
         output_base = os.path.join(
-            os.path.dirname(__file__), "..", "..", "docs", "operations", "dogfood_results",
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "docs",
+            "operations",
+            "dogfood_results",
         )
     output_base = os.path.abspath(output_base)
     os.makedirs(output_base, exist_ok=True)
@@ -379,10 +385,12 @@ def run_dogfood_harness(output_base: str | None = None) -> list[ProfileResult]:
 
         status = "✓" if result.workflow_state in ("COMPLETED", "FAILED") else "✗"
         replay_status = "EQUIVALENT" if result.replay.proven_equivalent else "NOT EQUIVALENT"
-        print(f"{status} {result.workflow_state} | "
-              f"{result.events.total} events | "
-              f"{result.timings.total_s:.4f}s | "
-              f"replay={replay_status}")
+        print(
+            f"{status} {result.workflow_state} | "
+            f"{result.events.total} events | "
+            f"{result.timings.total_s:.4f}s | "
+            f"replay={replay_status}"
+        )
 
     # Save aggregate results with environment metadata
     aggregate_path = os.path.join(output_base, "aggregate_results.json")
@@ -403,23 +411,24 @@ def main() -> None:
 
     # Print summary table
     print()
-    print(f"  {'Profile':<12} {'Steps':>6} {'Events':>7} {'Duration':>10} "
-          f"{'Evt/s':>8} {'Memory':>10} {'Trace':>8} {'Replay':>12} {'State':<10}")
+    print(
+        f"  {'Profile':<12} {'Steps':>6} {'Events':>7} {'Duration':>10} "
+        f"{'Evt/s':>8} {'Memory':>10} {'Trace':>8} {'Replay':>12} {'State':<10}"
+    )
     print("  " + "-" * 96)
 
     for r in results:
         trace_kb = round(r.trace_size_bytes / 1024, 1)
         replay_str = "EQUIVALENT" if r.replay.proven_equivalent else "DIVERGENT"
-        print(f"  {r.profile_name:<12} {r.step_count:>6} {r.events.total:>7} "
-              f"{r.timings.total_s:>9.4f}s {r.events_per_second:>7.1f} "
-              f"{r.memory.peak_traced_mb:>8.2f}MB {trace_kb:>6.1f}KB "
-              f"{replay_str:>12} {r.workflow_state:<10}")
+        print(
+            f"  {r.profile_name:<12} {r.step_count:>6} {r.events.total:>7} "
+            f"{r.timings.total_s:>9.4f}s {r.events_per_second:>7.1f} "
+            f"{r.memory.peak_traced_mb:>8.2f}MB {trace_kb:>6.1f}KB "
+            f"{replay_str:>12} {r.workflow_state:<10}"
+        )
 
     # Check all passed
-    all_ok = all(
-        r.workflow_state in ("COMPLETED", "FAILED") and r.replay.proven_equivalent
-        for r in results
-    )
+    all_ok = all(r.workflow_state in ("COMPLETED", "FAILED") and r.replay.proven_equivalent for r in results)
     print()
     if all_ok:
         print("  [✓] All 5 controlled synthetic workload profiles executed successfully.")

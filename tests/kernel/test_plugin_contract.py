@@ -125,8 +125,7 @@ class TestPluginRuntimeExceptionIsolation(unittest.TestCase):
 
         log = client.event_store.get_log()
         verification_failures = [
-            e for e in log
-            if isinstance(e, VerificationResultEvent) and e.rule_id == "PLUGIN_EXECUTION_ERROR"
+            e for e in log if isinstance(e, VerificationResultEvent) and e.rule_id == "PLUGIN_EXECUTION_ERROR"
         ]
         self.assertEqual(len(verification_failures), 1)
         err_event = verification_failures[0]

@@ -12,15 +12,18 @@ from cortex.tools.kernel.schema.message import BaseEvent
 AnyEvent = Event | BaseEvent
 EventHandler = Callable[[AnyEvent], None]
 
+
 class EventPublisher(ABC):
     @abstractmethod
     def publish(self, event: AnyEvent) -> None:
         pass
 
+
 class EventSubscriber(ABC):
     @abstractmethod
     def subscribe(self, event_type: type[AnyEvent], handler: EventHandler) -> None:
         pass
+
 
 class InMemoryTransport(EventPublisher, EventSubscriber):
     _handlers: dict[type[AnyEvent], list[EventHandler]]
@@ -47,4 +50,3 @@ class InMemoryTransport(EventPublisher, EventSubscriber):
 
     def get_history(self) -> list[AnyEvent]:
         return list(self._history)
-

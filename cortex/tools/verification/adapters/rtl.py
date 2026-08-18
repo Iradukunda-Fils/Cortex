@@ -37,7 +37,7 @@ class RTLAdapter(BaseAdapter):
                 1: "InsufficientSpatialRights",
                 2: "EpochMismatch",
                 3: "InvalidCapability",
-                15: "IllegalInstruction"
+                15: "IllegalInstruction",
             }
             cause_name = cause_names.get(cause_code, "UnknownTrap" if is_trap else "None")
 
@@ -50,28 +50,21 @@ class RTLAdapter(BaseAdapter):
                 base = (val >> 16) & 0xFFFFFFFF
                 epoch = val & 0xFFFF
 
-                stcr_list.append(CanonicalSTCR(
-                    index=reg_id,
-                    valid=valid,
-                    permissions=perms,
-                    base_address=base,
-                    epoch=epoch
-                ))
-
-            canonical_steps.append(CanonicalState(
-                step=step_id,
-                pc=pc,
-                instruction=raw_inst,
-                privilege_mode="Machine",
-                reg_hec=reg_hec,
-                registers={},
-                stcr=stcr_list,
-                trap=CanonicalTrap(
-                    triggered=is_trap,
-                    cause_code=cause_code,
-                    cause_name=cause_name,
-                    trap_val=0
+                stcr_list.append(
+                    CanonicalSTCR(index=reg_id, valid=valid, permissions=perms, base_address=base, epoch=epoch)
                 )
-            ))
+
+            canonical_steps.append(
+                CanonicalState(
+                    step=step_id,
+                    pc=pc,
+                    instruction=raw_inst,
+                    privilege_mode="Machine",
+                    reg_hec=reg_hec,
+                    registers={},
+                    stcr=stcr_list,
+                    trap=CanonicalTrap(triggered=is_trap, cause_code=cause_code, cause_name=cause_name, trap_val=0),
+                )
+            )
 
         return canonical_steps

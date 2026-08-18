@@ -4,16 +4,18 @@ Author: Iradukunda Fils <iradukundafils1@gmail.com>
 """
 
 import unittest
+
 from tests.conformance.test_gate_h_adversarial import (
+    SecurityTrapException,
     TokenRegistry,
     mint_valid_token,
     verify_actuation_boundary,
-    SecurityTrapException,
 )
 
 
 class MockFileSystemActuatorDriver:
     """Mock File System Driver implementing the controlled actuation boundary."""
+
     def __init__(self, registry: TokenRegistry):
         self.registry = registry
         self.executed_writes: list[tuple[str, str]] = []
@@ -22,7 +24,7 @@ class MockFileSystemActuatorDriver:
         """Driver entry point with embedded Gate H verification."""
         # 1. Gate H Actuation Boundary Verification
         verify_actuation_boundary(token, payload, self.registry)
-        
+
         # 2. Perform Concrete Side-Effect Actuation
         path = payload["path"]
         data = payload["data"]

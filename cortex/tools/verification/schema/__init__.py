@@ -19,6 +19,7 @@ class CanonicalSTCR:
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
 
+
 @dataclass
 class CanonicalTrap:
     triggered: bool
@@ -28,6 +29,7 @@ class CanonicalTrap:
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
+
 
 @dataclass
 class CanonicalState:
