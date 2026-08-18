@@ -1,12 +1,22 @@
-# Cortex Platform: Spatiotemporal Authority & Semantic Verification Framework
+<p align="center">
+  <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="360" />
+</p>
 
-[![PyPI Version](https://img.shields.io/pypi/v/cortex-runtime.svg)](https://pypi.org/project/cortex-runtime/)
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Type Checked: Pyright](https://img.shields.io/badge/type--checking-pyright-brightgreen.svg)](https://github.com/microsoft/pyright)
-[![Certification: 74/74 PASS](https://img.shields.io/badge/Certification-74%2F74%20PASS-brightgreen.svg)](tests/conformance/run_certification.py)
+<h1 align="center">Cortex Platform</h1>
+<p align="center">
+  <b>Spatiotemporal Authority & Semantic Verification Framework</b>
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a>
+  <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a>
+  <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-136%2F136%20PASS-brightgreen.svg" alt="Certification: 136/136 PASS"></a>
+</p>
 
 > **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
+
 
 ---
 
