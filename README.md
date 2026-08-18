@@ -1,9 +1,9 @@
 <p align="left">
-  <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="90" align="left" style="margin-right: 18px; margin-bottom: 10px;" />
+  <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="95" align="left" style="margin-right: 18px; margin-bottom: 10px;" />
   <h1 style="border: none; margin: 0; padding: 0;">Cortex Platform</h1>
-  <sub><b>Spatiotemporal Authority & Semantic Verification Framework</b></sub>
-  <br/><br/>
+  <h3 style="border: none; margin: 4px 0 10px 0; font-weight: 600; font-size: 1.15em;">Spatiotemporal Authority & Semantic Verification Framework</h3>
   <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a>
+
   <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a>
   <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a>
