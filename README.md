@@ -24,14 +24,14 @@ Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Secu
 
 ```text
  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (Gate K / ADR-008)                         │
- │ Manifests declare required permissions before plugins access the kernel bus.                 │
+ │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (Gate K / ADR-008)                          │
+ │ Manifests declare required permissions before plugins access the kernel bus.                │
  └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
                                                 │ SignedIntent Payload (CBE Format)
                                                 ▼
  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
  │ 2. EXECUTION TOKEN INTENT PARITY & ACTUATION GATE (Gate H / P2)                             │
- │ Single-use ExecutionTokens bind tokens strictly to intent hashes: D3 == D2                 │
+ │ Single-use ExecutionTokens bind tokens strictly to intent hashes: D3 == D2                  │
  └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
                                                 │ Governed Side-Effect Execution
                                                 ▼
@@ -41,10 +41,10 @@ Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Secu
  └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
                                                 │ Raw Evidence Traces (R, E)
                                                 ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (Gate J / P4)                             │
- │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE│
- └─────────────────────────────────────────────────────────────────────────────────────────────┘
+ ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (Gate J / P4)                               │
+ │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE │
+ └───────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---

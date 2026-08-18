@@ -1,0 +1,172 @@
+
+Executing Phase 3A.75 / 3A.9 Conformance Pipeline...
+
+
+========================================================================
+      Cortex Verification Substrate Certification Report
+========================================================================
+
+[SCHEMA VALIDATION]
+  CommitContractV1 JSON Schema Validation ................... PASS
+  Test Coq Scenario A1 Register Writes ...................... PASS
+  Test Coq Scenario A2 Memory Writes ........................ PASS
+  Test Coq Scenario A3 Control Flow Branch .................. PASS
+  Test Coq Scenario A4 Exception Traps ...................... PASS
+  Test Coq Scenario A5 Multi Cycle Burst .................... PASS
+  CI Workflow Zero Domain Network Call Guarantee ............ PASS
+  Reserved Namespace cortex.security Reference Audit ........ PASS
+  Offline Local Relative Schema Resolution .................. PASS
+
+[GOLDEN CORPUS VECTORS]
+  Golden Scenario A0 (Basic Commit) ......................... PASS
+  Golden Scenario A1 (Register Writes) ...................... PASS
+  Golden Scenario A2 (Memory Writes) ........................ PASS
+  Golden Scenario A3 (Control Flow / Branch) ................ PASS
+  Golden Scenario A4 (Exception Traps) ...................... PASS
+  Golden Scenario A5 (Multi-Cycle Burst) .................... PASS
+
+[COQ ADAPTER CONFORMANCE]
+  Coq Scenario A0 Conformance ............................... PASS
+  Coq Scenario A1 Conformance ............................... PASS
+  Coq Scenario A2 Conformance ............................... PASS
+  Coq Scenario A3 Conformance ............................... PASS
+  Coq Scenario A4 Conformance ............................... PASS
+  Coq Scenario A5 Conformance ............................... PASS
+
+[RUST ADAPTER CONFORMANCE]
+  Rust Scenario A0 Conformance .............................. PASS
+  Rust Scenario A1 Conformance .............................. PASS
+  Rust Scenario A2 Conformance .............................. PASS
+  Rust Scenario A3 Conformance .............................. PASS
+  Rust Scenario A4 Conformance .............................. PASS
+  Rust Scenario A5 Conformance .............................. PASS
+
+[RTL ADAPTER CONFORMANCE]
+  RTL Cycle Assertion C0 (Fetch/Decode) ..................... PASS
+  RTL Cycle Assertion C1 (Execute Stage) .................... PASS
+  RTL Cycle Assertion C2 (Memory Access) .................... PASS
+  RTL Cycle Assertion C3 (Writeback) ........................ PASS
+  RTL Cycle Assertion C4 (Trap Vectoring) ................... PASS
+  Test Hec Inc Monotonic Or Trap ............................ PASS
+  Test Invalid Opcode Always Traps .......................... PASS
+  Test Invoke Preserves Hec ................................. PASS
+  Test Opcode Parity All Steps .............................. PASS
+  Test Pc Reset Vector And Trace Correctness ................ PASS
+  Test Raw Instruction Parity All Steps ..................... PASS
+  Test Reg Hec Monotonicity ................................. PASS
+  Test Reg Hec Parity All Steps ............................. PASS
+  Test Reg Hec Representability ............................. PASS
+  Test Trace Step Count Parity .............................. PASS
+  Test Trap Agreement All Steps ............................. PASS
+  Test Wb Transition Opcode Classification .................. PASS
+
+[MUTATION IMMUNITY]
+  Adapter Schema Field Mutation Immunity .................... PASS
+  Adapter Binary Payload Mutation Immunity .................. PASS
+
+[INVARIANT SAFETY]
+  Epoch Monotonicity Invariant .............................. PASS
+  Neutral Trap Semantics Invariant .......................... PASS
+  Single Retirement Policy Invariant ........................ PASS
+
+[EXECUTION-INTENT PARITY (GATE H)]
+  Test Canonicalization Epoch Modification Digest ........... PASS
+  Gate H Canonicalization (Identical Objects) ............... PASS
+  Gate H Canonicalization (Path Modification) ............... PASS
+  Gate H Canonicalization (Payload Modification) ............ PASS
+  Test Canonicalization Target Modification Digest .......... PASS
+  Gate H Adversarial H-TEST-001 (Valid Execution) ........... PASS
+  Gate H Adversarial H-TEST-002 (Path Modification Trap) .... PASS
+  Test H 003 Modified Payload Traps ......................... PASS
+  Test H 004 Modified Operation Traps ....................... PASS
+  Test H 005 Modified Target Traps .......................... PASS
+  Test H 006 Expired Token Traps ............................ PASS
+  Test H 007 Wrong Epoch Traps .............................. PASS
+  Gate H Adversarial H-TEST-008 (Replay Protection Trap) .... PASS
+  Test H 009 Wrong Capability Traps ......................... PASS
+  Test H 010 Wrong Node Binding Traps ....................... PASS
+  Test H 011 Signature Tampering Traps ...................... PASS
+  Test H 012 Canonicalization Ambiguity Traps ............... PASS
+  Gate H Adversarial H-TEST-013 (Atomic CAS Concurrency) .... PASS
+  Test H 014 Failed Presentation Then Replay Traps .......... PASS
+  Gate H Actuation Boundary End-to-End Actuation ............ PASS
+  Gate H Actuation Boundary Single-Byte Trap ................ PASS
+
+[CRYPTOGRAPHIC CAUSAL WITNESS (GATE I)]
+  Gate I Causal Witness (Valid Sequential Chain) ............ PASS
+  Gate I Causal Witness (Event Digest Modification Trap) .... PASS
+  Gate I Causal Witness (Intent Digest Modification Trap) ... PASS
+  Gate I Causal Witness (Event Omission Trap) ............... PASS
+  Gate I Causal Witness (Event Re-ordering Trap) ............ PASS
+  Gate I Causal Witness (Signature Tampering Trap) .......... PASS
+  Gate I Causal Witness (Genesis State Mismatch Trap) ....... PASS
+
+[INDEPENDENT UNTRUSTED VERIFIER (GATE J)]
+  Gate J Independent Verifier (Valid Evidence Bundle) ....... PASS
+  Gate J Independent Verifier (Event Payload Mutation) ...... PASS
+  Gate J Independent Verifier (Intent Parameter Substitution) . PASS
+  Gate J Independent Verifier (Event Omission Trap) ......... PASS
+  Gate J Independent Verifier (Event Re-ordering Trap) ...... PASS
+  Gate J Independent Verifier (Forged Signature Trap) ....... PASS
+  Gate J Independent Verifier (Untrusted Genesis Anchor) .... PASS
+  Gate J Independent Verifier (Forged Witness Rewrite) ...... PASS
+  Gate J Independent Verifier (Truncated Log Stream) ........ PASS
+  Gate J Independent Verifier (Stream Length Mismatch) ...... PASS
+  Gate J Independent Verifier (Missing Anchor Schema) ....... PASS
+  Gate J Independent Verifier (Unbound Token Intent Mismatch) . PASS
+  F4c.3 Coq Correspondence (VERDICT_VALID) .................. PASS
+  F4c.3 Coq Correspondence (VERDICT_INVALID - Event Digest) . PASS
+  F4c.3 Coq Correspondence (VERDICT_INVALID - Signature) .... PASS
+  F4c.3 Coq Correspondence (VERDICT_MALFORMED - Truncated) .. PASS
+  F4c.3 Coq Correspondence (VERDICT_MALFORMED - Stream Length) . PASS
+  F4c.3 Sequence Continuity Trap Alignment .................. PASS
+  F4c.3 Parent Pointer Chaining Trap Alignment .............. PASS
+  F4c.4 Class 10 Differential Check (Length Parity -> INDETERMINATE) . PASS
+  F4c.4 Class 1 Differential Check (Valid Trace -> VALID) ... PASS
+  F4c.4 Class 2 Differential Check (Anchor Mismatch -> INVALID) . PASS
+  F4c.4 Class 3 Differential Check (Signature Violation -> INVALID) . PASS
+  F4c.4 Class 4 Differential Check (Token Parity -> INVALID) . PASS
+  F4c.4 Class 5 Differential Check (Sequence Gap -> INVALID) . PASS
+  F4c.4 Class 6 Differential Check (Chain Broken -> INVALID) . PASS
+  F4c.4 Class 7 Differential Check (Digest Mutation -> INVALID) . PASS
+  F4c.4 Class 8 Differential Check (Empty Stream -> INDETERMINATE) . PASS
+  F4c.4 Class 9 Differential Check (Missing Section -> INDETERMINATE) . PASS
+
+[WORKER ISOLATION & MEDIATION (GATE G)]
+  Gate G Mediated Path (Valid SignedIntent Path) ............ PASS
+  Gate G Invariant Safety (Fail-Closed Setup Trap) .......... PASS
+  Gate G Isolation (Filesystem Mutation Trap) ............... PASS
+  Gate G Isolation (Network Connection Trap) ................ PASS
+  Gate G Isolation (Subprocess Exec Trap) ................... PASS
+  Gate G Isolation (Writable+Exec Memory Trap) .............. PASS
+  Gate G Isolation (Direct Device Access Trap) .............. PASS
+  Gate G Isolation (Unwhitelisted FD Sanitation) ............ PASS
+  Gate G Framing (IPC Buffer Flood Dropped) ................. PASS
+  Gate G Protection (IPC Request Replay Rejected) ........... PASS
+  Gate G Recovery (Worker Crash Pre-Auth Isolated) .......... PASS
+  Gate G Recovery (Gateway Crash Pre-Actuate Handled) ....... PASS
+  Gate G Recovery (Crash Post-Actuate INDETERMINATE) ........ PASS
+  Gate G Invariant (Gateway Crash Fails Closed) ............. PASS
+  Gate G Namespace (PID 1 Process Teardown Invariant) ....... PASS
+
+[BOUNDED RE-CERTIFICATION THROUGH PROFILE A (H/I/J)]
+  Gate J Independent Verifier via Profile A (Evidence Bundle Verification) . PASS
+  Test G 000B Fail Closed Setup Invariant ................... PASS
+  Test G 001 Filesystem Mutation Escape Trapped ............. PASS
+  Test G 002 Network Access Escape Trapped .................. PASS
+  Test G 003 Subprocess Creation Trapped .................... PASS
+  Test G 004 Writable Executable Memory Trapped ............. PASS
+  Test G 005 Direct Device Access Trapped ................... PASS
+  Test G 006 Unwhitelisted Fd Leak Check .................... PASS
+  Test G 007 Ipc Framing Flood Dropped ...................... PASS
+  Test G 008 Ipc Request Replay Rejected .................... PASS
+  Test G 009 Worker Crash Pre Auth Isolated ................. PASS
+  Test G 010 Crash Post Auth Pre Actuate Handled ............ PASS
+  Gate I Witness via Profile A (State Chain & Crash UNKNOWN Marker) . PASS
+  Test G 012 Gateway Fail Closed Guarantee .................. PASS
+  Test G Pid1 Namespace Containment ......................... PASS
+
+========================================================================
+  OVERALL RESULT: CERTIFICATION: PASS (136/136 Checks Verified)
+========================================================================
+

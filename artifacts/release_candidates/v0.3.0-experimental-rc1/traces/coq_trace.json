@@ -1,14 +1,14 @@
 [
   {
     "step_id": 1,
-    "pc": 4096,
+    "pc": 8192,
     "reg_hec": 0,
     "stcr_file": [
       {
         "id": 0,
         "valid": true,
         "spatial_mask": 28672,
-        "base_address": 4096,
+        "base_address": 8192,
         "max_epoch": 0
       },
       {
@@ -236,19 +236,19 @@
     "outcome": {
       "status": "COMMIT",
       "trap_cause": null,
-      "dest_reg_val": 4096
+      "dest_reg_val": 8192
     }
   },
   {
     "step_id": 2,
-    "pc": 4096,
+    "pc": 8192,
     "reg_hec": 0,
     "stcr_file": [
       {
         "id": 0,
         "valid": true,
         "spatial_mask": 28672,
-        "base_address": 4096,
+        "base_address": 8192,
         "max_epoch": 0
       },
       {
@@ -476,19 +476,19 @@
     "outcome": {
       "status": "COMMIT",
       "trap_cause": null,
-      "dest_reg_val": 13835058055550599168
+      "dest_reg_val": 13835058055819034624
     }
   },
   {
     "step_id": 3,
-    "pc": 4100,
+    "pc": 8192,
     "reg_hec": 0,
     "stcr_file": [
       {
         "id": 0,
         "valid": true,
         "spatial_mask": 16384,
-        "base_address": 4096,
+        "base_address": 8192,
         "max_epoch": 0
       },
       {
@@ -721,7 +721,7 @@
   },
   {
     "step_id": 4,
-    "pc": 4104,
+    "pc": 8192,
     "reg_hec": 0,
     "stcr_file": [
       {
@@ -961,7 +961,7 @@
   },
   {
     "step_id": 5,
-    "pc": 4108,
+    "pc": 8192,
     "reg_hec": 1,
     "stcr_file": [
       {
@@ -1201,7 +1201,7 @@
   },
   {
     "step_id": 6,
-    "pc": 4112,
+    "pc": 8192,
     "reg_hec": 1,
     "stcr_file": [
       {

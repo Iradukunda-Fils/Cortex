@@ -1,0 +1,9 @@
+ M README.md
+ M cortex-emulator/src/main.rs
+ M cortex_assurance_manifest.json
+ M docs/architecture/canonical-serialization.md
+ M docs/spec/gate_g_remediation_specification.md
+ M research/formalization/artifacts/phase2/emulator_trace.json
+ M tests/conformance/test_conformance_rtl.py
+ M tests/conformance/test_conformance_rust.py
+?? artifacts/release_candidates/

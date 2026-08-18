@@ -259,26 +259,18 @@ class TestSVCoqTraceBridge(unittest.TestCase):
                     f"Step {i+1}: OP_INVALID (0x{opcode:02x}) did not trap"
                 )
 
-    def test_pc_discrepancy_classification(self):
-        """PC values between RTL and emulator are expected to differ due to
-        different reset vectors (RTL=0x1000, Emu=0x2000).
-
-        This test documents the discrepancy as OPEN RECONCILIATION rather
-        than silently ignoring it. The opcode stream and architectural
-        state transitions are the authoritative comparison, not PC values.
+    def test_pc_reset_vector_and_trace_correctness(self):
+        """CA-002 & CA-003: Validate bit-perfect reset vector alignment (0x1000 / 4096)
+        and per-retirement PC correctness between RTL and emulator traces.
         """
         rtl_pcs = [s["pc"] for s in self.rtl_trace]
         emu_pcs = [s["pc"] for s in self.emu_trace]
 
-        # Document: PCs differ because reset vectors differ
-        # RTL resets to 0x00001000, Emulator to 0x00002000
-        pc_match = all(r == e for r, e in zip(rtl_pcs, emu_pcs))
-        if not pc_match:
-            # This is expected — classify as OPEN RECONCILIATION, not failure
-            # The authoritative comparison is opcode/reg_hec/trap, not PC
-            pass
+        # CA-002: Assert reset vector alignment at 0x1000 (4096)
+        self.assertEqual(rtl_pcs[0], 4096, f"RTL reset vector must be 0x1000 (4096), got {rtl_pcs[0]}")
+        self.assertEqual(emu_pcs[0], 4096, f"Emulator reset vector must be 0x1000 (4096), got {emu_pcs[0]}")
 
-        # But PC must be monotonically increasing within each trace
+        # CA-003: Assert per-retirement PC monotonicity across traces
         for i in range(1, len(rtl_pcs)):
             self.assertGreater(
                 rtl_pcs[i], rtl_pcs[i - 1],

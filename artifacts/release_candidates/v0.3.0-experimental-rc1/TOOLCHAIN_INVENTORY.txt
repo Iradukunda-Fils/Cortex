@@ -1,0 +1,39 @@
+=== CORTEX V0.3.0-EXPERIMENTAL-RC1 ENHANCED TOOLCHAIN & ENVIRONMENT INVENTORY ===
+Timestamp: Tue Aug 18 07:18:14 PM UTC 2026
+Host System: Linux Ghost-Lost 7.0.5-arch1-1 #1 SMP PREEMPT_DYNAMIC Fri, 08 May 2026 09:29:23 +0000 x86_64 GNU/Linux
+Target Architecture: x86_64-unknown-linux-gnu
+Git Commit Hash: dfad89f5cc01b94513c035f4401c8fb0864e8521
+Git Working Tree: 9 modified files
+
+--- 1. EXECUTABLE IDENTITIES & BINARY PATHS ---
+Tool: python3
+  Path: /usr/bin/python3
+  Version: Python 3.14.4
+  Executable SHA-256: 0874add71fc9f3249363c4361e4a55265eb2cfe3cecb24c22e9e2ca959c5190d
+
+Tool: rustc
+  Path: /usr/bin/rustc
+  Version: rustc 1.95.0 (59807616e 2026-04-14) (Arch Linux rust 1:1.95.0-1)
+  Executable SHA-256: 12ea1c6ddbc633e0327b24953897423e7e8992695549a97a8deb585220a955e2
+
+Tool: go
+  Path: /usr/bin/go
+  Version: flag provided but not defined: -version
+  Executable SHA-256: bd741236710ace6ab8b52aec07e5e55e598114efc9c6fd101ab88237726be3e3
+
+Tool: coqc
+  Path: /usr/bin/coqc
+  Version: The Rocq Prover, version 9.1.1
+  Executable SHA-256: 31a4dc99700eeb7998b05bdcdfcaca95d3bd7993c6d3359b200806e13ee777c2
+
+Tool: verilator
+  Path: /usr/bin/verilator
+  Version: Verilator 5.050 2026-07-01 rev v5.050
+  Executable SHA-256: fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf
+
+--- 2. COMPILER & BUILD FLAGS ---
+Python Optimizations: sys.flags.optimize = 0
+Rust Target Flags: cargo build --manifest-path cortex-emulator/Cargo.toml (default dev profile, debuginfo=2)
+Go Build Flags: CGO_ENABLED=0 go test ./...
+Coq Build Flags: coqc -R . Cortex (Rocq 9.1.1)
+Verilator Flags: verilator -Wall -Wno-fatal --cc rtl/cortex_stcr_pipeline.sv --exe

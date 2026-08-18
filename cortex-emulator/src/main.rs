@@ -66,7 +66,7 @@ fn main() {
     let initial_cap = CapabilityDescriptor::new(
         true,
         spatial_rights::EXEC | spatial_rights::READ | spatial_rights::WRITE,
-        0x00002000,
+        0x00001000,
         0, // Max epoch = 0
     );
     state.stcr_file.write_descriptor(0, &initial_cap);
@@ -123,6 +123,7 @@ fn execute_step(
     logger: &mut TraceLogger,
 ) {
     let pre_hec = state.hec.value();
+    let pre_pc = state.pc; // CA-003: Capture architectural PC at instruction fetch, before side-effects
 
     // Capture register state prior to execution
     let stcr_list: Vec<StcrState> = (0..32)
@@ -164,12 +165,14 @@ fn execute_step(
                     state.trap_flag = true;
                     state.stcr_file.zero_register(inst.stcr_id as usize); // e_val 0 neutral write
                     dest_reg_val = 0;
+                    state.pc += 4;
                 }
             }
         }
         Ok(Opcode::HecInc) => {
             let _ = state.hec.increment();
             dest_reg_val = state.hec.value() as u64;
+            state.pc += 4;
         }
         Ok(Opcode::RestrictCap) => {
             if let Some(mut cap) = state.stcr_file.read_descriptor(inst.stcr_id as usize) {
@@ -179,13 +182,16 @@ fn execute_step(
                     .write_descriptor(inst.stcr_id as usize, &cap);
                 dest_reg_val = cap.encode();
             }
+            state.pc += 4;
         }
         Ok(Opcode::RevokeCap) => {
             state.stcr_file.zero_register(inst.stcr_id as usize);
             dest_reg_val = 0;
+            state.pc += 4;
         }
         Ok(Opcode::GrantCap) => {
             dest_reg_val = 0;
+            state.pc += 4;
         }
         Err(reserved_code) => {
             status = "EFF_TRAP".to_string();
@@ -193,12 +199,13 @@ fn execute_step(
             state.trap_flag = true;
             state.stcr_file.zero_register(inst.stcr_id as usize);
             dest_reg_val = 0;
+            state.pc += 4;
         }
     }
 
     logger.log_step(StepTraceRecord {
         step_id: step_num,
-        pc: state.pc,
+        pc: pre_pc, // CA-003: Record fetch-time PC, not post-mutation PC
         reg_hec: pre_hec,
         stcr_file: stcr_list,
         instruction: InstructionTrace {

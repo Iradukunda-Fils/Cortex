@@ -131,9 +131,10 @@ With complete mediation, the **Cortex Host Gateway becomes the TCB**. The worker
 
 ### 5.3 Multi-Layer Device Containment & FD Sanitation Policy
 Landlock LSM alone cannot prevent device access if inherited descriptors bypass open-time checks. Complete mediation relies on the Multi-Layer Device Containment Chain:
-$$\text{DeviceContainment} = \text{FD Sanitation} \land \text{Landlock FS Policy} \land \text{Seccomp-BPF} \land \text{Device NS}$$
+$$\text{DeviceContainment} = \text{FD Sanitation} \land \text{Landlock FS Policy} \land \text{Seccomp-BPF} \land \text{Mount Isolation / Devtmpfs Scoping}$$
 
 * **`CLOSE_RANGE_UNSHARE` Policy**: Atomic descriptor sanitation executes `close_range(4, ~0U, CLOSE_RANGE_UNSHARE)` to unshare the descriptor table prior to closing. If `CLOSE_RANGE_UNSHARE` is unavailable (`EINVAL`), fallback executes `close_range(4, ~0U, 0)`. If `close_range` itself is missing (`ENOSYS`), the process immediately calls `_exit(127)` (fail-closed).
+* **Inherited Descriptor Immunity**: Because Landlock's device ioctl restriction applies only to newly opened device files, pre-exec FD sanitation (`close_range`) guarantees no inherited device file descriptors survive into the worker process table.
 * **PID 1 Namespace Containment**: Child B is PID 1 in the isolated PID namespace. Under Linux kernel semantics, terminating PID 1 automatically issues `SIGKILL` to all descendant processes residing in that PID namespace.
 
 ### 5.3 IPC Framing & Replay Defense Protocol
