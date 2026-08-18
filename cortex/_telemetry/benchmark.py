@@ -308,7 +308,7 @@ def generate_research_report(output_filepath: str, sample_count: int = 30) -> di
 
 
 if __name__ == "__main__":
-    report_path = os.path.join("docs", "operations", "telemetry_research_report.json")
+    report_path = os.path.join("research", "telemetry", "telemetry_research_report.json")
     print("Executing Issue #10 benchmark suite (N=30 samples)...")
     res = generate_research_report(report_path, sample_count=30)
     print(f"Report written to {report_path}")

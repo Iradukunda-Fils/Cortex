@@ -327,7 +327,7 @@ def execute_timeout_cancellation_research() -> dict[str, Any]:
 
 
 def generate_timeout_cancellation_report(output_filepath: str) -> dict[str, Any]:
-    """Generates and saves docs/operations/timeout_cancellation_report.json."""
+    """Generates and saves research/fault-tolerance/timeout_cancellation_report.json."""
     data = execute_timeout_cancellation_research()
     os.makedirs(os.path.dirname(os.path.abspath(output_filepath)), exist_ok=True)
     with open(output_filepath, "w", encoding="utf-8") as f:
@@ -336,7 +336,7 @@ def generate_timeout_cancellation_report(output_filepath: str) -> dict[str, Any]
 
 
 if __name__ == "__main__":
-    report_file = os.path.join("docs", "operations", "timeout_cancellation_report.json")
+    report_file = os.path.join("research", "fault-tolerance", "timeout_cancellation_report.json")
     res = generate_timeout_cancellation_report(report_file)
     print(f"Scenario B (Mid-Workflow Cancellation): Final State={res['scenarios']['scenario_b']['final_state']} | Stage 3 Halted={res['scenarios']['scenario_b']['downstream_stage_3_halted']}")
     print(f"Scenario D (Non-Cooperative Blocking): Main Thread Blocked={res['scenarios']['scenario_d']['main_thread_blocked_sec']}s")

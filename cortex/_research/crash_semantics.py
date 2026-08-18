@@ -361,7 +361,7 @@ def execute_crash_semantics_research() -> dict[str, Any]:
 
 
 def generate_crash_semantics_report(output_filepath: str) -> dict[str, Any]:
-    """Generates and saves docs/operations/crash_semantics_report.json."""
+    """Generates and saves research/recovery/crash_semantics_report.json."""
     data = execute_crash_semantics_research()
     os.makedirs(os.path.dirname(os.path.abspath(output_filepath)), exist_ok=True)
     with open(output_filepath, "w", encoding="utf-8") as f:
@@ -370,7 +370,7 @@ def generate_crash_semantics_report(output_filepath: str) -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    report_file = os.path.join("docs", "operations", "crash_semantics_report.json")
+    report_file = os.path.join("research", "recovery", "crash_semantics_report.json")
     res = generate_crash_semantics_report(report_file)
     print(f"Scenario A (Ordinary Exception): Host Survived={res['scenarios']['scenario_a']['host_survived']} | State={res['scenarios']['scenario_a']['final_state']}")
     print(f"Scenario D (Chained Failure): Stage C Executed={res['scenarios']['scenario_d']['stage_c_executed']} | Prior Events Preserved={res['scenarios']['scenario_d']['prior_events_preserved_in_store']}")

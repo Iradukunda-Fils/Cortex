@@ -64,9 +64,9 @@ class VerificationEngine:
             )
 
             # Parse traces
-            coq_trace = coq_adapter.parse_trace("Research/artifacts/phase2/coq_trace.json")
-            rust_trace = rust_adapter.parse_trace("Research/artifacts/phase2/emulator_trace.json")
-            rtl_trace = rtl_adapter.parse_trace("Research/artifacts/phase2/rtl_trace.json")
+            coq_trace = coq_adapter.parse_trace("research/formalization/artifacts/phase2/coq_trace.json")
+            rust_trace = rust_adapter.parse_trace("research/formalization/artifacts/phase2/emulator_trace.json")
+            rtl_trace = rtl_adapter.parse_trace("research/formalization/artifacts/phase2/rtl_trace.json")
 
             # Apply mutation if injected
             if inject_failure:

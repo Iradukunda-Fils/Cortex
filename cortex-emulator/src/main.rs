@@ -1,3 +1,4 @@
+pub mod cbe;
 mod hardware;
 mod isa;
 mod loader;

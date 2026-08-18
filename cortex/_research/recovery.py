@@ -267,7 +267,7 @@ def execute_recovery_research_suite() -> dict[str, Any]:
 
 
 def generate_recovery_semantics_artifacts(json_output_path: str) -> dict[str, Any]:
-    """Generates and writes docs/operations/recovery_semantics_report.json."""
+    """Generates and writes research/recovery/recovery_semantics_report.json."""
     data = execute_recovery_research_suite()
     os.makedirs(os.path.dirname(os.path.abspath(json_output_path)), exist_ok=True)
     with open(json_output_path, "w", encoding="utf-8") as f:
@@ -276,7 +276,7 @@ def generate_recovery_semantics_artifacts(json_output_path: str) -> dict[str, An
 
 
 if __name__ == "__main__":
-    report_file = os.path.join("docs", "operations", "recovery_semantics_report.json")
+    report_file = os.path.join("research", "recovery", "recovery_semantics_report.json")
     res = generate_recovery_semantics_artifacts(report_file)
     print(f"Experiment A (Memory Loss): In-Memory Survived={res['experiments']['experiment_a']['in_memory_state_survived']}")
     print(f"Experiment C (Deduplication): Duplicate Without Key={res['experiments']['experiment_c']['replay_without_idempotency_mutations']} | With Key={res['experiments']['experiment_c']['replay_with_idempotency_mutations']}")

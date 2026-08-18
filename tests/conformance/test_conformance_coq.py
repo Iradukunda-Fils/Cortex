@@ -10,7 +10,7 @@ from cortex.tools.verification.adapters.coq import CoqAdapter
 class TestConformanceCoq(unittest.TestCase):
     def setUp(self):
         self.adapter = CoqAdapter()
-        self.states = self.adapter.parse_trace("Research/artifacts/phase2/coq_trace.json")
+        self.states = self.adapter.parse_trace("research/formalization/artifacts/phase2/coq_trace.json")
 
     def test_coq_scenario_a0_basic_commit(self):
         """A0: Verify initial state commit."""

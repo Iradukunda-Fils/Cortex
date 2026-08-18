@@ -10,7 +10,7 @@ from cortex.tools.verification.adapters.rust import RustAdapter
 class TestConformanceRust(unittest.TestCase):
     def setUp(self):
         self.adapter = RustAdapter()
-        self.states = self.adapter.parse_trace("Research/artifacts/phase2/emulator_trace.json")
+        self.states = self.adapter.parse_trace("research/formalization/artifacts/phase2/emulator_trace.json")
 
     def test_rust_scenario_a0_basic_commit(self):
         """A0: Verify initial state commit."""
