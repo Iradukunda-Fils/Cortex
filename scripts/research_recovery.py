@@ -15,7 +15,7 @@ from cortex._research.recovery import generate_recovery_semantics_artifacts
 
 
 def main() -> None:
-    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "operations", "recovery_semantics_report.json")
+    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "research", "recovery", "recovery_semantics_report.json")
     print("🔬 Running Cortex Issue #13 Restart, Recovery & Side-Effect Research Suite...")
     results = generate_recovery_semantics_artifacts(output_path)
 

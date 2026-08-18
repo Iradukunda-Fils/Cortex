@@ -6,30 +6,66 @@ Cortex is a spatiotemporal authority and semantic verification framework designe
 
 ---
 
-## 📚 Documentation Index
+## 📚 Central Navigation Taxonomy
 
-### 🚀 Getting Started
-- **[5-Minute Quickstart Guide](quickstart.md)**: Get started building Cortex applications and custom plugins using the pure Python SDK (`cortex.*`).
-- **[CLI Reference Documentation](cli.md)**: Standard CLI command usage (`cortex init`, `workflow run`, `inspect`, `replay`).
+```
+docs/
+├── getting-started/                   # Onboarding & Setup
+│   ├── quickstart.md                  # 5-minute developer tutorial
+│   ├── setup.md                       # Local environment setup & verify.sh guide
+│   └── cli.md                         # Cortex CLI command reference
+├── architecture/                      # Kernel Specifications & Architecture
+│   ├── overview.md                    # Core System Architecture & Security Boundary
+│   ├── canonical-serialization.md      # Cortex-CBE Formal Grammar & Serialization
+│   ├── identity-model.md              # 4-Domain Identity Taxonomy & UUIDv5 Derivation
+│   ├── recovery-and-state.md          # Replay State Machine & Recovery Evidence Model
+│   ├── threat_model.md                # Capability Sandbox Threat Model
+│   └── api-stability-policy.md        # Public SDK Surface Policy (21 Frozen Symbols)
+├── adrs/                              # Architectural Design Records
+│   ├── README.md                      # ADR Index & Lifecycle Status Matrix
+│   └── ADR-003-polyglot-kernel.md     # Revision #5 FROZEN Polyglot Execution Contract
+├── gate-specs/                        # Contract Enforcement & Verification Gates
+│   ├── v03_architecture_gate_spec.json# Machine-Readable Gate Specification (FROZEN)
+│   └── gate_verification_guide.md     # Human-Readable 5-Gate Verification Guide
+├── guides/                            # Developer & Plugin Guides
+│   ├── plugin-authoring.md            # Canonical Plugin Development Guide
+│   └── manifest-specification.md      # Plugin Manifest Schema Specification
+└── operations/                        # Operations & Deployment Reports
+    ├── pypi_deployment.md             # Automated OIDC PyPI Release Pipeline
+    └── v0.2-dogfood-report.md         # Dogfood Execution & Benchmark Profile Report
 
-### 🛠️ Developer Guides
-- **[Plugin Authoring Guide](guides/plugin-authoring.md)**: Canonical guide for third-party plugin authors covering `PluginManifest`, capability checks (`has_capability`), event propagation, and causal lineage.
-- **[Developer Environment Setup](development/setup.md)**: Step-by-step instructions for contributors (`uv sync`, `./scripts/verify.sh`, pre-commit hooks).
-
-### 🏛️ Architecture & Governance Policies
-- **[Architecture & Security Model](architecture/overview.md)**: System philosophy, dual-layer framing, 3-layer security boundary, and structural Mermaid diagrams.
-- **[API Stability Policy](architecture/api-stability-policy.md)**: SemVer 2.0.0 rules, pre/post-1.0 stability guarantees, deprecation lifecycle, and the frozen 21-symbol public boundary.
-- **[Plugin Manifest Specification](manifest_spec.md)**: `PluginManifest` schema (JSON/YAML), standard capability namespaces, and capability negotiation lifecycle states.
-- **[Plugin Runtime Threat Model](architecture/threat_model.md)**: Formal threat model, in-process security guarantees (Matrix A-M), frozenset immutability invariant, and out-of-scope risks.
-- **[v0.3 Architecture Research Synthesis](architecture/v0.3_process_and_recovery_synthesis.md)**: Official synthesis of recovery semantics, EventStore invariants, side-effect contracts, and Tiered Hybrid Isolation topology.
-
-### 🔬 Operational Reports & Evidence
-- **[v0.2 Dogfood Operational Evidence Report](operations/v0.2-dogfood-report.md)**: Empirical stress test and performance profile results (602 events/1.66s, 2.61MB peak RSS).
+research/                              # Empirical Research & Spikes Substrate
+└── README.md                          # Research Index & Empirical Data Map
+```
 
 ---
 
-## 🔬 Academic Research & Proof Substrate
+## 🚀 Quick Navigation Links
 
-- **`verification/`**: Interactive theorem prover (Coq 8.18) formal proof scripts.
-- **`cortex-emulator/`**: Hardware state machine emulator (Rust crate).
-- **`rtl/`**: SystemVerilog RTL pipeline simulation models.
+### 1. Onboarding & Setup
+- **[5-Minute Quickstart Guide](getting-started/quickstart.md)**: Get started building Cortex applications and custom plugins using the pure Python SDK (`cortex.*`).
+- **[Developer Environment Setup](getting-started/setup.md)**: Step-by-step setup instructions for contributors (`uv sync`, `./scripts/verify.sh`).
+- **[CLI Reference Documentation](getting-started/cli.md)**: Command reference for `cortex init`, `workflow run`, `inspect`, and `replay`.
+
+### 2. Architecture & Kernel Specifications
+- **[Kernel Architecture Overview](architecture/overview.md)**: System philosophy, dual-layer framing, 3-layer security boundary, and structural Mermaid diagrams.
+- **[Cortex-CBE Serialization Specification](architecture/canonical-serialization.md)**: EBNF count grammar, IEEE 754 float rules, Unicode NFC normalization, and key sorting.
+- **[4-Domain Identity Model](architecture/identity-model.md)**: Logical vs. Idempotency vs. Application vs. Runtime identity separation, CBE tuple framing, and cleanroom test vectors.
+- **[Replay State Machine & Recovery Evidence](architecture/recovery-and-state.md)**: Evidence model, command execution lifecycle phases, and $P_{\text{semantic}}$ projection.
+- **[Public SDK API Stability Policy](architecture/api-stability-policy.md)**: SemVer guarantees and the frozen 21-symbol public boundary.
+- **[Capability Sandbox Threat Model](architecture/threat_model.md)**: Capability security sandbox threat vector analysis.
+
+### 3. Architectural Design Records & Gate Specs
+- **[ADR Index](adrs/README.md)**: Index of all Cortex Architectural Design Records.
+- **[ADR-003 Polyglot Execution Kernel Spec](adrs/ADR-003-polyglot-kernel.md)**: Revision #5 FROZEN contract specification for cross-runtime execution parity.
+- **[Machine Spec (JSON)](gate-specs/v03_architecture_gate_spec.json)**: Machine-readable gate specification for automated enforcement.
+- **[Gate Verification Guide](gate-specs/gate_verification_guide.md)**: Explanation of the 5 canonical verification gates run by `./scripts/verify.sh`.
+
+### 4. Guides & Operational Deployment
+- **[Plugin Authoring Guide](guides/plugin-authoring.md)**: Third-party plugin guide (`PluginManifest`, `has_capability`, event propagation, causal lineage).
+- **[Plugin Manifest Specification](guides/manifest-specification.md)**: Manifest schema, required capability declarations, and negotiation states.
+- **[PyPI Deployment Guide](operations/pypi_deployment.md)**: Automated PyPI release workflow via GitHub Actions and OIDC.
+- **[v0.2 Dogfood Operational Report](operations/v0.2-dogfood-report.md)**: Empirical stress test and performance profile results.
+
+### 5. Dedicated Research Directory
+- **[Research Substrate Index](../research/README.md)**: Synthesis papers, crash semantics, telemetry benchmarks, and fault-tolerance reports.

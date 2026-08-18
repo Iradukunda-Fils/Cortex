@@ -16,7 +16,7 @@ from cortex._telemetry.benchmark import generate_research_report
 
 
 def main() -> None:
-    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "operations", "telemetry_research_report.json")
+    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "research", "telemetry", "telemetry_research_report.json")
     print("🚀 Running Cortex Issue #10 Benchmark Harness (N=30 samples)...")
     results = generate_research_report(output_path, sample_count=30)
 

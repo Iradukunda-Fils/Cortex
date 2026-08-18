@@ -8,7 +8,7 @@
         "cortex-emulator",
         "verification",
         "rtl",
-        "Research",
+        "research",
         "obj_dir"
     ],
     "typeCheckingMode": "standard",

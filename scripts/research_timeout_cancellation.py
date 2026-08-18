@@ -15,7 +15,7 @@ from cortex._research.timeout_cancellation import generate_timeout_cancellation_
 
 
 def main() -> None:
-    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "operations", "timeout_cancellation_report.json")
+    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "research", "fault-tolerance", "timeout_cancellation_report.json")
     print("🔬 Running Cortex Issue #12 Timeout & Cancellation Semantics Research Suite...")
     results = generate_timeout_cancellation_report(output_path)
 

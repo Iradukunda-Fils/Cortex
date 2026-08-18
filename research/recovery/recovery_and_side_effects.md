@@ -15,7 +15,7 @@ Per the strict research mandate:
 1. **Zero Runtime Engine Modification**: No durable EventStore backend, IPC protocol, worker pool, or supervisor runtime was added to the core engine.
 2. **Public API Exports Frozen**: `len(cortex.__all__)` remains **strictly locked at 21 symbols**.
 3. **Subprocess Crash Isolation**: All destructive crash tests (`os._exit`, `SIGKILL`) were isolated inside child subprocesses (`_run_child_crash_experiment`), ensuring the test runner suite completes deterministically in seconds.
-4. **Structured JSON Artifact**: Generated [`docs/operations/recovery_semantics_report.json`](file:///home/iradukunda/Lost/Projects/Future/Cortex/docs/operations/recovery_semantics_report.json).
+4. **Structured JSON Artifact**: Generated [`docs/operations/recovery_semantics_report.json`](../../docs/operations/recovery_semantics_report.json).
 
 ---
 

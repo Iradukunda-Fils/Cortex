@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-08-11T13:58:01Z",
+  "timestamp_utc": "2026-08-13T23:29:16Z",
   "environment": {
     "python_version": "3.14.4",
     "os": "Linux",
@@ -24,14 +24,14 @@
     "scenario_c": {
       "title": "Scenario C: Cooperative Plugin Timeout",
       "final_state": "COMPLETED",
-      "handler_duration_sec": 0.0204,
+      "handler_duration_sec": 0.022,
       "cooperative_execution_succeded": true,
       "in_process_cooperative_cancellation": "Cooperative plugins inspect timeout_seconds or event rules to halt execution gracefully."
     },
     "scenario_d": {
       "title": "Scenario D: Non-Cooperative / Blocking Plugin Execution",
       "final_state": "COMPLETED",
-      "main_thread_blocked_sec": 0.0312,
+      "main_thread_blocked_sec": 0.0358,
       "single_process_limitation": "Single-process CPython GIL runtime cannot preemptively kill or interrupt a blocking Python handler thread without multi-process SIGKILL boundary."
     },
     "scenario_e": {

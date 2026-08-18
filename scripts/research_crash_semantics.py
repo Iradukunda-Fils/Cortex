@@ -15,7 +15,7 @@ from cortex._research.crash_semantics import generate_crash_semantics_report
 
 
 def main() -> None:
-    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "operations", "crash_semantics_report.json")
+    output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "research", "recovery", "crash_semantics_report.json")
     print("🔬 Running Cortex Issue #11 Plugin Crash Semantics Research Suite...")
     results = generate_crash_semantics_report(output_path)
 
