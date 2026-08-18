@@ -10,6 +10,7 @@ from typing import Any
 @dataclass
 class PluginInvocationMetric:
     """Plugin operational execution metric."""
+
     plugin_name: str
     invocations: int = 0
     total_duration_ms: float = 0.0
@@ -20,6 +21,7 @@ class PluginInvocationMetric:
 @dataclass
 class WorkflowTelemetryRecord:
     """Telemetry record for a single workflow execution."""
+
     workflow_id: str
     name: str
     goal: str
@@ -38,6 +40,7 @@ class WorkflowTelemetryRecord:
 @dataclass
 class WorkloadBenchmarkSummary:
     """Statistical summary for repeated N-run benchmark executions."""
+
     workload_name: str
     sample_count: int
     environment: dict[str, str]

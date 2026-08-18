@@ -20,7 +20,4 @@ class TrapMetric(BaseMetric):
     def get_summary(self) -> dict[str, Any]:
         count = len(self.seen_trap_codes)
         pct = min(100.0, (count / float(self.total_trap_codes)) * 100.0)
-        return {
-            "trap_cause_codes_seen": sorted(list(self.seen_trap_codes)),
-            "coverage_percentage": round(pct, 1)
-        }
+        return {"trap_cause_codes_seen": sorted(list(self.seen_trap_codes)), "coverage_percentage": round(pct, 1)}

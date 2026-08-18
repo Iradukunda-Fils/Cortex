@@ -6,3 +6,12 @@ LogicalRelation.v
 FTLR.v
 Substitution.v
 Soundness.v
+GateF_F0_ModelReconciliation.v
+GateF_F1_1_StateCorrespondence.v
+GateF_F1_2_StutteringPreservation.v
+GateF_F1_2_RealIPC_Stuttering.v
+GateF_F2_1_RestrictCap.v
+GateF_F2_2_GrantCap.v
+GrantCapRTL.v
+GateF_F3_1_InvocationSimulation.v
+GateL1_EpochMonotonicity.v

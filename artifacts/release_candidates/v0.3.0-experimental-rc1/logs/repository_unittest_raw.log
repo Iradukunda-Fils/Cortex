@@ -1,0 +1,127 @@
+.......................................................................................................................................................................usage: cortex [-h] [--json] {init,workflow} ...
+
+Cortex Platform Developer CLI & Workflow Engine
+
+positional arguments:
+  {init,workflow}  Command to execute
+    init           Scaffold a new Cortex plugin or application
+    workflow       Workflow execution and inspection management
+
+options:
+  -h, --help       show this help message and exit
+  --json           Output machine-readable JSON format
+=================================================================
+               CORTEX CLI DIAGNOSTIC ERROR REPORT                
+=================================================================
+[!] ERROR CODE:   WORKFLOW_FAILED (Exit Code 1)
+[!] MESSAGE:      Missing or invalid command
+[!] CAUSE:        Workflow execution was aborted or failed verification checks.
+[!] REMEDIATION:  Inspect trace log using 'cortex workflow inspect <trace>' for failed verification nodes.
+=================================================================
+.usage: cortex workflow [-h] {run,inspect,replay} ...
+
+positional arguments:
+  {run,inspect,replay}  Workflow subcommand
+    run                 Trigger workflow execution from spec file
+    inspect             Inspect execution graph and lineage for workflow ID or
+                        file
+    replay              Deterministically replay workflow execution trace
+
+options:
+  -h, --help            show this help message and exit
+=================================================================
+               CORTEX CLI DIAGNOSTIC ERROR REPORT                
+=================================================================
+[!] ERROR CODE:   WORKFLOW_FAILED (Exit Code 1)
+[!] MESSAGE:      Missing or invalid workflow subcommand
+[!] CAUSE:        Workflow execution was aborted or failed verification checks.
+[!] REMEDIATION:  Inspect trace log using 'cortex workflow inspect <trace>' for failed verification nodes.
+=================================================================
+........................................................................................................................
+----------------------------------------------------------------------
+Ran 288 tests in 21.271s
+
+OK
+[+] Successfully scaffolded Cortex app project at: /tmp/cortex_cli_test_dzj4c370/scaffolded_via_cli
+==================================================================
+       Cortex v0.2 Dogfood App: Autonomous Repository Auditor     
+==================================================================
+[+] Triggering Audit Workflow (ID: b2798998...)...
+
+[+] Workflow Execution Final State: COMPLETED
+
+--- Execution Causality Tree ---
+  [Intent] ID: 95d0e35f (ROOT) | {'goal': 'Audit Repository Integrity'}
+  [Plan] ID: f35fe765 -> parent: 95d0e35f | {'step_count': 3}
+  [Command] ID: 5ea68c52 -> parent: f35fe765 | {'action': 'git_status_check', 'params': {'path': '.'}}
+  [Telemetry] ID: 47cca451 -> parent: 5ea68c52 | {'status': 'ok', 'data': {'action': 'git_status_check', 'result': 'clean'}}
+  [Verification] ID: 2581b97f -> parent: 5ea68c52 | {'passed': True, 'rule': 'REPO_AUDIT_PASS'}
+  [Command] ID: 65464cfc -> parent: f35fe765 | {'action': 'syntax_check', 'params': {'path': '.'}}
+  [Telemetry] ID: 4347f111 -> parent: 65464cfc | {'status': 'ok', 'data': {'action': 'syntax_check', 'result': 'clean'}}
+  [Verification] ID: 4ade9414 -> parent: 65464cfc | {'passed': True, 'rule': 'REPO_AUDIT_PASS'}
+  [Command] ID: 0e7145d1 -> parent: f35fe765 | {'action': 'unit_test_check', 'params': {'suite': 'tests'}}
+  [Telemetry] ID: 58e8bf22 -> parent: 0e7145d1 | {'status': 'ok', 'data': {'action': 'unit_test_check', 'result': 'clean'}}
+  [Verification] ID: 3af140c0 -> parent: 0e7145d1 | {'passed': True, 'rule': 'REPO_AUDIT_PASS'}
+
+[✓] All Verification Invariants Passed Cleanly!
+
+--- Deterministic Replay Engine ---
+Events Replayed: 11
+Result Status:   PASSED
+Lineage Reason:  100% Deterministic Lineage Preservation Confirmed
+==================================================================
+       Cortex v0.2 Dogfood App: Autonomous Repository Auditor     
+==================================================================
+[+] Triggering Audit Workflow (ID: 2331d453...)...
+
+[+] Workflow Execution Final State: FAILED
+
+--- Execution Causality Tree ---
+  [Intent] ID: e5ebce3a (ROOT) | {'goal': 'Audit Repository Integrity'}
+  [Plan] ID: a2237d1f -> parent: e5ebce3a | {'step_count': 3}
+  [Command] ID: e4fdb846 -> parent: a2237d1f | {'action': 'git_status_check', 'params': {'path': '.'}}
+  [Verification] ID: 29025edb -> parent: e4fdb846 | {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+  [Command] ID: 843b0f86 -> parent: a2237d1f | {'action': 'syntax_check', 'params': {'path': '.'}}
+  [Verification] ID: 0b19ac8b -> parent: 843b0f86 | {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+  [Command] ID: 6f7cb0ee -> parent: a2237d1f | {'action': 'unit_test_check', 'params': {'suite': 'tests'}}
+  [Verification] ID: 7ba3d44e -> parent: 6f7cb0ee | {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+
+[!] Verification Failures (3):
+    - Failure Node ID: 29025edb | Payload: {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+    - Failure Node ID: 0b19ac8b | Payload: {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+    - Failure Node ID: 7ba3d44e | Payload: {'passed': False, 'rule': 'CAPABILITY_VIOLATION'}
+
+--- Deterministic Replay Engine ---
+Events Replayed: 8
+Result Status:   PASSED
+Lineage Reason:  100% Deterministic Lineage Preservation Confirmed
+
+[✓] PROOF PASSED: CapabilitySandbox successfully intercepted and rejected unauthorized write invocation!
+
+--- STAGE 4A CAUSAL EXECUTION GRAPH ---
+[Intent] ID: 059987ba.. | Details: {'goal': 'Execute Maintenance Routine'}
+  └── [Plan] ID: 9ceca8ac.. | Details: {'step_count': 2}
+    └── [Command] ID: 7563ff93.. | Details: {'action': 'move_actuator', 'params': {'actuator': 'arm_joint_1', 'delta': 10.0}}
+      └── [Telemetry] ID: a9ffab62.. | Details: {'status': 'ok', 'data': {'actuator': 'arm_joint_1', 'position': 10.0, 'delta': 10.0}}
+        └── [Verification] ID: f10c4634.. | Details: {'passed': True, 'rule': 'BOUNDS_CHECK_V1'}
+    └── [Command] ID: ecc883fa.. | Details: {'action': 'move_actuator', 'params': {'actuator': 'arm_joint_2', 'delta': -5.0}}
+      └── [Telemetry] ID: 4b62a871.. | Details: {'status': 'ok', 'data': {'actuator': 'arm_joint_2', 'position': -5.0, 'delta': -5.0}}
+        └── [Verification] ID: 026c6f88.. | Details: {'passed': True, 'rule': 'BOUNDS_CHECK_V1'}
+
+[+] Successfully scaffolded Cortex app project at: /tmp/cortex_cli_regression_v1gl1bqt/scaffolded
+[+] Successfully scaffolded Cortex app project at: /tmp/cortex_cli_regression_f6zmjub0/test_app
+[+] Workflow execution finished.
+    ID:          2d5d3d19-a888-464a-9af0-427307fd9020
+    State:       COMPLETED
+    Events Log:  1
+    Trace Saved: /tmp/cortex_cli_regression_pzmmxwmw/replay_trace.json
+=== Cortex Deterministic Replay Engine ===
+Workflow ID:      /tmp/cortex_cli_regression_pzmmxwmw/replay_trace.json
+Events Replayed:  1
+Status:           SUCCESS
+Result:           100% Deterministic Lineage Preservation Confirmed
+[+] Workflow execution finished.
+    ID:          d10456f5-7871-40b6-81e1-857726d31b15
+    State:       COMPLETED
+    Events Log:  1
+    Trace Saved: /tmp/cortex_cli_regression_nd6a32mp/trace.json

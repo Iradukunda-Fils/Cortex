@@ -13,6 +13,7 @@ class EventStoreService:
     and deterministic replay. This is the public EventStore interface
     re-exported as ``cortex.EventStore``.
     """
+
     _log: list[AnyEvent]
 
     contract: ServiceContract = ServiceContract(

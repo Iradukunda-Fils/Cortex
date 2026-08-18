@@ -9,11 +9,13 @@ from dataclasses import dataclass
 class Capability:
     name: str
 
+
 @dataclass(frozen=True)
 class ResourceHandle:
     handle_id: str
     resource_type: str
     capabilities: set[Capability]
+
 
 class ObjectRegistry:
     _actors: dict[str, object]

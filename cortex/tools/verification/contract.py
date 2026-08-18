@@ -66,5 +66,5 @@ class VerificationContract:
             fuzzing_parameters=data.get("fuzzing_parameters", {}),
             targets=data.get("targets", {}),
             oracle=data.get("oracle", {}),
-            output_requirements=data.get("output_requirements", {})
+            output_requirements=data.get("output_requirements", {}),
         )

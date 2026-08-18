@@ -193,4 +193,3 @@ class TestCLIDiagnosticOutputFormatting(unittest.TestCase):
 
 if __name__ == "__main__":
     _ = unittest.main()
-

@@ -22,6 +22,7 @@ def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dic
     with open(workflow_file, "r", encoding="utf-8") as f:
         if workflow_file.endswith(".yaml") or workflow_file.endswith(".yml"):
             import yaml
+
             data = cast(dict[str, object], yaml.safe_load(f)) or {}
         else:
             data = cast(dict[str, object], json.load(f))
@@ -57,8 +58,11 @@ def run_workflow_file(workflow_file: str, output_file: str | None = None) -> dic
 
     if executed_wf.state == WorkflowState.FAILED:
         cap_failures = [
-            e for e in client.event_store.get_log()
-            if isinstance(e, VerificationResultEvent) and not e.passed and (e.rule_id == "CAPABILITY_VIOLATION" or "capability" in e.details)
+            e
+            for e in client.event_store.get_log()
+            if isinstance(e, VerificationResultEvent)
+            and not e.passed
+            and (e.rule_id == "CAPABILITY_VIOLATION" or "capability" in e.details)
         ]
         if cap_failures:
             detail = cap_failures[0].details

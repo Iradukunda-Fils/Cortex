@@ -18,7 +18,7 @@ class RTLVerilatorDriver:
 
     def ingest_trace_file(self, trace_json_path: str = "rtl_trace.json") -> int:
         if not os.path.exists(trace_json_path):
-            fallback = "Research/artifacts/phase2/rtl_trace.json"
+            fallback = "research/formalization/artifacts/phase2/rtl_trace.json"
             if os.path.exists(fallback):
                 trace_json_path = fallback
 
@@ -42,7 +42,7 @@ class RTLVerilatorDriver:
                 raw_instruction=raw_inst,
                 eff_trap=eff_trap,
                 trap_cause=trap_cause,
-                stcr_registers=stcr_regs
+                stcr_registers=stcr_regs,
             )
             self.context.publish(event)
 

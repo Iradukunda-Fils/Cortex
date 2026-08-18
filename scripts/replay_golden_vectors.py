@@ -20,9 +20,7 @@ def main() -> None:
         print(f"[!] Golden vector directory not found: {corpus_dir}")
         sys.exit(1)
 
-    golden_files: list[str] = [
-        os.path.join(corpus_dir, f) for f in os.listdir(corpus_dir) if f.endswith(".json")
-    ]
+    golden_files: list[str] = [os.path.join(corpus_dir, f) for f in os.listdir(corpus_dir) if f.endswith(".json")]
     if not golden_files:
         print(f"[!] No golden vector JSON files found in {corpus_dir}")
         sys.exit(1)
@@ -37,6 +35,7 @@ def main() -> None:
 
     print("[✓] SUCCESS: 100% of Golden Vector Replays Passed!")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

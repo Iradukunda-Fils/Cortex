@@ -25,6 +25,7 @@ class TestCrashSemanticsResearchSuite(unittest.TestCase):
     def test_internal_package_has_empty_all(self) -> None:
         """cortex._research subpackage must define __all__ = []."""
         import cortex._research
+
         self.assertEqual(cortex._research.__all__, [])
 
     def test_scenarios_a_through_f_execution(self) -> None:

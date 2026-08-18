@@ -1,0 +1,187 @@
+{
+  "$id": "https://cortex.security/schemas/evidence_profile_v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cortex Evidence Profile V1 Schema",
+  "description": "Normative JSON Schema defining the Evidence Bundle Domain D_V1 for the Cortex Independent Untrusted Verifier (Gate J / F4c.1).",
+  "type": "object",
+  "required": [
+    "anchor",
+    "intents",
+    "tokens",
+    "events",
+    "witness_chain"
+  ],
+  "properties": {
+    "anchor": {
+      "type": "object",
+      "description": "Genesis state anchor and initial authority node metadata.",
+      "required": [
+        "node_id",
+        "genesis_epoch"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the executing authority node."
+        },
+        "genesis_epoch": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Monotonic genesis epoch counter."
+        },
+        "expected_w0": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$",
+          "description": "Hex-encoded 32-byte expected Genesis witness hash W_0."
+        }
+      },
+      "additionalProperties": false
+    },
+    "intents": {
+      "type": "array",
+      "description": "Ordered stream of signed action intents.",
+      "items": {
+        "type": "object",
+        "required": [
+          "body",
+          "signature"
+        ],
+        "properties": {
+          "body": {
+            "type": "object",
+            "description": "Intent payload dictionary serialized via Canonical Binary Encoding (CBE)."
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded 32-byte cryptographic signature over CBE-encoded intent body."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tokens": {
+      "type": "array",
+      "description": "Ordered stream of capability execution tokens bound to signed intents.",
+      "items": {
+        "type": "object",
+        "required": [
+          "intent_hash"
+        ],
+        "properties": {
+          "intent_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded SHA-256 digest of the corresponding signed intent object."
+          },
+          "epoch": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capability": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "Ordered stream of state transition commit events.",
+      "items": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "payload",
+          "timestamp_ns"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "description": "Type of commit event (e.g., COMMAND_EXECUTED, TRAP_INTERCEPTED, DISPATCH_DENIED)."
+          },
+          "payload": {
+            "type": "object",
+            "description": "Event payload key-value store."
+          },
+          "timestamp_ns": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Nanosecond UTC timestamp of state transition."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "witness_chain": {
+      "type": "array",
+      "description": "Sequential cryptographic state chain entries.",
+      "items": {
+        "type": "object",
+        "required": [
+          "version",
+          "sequence",
+          "timestamp_ns",
+          "prev_witness",
+          "event_digest",
+          "intent_digest",
+          "witness",
+          "signature"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Witness chain record version (1)."
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Monotonic 1-based step index."
+          },
+          "timestamp_ns": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Nanosecond UTC timestamp."
+          },
+          "prev_witness": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded 32-byte prior witness state hash W_t."
+          },
+          "event_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded SHA-256 digest of CBE-serialized commit event."
+          },
+          "intent_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded SHA-256 digest of CBE-serialized signed intent."
+          },
+          "witness": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded 32-byte updated witness state hash W_{t+1}."
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "description": "Hex-encoded 32-byte signature over witness chain entry header."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "is_incomplete": {
+      "type": "boolean",
+      "description": "Explicit flag indicating whether the trace stream was intentionally truncated or partial."
+    }
+  },
+  "additionalProperties": false
+}

@@ -175,8 +175,14 @@ module cortex_stcr_pipeline #(
                 end
             end
             6'h02: begin // grant_cap
-                ex_guard_pass = 1'b1;
-                ex_result_val = {1'b1, id_ex_reg.imm16[14:0], ex_stcr_base, reg_hec};
+                if (!ex_stcr_v) begin
+                    ex_trap_code = 4'h1;
+                end else if (reg_hec > ex_stcr_epoch) begin
+                    ex_trap_code = 4'h2;
+                end else begin
+                    ex_guard_pass = 1'b1;
+                    ex_result_val = {1'b1, ex_stcr_mask & id_ex_reg.imm16[14:0], ex_stcr_base, reg_hec};
+                end
             end
             6'h03: begin // restrict_cap
                 ex_guard_pass = 1'b1;

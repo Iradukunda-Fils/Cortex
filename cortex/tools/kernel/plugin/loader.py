@@ -23,6 +23,7 @@ class PluginState(str, enum.Enum):
 @dataclass
 class PluginRegistration:
     """Runtime representation of a loaded plugin."""
+
     manifest: PluginManifest
     state: PluginState = PluginState.REGISTERED
     granted_capabilities: set[str] = field(default_factory=set)
@@ -32,6 +33,7 @@ class PluginRegistration:
 class CapabilityNegotiator:
     """Evaluates plugin capability requests against the platform's
     available capability set and security policy."""
+
     platform_capabilities: set[str]
 
     def __init__(self, platform_capabilities: set[str]):
@@ -65,6 +67,7 @@ class CapabilityNegotiator:
 
 class PluginRegistry:
     """Manages the lifecycle of all registered plugins."""
+
     negotiator: CapabilityNegotiator
     _plugins: dict[str, PluginRegistration]
 

@@ -34,7 +34,9 @@ class TestCortexCLI(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(app_path, "workflow.json")))
         self.assertTrue(os.path.exists(os.path.join(app_path, "main.py")))
 
-        plugin_path = scaffold_project("my_plugin", project_type="plugin", target_dir=os.path.join(self.test_dir, "my_plugin"))
+        plugin_path = scaffold_project(
+            "my_plugin", project_type="plugin", target_dir=os.path.join(self.test_dir, "my_plugin")
+        )
         self.assertTrue(os.path.exists(os.path.join(plugin_path, "plugin.py")))
 
     def test_cli_init_main(self) -> None:

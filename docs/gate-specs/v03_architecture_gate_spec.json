@@ -1,0 +1,918 @@
+{
+  "specification_version": "v0.3.0-revision-5",
+  "document_type": "architecture_gate_specification",
+  "timestamp_utc": "2026-08-13T00:00:00Z",
+  "status": "REVISION_5_FROZEN",
+  "adr_reference": "docs/architecture/adr_v03_polyglot_execution_kernel.md",
+  "evidence_base": [
+    "Issue #10: Runtime Metrics & Telemetry",
+    "Issue #11: Plugin Crash Semantics",
+    "Issue #12: Timeout & Cancellation",
+    "Issue #13: Restart, Recovery & Side Effects"
+  ],
+  "claim_classification_framework": {
+    "description": "Every key architectural claim MUST be tagged to prevent conflating evidence with requirements",
+    "tags": {
+      "PROVEN": {
+        "meaning": "Directly demonstrated by empirical findings in Issues #10-#13",
+        "example": "The v0.2 EventStore loses in-memory state when the host process terminates"
+      },
+      "DERIVED": {
+        "meaning": "Logically follows from proven empirical evidence",
+        "example": "Because v0.2 state is volatile, recovery after crash requires reading persisted events"
+      },
+      "REQUIREMENT": {
+        "meaning": "A v0.3 architectural rule/contract being imposed",
+        "example": "Causal ordering established by journal_position, not timestamp_ns"
+      },
+      "RESEARCH_QUESTION": {
+        "meaning": "Not yet experimentally resolved",
+        "example": "Which persistence mechanism balances latency and durability?"
+      },
+      "PROVISIONAL_REQUIREMENT": {
+        "meaning": "Engineering target pending empirical validation",
+        "example": "P50 latency <= 2x Python reference baseline"
+      },
+      "DESIGN_DECISION": {
+        "meaning": "Normative constant assigned by this specification",
+        "example": "NAMESPACE_CORTEX_IDEMPOTENCY = a1b2c3d4-0000-5000-8000-000000000001"
+      }
+    },
+    "usage_rules": [
+      "PROVEN facts MUST NOT be stated as current guarantees of v0.3 behavior",
+      "REQUIREMENT rules MUST NOT be presented as empirically validated",
+      "RESEARCH_QUESTION items MUST NOT be treated as decided architecture",
+      "PROVISIONAL_REQUIREMENT targets MUST be validated or revised during Issues #14-#16"
+    ]
+  },
+  "contract_authority": {
+    "description": "The Cortex Semantic Contract is the sole normative specification",
+    "classification": "REQUIREMENT",
+    "authoritative": "Cortex Semantic Contract (this spec + ADR)",
+    "reference_implementation": "Python v0.2.x",
+    "conflict_resolution": {
+      "if_python_differs_from_contract": "Python has a bug OR contract is ambiguous",
+      "resolution_process": [
+        "Architecture review required",
+        "Update reference implementation AND/OR contract AND normative test vectors",
+        "Candidate runtimes MUST conform to contract, NOT to Python bugs"
+      ]
+    }
+  },
+  "document_layering": {
+    "description": "Six-level structure preventing technology contamination of semantic contract",
+    "levels": [
+      {"level": 1, "name": "Semantic Contract", "normative": true},
+      {"level": 2, "name": "Recovery & Security Invariants", "normative": true},
+      {"level": 3, "name": "Protocol Contract", "normative": true},
+      {"level": 4, "name": "Transport Candidates", "normative": false},
+      {"level": 5, "name": "Runtime Implementation Choices", "normative": false},
+      {"level": 6, "name": "Deployment Choices", "normative": false}
+    ],
+    "classification": "REQUIREMENT"
+  },
+  "three_authorities_of_state": {
+    "description": "Three separate authorities governing recovery and side-effect classification",
+    "classification": "REQUIREMENT",
+    "authorities": [
+      {
+        "id": 1,
+        "name": "Semantic Authority",
+        "component": "Cortex Semantic Contract",
+        "responsibility": "Defines valid state transitions, invariants, lifecycle phases, protocol boundaries",
+        "truth_domain": "What Cortex means"
+      },
+      {
+        "id": 2,
+        "name": "Evidence Authority",
+        "component": "Durable EventStore + idempotency claim table",
+        "responsibility": "Provides immutable, ordered proof of emitted events and claim states",
+        "truth_domain": "What Cortex can prove happened"
+      },
+      {
+        "id": 3,
+        "name": "External-Effect Authority",
+        "component": "External system / transactional API / payment gateway / idempotency registry",
+        "responsibility": "Tracks actual mutations outside the Cortex boundary",
+        "truth_domain": "What actually happened outside Cortex"
+      }
+    ],
+    "classification_rules": [
+      "RecoveryState MUST be determined solely from Evidence Authority (lifecycle events + claim table)",
+      "External-Effect Authority MUST NOT directly mutate RecoveryState",
+      "External proof MUST enter as ExternalProofAppended event in EventStore",
+      "Semantic Authority defines what each lifecycle phase means and which RecoveryState it implies"
+    ],
+    "external_proof_integration": {
+      "rule": "External-Effect Authority data cannot mutate RecoveryState directly",
+      "mechanism": "ExternalProofAppended event appended to EventStore; recovery classifier re-evaluates",
+      "resolution_transitions": [
+        {"prior": "IN_DOUBT", "proof": "COMMITTED", "resolution": "EFFECT_CONFIRMED_COMMITTED", "replay_scope": "REPLAY_COMPLETION"},
+        {"prior": "IN_DOUBT", "proof": "NOT_COMMITTED", "resolution": "EFFECT_CONFIRMED_ABSENT", "replay_scope": "RETRY_MUTATION"},
+        {"prior": "IN_DOUBT", "proof": "UNKNOWN", "resolution": "IN_DOUBT", "replay_scope": "OPERATOR_RESOLUTION"},
+        {"prior": "IN_DOUBT", "operator_action": "RETRY_AUTHORIZED", "resolution": "RETRY_AUTHORIZED", "replay_scope": "RETRY_MUTATION", "note": "Does NOT prove absence of original effect"}
+      ],
+      "classification": "REQUIREMENT"
+    }
+  },
+  "architecture_hierarchy": {
+    "description": "Semantic contract is authoritative; Python is reference; candidates must conform",
+    "layers": [
+      "CORTEX SEMANTIC CONTRACT (authoritative)",
+      "PROTOCOL CONTRACT (Schema + framing + auth)",
+      "Python Reference Implementation | Candidate Runtimes",
+      "CONFORMANCE VERIFICATION (normative vectors + property tests)"
+    ],
+    "classification": "REQUIREMENT"
+  },
+  "semantic_contract": {
+    "description": "Language-neutral behavioral contract — sole normative specification",
+    "classification": "REQUIREMENT",
+    "entities": {
+      "Event": {
+        "purpose": "Immutable message carrying workflow correlation and causal lineage",
+        "classification": "REQUIREMENT",
+        "required_fields": [
+          {"name": "event_id", "type": "UUID", "constraints": ["globally_unique", "immutable"]},
+          {"name": "workflow_id", "type": "UUID | null", "constraints": []},
+          {"name": "journal_position", "type": "int64", "constraints": ["assigned_by_eventstore_on_append", "strictly_monotonic_per_workflow"]},
+          {"name": "causation_id", "type": "UUID | null", "constraints": ["must_reference_existing_event_if_non_null"]},
+          {"name": "correlation_id", "type": "string", "constraints": ["workflow_scoped_group_identifier"]},
+          {"name": "root_id", "type": "string", "constraints": ["top_level_initiating_event"]},
+          {"name": "timestamp_ns", "type": "int64", "constraints": ["observational_telemetry_only", "MUST_NOT_be_used_for_causal_ordering"], "classification": "PROVEN"},
+          {"name": "metadata", "type": "CortexValueMap", "constraints": []}
+        ],
+        "invariants": [
+          "Events MUST be immutable after creation",
+          "journal_position MUST be strictly monotonically increasing per workflow journal",
+          "If causation_id non-null, referenced event MUST exist AND journal_position(E) > journal_position(parent(E))",
+          "timestamp_ns MUST NOT be used for lineage verification or recovery classification"
+        ],
+        "derived_types": [
+          "IntentEvent",
+          "PlanGeneratedEvent",
+          "CommandIssuedEvent",
+          "CommandLifecycleEvent",
+          "DriverTelemetryEvent",
+          "VerificationResultEvent"
+        ]
+      },
+      "Command": {
+        "purpose": "Execution directive with explicit effect classification",
+        "classification": "REQUIREMENT",
+        "required_fields": [
+          {"name": "command_id", "type": "UUID", "constraints": ["globally_unique"]},
+          {"name": "workflow_id", "type": "UUID", "constraints": []},
+          {"name": "causation_id", "type": "UUID", "constraints": ["event_that_triggered_command"]},
+          {"name": "action", "type": "string", "constraints": ["verb_identifier_only"]},
+          {"name": "parameters", "type": "CortexValueMap", "constraints": []},
+          {"name": "required_capabilities", "type": "set<string>", "constraints": ["must_be_validated_before_execution"]},
+          {"name": "effect_class", "type": "EffectClass", "constraints": ["REQUIRED_explicit_declaration"]},
+          {"name": "replay_property", "type": "ReplayProperty", "constraints": ["REQUIRED_for_EXTERNAL_SIDE_EFFECT"]},
+          {"name": "recovery_property", "type": "RecoveryProperty", "constraints": ["REQUIRED_for_EXTERNAL_SIDE_EFFECT"]},
+          {"name": "idempotency_token", "type": "UUID | null", "constraints": ["REQUIRED_for_EXTERNAL_SIDE_EFFECT", "explicit_on_command_payload"]}
+        ],
+        "invariants": [
+          "Every command MUST declare explicit effect_class; EXTERNAL_SIDE_EFFECT MUST declare replay_property and recovery_property",
+          "Side effects MUST NOT be inferred from action name strings",
+          "required_capabilities MUST be validated before execution",
+          "Command execution MUST emit lifecycle events and exactly one terminal outcome",
+          "Commands MUST be executed at-most-once per command_id"
+        ]
+      },
+      "CortexValue": {
+        "purpose": "Canonical language-neutral value model preventing type erasure across wire encodings",
+        "classification": "REQUIREMENT",
+        "type": "tagged_union",
+        "variants": [
+          {"name": "Null", "wire_tag": 0},
+          {"name": "Bool", "wire_tag": 1, "payload": "boolean"},
+          {"name": "Int", "wire_tag": 2, "payload": "int64"},
+          {"name": "Float", "wire_tag": 3, "payload": "float64"},
+          {"name": "String", "wire_tag": 4, "payload": "utf8_string"},
+          {"name": "Bytes", "wire_tag": 5, "payload": "byte_array"},
+          {"name": "List", "wire_tag": 6, "payload": "CortexValue[]"},
+          {"name": "Dict", "wire_tag": 7, "payload": "map<string, CortexValue>"}
+        ],
+        "canonical_bytes_pipeline": {
+          "authority": "Cortex-CBE (Cortex Canonical Byte Encoding) — NOT RFC 8785/JCS",
+          "invariant": "Python(CortexValue) == Rust(CortexValue) == Go(CortexValue) at semantic and canonical byte level",
+          "stages": ["CortexValue", "Cortex-CBE canonical bytes (UTF-8 octets)", "SHA-256 / idempotency / parity"],
+          "encoding_rules": {
+            "null": {"prefix": "N", "example_hex": "4e", "example_sha256": "8ce86a6ae65d3692e7305e2c58ac62eebd97d3d943e093f577da25c36988246b"},
+            "bool_true": {"prefix": "T", "example_hex": "54"},
+            "bool_false": {"prefix": "F", "example_hex": "46"},
+            "int": {"prefix": "I", "format": "decimal ASCII signed int64", "example_42_hex": "493432"},
+            "float": {"prefix": "D", "format": "D + 16 lowercase hex digits (IEEE 754 Big-Endian 64-bit)", "reject": ["NaN", "Infinity"], "negative_zero": "normalize -0.0 to +0.0 (0x0000000000000000)"},
+            "string": {"prefix": "S", "format": "S<length_bytes>:<utf8_bytes>", "encoding": "UTF-8 NFC normalized"},
+            "bytes": {"prefix": "B", "format": "B<length_bytes>:<raw_octets>"},
+            "list": {"prefix": "L", "format": "L<count>:<elem1><elem2>... (zero delimiters)"},
+            "dict": {"prefix": "M", "format": "M<count>:<key1><val1><key2><val2>... (zero delimiters)", "key_order": "lexicographic by UTF-8 byte order of key canonical bytes"}
+          },
+          "rules": {
+            "int": {"range": "[-9223372036854775808, 9223372036854775807]", "format": "I + base-10 ASCII; zero is I0", "disallowed": ["leading zeros (e.g. I01)", "explicit plus sign (e.g. I+42)"], "rejection": "Out of range or invalid format rejected at boundary"},
+            "float": {"format": "D + 16 lowercase hex digits (IEEE 754 Big-Endian 64-bit)", "nan_infinity": "NaN, +Inf, -Inf MUST BE REJECTED at boundary", "negative_zero": "Normalize -0.0 to +0.0 (D0000000000000000)", "subnormals": "Encoded per exact IEEE 754 bit layout"},
+            "string": {"format": "S<byte_length>:<utf8_bytes>", "length_definition": "strictly UTF-8 byte count, NOT code points or grapheme clusters", "normalization": "NFC mandatory prior to encoding", "unnormalized": "REJECTED"},
+            "empty_values": {"null": "N", "bool_true": "T", "bool_false": "F", "string": "S0:", "list": "L0:", "dict": "M0:"},
+            "dict_keys": {"ordering": "Lexicographic by UTF-8 byte order of key canonical bytes", "duplicates": "REJECTED"},
+            "type_distinction": "1 (I1), 1.0 (D3ff0000000000000), and \"1\" (S1:1) MUST produce distinct canonical bytes",
+            "max_depth": 32,
+            "max_bytes": {"limit": "16 MiB", "classification": "REQUIREMENT"}
+          },
+          "classification": "REQUIREMENT"
+        },
+        "wire_encoding_rule": "Wire encodings MUST round-trip all CortexValue types without loss. map<string, string> is NOT a valid substitute for CortexValueMap."
+      },
+      "command_property_taxonomy": {
+        "description": "Three orthogonal dimensions for side-effect semantics — not a single overloaded enum",
+        "classification": "REQUIREMENT",
+        "dimensions": {
+          "EffectClass": {
+            "purpose": "What kind of operation",
+            "type": "enum",
+            "values": ["PURE", "READ_ONLY", "EXTERNAL_SIDE_EFFECT"]
+          },
+          "ReplayProperty": {
+            "purpose": "How replay behaves",
+            "type": "enum",
+            "values": ["IDEMPOTENT", "NON_IDEMPOTENT"],
+            "note": "Required for EXTERNAL_SIDE_EFFECT; NONE/default for PURE and READ_ONLY"
+          },
+          "RecoveryProperty": {
+            "purpose": "How failures are resolved",
+            "type": "enum",
+            "values": ["NONE", "COMPENSATABLE", "OPERATOR_RESOLUTION_REQUIRED"],
+            "note": "Required for EXTERNAL_SIDE_EFFECT; NONE/default for PURE and READ_ONLY"
+          }
+        },
+        "token_requirements": [
+          {"effect_class": "PURE", "token_required": false},
+          {"effect_class": "READ_ONLY", "token_required": false},
+          {"effect_class": "EXTERNAL_SIDE_EFFECT", "replay_property": "IDEMPOTENT", "token_required": true},
+          {"effect_class": "EXTERNAL_SIDE_EFFECT", "replay_property": "NON_IDEMPOTENT", "token_required": true}
+        ],
+        "examples": [
+          {
+            "operation": "Credit card charge",
+            "effect_class": "EXTERNAL_SIDE_EFFECT",
+            "replay_property": "IDEMPOTENT",
+            "recovery_property": "OPERATOR_RESOLUTION_REQUIRED"
+          },
+          {
+            "operation": "Create temporary cloud bucket",
+            "effect_class": "EXTERNAL_SIDE_EFFECT",
+            "replay_property": "NON_IDEMPOTENT",
+            "recovery_property": "COMPENSATABLE"
+          },
+          {
+            "operation": "Deterministic computation",
+            "effect_class": "PURE",
+            "replay_property": "NONE",
+            "recovery_property": "NONE"
+          }
+        ],
+        "deprecated_single_enum": ["IDEMPOTENT_SIDE_EFFECT", "NON_IDEMPOTENT_SIDE_EFFECT", "COMPENSATABLE_SIDE_EFFECT", "EXTERNAL_SIDE_EFFECT as combined enum", "REVERSIBLE_SIDE_EFFECT"],
+        "enforcement_rules": [
+          "Runtime rejects EXTERNAL_SIDE_EFFECT commands missing idempotency_token with CAPABILITY_VIOLATION",
+          "Runtime MUST NOT infer any property dimension from action name patterns",
+          "COMPENSATABLE recovery does NOT make duplicate execution safe without token deduplication"
+        ]
+      },
+      "CommandExecutionLifecycle": {
+        "purpose": "Explicit lifecycle transitions providing recovery evidence without external audit logs",
+        "classification": "REQUIREMENT",
+        "phases": [
+          {"name": "INTENT_RECORDED", "description": "Command accepted and persisted in journal"},
+          {"name": "EXECUTION_STARTED", "description": "Worker acknowledged begin execution"},
+          {"name": "SIDE_EFFECT_COMMITTED", "description": "External effect durably recorded; idempotency claim COMMITTED"},
+          {"name": "COMPLETION_RECORDED", "description": "Terminal outcome event persisted"}
+        ],
+        "lifecycle_event": {
+          "extends": "Event",
+          "fields": [
+            {"name": "command_id", "type": "UUID"},
+            {"name": "phase", "type": "CommandLifecyclePhase"},
+            {"name": "idempotency_token", "type": "UUID | null"}
+          ]
+        },
+        "taxonomy_aware_lifecycle_paths": {
+          "PURE": ["INTENT_RECORDED", "EXECUTION_STARTED", "COMPLETION_RECORDED"],
+          "READ_ONLY": ["INTENT_RECORDED", "EXECUTION_STARTED", "COMPLETION_RECORDED"],
+          "EXTERNAL_SIDE_EFFECT": ["INTENT_RECORDED", "EXECUTION_STARTED", "SIDE_EFFECT_COMMITTED", "COMPLETION_RECORDED"],
+          "classification": "REQUIREMENT"
+        },
+        "crash_cut_matrix_external_side_effect": [
+          {"crash_after": "before_INTENT", "evidence": "none", "claim": "UNCLAIMED", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay_side_effect": true},
+          {"crash_after": "INTENT_RECORDED", "evidence": "INTENT", "claim": "UNCLAIMED", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay_side_effect": true},
+          {"crash_after": "EXECUTION_STARTED", "evidence": "INTENT+EXECUTION_STARTED", "claim": "UNCLAIMED_or_IN_PROGRESS", "recovery_state": "IN_DOUBT", "recovery_action": "OPERATOR_RESOLUTION", "replay_side_effect": false},
+          {"crash_after": "SIDE_EFFECT_COMMITTED", "evidence": "through_SIDE_EFFECT_COMMITTED", "claim": "COMMITTED_or_IN_PROGRESS", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay_side_effect": false},
+          {"crash_after": "COMPLETION_RECORDED", "evidence": "full", "claim": "COMMITTED", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay_side_effect": false}
+        ],
+        "crash_cut_matrix_pure_read_only": [
+          {"crash_after": "EXECUTION_STARTED", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay": true},
+          {"crash_after": "COMPLETION_RECORDED", "recovery_state": "RECOVERABLE", "recovery_action": "REPLAY", "replay": false}
+        ],
+        "in_doubt_epistemic_definition": {
+          "meaning": "Cortex cannot prove whether the external effect committed",
+          "formal_invariant": "IN_DOUBT <=> Evidence(EXECUTION_STARTED) AND NOT Proof(SIDE_EFFECT_COMMITTED)",
+          "critical_distinctions": [
+            "IN_DOUBT != SIDE_EFFECT_COMMITTED",
+            "IN_DOUBT does NOT assert the side effect happened",
+            "IN_DOUBT halts automated replay until operator or External-Effect Authority resolves"
+          ],
+          "classification": "REQUIREMENT"
+        },
+        "critical_rule": "Recovery classification MUST be determined solely from Evidence Authority (lifecycle events + idempotency claim table). External-Effect Authority MUST NOT be required classification input."
+      },
+      "RecoveryState": {
+        "purpose": "Workflow recoverability classification after crash",
+        "classification": "REQUIREMENT",
+        "type": "enum",
+        "states": [
+          {"name": "RECOVERABLE", "description": "Evidence sufficient for deterministic recovery"},
+          {"name": "IN_DOUBT", "description": "Epistemic uncertainty: Cortex cannot prove whether external effect committed. IN_DOUBT != SIDE_EFFECT_COMMITTED"},
+          {"name": "UNRECOVERABLE", "description": "Journal corrupted or causality chain broken"}
+        ],
+        "removed_states": ["REPLAYABLE"],
+        "removed_reason": "Synonym for RECOVERABLE created state-machine ambiguity"
+      },
+      "RecoveryAction": {
+        "purpose": "Action to take given a RecoveryState — separate from state classification",
+        "classification": "REQUIREMENT",
+        "type": "enum",
+        "values": [
+          {"name": "REPLAY", "permitted_when": "RECOVERABLE"},
+          {"name": "OPERATOR_RESOLUTION", "permitted_when": "IN_DOUBT"},
+          {"name": "HALT", "permitted_when": "UNRECOVERABLE"}
+        ]
+      },
+      "IdempotencyToken": {
+        "purpose": "Runtime-independent duplicate detection identity",
+        "classification": "REQUIREMENT",
+        "canonical_rule": "Every EXTERNAL_SIDE_EFFECT command MUST carry explicit idempotency_token UUID on Command payload",
+        "operation_identity": {
+          "definition": "Canonical identity of the logical external operation",
+          "formula": "hex(canonical_bytes(parameters))",
+          "same_token_when": ["Same workflow_id, command_type, causation_id, parameters"],
+          "different_token_when": ["Different workflow_id OR causation_id OR command_type OR parameters"],
+          "classification": "REQUIREMENT"
+        },
+        "uuid_v5_derivation": {
+          "requirement": "Deterministic UUID v5 identical across all runtimes",
+          "formula": "UUID_v5(NAMESPACE_CORTEX_SYSTEM, Canonical_CBE_Bytes([workflow_id, command_type, causation_id, payload]))",
+          "namespace_uuid": {
+            "system_constant": "NAMESPACE_CORTEX_SYSTEM",
+            "system_value": "a1b2c3d4-0000-5000-8000-000000000001",
+            "idempotency_constant": "NAMESPACE_CORTEX_IDEMPOTENCY",
+            "idempotency_value": "a1b2c3d4-0000-5000-8000-000000000002",
+            "classification": "DESIGN_DECISION",
+            "note": "[DESIGN DECISION] Reserved normative Cortex v0.3 system and idempotency namespaces"
+          },
+          "normative_test_vectors": [
+            {
+              "id": "TV-A",
+              "workflow_id": "wf-101",
+              "command_type": "payment:charge",
+              "causation_id": "caus-999",
+              "parameters": {"amount": 100, "currency": "USD"},
+              "parameters_canonical_bytes_hex": "4d323a53363a616d6f756e744931303053383a63757272656e637953333a555344",
+              "canonical_input_cbe": "L4:S6:wf-101S14:payment:chargeS8:caus-999M2:S6:amountI100S8:currencyS3:USD",
+              "expected_token": "a6afec1e-b59d-55f4-ac38-f6ae6d37d268",
+              "independent_validation": "Python 3 stdlib uuid.uuid5 — MATCH"
+            },
+            {
+              "id": "TV-B",
+              "workflow_id": "wf-102",
+              "command_type": "file:write",
+              "causation_id": "caus-1000",
+              "parameters": {"path": "/tmp/data.txt"},
+              "parameters_canonical_bytes_hex": "4d313a53343a706174685331333a2f746d702f646174612e747874",
+              "canonical_input_cbe": "L4:S6:wf-102S10:file:writeS9:caus-1000M1:S4:pathS13:/tmp/data.txt",
+              "expected_token": "d926fda1-f3ea-5672-bd7f-d2858358b002",
+              "independent_validation": "Python 3 stdlib uuid.uuid5 — MATCH"
+            },
+            {
+              "id": "TV-C",
+              "workflow_id": "wf-103",
+              "command_type": "email:send",
+              "causation_id": "caus-1001",
+              "parameters": {"to": "user@example.com"},
+              "parameters_canonical_bytes_hex": "4d313a5323a746f5331363a75736572406578616d706c652e636f6d",
+              "canonical_input_cbe": "L4:S6:wf-103S10:email:sendS9:caus-1001M1:S2:toS16:user@example.com",
+              "expected_token": "c588d5ca-4c8b-5f7b-8ebc-0227244f6820",
+              "independent_validation": "Python 3 stdlib uuid.uuid5 — MATCH"
+            },
+            {
+              "id": "TV-Root",
+              "workflow_id": "wf-777",
+              "command_type": "order:process",
+              "causation_id": "00000000-0000-0000-0000-000000000000",
+              "parameters": [],
+              "parameters_canonical_bytes_hex": "4c303a",
+              "canonical_input_cbe": "L4:S6:wf-777S13:order:processS36:00000000-0000-0000-0000-000000000000L0:",
+              "expected_token": "983e24da-d481-5a1b-8624-26c18f8b6b01",
+              "independent_validation": "Python 3 stdlib uuid.uuid5 — MATCH"
+            }
+          ]
+        },
+        "invariants": [
+          "Consumers MUST use explicit idempotency_token field",
+          "Token provides duplicate detection; does NOT make non-idempotent operations inherently safe"
+        ]
+      },
+      "VerificationResult": {
+        "purpose": "Boolean assertion of correctness property",
+        "classification": "REQUIREMENT",
+        "extends": "Event",
+        "additional_fields": [
+          {"name": "passed", "type": "boolean"},
+          {"name": "rule_id", "type": "string"},
+          {"name": "details", "type": "CortexValueMap"},
+          {"name": "metrics", "type": "map<string, numeric>"}
+        ],
+        "invariants": ["Workflows MUST transition to FAILED if any VerificationResult has passed=false"]
+      },
+      "CapabilitySet": {
+        "purpose": "Immutable set of granted permissions",
+        "classification": "REQUIREMENT",
+        "invariants": [
+          "CapabilitySet MUST be immutable after negotiation",
+          "Capability checks MUST occur before sensitive operations",
+          "Capability escalation post-negotiation MUST be impossible"
+        ]
+      }
+    },
+    "three_tier_ordering": {
+      "classification": "REQUIREMENT",
+      "journal_order": {
+        "definition": "Total linear persistence sequence via journal_position (int64)",
+        "answers": "In what sequence were events persisted?",
+        "does_not_imply": "Causal relationship"
+      },
+      "causal_order": {
+        "definition": "Partial order from causation_id parent-child links",
+        "field_semantics": {
+          "event_id": "Unique identity of this event",
+          "causation_id": "Immediate causal predecessor event_id",
+          "correlation_id": "Workflow correlation group — NOT causal lineage",
+          "journal_position": "Physical persistence order — NOT causal lineage"
+        },
+        "graph_reconstruction": "For each E with causation_id=P: add edge P→E; verify acyclic; verify journal_position ordering"
+      },
+      "observational_order": {
+        "definition": "Wall-clock timestamp_ns for telemetry",
+        "classification": "PROVEN",
+        "forbidden_for": ["causal ordering", "lineage verification", "recovery classification"]
+      },
+      "explicitly_forbidden": "Conflating journal order, causal order, correlation grouping, or timestamp order"
+    },
+    "event_identity_model": {
+      "classification": "REQUIREMENT",
+      "identity_domain_separation": [
+        {"domain": "logical_event_id", "deterministic": true, "generated_by": "Cortex Contract Kernel", "formula": "UUID_v5(NAMESPACE_CORTEX_SYSTEM, Canonical_CBE_Bytes([workflow_id, command_type, causation_id, payload]))", "purpose": "Causal / DAG execution lineage identity"},
+        {"domain": "idempotency_token", "deterministic": true, "generated_by": "Cortex Contract Kernel", "formula": "UUID_v5(NAMESPACE_CORTEX_IDEMPOTENCY, 'idempotency:' + workflow_id + ':' + command_type + ':' + op_identity_hash)", "purpose": "External mutation deduplication identity"},
+        {"domain": "application_idempotency_key", "deterministic": false, "generated_by": "Caller / Application", "formula": "Opaque application metadata outside payload", "purpose": "Optional business/request key; MUST NOT mutate or replace logical_event_id or idempotency_token"},
+        {"domain": "runtime_event_id", "deterministic": false, "generated_by": "Runtime EventStore", "formula": "Storage-local UUIDv4/v7 or DB PK", "purpose": "Ephemeral physical storage identity"}
+      ],
+      "semantic_identity": {
+        "must_match_across_runtimes": true,
+        "fields": [
+          "logical_event_id", "causation_id", "logical_sequence_index",
+          "payload_hash", "lifecycle_phase", "recovery_state", "idempotency_token"
+        ],
+        "logical_event_id_formula": "UUID_v5(NAMESPACE_CORTEX_SYSTEM, Canonical_CBE_Bytes([workflow_id, command_type, causation_id, payload]))",
+        "payload_hash_formula": "SHA-256(canonical_bytes(payload))"
+      },
+      "runtime_ephemeral_identity": {
+        "permissible_divergence": true,
+        "fields": ["event_id", "journal_position", "timestamp_ns", "worker_id", "worker_session_id", "process_id"],
+        "event_id_deterministic": false
+      }
+    },
+    "causal_lineage_rules": {
+      "classification": "REQUIREMENT",
+      "ordering_mechanisms": [
+        "journal_position: strictly monotonic int64 assigned by EventStore on append",
+        "causation_id: directed acyclic graph of parent-child event relationships"
+      ],
+      "explicitly_forbidden": "Using timestamp_ns for causal ordering, lineage verification, or recovery classification",
+      "dag_property": {
+        "rule": "For event E with causation_id = C: C exists, journal_position(E) > journal_position(C)"
+      },
+      "verification_algorithm": {
+        "steps": [
+          "Build DAG from causation_id links",
+          "Verify graph is acyclic",
+          "Verify journal_position(parent) < journal_position(child) for all edges",
+          "Verify all root_id references exist"
+        ]
+      }
+    }
+  },
+  "recovery_state_machine": {
+    "description": "Evidence-based recovery using lifecycle phases — no external audit log dependency",
+    "classification": "REQUIREMENT",
+    "crash_window_mapping": {
+      "B1_pre_execution": {
+        "last_lifecycle_phase": "none or INTENT_RECORDED",
+        "recovery_state": "RECOVERABLE",
+        "recovery_action": "REPLAY",
+        "classification": "PROVEN"
+      },
+      "B2_mid_execution": {
+        "last_lifecycle_phase": "EXECUTION_STARTED",
+        "recovery_state": "IN_DOUBT",
+        "recovery_action": "OPERATOR_RESOLUTION",
+        "classification": "PROVEN"
+      },
+      "B3_post_commit": {
+        "last_lifecycle_phase": "SIDE_EFFECT_COMMITTED or COMPLETION_RECORDED",
+        "recovery_state": "RECOVERABLE",
+        "recovery_action": "REPLAY",
+        "requirement": "MUST use idempotency claim deduplication",
+        "classification": "PROVEN"
+      }
+    },
+    "classification_algorithm": {
+      "required_inputs": ["Evidence Authority: EventStore journal (lifecycle events)", "Evidence Authority: Idempotency claim table"],
+      "forbidden_inputs": ["External-Effect Authority as automated classification input"],
+      "output": "(RecoveryState, RecoveryAction)",
+      "steps": [
+        {"step": 1, "action": "Verify journal lineage integrity", "on_failure": "Return (UNRECOVERABLE, HALT)"},
+        {"step": 2, "action": "For each side-effect command, get last lifecycle phase and claim status"},
+        {"step": 3, "action": "Apply evidence rules table", "if_EXECUTION_STARTED": "Return (IN_DOUBT, OPERATOR_RESOLUTION)"},
+        {"step": 4, "action": "If claim IN_PROGRESS at crash", "result": "Return (IN_DOUBT, OPERATOR_RESOLUTION)"},
+        {"step": 5, "action": "All commands verified", "result": "Return (RECOVERABLE, REPLAY)"}
+      ]
+    },
+    "atomic_idempotency_claim_protocol": {
+      "description": "Concurrency-safe idempotency via atomic claim state machine",
+      "classification": "REQUIREMENT",
+      "persistence_authority": {
+        "eventstore": "Durable lifecycle events",
+        "claim_log": "Durable claim state — NOT process RAM",
+        "classification": "REQUIREMENT"
+      },
+      "atomicity_boundary": {
+        "rule": "Cortex transaction and external side effect CANNOT be atomically committed together unless external system participates in distributed transaction",
+        "ambiguity_window": "Crash between external execution and SIDE_EFFECT_COMMITTED produces IN_DOUBT",
+        "classification": "REQUIREMENT"
+      },
+      "lease_and_fencing_semantics": {
+        "claim_owner": "worker_session_id",
+        "claim_lease_expires_at": "timestamp when lease expires",
+        "fencing_token": {
+          "type": "int64",
+          "rule": "Monotonically increasing per idempotency_token on each claim acquisition",
+          "classification": "REQUIREMENT"
+        },
+        "semantic_invariants": [
+          "Claim MUST have owner while IN_PROGRESS",
+          "fencing_token MUST monotonically increase on each claim acquisition for same idempotency_token",
+          "Any commit/write with fencing_token < current claim fencing_token MUST be rejected with STALE_FENCING_TOKEN",
+          "Expired lease alone MUST NOT authorize un-fenced re-execution",
+          "Stale worker resuming after lease expiry MUST NOT commit; stale fencing token writes rejected"
+        ],
+        "claim_lease_ttl_ms": {
+          "classification": "PROVISIONAL_REQUIREMENT",
+          "note": "Configurable operational parameter — numeric value is NOT a semantic invariant"
+        },
+        "in_progress_recovery_paths": [
+          {"condition": "lease valid, same worker", "action": "resume execution"},
+          {"condition": "lease expired, no proof", "action": "IN_DOUBT"},
+          {"condition": "ExternalProofAppended COMMITTED", "resolution": "EFFECT_CONFIRMED_COMMITTED", "replay_scope": "REPLAY_COMPLETION"},
+          {"condition": "ExternalProof NOT_COMMITTED", "resolution": "EFFECT_CONFIRMED_ABSENT", "replay_scope": "RETRY_MUTATION"},
+          {"condition": "operator RETRY_AUTHORIZED", "resolution": "RETRY_AUTHORIZED", "replay_scope": "RETRY_MUTATION", "note": "Requires new fencing_token; does NOT prove absence"},
+          {"condition": "stale worker commit attempt", "action": "STALE_FENCING_TOKEN rejection"}
+        ],
+        "classification": "REQUIREMENT"
+      },
+      "states": ["UNCLAIMED", "IN_PROGRESS", "COMMITTED", "FAILED"],
+      "transitions": [
+        {"from": "UNCLAIMED", "to": "IN_PROGRESS", "operation": "atomic claim (INSERT ON CONFLICT or CAS)"},
+        {"from": "IN_PROGRESS", "to": "COMMITTED", "operation": "commit after successful side effect"},
+        {"from": "IN_PROGRESS", "to": "FAILED", "operation": "record failure"},
+        {"from": "COMMITTED", "to": "COMMITTED", "operation": "skip execution, return cached result"}
+      ],
+      "execution_sequence": [
+        "Emit CommandLifecycleEvent(EXECUTION_STARTED)",
+        "claim(idempotency_token) -> IN_PROGRESS",
+        "Execute external side effect",
+        "Emit CommandLifecycleEvent(SIDE_EFFECT_COMMITTED)",
+        "commit(idempotency_token) -> COMMITTED",
+        "Emit CommandLifecycleEvent(COMPLETION_RECORDED)"
+      ],
+      "failure_cases": [
+        {"failure_point": "Before EXECUTION_STARTED", "claim_status": "UNCLAIMED", "recovery_state": "RECOVERABLE"},
+        {"failure_point": "After EXECUTION_STARTED, before claim", "recovery_state": "IN_DOUBT"},
+        {"failure_point": "After claim IN_PROGRESS, before COMMITTED", "recovery_state": "IN_DOUBT"},
+        {"failure_point": "After COMMITTED", "recovery_state": "RECOVERABLE", "note": "replay skips duplicate"}
+      ],
+      "empirical_validation": {
+        "description": "Concurrent claim races and worker death during IN_PROGRESS",
+        "classification": "RESEARCH_QUESTION",
+        "target_issues": ["#14", "#15", "#16"]
+      },
+      "claim_table_schema": {
+        "table_name": "idempotency_claims",
+        "columns": [
+          {"name": "token", "type": "UUID", "constraint": "PRIMARY KEY"},
+          {"name": "command_id", "type": "UUID", "constraint": "NOT NULL"},
+          {"name": "workflow_id", "type": "UUID", "constraint": "NOT NULL"},
+          {"name": "operation_namespace", "type": "VARCHAR(255)", "constraint": "NOT NULL"},
+          {"name": "status", "type": "VARCHAR(20)", "constraint": "NOT NULL"},
+          {"name": "worker_session_id", "type": "UUID"},
+          {"name": "fencing_token", "type": "BIGINT", "constraint": "NOT NULL"},
+          {"name": "claim_lease_expires_at", "type": "TIMESTAMP"},
+          {"name": "claimed_at", "type": "TIMESTAMP", "constraint": "NOT NULL"},
+          {"name": "completed_at", "type": "TIMESTAMP"},
+          {"name": "result_payload", "type": "JSONB"}
+        ]
+      }
+    },
+    "epistemic_recovery_taxonomy": {
+      "classification": "REQUIREMENT",
+      "distinctions": [
+        {
+          "name": "EFFECT_CONFIRMED_ABSENT",
+          "meaning": "Verifiable proof the external effect did NOT occur",
+          "evidence": "External-Effect Authority lookup or idempotent query returning NOT_COMMITTED"
+        },
+        {
+          "name": "EFFECT_CONFIRMED_COMMITTED",
+          "meaning": "Verifiable proof the external effect DID occur",
+          "evidence": "External-Effect Authority lookup returning COMMITTED"
+        },
+        {
+          "name": "RETRY_AUTHORIZED",
+          "meaning": "Operator/policy permits retry despite lingering ambiguity",
+          "evidence": "Operator command recorded in EventStore",
+          "critical": "RETRY_AUTHORIZED != EFFECT_CONFIRMED_ABSENT — does NOT prove absence of original effect"
+        }
+      ],
+      "in_doubt_invariant": "IN_DOUBT does NOT imply failure; IN_DOUBT = epistemic uncertainty about external effect"
+    },
+    "replay_scope_taxonomy": {
+      "classification": "REQUIREMENT",
+      "scopes": [
+        {
+          "name": "REPLAY_COMPUTATION",
+          "description": "Re-evaluate pure CPU/workflow logic up to uncommitted boundary",
+          "safe_when": "PURE/READ_ONLY paths; pre-execution",
+          "must_not": "Re-execute external mutations",
+          "precondition": "Last phase <= EXECUTION_STARTED for PURE/READ_ONLY, OR <= INTENT for unstarted side effects"
+        },
+        {
+          "name": "REPLAY_COMPLETION",
+          "description": "Synthesize completion events from durable evidence without re-executing mutations",
+          "safe_when": "SIDE_EFFECT_COMMITTED or EFFECT_CONFIRMED_COMMITTED in evidence",
+          "must_not": "Re-execute external mutations",
+          "precondition": "External effect proven committed in Evidence or External-Effect Authority"
+        },
+        {
+          "name": "RETRY_MUTATION",
+          "description": "Re-issue external mutation with same idempotency_token and incremented fencing_token",
+          "safe_when": "EFFECT_CONFIRMED_ABSENT or RETRY_AUTHORIZED resolution recorded",
+          "must_not": "Execute without idempotency token or fencing token",
+          "precondition": "Resolution event recorded in EventStore"
+        }
+      ],
+      "escalation_rule": "Escalation to more dangerous scopes is NOT automatic"
+    },
+    "state_transitions": {
+      "nodes": ["RUNNING", "CrashDetected", "AnalyzeEvidence", "RECOVERABLE", "IN_DOUBT", "UNRECOVERABLE", "FAILED"],
+      "edges": [
+        {"from": "RUNNING", "to": "CrashDetected", "trigger": "Process death"},
+        {"from": "CrashDetected", "to": "AnalyzeEvidence", "trigger": "Supervisor restart"},
+        {"from": "AnalyzeEvidence", "to": "RECOVERABLE", "condition": "B1 or B3 lifecycle evidence"},
+        {"from": "AnalyzeEvidence", "to": "IN_DOUBT", "condition": "B2 or IN_PROGRESS claim"},
+        {"from": "AnalyzeEvidence", "to": "UNRECOVERABLE", "condition": "Corrupted journal"},
+        {"from": "RECOVERABLE", "to": "RUNNING", "action": "RecoveryAction=REPLAY"},
+        {"from": "IN_DOUBT", "to": "RUNNING", "action": "RecoveryAction=OPERATOR_RESOLUTION confirm"},
+        {"from": "IN_DOUBT", "to": "FAILED", "action": "RecoveryAction=OPERATOR_RESOLUTION abort"},
+        {"from": "UNRECOVERABLE", "to": "FAILED", "action": "RecoveryAction=HALT"}
+      ]
+    }
+  },
+  "eventstore_contract": {
+    "v02_reference_implementation": {
+      "classification": "PROVEN",
+      "description": "In-memory append-only journal; process death destroys all state",
+      "role": "Reference for semantic behavior, NOT production durability"
+    },
+    "v03_production_semantic_contract": {
+      "classification": "REQUIREMENT",
+      "interface": {
+        "operations": [
+          {"name": "append", "signature": "(event: Event) -> Result<journal_position: int64, Error>"},
+          {"name": "get_log", "signature": "() -> List<Event>"},
+          {"name": "get_by_workflow", "signature": "(workflow_id: UUID) -> List<Event>"},
+          {"name": "get_by_causation_chain", "signature": "(event_id: UUID) -> List<Event>"}
+        ]
+      },
+      "guarantees": [
+        {"property": "Atomicity", "classification": "REQUIREMENT"},
+        {"property": "Ordering", "description": "journal_position strictly monotonic per workflow", "classification": "REQUIREMENT"},
+        {"property": "Durability", "description": "Survives process crash — NOT a v0.2 property", "classification": "REQUIREMENT"},
+        {"property": "Immutability", "classification": "REQUIREMENT"}
+      ],
+      "persistence_mechanism": {"classification": "RESEARCH_QUESTION"}
+    }
+  },
+  "ipc_transport_analysis": {
+    "document_level": 4,
+    "normative": false,
+    "requirements_classification": "REQUIREMENT",
+    "evaluated_options": [
+      {"name": "Raw UDS", "status": "Candidate — benchmark required", "classification": "RESEARCH_QUESTION"},
+      {"name": "Length-Prefixed Framed Binary over UDS", "status": "Candidate — benchmark required", "classification": "RESEARCH_QUESTION"},
+      {"name": "gRPC over UDS", "status": "Primary Candidate / Baseline Recommendation — NOT adopted", "classification": "RESEARCH_QUESTION"},
+      {"name": "JSON over UDS", "status": "Debug/control plane only"}
+    ],
+    "required_benchmarks": ["Raw UDS", "Length-prefixed framed binary", "gRPC/UDS"],
+    "security_mechanisms": {
+      "process_authentication": {"classification": "REQUIREMENT"},
+      "capability_binding": {"classification": "REQUIREMENT"},
+      "replay_prevention": {
+        "classification": "REQUIREMENT",
+        "mechanism": "ReplayKey = (worker_session_id, session_epoch, sequence_number)",
+        "rules": [
+          "Persist (worker_session_id, session_epoch, last_sequence_number) durably",
+          "Reject session_epoch < current epoch for worker slot",
+          "Reject sequence_number <= last processed for (workflow_id, session_epoch)"
+        ],
+        "timestamp_only_rejection": "Explicitly forbidden as sole replay protection",
+        "post_restart_validity": {"classification": "RESEARCH_QUESTION"}
+      }
+    }
+  },
+  "supervisor_failure_domains": {
+    "document_level": 6,
+    "normative": false,
+    "hierarchy": [
+      {"layer": "Infrastructure Orchestrator", "handles_failure_of": "Supervisor"},
+      {"layer": "Cortex Supervisor", "technology": "Candidate: Python / Go", "classification": "RESEARCH_QUESTION"},
+      {"layer": "Worker Processes", "technology": "Candidate: Rust / Go / Python / C++", "classification": "RESEARCH_QUESTION"}
+    ],
+    "failure_handling": {
+      "worker_death": {
+        "classification": "REQUIREMENT",
+        "corrected_behavior": "Evidence-based classification per Section 4 — NOT blanket IN_DOUBT",
+        "response_steps": [
+          "For each in-flight command: classify_recovery(workflow_id, event_log, claims)",
+          "Mark workflow with (RecoveryState, RecoveryAction)",
+          "Spawn replacement worker",
+          "Resume workflows with RecoveryAction=REPLAY"
+        ],
+        "forbidden": "Immediately marking all in-flight commands as IN_DOUBT on worker death"
+      },
+      "supervisor_death": {
+        "response_steps": [
+          "OS restarts supervisor",
+          "Read durable EventStore",
+          "Classify all workflows per lifecycle evidence algorithm",
+          "Auto-resume RECOVERABLE; flag IN_DOUBT for operator"
+        ]
+      }
+    }
+  },
+  "conformance_verification_framework": {
+    "description": "Normative vectors + property-based testing — NOT merely static vector pass rate",
+    "classification": "REQUIREMENT",
+    "definition": {
+      "100_percent_conformance_means": [
+        "100% pass on normative test vector suite",
+        "Property-based / state-machine tests: invariants hold under generative crash injection and concurrent claim races"
+      ],
+      "100_percent_conformance_does_not_mean": "Passing N/N vectors proves equivalence over all possible behaviors — only conformance to defined normative suite"
+    },
+    "runtime_candidates": [
+      {"name": "Python Reference", "role": "Reference implementation", "decision": "KEEP"},
+      {"name": "Rust / Go / Zig / C++", "role": "Candidate", "decision": "EVALUATE per subsystem"}
+    ],
+    "parity_matrix": {
+      "must_match_exactly": [
+        "RecoveryState", "RecoveryAction", "EffectClass", "ReplayProperty", "RecoveryProperty",
+        "Capability decision", "Command acceptance/rejection", "Event ordering (journal_position)",
+        "Causal relationships", "Idempotency claim outcome", "Lifecycle phase sequence",
+        "Error classification", "Idempotency token value"
+      ],
+      "permissible_divergence": [
+        "timestamp_ns", "event_id", "command_id", "worker_id", "worker_session_id",
+        "process_id", "claim_lease_expires_at", "error trace formatting", "memory metrics", "diagnostics"
+      ],
+      "classification": "REQUIREMENT"
+    },
+    "semantic_projection": {
+      "name": "P_semantic",
+      "classification": "REQUIREMENT",
+      "definition": "Deterministic projection stripping ephemeral runtime fields for parity comparison",
+      "output_fields": [
+        "event_type", "journal_position_index", "causation_structure",
+        "workflow_state", "recovery_state", "recovery_action", "replay_scope",
+        "effect_class", "replay_property", "recovery_property",
+        "capability_decision", "lifecycle_phase", "idempotency_claim_outcome",
+        "error_classification", "payload_hash"
+      ],
+      "stripped_fields": [
+        "event_id", "timestamp_ns", "worker_id", "worker_session_id", "process_id"
+      ],
+      "parity_equation": "ParityPass <=> P_semantic(Runtime_A) == P_semantic(Runtime_B)"
+    },
+    "canonicalization_pipeline": {
+      "stages": ["Runtime Output", "Canonicalization", "Semantic Projection", "Comparison"],
+      "fields_to_normalize": ["timestamp_ns", "event_id", "command_id", "worker_id", "process_id"],
+      "fields_requiring_exact_match": [
+        "event_type", "causation_structure", "journal_position_ordering",
+        "capability_decisions", "recovery_classification", "lifecycle_phases",
+        "idempotency_claim_outcomes", "command_property_taxonomy"
+      ]
+    },
+    "test_categories": [
+      {"category": "Causal Ordering (journal_position)", "test_count": 25, "pass_criteria": "100%"},
+      {"category": "State Transitions", "test_count": 30, "pass_criteria": "100%"},
+      {"category": "Capability Checks", "test_count": 20, "pass_criteria": "100%"},
+      {"category": "Recovery Classification (lifecycle)", "test_count": 15, "pass_criteria": "100%"},
+      {"category": "Idempotency Claims", "test_count": 10, "pass_criteria": "100%"},
+      {"category": "Command Property Taxonomy", "test_count": 10, "pass_criteria": "100%"},
+      {"category": "Lifecycle Phase Evidence", "test_count": 10, "pass_criteria": "100%"},
+      {"category": "Property-based (generative)", "test_count": "N/A", "pass_criteria": "All invariants hold under crash/concurrency injection"}
+    ],
+    "total_normative_vectors": 120,
+    "acceptance_criteria": {
+      "semantic_conformance": {"threshold": "100% on normative suite + property tests", "classification": "REQUIREMENT"},
+      "performance_metrics": {
+        "p50_latency": {"target": "<= 2x Python reference", "classification": "PROVISIONAL_REQUIREMENT"},
+        "p99_latency": {"target": "<= 2x Python reference", "classification": "PROVISIONAL_REQUIREMENT"},
+        "throughput": {"target": ">= 50% Python reference", "classification": "PROVISIONAL_REQUIREMENT"},
+        "note": "Performance evaluated independently; thresholds pending benchmark validation"
+      },
+      "contract_authority_in_testing": {
+        "if_python_fails_candidate_passes": "Python bug — fix Python",
+        "if_both_fail": "Contract ambiguity — architecture review",
+        "candidates_conform_to": "Semantic Contract, NOT Python bugs"
+      }
+    }
+  },
+  "workflow_state_machine": {
+    "states": ["PENDING", "RUNNING", "COMPLETED", "FAILED", "ABORTED", "IN_DOUBT"],
+    "classification": "REQUIREMENT"
+  },
+  "empirical_evidence_summary": {
+    "issue_10_telemetry": {"classification": "PROVEN", "p50_latency_ms": 0.2265, "p99_latency_ms": 4.0892},
+    "issue_11_crash_semantics": {"classification": "PROVEN", "sigsegv_kills_host": true},
+    "issue_12_timeout_cancellation": {"classification": "PROVEN", "non_cooperative_stalls_event_loop": true},
+    "issue_13_recovery_side_effects": {
+      "classification": "PROVEN",
+      "v02_eventstore_in_memory_volatile": true,
+      "b2_crash_creates_ambiguity": true,
+      "idempotency_prevents_duplicates": true
+    }
+  },
+  "public_api_stability": {
+    "frozen_contract": {"symbol_count": 21, "constraint": "MUST NOT CHANGE", "classification": "REQUIREMENT"}
+  },
+  "architectural_decisions": {
+    "contract_authority": {"decision": "Semantic Contract authoritative; Python is reference", "classification": "REQUIREMENT"},
+    "causal_ordering": {"decision": "journal_position + causation DAG; timestamp_ns observational only", "classification": "REQUIREMENT"},
+    "recovery_evidence": {"decision": "Command lifecycle phases; no external audit log dependency", "classification": "REQUIREMENT"},
+    "idempotency_protocol": {"decision": "Atomic UNCLAIMED -> IN_PROGRESS -> COMMITTED/FAILED", "classification": "REQUIREMENT"},
+    "effect_classes": {"decision": "Three orthogonal dimensions: EffectClass + ReplayProperty + RecoveryProperty", "classification": "REQUIREMENT"},
+    "three_authorities": {"decision": "Semantic, Evidence, External-Effect authorities with strict separation", "classification": "REQUIREMENT"},
+    "in_doubt_semantics": {"decision": "IN_DOUBT = epistemic uncertainty; IN_DOUBT != SIDE_EFFECT_COMMITTED", "classification": "REQUIREMENT"},
+    "value_model": {"decision": "CortexValue tagged union with Cortex-CBE canonical byte encoding (NOT JCS)", "classification": "REQUIREMENT"},
+    "fencing_tokens": {"decision": "Monotonic 64-bit fencing_token on claims; stale token commits rejected", "classification": "REQUIREMENT"},
+    "replay_scopes": {"decision": "REPLAY_COMPUTATION, REPLAY_COMPLETION, RETRY_MUTATION with distinct preconditions", "classification": "REQUIREMENT"},
+    "epistemic_recovery": {"decision": "EFFECT_CONFIRMED_ABSENT != RETRY_AUTHORIZED; IN_DOUBT != failure", "classification": "REQUIREMENT"},
+    "conformance": {"decision": "100% normative vectors + property-based tests", "classification": "REQUIREMENT"},
+    "transport": {"decision": "gRPC/UDS Primary Candidate — not adopted", "classification": "RESEARCH_QUESTION"}
+  },
+  "migration_roadmap": {
+    "phase_1_v030": {"description": "Smallest experimentally testable worker boundary", "contingent_on": "Architecture Challenge Review #5 pass"},
+    "phase_2_v03x": {"description": "Conformance suite + candidate evaluation"},
+    "phase_3_v040": {"description": "Production polyglot deployment per validated assignments"}
+  },
+  "verification_requirements": {
+    "test_coverage": {"v02x_tests": 172, "v03_normative_vectors": 120, "property_tests": "required"},
+    "non_negotiable_constraints": [
+      "len(cortex.__all__) == 21 (FROZEN)",
+      "All 172 canonical unit tests MUST pass without modification",
+      "git diff pyproject.toml uv.lock cortex/ tests/ MUST return empty",
+      "./scripts/verify.sh MUST pass cleanly"
+    ]
+  },
+  "independent_validation_appendix": {
+    "revision": 5,
+    "method": "Python 3 standard library only (uuid, struct, hashlib) — no Cortex imports",
+    "namespace": "a1b2c3d4-0000-5000-8000-000000000001",
+    "root_causation_sentinel": "00000000-0000-0000-0000-000000000000",
+    "uuid_v5_vectors_validated": ["TV-A", "TV-B", "TV-C"],
+    "cortex_cbe_examples_validated": ["NULL", "BOOL", "INT", "FLOAT (IEEE 754 Big-Endian hex)", "STRING (S<len>:<bytes>)", "LIST (L<count>:<elems>)", "DICT (M<count>:<keys><vals>)"]
+  },
+  "authorization": {
+    "status": "REVISION_5_FROZEN",
+    "date": "2026-08-13",
+    "next_phase": "Polyglot Execution Kernel Implementation (Issue #14)",
+    "sign_off": "Approved"
+  }
+}

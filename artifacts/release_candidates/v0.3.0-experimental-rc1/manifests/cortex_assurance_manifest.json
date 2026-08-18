@@ -1,0 +1,253 @@
+{
+  "$schema": "./assurance_manifest_v1.schema.json",
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-08-17T20:26:15Z",
+  "last_verified_commit": "0ac0707e9b2323375d30b4f536df084cfd14c45b",
+  "repository": "Iradukunda-Fils/Cortex",
+  "overall_status": {
+    "substrate_l0_l2": "SUBSTANTIALLY_ESTABLISHED",
+    "authority_f2_f3": "FORMALLY_VERIFIED_AT_MODEL_LEVEL",
+    "evidence_f4a": "FORMALLY_VERIFIED",
+    "digest_f4b": "REPRESENTATION_IDENTITY_ALIGNED",
+    "cbe_concrete_refinement": "BOUNDED_REFINEMENT_CROSS_RUNTIME_TESTED",
+    "verifier_f4c": "BOUNDED_DETERMINISTIC_REFINEMENT_UNIVERSAL_BRIDGE_OPEN",
+    "supervisor_gate_g": "IMPLEMENTATION_CERTIFIED_TESTED_PROFILE_A",
+    "parity_gate_h_i": "IMPLEMENTATION_CERTIFIED",
+    "verifier_gate_j": "IMPLEMENTATION_CERTIFIED_TESTED_DOMAIN",
+    "hardware_l1_l2": "BOUNDED_REFINEMENT_TRACE_VERIFIED",
+    "production_signed_off": false
+  },
+  "formal_baseline": {
+    "source_v_files": 27,
+    "active_pipeline_modules": 17,
+    "auxiliary_modules": 10,
+    "compiled_vo_artifacts": 26,
+    "admitted_proofs": 0,
+    "declared_axioms": 0,
+    "uninterpreted_parameters": [
+      "sha256_bytes : list Byte -> Hash256"
+    ],
+    "coqchk_status": "PASSED"
+  },
+  "certification_accounting": {
+    "historical_integrated_baseline": 104,
+    "integrated_certification_checks": 136,
+    "standalone_unittest_methods": 108,
+    "total_repository_test_cases": 288,
+    "overall_result": "PASS"
+  },
+  "corrective_action_register": [
+    {
+      "action_id": "CA-001",
+      "classification": "SPECIFICATION CONSISTENCY DEFECT",
+      "title": "CBE normative notation mismatch",
+      "severity": "Medium",
+      "owner": "Protocol",
+      "status": "VERIFIED_CLOSED",
+      "exit_criterion": "Normative EBNF and section 3.2 prose in canonical-serialization.md aligned with wire tag bytes ('N' for null, 'D' for float). Passed 100% vectors."
+    },
+    {
+      "action_id": "CA-002",
+      "classification": "IMPLEMENTATION REFINEMENT DEFECT",
+      "title": "RTL / Emulator reset PC mismatch",
+      "severity": "Medium",
+      "owner": "Execution",
+      "status": "VERIFIED_CLOSED",
+      "exit_criterion": "Emulator initial capability base_address aligned to 0x00001000 matching SystemVerilog RTL reset vector 0x1000."
+    },
+    {
+      "action_id": "CA-003",
+      "classification": "VERIFICATION TRACE CORRECTNESS DEFECT",
+      "title": "Emulator trace PC correctness",
+      "severity": "Medium",
+      "owner": "Verification",
+      "status": "VERIFIED_CLOSED",
+      "exit_criterion": "Emulator trace records pre-execution instruction fetch PC per retirement step matching actual retired architectural PC."
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLAIM-F2-F3-AUTHORITY-MODEL",
+      "property": "Spatial attenuation, temporal monotonicity, capability derivation, and fail-closed trap classification",
+      "tier": "FORMALLY_VERIFIED",
+      "scope": "Coq Abstract Model (World.v, Semantics.v, AuthorityModel.v)",
+      "artifact": "verification/GateF_F2_1_RestrictCap.v",
+      "proof_or_test_method": "coqchk -R . Cortex",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-F4A-EVIDENCE-MODEL",
+      "property": "Causal sequence monotonicity and parent-pointer chain integrity",
+      "tier": "FORMALLY_VERIFIED",
+      "scope": "Coq Evidence Refinement Model",
+      "artifact": "verification/GateF_F4_EvidenceRefinement.v",
+      "proof_or_test_method": "coqchk -R . Cortex",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-F4B-DIGEST-ALIGNMENT",
+      "property": "Representation-identity consistency between abstract digest and concrete 256-bit hash domain",
+      "tier": "FORMALLY_REFINED",
+      "scope": "Identity Embedding (AbstractDigest := Hash256)",
+      "artifact": "verification/GateF_F4b_ConcreteCryptoRefinement.v",
+      "proof_or_test_method": "coqchk -R . Cortex",
+      "status": "LOCKED",
+      "assumptions": [
+        "sha256_bytes : list Byte -> Hash256 (Trusted Primitive Boundary)"
+      ],
+      "platform_constraints": "Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-F4C-VERIFIER-MODEL",
+      "property": "Formal specification of iterative graph decision procedure for evidence chain verification",
+      "tier": "FORMALLY_VERIFIED",
+      "scope": "Coq Verifier Spec (GateF_F4c_VerifierSpec.v)",
+      "artifact": "verification/GateF_F4c_VerifierSpec.v",
+      "proof_or_test_method": "coqchk -R . Cortex",
+      "status": "LOCKED",
+      "assumptions": [
+        "sha256_bytes : list Byte -> Hash256"
+      ],
+      "platform_constraints": "Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-F4C-DOMAIN-V1",
+      "property": "Normative definition and classification of Evidence Bundle Domain D_V1 and Schema Profile V1",
+      "tier": "NORMATIVELY_LOCKED",
+      "scope": "Docs Architecture & JSON Schema Profile V1",
+      "artifact": "docs/architecture/f4c_evidence_domain_v1.md",
+      "proof_or_test_method": "docs/spec/evidence_profile_v1.schema.json validation",
+      "status": "LOCKED",
+      "assumptions": [
+        "Gate J evidence bundle structure defines normative boundary"
+      ],
+      "platform_constraints": "JSON Schema Draft 2020-12"
+    },
+    {
+      "claim_id": "CLAIM-F4C-VERIFIER-BRIDGE",
+      "property": "Standalone verifier CLI implementation equivalence against abstract domain D",
+      "tier": "EMPIRICALLY_CONFORMANT",
+      "scope": "Tested 5/5 Golden Evidence Bundles (tests/golden/f4c_evidence_corpus/)",
+      "artifact": "cortex/tools/cortex_verifier.py",
+      "proof_or_test_method": "python3 -m unittest tests/conformance/test_f4c_corpus_conformance.py",
+      "status": "OPEN",
+      "assumptions": [
+        "Domain D test corpus represents normative evidence profile"
+      ],
+      "platform_constraints": "Python 3.10+"
+    },
+    {
+      "claim_id": "CLAIM-F4C3-VERIFIER-MAPPING",
+      "property": "Concrete verifier implementation mapping against Coq decision procedure (GateF_F4c_VerifierSpec.v)",
+      "tier": "BOUNDED_REFINEMENT",
+      "scope": "Evidence Profile V1 Domain D_V1",
+      "artifact": "docs/architecture/f4c3_verifier_formal_mapping.md",
+      "proof_or_test_method": "python3 -m unittest tests/conformance/test_f4c3_verifier_formal_mapping.py",
+      "status": "LOCKED",
+      "assumptions": [
+        "sha256_bytes : list Byte -> Hash256"
+      ],
+      "platform_constraints": "Python 3.10+ / Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-F4C4-DOMAIN-CLOSURE",
+      "property": "Partitioned differential auditing of Evidence Profile V1 domain D_V1 across 10 structural equivalence classes",
+      "tier": "BOUNDED_REFINEMENT",
+      "scope": "Evidence Profile V1 Domain D_V1",
+      "artifact": "docs/architecture/f4c4_domain_closure_audit.md",
+      "proof_or_test_method": "python3 -m unittest tests/conformance/test_f4c4_domain_closure_audit.py",
+      "status": "LOCKED",
+      "assumptions": [
+        "sha256_bytes : list Byte -> Hash256"
+      ],
+      "platform_constraints": "Python 3.10+ / Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-CBE-CONCRETE-REFINEMENT",
+      "property": "Bounded byte-level correspondence between CBESpec.v and concrete Python (cortex/cbe), Rust (cortex-emulator/src/cbe.rs), and Go (cortex-go/cbe) implementations",
+      "tier": "BOUNDED_REFINEMENT",
+      "scope": "Canonical Binary Encoding (CBE) Security Profile",
+      "artifact": "verification/CBESpec.v",
+      "proof_or_test_method": "python3 -m unittest tests/test_cbe.py",
+      "status": "BOUNDED_REFINEMENT_CROSS_RUNTIME_TESTED",
+      "assumptions": [
+        "sha256_bytes : list Byte -> Hash256"
+      ],
+      "platform_constraints": "Python 3.10+ / Rust 1.70+ / Go 1.20+ / Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-GATE-G-SUPERVISOR",
+      "property": "Complete side-effect trapping and worker isolation under 2-stage supervisor",
+      "tier": "IMPLEMENTATION_CERTIFIED",
+      "scope": "Profile A Linux Sandbox (Seccomp / Landlock / Namespaces)",
+      "artifact": "tests/conformance/test_gate_g_adversarial.py",
+      "proof_or_test_method": "python3 tests/conformance/run_certification.py",
+      "status": "LOCKED",
+      "assumptions": [
+        "Linux kernel host seccomp-bpf and landlock ABI supported"
+      ],
+      "platform_constraints": "Linux x86_64 / ARM64 Kernel >= 5.13"
+    },
+    {
+      "claim_id": "CLAIM-GATE-H-PARITY",
+      "property": "Bit-for-bit intent to actuation canonicalization parity across runtimes",
+      "tier": "IMPLEMENTATION_CERTIFIED",
+      "scope": "Profile A IPC (Python / Rust / Go)",
+      "artifact": "tests/conformance/test_gate_h_adversarial.py",
+      "proof_or_test_method": "python3 tests/conformance/run_certification.py",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Python 3.10+, Rust 1.70+, Go 1.20+"
+    },
+    {
+      "claim_id": "CLAIM-GATE-I-WITNESS",
+      "property": "Rolling SHA-256 state chain monotonicity under crash-fault injection",
+      "tier": "IMPLEMENTATION_CERTIFIED",
+      "scope": "Profile A IPC State Chain",
+      "artifact": "tests/conformance/test_gate_i_causal_witness.py",
+      "proof_or_test_method": "python3 tests/conformance/run_certification.py",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Python 3.10+"
+    },
+    {
+      "claim_id": "CLAIM-GATE-J-VERIFIER",
+      "property": "Standalone evidence chain verification for tested bundle domain",
+      "tier": "IMPLEMENTATION_CERTIFIED",
+      "scope": "Tested Verifier Domain (12 adversarial vectors)",
+      "artifact": "tests/conformance/test_gate_j_independent_verifier.py",
+      "proof_or_test_method": "python3 -m unittest tests/conformance/test_gate_j_independent_verifier.py",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Python 3.10+"
+    },
+    {
+      "claim_id": "CLAIM-HARDWARE-L1-L2-MODEL",
+      "property": "6-opcode forward simulation safety and epoch monotonicity for 16-bit non-wrapping saturating STCR behavioral model",
+      "tier": "FORMALLY_VERIFIED",
+      "scope": "Coq Pipeline Stuttering & Forward Simulation Model",
+      "artifact": "verification/GateL1_StateExtraction.v",
+      "proof_or_test_method": "coqchk -R . Cortex",
+      "status": "LOCKED",
+      "assumptions": [],
+      "platform_constraints": "Coq 8.16+"
+    },
+    {
+      "claim_id": "CLAIM-HARDWARE-L1-L2-TRACE",
+      "property": "Direct SystemVerilog RTL execution trace extraction correspondence (O5/O6)",
+      "tier": "BOUNDED_REFINEMENT",
+      "scope": "Concrete cortex_stcr_pipeline.sv verilated execution traces",
+      "artifact": "rtl/cortex_stcr_pipeline.sv",
+      "proof_or_test_method": "python3 -m unittest tests.conformance.test_conformance_rtl.TestSVCoqTraceBridge",
+      "status": "BOUNDED_REFINEMENT_TRACE_VERIFIED",
+      "assumptions": [
+        "Clock cycle accurate trace extraction mapper satisfies Coq extraction relation"
+      ],
+      "platform_constraints": "Verilator 5.0+ / Python 3.10+"
+    }
+  ]
+}

@@ -114,7 +114,8 @@ class TestEventLineage(unittest.TestCase):
         for event in events:
             with self.subTest(event_type=type(event).__name__):
                 self.assertGreater(
-                    event.timestamp_ns, 0,
+                    event.timestamp_ns,
+                    0,
                     f"timestamp_ns must be positive, got {event.timestamp_ns}",
                 )
 

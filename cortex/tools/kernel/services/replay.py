@@ -11,6 +11,7 @@ from cortex.tools.kernel.transport import EventPublisher
 
 class DeterministicReplayEngine:
     """Executes deterministic replay of recorded event journals."""
+
     publisher: EventPublisher
 
     def __init__(self, publisher: EventPublisher):
@@ -25,9 +26,7 @@ class DeterministicReplayEngine:
         return replayed_count
 
     @staticmethod
-    def verify_replayed_lineage(
-        original: list[BaseEvent], replayed: list[BaseEvent]
-    ) -> dict[str, object]:
+    def verify_replayed_lineage(original: list[BaseEvent], replayed: list[BaseEvent]) -> dict[str, object]:
         """Validates 1:1 causal ID and event sequence immutability."""
         if len(original) != len(replayed):
             return {

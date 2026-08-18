@@ -101,13 +101,43 @@ jobs:
             -e OPAMROOT=/home/coq/.opam \
             coqorg/coq:8.18-ocaml-4.14-flambda \
             sh -c 'eval $(opam env --switch=default --set-root) && coq_makefile -f _CoqProject -o Makefile.coq && make -f Makefile.coq'
+      - name: Upload Coq Compiled Artifacts (.vo)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coq-vo-artifacts
+          path: verification/*.vo
 
-  # 5. Final Enforcement Gate (Fan-In Aggregator)
+  # 5. Release Readiness Engine Gate
+  release-readiness-gate:
+    name: Release Readiness Engine Gate
+    needs: [code-quality-python, kernel-conformance, rust-emulator-gate, coq-verification-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION || '3.13' }}
+      - name: Install Dependencies from Lockfile
+        run: uv sync --all-extras
+      - name: Download Coq Compiled Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coq-vo-artifacts
+          path: verification/
+      - name: Evaluate Release Readiness Engine
+        run: uv run python tools/release/readiness.py
+
+  # 6. Final Enforcement Gate (Fan-In Aggregator)
   enforcement-gate:
     name: Hierarchical Substrate Gate Pass
-    needs: [code-quality-python, kernel-conformance, rust-emulator-gate, coq-verification-gate]
+    needs: [code-quality-python, kernel-conformance, rust-emulator-gate, coq-verification-gate, release-readiness-gate]
     runs-on: ubuntu-latest
     steps:
       - name: Confirm All Quality & Conformance Gates Passed
         run: |
-          echo "SUCCESS: Hierarchical Verification Substrate Gate Passed. Merge allowed."
+          echo "SUCCESS: Hierarchical Verification Substrate Gate Passed. Controlled Release Allowed."

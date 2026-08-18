@@ -79,7 +79,9 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
 
     if simulate_violation:
         if executed_wf.state == WorkflowState.FAILED and failed_nodes:
-            print("\n[✓] PROOF PASSED: CapabilitySandbox successfully intercepted and rejected unauthorized write invocation!")
+            print(
+                "\n[✓] PROOF PASSED: CapabilitySandbox successfully intercepted and rejected unauthorized write invocation!"
+            )
             return 0
         else:
             print("\n[!] ERROR: Expected workflow FAILED state for sandbox violation, but got PASS.")

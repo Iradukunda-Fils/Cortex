@@ -45,12 +45,14 @@ class BaselinePlannerPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "baseline_action"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "baseline_action"}],
+                )
+            )
 
 
 # --- Workload B Plugins ---
@@ -71,15 +73,17 @@ class MultiStagePlannerPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[
-                    {"step": 1, "action": "stage_1"},
-                    {"step": 2, "action": "stage_2"},
-                ],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[
+                        {"step": 1, "action": "stage_1"},
+                        {"step": 2, "action": "stage_2"},
+                    ],
+                )
+            )
 
 
 class MultiStageDispatcherPlugin(BasePlugin):
@@ -100,12 +104,14 @@ class MultiStageDispatcherPlugin(BasePlugin):
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, PlanGeneratedEvent) and self.context:
             for step in event.steps:
-                self.context.publish(CommandIssuedEvent(
-                    workflow_id=event.workflow_id,
-                    command_id=f"cmd_{step.get('step', 1)}",
-                    causation_id=event.event_id,
-                    action=str(step.get("action", "exec")),
-                ))
+                self.context.publish(
+                    CommandIssuedEvent(
+                        workflow_id=event.workflow_id,
+                        command_id=f"cmd_{step.get('step', 1)}",
+                        causation_id=event.event_id,
+                        action=str(step.get("action", "exec")),
+                    )
+                )
 
 
 class MultiStageExecutorPlugin(BasePlugin):
@@ -125,13 +131,15 @@ class MultiStageExecutorPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, CommandIssuedEvent) and self.context:
-            self.context.publish(DriverTelemetryEvent(
-                workflow_id=event.workflow_id,
-                driver_id="driver_01",
-                causation_id=event.event_id,
-                status="SUCCESS",
-                payload={"action": event.action},
-            ))
+            self.context.publish(
+                DriverTelemetryEvent(
+                    workflow_id=event.workflow_id,
+                    driver_id="driver_01",
+                    causation_id=event.event_id,
+                    status="SUCCESS",
+                    payload={"action": event.action},
+                )
+            )
 
 
 # --- Workload C Plugins ---
@@ -208,7 +216,9 @@ def run_benchmark_suite(sample_count: int = 30) -> dict[str, Any]:
     transitions_b: list[str] = []
 
     for i in range(sample_count):
-        client = CortexClient(platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"})
+        client = CortexClient(
+            platform_capabilities={"workflow.plan.create", "workflow.command.issue", "driver.telemetry.read"}
+        )
         _ = client.register_plugin(MultiStagePlannerPlugin())
         _ = client.register_plugin(MultiStageDispatcherPlugin())
         _ = client.register_plugin(MultiStageExecutorPlugin())
@@ -308,7 +318,7 @@ def generate_research_report(output_filepath: str, sample_count: int = 30) -> di
 
 
 if __name__ == "__main__":
-    report_path = os.path.join("docs", "operations", "telemetry_research_report.json")
+    report_path = os.path.join("research", "telemetry", "telemetry_research_report.json")
     print("Executing Issue #10 benchmark suite (N=30 samples)...")
     res = generate_research_report(report_path, sample_count=30)
     print(f"Report written to {report_path}")

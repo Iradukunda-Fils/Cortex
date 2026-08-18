@@ -124,7 +124,7 @@ def generate_architecture_gate_synthesis() -> dict[str, Any]:
 
 
 def generate_architecture_gate_artifacts(json_output_path: str) -> dict[str, Any]:
-    """Generates and writes docs/operations/architecture_gate_synthesis.json."""
+    """Generates and writes research/synthesis/architecture_gate_synthesis.json."""
     data = generate_architecture_gate_synthesis()
     os.makedirs(os.path.dirname(os.path.abspath(json_output_path)), exist_ok=True)
     with open(json_output_path, "w", encoding="utf-8") as f:
@@ -133,7 +133,9 @@ def generate_architecture_gate_artifacts(json_output_path: str) -> dict[str, Any
 
 
 if __name__ == "__main__":
-    report_file = os.path.join("docs", "operations", "architecture_gate_synthesis.json")
+    report_file = os.path.join("research", "synthesis", "architecture_gate_synthesis.json")
     res = generate_architecture_gate_artifacts(report_file)
     print(f"Architecture Gate Decision: Passed={res['gate_decision']['architecture_gate_passed']}")
-    print(f"Recommended v0.3 Topology: {res['synthesis']['q5_architectural_topology_comparison']['recommended_architecture']}")
+    print(
+        f"Recommended v0.3 Topology: {res['synthesis']['q5_architectural_topology_comparison']['recommended_architecture']}"
+    )

@@ -16,7 +16,7 @@ class VerificationOracle:
         self,
         coq_trace: list[CanonicalState],
         rust_trace: list[CanonicalState],
-        rtl_trace: list[CanonicalState] | None = None
+        rtl_trace: list[CanonicalState] | None = None,
     ) -> dict[str, Any]:
         """
         Evaluates step-by-step equivalence across CanonicalState objects.
@@ -28,7 +28,7 @@ class VerificationOracle:
                 "status": "FAIL",
                 "error_type": "LengthMismatch",
                 "message": f"Coq emitted {len(coq_trace)} steps, Rust emitted {len(rust_trace)} steps",
-                "observed_divergence": {"coq_len": len(coq_trace), "rust_len": len(rust_trace)}
+                "observed_divergence": {"coq_len": len(coq_trace), "rust_len": len(rust_trace)},
             }
 
         if rtl_trace and len(rust_trace) != len(rtl_trace):
@@ -36,7 +36,7 @@ class VerificationOracle:
                 "status": "FAIL",
                 "error_type": "LengthMismatch",
                 "message": f"Rust emitted {len(rust_trace)} steps, RTL emitted {len(rtl_trace)} steps",
-                "observed_divergence": {"rust_len": len(rust_trace), "rtl_len": len(rtl_trace)}
+                "observed_divergence": {"rust_len": len(rust_trace), "rtl_len": len(rtl_trace)},
             }
 
         # 2. Frame-by-frame field evaluation
@@ -54,7 +54,7 @@ class VerificationOracle:
                     "failing_step": step_num,
                     "mismatched_field": "reg_hec",
                     "canonical_expected": {"coq": c_step.reg_hec},
-                    "observed_divergence": {"rust": e_step.reg_hec}
+                    "observed_divergence": {"rust": e_step.reg_hec},
                 }
 
             # Trap status match
@@ -65,7 +65,7 @@ class VerificationOracle:
                     "failing_step": step_num,
                     "mismatched_field": "trap.triggered",
                     "canonical_expected": {"coq": c_step.trap.triggered},
-                    "observed_divergence": {"rust": e_step.trap.triggered}
+                    "observed_divergence": {"rust": e_step.trap.triggered},
                 }
 
             # STCR file match
@@ -80,7 +80,7 @@ class VerificationOracle:
                         "failing_step": step_num,
                         "mismatched_field": f"stcr[{r}].valid",
                         "canonical_expected": {"coq": c_stcr.valid},
-                        "observed_divergence": {"rust": e_stcr.valid}
+                        "observed_divergence": {"rust": e_stcr.valid},
                     }
                 if c_stcr.valid:
                     if c_stcr.permissions != e_stcr.permissions:
@@ -90,7 +90,7 @@ class VerificationOracle:
                             "failing_step": step_num,
                             "mismatched_field": f"stcr[{r}].permissions",
                             "canonical_expected": {"coq": c_stcr.permissions},
-                            "observed_divergence": {"rust": e_stcr.permissions}
+                            "observed_divergence": {"rust": e_stcr.permissions},
                         }
                     if c_stcr.epoch != e_stcr.epoch:
                         return {
@@ -99,7 +99,7 @@ class VerificationOracle:
                             "failing_step": step_num,
                             "mismatched_field": f"stcr[{r}].epoch",
                             "canonical_expected": {"coq": c_stcr.epoch},
-                            "observed_divergence": {"rust": e_stcr.epoch}
+                            "observed_divergence": {"rust": e_stcr.epoch},
                         }
 
             # RTL 3-way check if RTL trace present
@@ -112,7 +112,7 @@ class VerificationOracle:
                         "failing_step": step_num,
                         "mismatched_field": "reg_hec",
                         "canonical_expected": {"rust": e_step.reg_hec},
-                        "observed_divergence": {"rtl": r_step.reg_hec}
+                        "observed_divergence": {"rtl": r_step.reg_hec},
                     }
                 if e_step.trap.triggered != r_step.trap.triggered:
                     return {
@@ -121,7 +121,7 @@ class VerificationOracle:
                         "failing_step": step_num,
                         "mismatched_field": "trap.triggered",
                         "canonical_expected": {"rust": e_step.trap.triggered},
-                        "observed_divergence": {"rtl": r_step.trap.triggered}
+                        "observed_divergence": {"rtl": r_step.trap.triggered},
                     }
 
                 for r in range(32):
@@ -134,7 +134,7 @@ class VerificationOracle:
                             "failing_step": step_num,
                             "mismatched_field": f"stcr[{r}].valid",
                             "canonical_expected": {"rust": e_stcr.valid},
-                            "observed_divergence": {"rtl": r_stcr.valid}
+                            "observed_divergence": {"rtl": r_stcr.valid},
                         }
                     if e_stcr.valid:
                         if e_stcr.permissions != r_stcr.permissions:
@@ -144,7 +144,7 @@ class VerificationOracle:
                                 "failing_step": step_num,
                                 "mismatched_field": f"stcr[{r}].permissions",
                                 "canonical_expected": {"rust": e_stcr.permissions},
-                                "observed_divergence": {"rtl": r_stcr.permissions}
+                                "observed_divergence": {"rtl": r_stcr.permissions},
                             }
                         if e_stcr.epoch != r_stcr.epoch:
                             return {
@@ -153,12 +153,12 @@ class VerificationOracle:
                                 "failing_step": step_num,
                                 "mismatched_field": f"stcr[{r}].epoch",
                                 "canonical_expected": {"rust": e_stcr.epoch},
-                                "observed_divergence": {"rtl": r_stcr.epoch}
+                                "observed_divergence": {"rtl": r_stcr.epoch},
                             }
 
         return {
             "status": "PASS",
             "evaluated_steps": num_steps,
             "targets_checked": 3 if rtl_trace else 2,
-            "message": "1:1 State Equivalence Confirmed Across Evaluated Targets"
+            "message": "1:1 State Equivalence Confirmed Across Evaluated Targets",
         }

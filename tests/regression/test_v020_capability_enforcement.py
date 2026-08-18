@@ -26,12 +26,14 @@ class FullGrantPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         if isinstance(event, IntentEvent) and self.context:
-            self.context.publish(PlanGeneratedEvent(
-                workflow_id=event.workflow_id,
-                intent_id=event.intent_id,
-                causation_id=event.event_id,
-                steps=[{"step": 1, "action": "granted_action"}],
-            ))
+            self.context.publish(
+                PlanGeneratedEvent(
+                    workflow_id=event.workflow_id,
+                    intent_id=event.intent_id,
+                    causation_id=event.event_id,
+                    steps=[{"step": 1, "action": "granted_action"}],
+                )
+            )
 
     def __init__(self) -> None:
         manifest = PluginManifest(
@@ -102,10 +104,7 @@ class TestCapabilityEnforcement(unittest.TestCase):
         workflow = client.create_workflow(name="violation_wf", goal="Test violation event")
         _ = client.run_workflow(workflow)
 
-        events = [
-            e for e in client.event_store.get_log()
-            if isinstance(e, VerificationResultEvent)
-        ]
+        events = [e for e in client.event_store.get_log() if isinstance(e, VerificationResultEvent)]
         self.assertGreater(len(events), 0, "No VerificationResultEvent emitted")
         violation = events[0]
         self.assertFalse(violation.passed)

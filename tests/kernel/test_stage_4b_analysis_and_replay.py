@@ -120,7 +120,7 @@ class TestStage4BAnalysisAndReplay(unittest.TestCase):
         for i in range(1000):
             event = BaseEvent(
                 event_id=f"evt_{i:04d}",
-                causation_id=f"evt_{i-1:04d}" if i > 0 else "root_intent",
+                causation_id=f"evt_{i - 1:04d}" if i > 0 else "root_intent",
                 correlation_id="sess_stress_1000",
             )
             recorded_journal.append(event)

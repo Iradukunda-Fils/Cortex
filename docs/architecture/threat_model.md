@@ -21,7 +21,7 @@ In **Cortex v0.2.1**, all plugins execute **in-process** within a single Python 
 
 ## 2. Proven Capability Enforcement Guarantees (Issue #18 Empirical Evidence)
 
-The security guarantees established in Cortex v0.2.1 are derived directly from the automated adversarial test suite ([`tests/regression/test_v021_security_audit.py`](file:///home/iradukunda/Lost/Projects/Future/Cortex/tests/regression/test_v021_security_audit.py)) executed during Issue #18:
+The security guarantees established in Cortex v0.2.1 are derived directly from the automated adversarial test suite ([`tests/regression/test_v021_security_audit.py`](../../tests/regression/test_v021_security_audit.py)) executed during Issue #18:
 
 ```mermaid
 graph TD
@@ -38,7 +38,7 @@ graph TD
 ### Verified Security Invariants Matrix (Categories A–M)
 
 | Category | Invariant Title | Threat / Attack Vector | Verified Security Behavior | Status |
-| :---: | :--- | :--- | :--- | :---: |
+| :---: | :--- | :--- | :--- | :--- |
 | **A** | Authorized Capability | Legitimate plugin requires platform capability | Granted capability set matches request exactly; workflow completes to `COMPLETED`. | **PROVEN** |
 | **B** | Unauthorized Capability | Plugin requests forbidden or ungranted capability | Platform rejects registration (`REJECTED`), emits `CAPABILITY_VIOLATION` event, sets workflow state to `FAILED`. | **PROVEN** |
 | **C** | Empty Capability Set | Unprivileged plugin registered | Plugin receives empty `frozenset()`. All `has_capability()` checks evaluate to `False`. | **PROVEN** |
@@ -70,7 +70,7 @@ self.context.granted_capabilities.add("unauthorized:root_access")
 Because `granted_capabilities` was a mutable set reference, `.add()` modified the set in place. Subsequent calls to `self.context.has_capability("unauthorized:root_access")` evaluated to `True`, successfully bypassing post-negotiation security checks.
 
 ### Remediation Architecture
-In commit [`c8f7a96`](file:///home/iradukunda/Lost/Projects/Future/Cortex/cortex/plugin.py#L26), `PluginContext` was updated with a coercive `__post_init__` hook:
+In commit [`c8f7a96`](../../cortex/plugin.py#L26), `PluginContext` was updated with a coercive `__post_init__` hook:
 
 ```python
 @dataclass

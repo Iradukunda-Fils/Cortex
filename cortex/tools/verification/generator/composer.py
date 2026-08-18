@@ -20,11 +20,7 @@ class ScenarioComposer:
         initial_state = self.state_gen.generate_initial_state()
         program = self.prog_gen.generate_program(num_instructions)
 
-        return {
-            "seed": f"0x{self.seed:08X}",
-            "initial_state": initial_state,
-            "program": program
-        }
+        return {"seed": f"0x{self.seed:08X}", "initial_state": initial_state, "program": program}
 
     def export_artifacts(self, scenario: dict[str, Any], json_path: str, bin_path: str):
         with open(json_path, "w") as f:

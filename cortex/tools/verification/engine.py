@@ -26,11 +26,9 @@ class VerificationEngine:
         self.seed_val = seed_val
         self.oracle = VerificationOracle(
             version=contract.oracle.get("version", "v2.1.0"),
-            strict_trap_matching=contract.oracle.get("strict_trap_cause_matching", True)
+            strict_trap_matching=contract.oracle.get("strict_trap_cause_matching", True),
         )
-        self.shrinker = SemanticShrinker(
-            max_shrunk_steps=contract.fuzzing_parameters.get("max_shrunk_steps", 50)
-        )
+        self.shrinker = SemanticShrinker(max_shrunk_steps=contract.fuzzing_parameters.get("max_shrunk_steps", 50))
         self.archiver = CounterexampleArchive(
             archive_dir=contract.output_requirements.get("counterexample_directory", "artifacts/counterexamples/")
         )
@@ -39,11 +37,7 @@ class VerificationEngine:
         self.trap_metric = TrapMetric()
         self.state_metric = StateSpaceMetric()
 
-    def run_verification(
-        self,
-        iterations: int = 100,
-        inject_failure: str | None = None
-    ) -> dict[str, Any]:
+    def run_verification(self, iterations: int = 100, inject_failure: str | None = None) -> dict[str, Any]:
         coq_adapter = CoqAdapter()
         rust_adapter = RustAdapter()
         rtl_adapter = RTLAdapter()
@@ -57,16 +51,12 @@ class VerificationEngine:
 
             # Generate temp artifacts
             os.makedirs("artifacts/temp/", exist_ok=True)
-            composer.export_artifacts(
-                scenario,
-                "artifacts/temp/test_scenario.json",
-                "artifacts/temp/test_payload.bin"
-            )
+            composer.export_artifacts(scenario, "artifacts/temp/test_scenario.json", "artifacts/temp/test_payload.bin")
 
             # Parse traces
-            coq_trace = coq_adapter.parse_trace("Research/artifacts/phase2/coq_trace.json")
-            rust_trace = rust_adapter.parse_trace("Research/artifacts/phase2/emulator_trace.json")
-            rtl_trace = rtl_adapter.parse_trace("Research/artifacts/phase2/rtl_trace.json")
+            coq_trace = coq_adapter.parse_trace("research/formalization/artifacts/phase2/coq_trace.json")
+            rust_trace = rust_adapter.parse_trace("research/formalization/artifacts/phase2/emulator_trace.json")
+            rtl_trace = rtl_adapter.parse_trace("research/formalization/artifacts/phase2/rtl_trace.json")
 
             # Apply mutation if injected
             if inject_failure:
@@ -86,17 +76,13 @@ class VerificationEngine:
             if diagnostic["status"] == "FAIL":
                 failing_step = diagnostic.get("failing_step", 1)
                 shrunk_scenario = self.shrinker.shrink_scenario(scenario, failing_step)
-                case_hash = self.archiver.archive_failure(
-                    shrunk_scenario,
-                    diagnostic,
-                    seed=f"0x{iter_seed:08X}"
-                )
+                case_hash = self.archiver.archive_failure(shrunk_scenario, diagnostic, seed=f"0x{iter_seed:08X}")
                 return {
                     "status": "FAIL",
                     "iteration": i + 1,
                     "seed": f"0x{iter_seed:08X}",
                     "diagnostic": diagnostic,
-                    "counterexample_hash": case_hash
+                    "counterexample_hash": case_hash,
                 }
 
         # Generate run summary JSON
@@ -108,8 +94,8 @@ class VerificationEngine:
             "metrics": {
                 "opcode_coverage": self.opcode_metric.get_summary(),
                 "trap_coverage": self.trap_metric.get_summary(),
-                "state_space_explored": self.state_metric.get_summary()
-            }
+                "state_space_explored": self.state_metric.get_summary(),
+            },
         }
 
         output_dir = self.contract.output_requirements.get("archive_directory", "artifacts/phase3a/")

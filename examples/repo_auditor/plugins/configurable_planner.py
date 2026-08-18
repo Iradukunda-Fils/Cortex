@@ -47,13 +47,9 @@ class ConfigurablePlannerPlugin(BasePlugin):
 
     def __init__(self, step_count: int = DEFAULT_STEP_COUNT) -> None:
         if not isinstance(step_count, int) or step_count < MIN_STEP_COUNT:
-            raise ValueError(
-                f"step_count must be a positive integer >= {MIN_STEP_COUNT}, got {step_count}"
-            )
+            raise ValueError(f"step_count must be a positive integer >= {MIN_STEP_COUNT}, got {step_count}")
         if step_count > MAX_STEP_COUNT:
-            raise ValueError(
-                f"step_count must be <= {MAX_STEP_COUNT}, got {step_count}"
-            )
+            raise ValueError(f"step_count must be <= {MAX_STEP_COUNT}, got {step_count}")
 
         manifest = PluginManifest(
             name=f"configurable-planner-{step_count}",
@@ -73,11 +69,13 @@ class ConfigurablePlannerPlugin(BasePlugin):
                 steps: list[dict[str, object]] = []
                 for i in range(self.step_count):
                     action = AUDIT_ACTIONS[i % len(AUDIT_ACTIONS)]
-                    steps.append({
-                        "step": i + 1,
-                        "action": action,
-                        "params": {"path": ".", "iteration": i},
-                    })
+                    steps.append(
+                        {
+                            "step": i + 1,
+                            "action": action,
+                            "params": {"path": ".", "iteration": i},
+                        }
+                    )
 
                 plan_event = PlanGeneratedEvent(
                     workflow_id=event.workflow_id,

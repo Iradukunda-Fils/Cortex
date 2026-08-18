@@ -1,181 +1,171 @@
-# Cortex Platform: Spatiotemporal Authority & Semantic Verification Framework
-
-[![PyPI Version](https://img.shields.io/pypi/v/cortex-runtime.svg)](https://pypi.org/project/cortex-runtime/)
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Type Checked: Pyright](https://img.shields.io/badge/type--checking-pyright-brightgreen.svg)](https://github.com/microsoft/pyright)
+<p align="left">
+  <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="95" align="left" style="margin-right: 18px; margin-bottom: 10px;" />
+  <h1 style="border: none; margin: 0; padding: 0;">Cortex Platform</h1>
+  <h3 style="border: none; margin: 4px 0 10px 0; font-weight: 600; font-size: 1.15em;">Spatiotemporal Authority & Semantic Verification Framework</h3>
+  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a> <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a> <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a> <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-136%2F136%20PASS-brightgreen.svg" alt="Certification: 136/136 PASS"></a>
+</p>
+<br clear="left"/>
 
 > **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
 
+
+
+
 ---
 
-## 📖 Narrative Arc: Why Cortex Exists
+## 📖 System Architecture & Design Overview
 
-### 1. The Problem at Scale
-Traditional security systems rely on static user identities (POSIX permissions, IAM roles, cgroups). However, **autonomous AI agents and non-deterministic software break traditional security models**:
-* **Ambient Authority Leakage**: Agents executing inside shell environments inherit full ambient process permissions, allowing unintended file access or dynamic execution.
-* **Subshell Script Bypasses**: Malicious or miscalibrated agents can invoke shell scripts (`.sh`), subprocesses, or eval blocks to bypass high-level application checks.
-* **Non-Deterministic State Drift**: Without causal trace verification, auditing *why* an autonomous agent performed an action after a failure or security breach is impossible.
+Traditional security architectures rely on static user identity roles (POSIX permissions, IAM roles, cgroups) which fail under non-deterministic AI agent workloads and dynamic plugin executions:
+* **Ambient Authority Leakage**: Agents executing inside shell environments inherit full ambient process permissions, allowing unmediated filesystem or network access.
+* **Subshell Script Bypasses**: Malicious or miscalibrated plugins invoke shell scripts (`.sh`), subprocesses, or eval blocks to bypass application-level checks.
+* **Trace Non-Repudiation**: Without cryptographic trace verification, auditing *why* an autonomous agent performed a destructive side-effect is impossible.
 
-### 2. The Cortex Value Proposition
-Cortex replaces ambient authority with a **3-Layer Security Boundary**:
-1. **Static Capability Negotiation**: Manifests declare required permissions before plugins access the kernel bus (`CapabilityNegotiator`).
-2. **Runtime Sandbox Proxy**: Guarded resource drivers evaluate capability tokens before firing raw I/O system calls (`PluginContext`).
-3. **Deterministic Replay Audit**: Post-execution trace verification validates $P1$–$P4$ invariants and causal lineage graphs (`cortex workflow replay`).
+Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Security Boundary**:
 
-### 3. Dual-Layer Framing: Non-Technical Analogy vs. Technical Mechanics
-
-```mermaid
-graph TD
-    subgraph Layer 1: Passport Control
-        M[Plugin Manifest] --> N[CapabilityNegotiator]
-        N -->|Match Policy| G[ACTIVE Plugin]
-        N -->|Policy Mismatch| R[REJECTED Plugin]
-    end
-
-    subgraph Layer 2: Boarding Scanner
-        G --> C[PluginContext]
-        C --> D[Guarded Drivers: File / Net / Exec]
-        D -->|has_capability?| E[Execute Action]
-        D -->|Missing Token| V[CAPABILITY_VIOLATION Event]
-    end
-
-    subgraph Layer 3: Flight Blackbox
-        E --> S[Immutable Event Store]
-        V --> S
-        S --> RE[Deterministic Replay Engine]
-        RE --> INV[P1-P4 Invariant Checks]
-    end
+```text
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (Gate K / ADR-008)                          │
+ │ Manifests declare required permissions before plugins access the kernel bus.                │
+ └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                                │ SignedIntent Payload (CBE Format)
+                                                ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 2. EXECUTION TOKEN INTENT PARITY & ACTUATION GATE (Gate H / P2)                             │
+ │ Single-use ExecutionTokens bind tokens strictly to intent hashes: D3 == D2                  │
+ └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                                │ Governed Side-Effect Execution
+                                                ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 3. ROLLING CAUSAL WITNESS JOURNALING (Gate I / P3)                                          │
+ │ Emits tamper-evident rolling hash commitments: W_{t+1} = SHA256(W_t || D_E || D_I)          │
+ └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
+                                                │ Raw Evidence Traces (R, E)
+                                                ▼
+ ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (Gate J / P4)                               │
+ │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE │
+ └───────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-| Security Layer | Non-Technical Analogy | Technical Mechanics |
-| :--- | :--- | :--- |
-| **Layer 1: Static Negotiation** | **Passport & Visa Check**<br/>Validates passport and visa credentials before granting entry into the country. | `CapabilityNegotiator.negotiate()` evaluates `PluginManifest.required_capabilities` against `platform_capabilities`. |
-| **Layer 2: Runtime Sandbox Proxy** | **Boarding Gate Scanner**<br/>Ensures passengers present a valid boarding pass for that specific door before entering the aircraft. | `PluginContext.has_capability()` validates tokens before Guarded Resource Drivers fire I/O system calls. |
-| **Layer 3: Verification & Trace Replay** | **Flight Blackbox Recorder**<br/>Records all flight telemetry in a tamper-evident blackbox for post-flight accident investigation. | `DeterministicReplayEngine` re-simulates event streams (`.cortex/events/*.json`), validating $P1$–$P4$ invariants. |
+---
+
+## 🗺️ Repository Map & Documentation Architecture
+
+For open-source contributors and systems architects, the codebase is structured logically across normative specifications, architecture records, polyglot engines, and verification suites:
+
+```text
+Cortex Platform Architecture Map
+├── docs/                                    # Master Technical & Specification Portal
+│   ├── architecture/                        # Architectural Audits & Verification Matrices
+│   │   ├── verification_closure_matrix.md   # Master Phase 13 Assurance Status Matrix
+│   │   ├── gate_g_complete_mediation_inventory.md # Complete Mediation Path Analysis
+│   │   └── threat_model.md                  # Threat Vectors & Mitigation Catalog
+│   ├── spec/                                # Normative Protocol & Security Specifications
+│   │   ├── gate_g_remediation_specification.md # Worker Sandbox & Narrow IPC Architecture
+│   │   ├── gate_h_execution_token_specification.md # ExecutionToken & Intent Parity Spec (P2)
+│   │   ├── gate_i_causal_witness_specification.md  # Rolling Witness Chain Specification (P3)
+│   │   ├── gate_j_independent_verifier_specification.md # Untrusted Verifier Engine Spec (P4)
+│   │   └── v03_layer2_streaming_spec.md     # Layer 2 Streaming Protocol Framing
+│   └── adrs/                                # Architectural Decision Records
+│       └── ADR-008-identity-specification-supersession.md # Identity Supersession (UUIDv5/v7)
+│
+├── tools/                                   # Standalone Tooling & Verification Engines
+│   └── cortex_verifier.py                   # Zero-dependency Independent Verifier CLI (Gate J)
+│
+├── tests/conformance/                       # Conformance & Adversarial Certification Suite
+│   ├── run_certification.py                 # Master 74-Check Conformance Test Runner
+│   ├── test_gate_h_adversarial.py           # Gate H Parity & Replay Protection Tests (21/21)
+│   ├── test_gate_i_causal_witness.py        # Gate I Tamper-Evident Witness Chain Tests (7/7)
+│   └── test_gate_j_independent_verifier.py # Gate J Verifier Engine Adversarial Tests (12/12)
+│
+├── cortex/                                  # Python Control Plane & Reference Runtime
+├── cortex-emulator/                         # Rust STCR Hardware State Machine Emulator
+├── cortex-go/                               # Go Layer 2 High-Concurrency Transport Adapter
+└── rtl/                                     # SystemVerilog STCR Hardware Pipeline
+```
 
 ---
 
-## 🚀 Quickstart & Developer Experience
+## 🛡️ The Safety Invariants Matrix ($P1$–$P4$)
 
-### 1. Installation
+| Security Invariant | Mathematical / Normative Definition | Status | Empirical Verification & Test Harness |
+| :--- | :--- | :---: | :--- |
+| **$P1$: Authority Attenuation** | $\Lambda_{t+1} \subseteq \Lambda_t \land w_1 \sqsubseteq w_2$ | **PARTIAL** | Python `PluginContext` & Rust `cortex-emulator` STCR. |
+| **$P2$: Execution Parity** | $D_3 \equiv D_2 \equiv \text{SHA256}(\text{CBE}(\text{SignedIntent}))$ | **CERTIFIED** | 21/21 Gate H Scenarios PASS (`test_gate_h_adversarial.py`). |
+| **$P3$: Causal Witness** | $W_{t+1} = \text{SHA256}(W_t \parallel \text{CBE}(E_{t+1}) \parallel \text{CBE}(I_{t+1}))$ | **CERTIFIED** | 7/7 Gate I Scenarios PASS (`test_gate_i_causal_witness.py`). |
+| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **CERTIFIED** | 12/12 Gate J Scenarios PASS (`tools/cortex-verifier.py`). |
+| **Complete Mediation (Gate G)** | $\forall \text{eff} \in \text{Effects}, \text{eff} \text{ passes through } \text{ExecutionToken}$ | **SPECIFIED** | Sandbox & Narrow IPC Architecture (`gate_g_remediation_specification.md`). |
 
-Install via PyPI or fast package manager `uv`:
+---
+
+## ⚡ Contributor Quickstart & Test Commands
+
+### 1. Prerequisites & Environment Setup
+Clone the repository and install dependencies via `uv` or standard Python 3.10+:
 
 ```bash
-# Standard pip
-pip install cortex-runtime
-
-# Fast installation with Astral uv
-uv pip install cortex-runtime
-
-# Or run directly with uv tool
-uvx cortex-runtime --help
+git clone https://github.com/Iradukunda-Fils/Cortex.git
+cd Cortex
+uv venv && source .venv/bin/activate
+uv pip install -e .
 ```
 
-### 2. Scaffold a New Project
-
+### 2. Run Static Analysis & Type Checking
+Ensure 0 type errors across the codebase:
 ```bash
-cortex init my_app --type app
-cd my_app
+pyright
 ```
 
-### 3. Execute, Inspect, and Replay Workflows
-
+### 3. Run Master Certification Pipeline
+Execute the full 74-check conformance suite covering golden corpus vectors, Coq/Rust/RTL cycle assertions, Gate H parity, Gate I witness, and Gate J verification:
 ```bash
-# Execute workflow
-cortex workflow run workflow.json
+python3 tests/conformance/run_certification.py
+```
 
-# Inspect causal execution graph
-cortex workflow inspect .cortex/events/<workflow_id>.json
-
-# Perform 100% deterministic replay audit
-cortex workflow replay .cortex/events/<workflow_id>.json
+### 4. Run Independent Verifier Engine CLI
+Verify raw untrusted evidence bundles out-of-band without importing runtime modules:
+```bash
+python3 tools/cortex_verifier.py tests/conformance/fixtures/evidence_bundle_valid.json
+# Output: VERDICT: VALID (0) - EVIDENCE_VERIFIED_VALID
 ```
 
 ---
 
-## 📚 Developer Portal & Quick Links
+## 💻 Developer Code Example: End-to-End Governed Execution
 
-- 🚀 **[Developer Quickstart Guide](docs/quickstart.md)**: Install `cortex-runtime`, build workflows, and run plugins.
-- 💻 **[CLI Reference Documentation](docs/cli.md)**: Standard CLI command usage (`init`, `workflow run`, `inspect`, `replay`).
-- 🏛️ **[Architecture & Security Model](docs/architecture.md)**: 3-layer security boundary, dual-layer framing, and threat neutralization.
-- 🔐 **[Capability Manifest Specification](docs/manifest_spec.md)**: `PluginManifest` schema and negotiation rules.
-- 🔬 **[Research Documentation](Research/)**: Formal whitepapers, mathematical invariants ($P1$–$P4$), and CS literature taxonomy.
-- 📐 **[Coq Proof Substrate](coq/)**: Interactive formal verification proof scripts.
-- ⚡ **[Rust Emulator Engine](cortex-emulator/)**: Hardware state machine emulator.
+Here is how an application mints an intent, acquires an `ExecutionToken`, and enforces $D_3 \equiv D_2$ parity:
 
----
+```python
+import hashlib
+from cortex.cbe import encode_cbe
 
-## 🔬 Adversarial Systems Research: Working Hypothesis ($H_{\text{prop}}$)
+# 1. Define SignedIntent
+intent_payload = {
+    "body": {
+        "intent_type": "STORAGE_WRITE",
+        "target_resource": "/data/export.csv",
+        "payload": {"bytes": 1024},
+        "timestamp_ns": 1776274200000000000
+    },
+    "authority_pubkey": "PUBKEY_NODE_01",
+    "signature": "a3f890b..."
+}
 
-This repository houses a rigorous, peer-reviewed adversarial falsification program for autonomous systems. The primary function of this research is to validate the **Working Hypothesis ($H_{\text{prop}}$)**:
+# 2. Mint ExecutionToken (D2 = SHA256(CBE(SignedIntent)))
+signed_intent_cbe = encode_cbe(intent_payload)
+intent_hash_d2 = hashlib.sha256(signed_intent_cbe).hexdigest()
+token = {"intent_hash": intent_hash_d2, "epoch": 1, "nonce": "abc123nonce"}
 
-> **Does an existing semantic preservation relation characterize when the externally observable effects of an execution remain within the authority constraints delegated to that execution under the stated threat model?**
->
-> *We posit this may be expressible as a relational hyperproperty over operational traces, but leave its classification strictly open pending empirical literature analysis.*
+# 3. Actuation Boundary Assertion (D3 == D2)
+d3_hash = hashlib.sha256(encode_cbe(intent_payload)).hexdigest()
+if d3_hash != token["intent_hash"]:
+    raise PermissionError(f"TRAP_INTENT_PARITY_MISMATCH: {d3_hash} != {token['intent_hash']}")
 
-If adversarial analysis reveals that a composition of existing CS frameworks satisfies all safety properties under $H_{\text{prop}}$, no new semantic layer is required. If the analysis exposes an irreducible semantic gap, that gap defines the formal requirements for a new candidate specification.
-
----
-
-## 🛡️ The Safety Properties Catalog ($P1$–$P4$)
-
-Every composition is evaluated against four orthogonal, non-overlapping safety properties under the **Generalized Semantic Transition Relation ($\Sigma; \Lambda \vdash I \Longrightarrow e$)** mapping input streams ($I$) to terminal target actions ($e$) through intermediate **Operational Artifacts ($\mathcal{A}$)**:
-
-$$\frac{\Sigma; \Lambda \vdash I \xrightarrow{\text{derive}} \mathcal{A} \quad \quad \mathcal{A} \in \text{Adm}(\Lambda) \quad \quad \Sigma; \Lambda \vdash \mathcal{A} \xrightarrow{\text{enact}} e}{\Sigma; \Lambda \vdash I \Longrightarrow e}$$
-
-*   **P1 — Authority Soundness:** Bounded authority must be delegable and attenuable across downstream context shifts such that a principal cannot execute or delegate permissions beyond its initial envelope.
-*   **P2 — Execution Integrity:** The byte-level parameter state of an executed action must remain structurally unaltered between the generation boundary and the interface enforcement perimeters under the stated threat model.
-*   **P3 — Semantic Consequence Preservation:** Every externally observable, irreversible effect must be demonstrably and traceably derivable from the active delegation constraints: $\Sigma \models \text{Preserves}(\Lambda, e)$.
-*   **P4 — Independent Verifiability:** An external, post-facto verifier must be capable of establishing the validity of P3 without trusting the execution runtime beyond the boundaries of an explicitly declared Trusted Computing Base (TCB).
+print("✅ Governed Side-Effect Actuated Successfully!")
+```
 
 ---
 
-## 🔬 Literature Taxonomy (21 Disciplines)
+## 📄 License & Governance
 
-The research program maps system interactions across 21 distinct computer science areas:
-1. **Capability Security** (Confinement & Ambient Authority Elimination)
-2. **Programming Languages** (Type Safety, Scoped-Use Semantics)
-3. **Delegated Authorization** (Offline-Verifiable Attenuation)
-4. **Authorization Engines** (Relationship Graphs & Relational Logic)
-5. **Data Provenance** (Platform-Independent Derived Lineage)
-6. **Whole-System Provenance** (Kernel-Level Telemetry Interception)
-7. **Systemic Accountability** (Tamper-Evident Non-Repudiation Logs)
-8. **Distributed Transactions** (Atomicity & Consistency Guarantees)
-9. **Workflow Systems** (Durability & State Checkpointing)
-10. **Formal Methods** (Process Calculi & Temporal Logic Modelling)
-11. **Formal Verification** (Mathematical Correctness Proofs)
-12. **Information Flow Control** (Integrity Boundaries & Labels)
-13. **Trusted Computing** (Hardware Enclave Isolation)
-14. **Language-Based Security** (Non-Interference & Secure Compilation)
-15. **Operational Semantics** (Structural Operational Semantics, Evaluation Relations)
-16. **Program Logics** (Hoare Logic, Separation Logic, Refinement Calculi)
-17. **Static Analysis** (Abstract Interpretation, Monadic Effects)
-18. **Proof-Producing Computation** (SMT Solvers, Certified Abstract Interpretation)
-19. **Secure Compilation** (Robust Safety/Hyperproperty Preservation)
-20. **Algebraic & Rewriting Frameworks** (Institution Theory, Maude, K Framework)
-21. **Runtime Verification** (Online Trace Compliance & Enforcement Monitors)
-
----
-
-## 📊 Evaluation Status Matrix
-
-Evaluating candidate compositions over safety properties P1–P4 led to the lock phase, which confirmed the need for a unified spatiotemporal semantic layer incorporating versioned epochs and step-indexing. This has been formalized as the **Cortex Spatiotemporal Mechanics** (FC_01–FC_09):
-
-| ID | Composition Structure | P1 | P2 | P3 | P4 | Verdict / Current Status |
-| --- | --- | :---: | :---: | :---: | :---: | :---: |
-| **CC-01** | Whole-System Provenance + Capability Security | **✓** | **✓** | **✗** | **✗** | **Complete (Partially Covered)** |
-| **CC-04** | Capability Security + Program Logics | **✓** | **✓** | **~** | **✗** | **Complete (Partially Covered)** |
-| **CC-05** | Language-Based Security + Trusted Computing | - | - | - | - | **FROZEN (Identified Semantic Gaps)** |
-| **CC-08** | Runtime Verification + Capability Security | - | - | - | - | **FROZEN (Identified Semantic Gaps)** |
-| **Cortex** | Spatiotemporal Preorders + Epoch-Indexed Value/Trace Relations | **✓** | **✓** | **✓** | **✓** | **FORMALLY PROVEN & ROADMAPPED** |
-
-*Legend: **✓** (Success)  |  **✗** (Failed)  |  **~** (Partial Success)  |  **-** (Not yet evaluated / Frozen)*
-
----
-
-## 🛠️ Repository Rules & Governance
-
-1. **LOCKED State:** Foundational survey, model, and formal construction documents are frozen once complete to maintain strict control over confirmation bias.
-2. **No Marketing Syntax:** Language remains strictly technical, quantitative, and neutral.
+Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.

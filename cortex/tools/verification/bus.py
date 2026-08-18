@@ -8,6 +8,7 @@ from cortex.tools.verification.schema.event import CommitEventV1
 
 SubscriberCallback = Callable[[CommitEventV1], None]
 
+
 class EventBus:
     def __init__(self):
         self._subscribers: list[SubscriberCallback] = []

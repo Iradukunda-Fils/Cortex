@@ -1,0 +1,49 @@
+make: Entering directory '/home/iradukunda/Lost/Projects/Future/Cortex/verification'
+coqc -R . Cortex LogicalRelation.v
+coqc -R . Cortex FTLR.v
+coqc -R . Cortex Substitution.v
+coqc -R . Cortex Soundness.v
+coqc -R . Cortex GateF_F1_2_StutteringPreservation.v
+coqc -R . Cortex GateF_F1_2_RealIPC_Stuttering.v
+coqc -R . Cortex GateF_F2_1_RestrictCap.v
+coqc -R . Cortex GateF_F2_2_GrantCap.v
+coqc -R . Cortex GrantCapRTL.v
+Closed under the global context
+coqc -R . Cortex GateF_F3_1_InvocationSimulation.v
+coqc -R . Cortex GateL1_EpochMonotonicity.v
+File "./GateL1_EpochMonotonicity.v", line 22, characters 2-39:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 118, characters 2-151:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 118, characters 2-151:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 128, characters 6-49:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 128, characters 6-49:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 129, characters 8-53:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+File "./GateL1_EpochMonotonicity.v", line 129, characters 8-53:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Nat.of_num_uint. [abstract-large-number,numbers,default]
+
+============================================================
+ BUILD COMPLETE: All modules compiled successfully.
+============================================================
+
+============================================================
+ AXIOM / ADMIT AUDIT
+============================================================
+ Axioms:
+  (none)
+
+ Admitted:
+  (none)
+============================================================
+make: Leaving directory '/home/iradukunda/Lost/Projects/Future/Cortex/verification'

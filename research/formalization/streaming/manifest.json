@@ -1,0 +1,16 @@
+{
+  "valid/st-01-single-frame.cbeframe": "1816bed7f8f4f8326e48131de2413ad1ac3396d3257413faf1c568e8cd7423b2",
+  "valid/st-02-multi-frame.cbeframe": "780500d80de5f03f41d2224df903fb537b005deb504b982496e5eb3f514e9283",
+  "valid/st-03-control-sequence.cbeframe": "c44aa05d614c1adb463fce41e09ef06303bc81e092fe7f2647ed86ee373e9eab",
+  "valid/st-04-clean-end.cbeframe": "402e825f2955ae01b2415dbb9e8af361d3fcbaa6afa33f244fa1a443860601c2",
+  "boundaries/st-b01-zero-length-control.cbeframe": "e622e69064d853a31f91d42f65950711ca64a37e38a8eebebdd7c5ff6de8698c",
+  "boundaries/st-b02-max-frame-16MiB.cbeframe": "09c33314d9a58f058d537a0c1f8a4f04673a7bc2b8fd2727479f4240d72c0fe0",
+  "boundaries/st-b03-sequence-zero.cbeframe": "1816bed7f8f4f8326e48131de2413ad1ac3396d3257413faf1c568e8cd7423b2",
+  "boundaries/st-b04-sequence-max.cbeframe": "b2adeaf2ffa38311d1d95dea9a96fd95631199355c9747fa4dc64bb7f4cd67c5",
+  "invalid/st-err-01-oversized.cbeframe": "dd442207d8498199661c2ae3c01689b82a465c38f423c18e3fff2a49c20a5969",
+  "invalid/st-err-02-truncated-header.cbeframe": "607e246b52fba58db57d281cb30bb1713df50c28f28b79d8452ef4306a9a97f9",
+  "invalid/st-err-03-truncated-payload.cbeframe": "e85c9344adc6ba0a133dd827a6c864571279c14a60ced6810b8caa19401be2fb",
+  "invalid/st-err-04-bad-magic.cbeframe": "5e0cc94b85d15ff8e0164ee30ec4b811efe64724ae10823f95343afbd94d7453",
+  "invalid/st-err-05-sequence-gap.cbeframe": "68e20c6da2a5a20e8e59757c53f856723892f5292267a9fcc6164ea984225ca9",
+  "invalid/st-err-06-sequence-overflow.cbeframe": "9de49c9b729eada8481b56c5ab36458311fd1e899b24e7d5ad3ddb6bc834f221"
+}
