@@ -253,10 +253,10 @@
       "claim_id": "CLAIM-PHASE-4-ROUTING",
       "property": "Unprivileged candidate resolution, atomic single-lock lease revalidation, crash-recovery boundary classification (RD-23a/b/c), and state domain mutual exclusion fencing (RD-24)",
       "tier": "IMPLEMENTATION_CERTIFIED",
-      "scope": "Tested Single-Gateway Domain (RD-1..RD-24)",
+      "status": "IMPLEMENTATION_VERIFIED",
+      "scope": "SINGLE_GATEWAY_TESTED_DOMAIN",
       "artifact": "tests/conformance/test_replica_phase_4.py",
       "proof_or_test_method": "python3 -m unittest tests/conformance/test_replica_phase_4.py",
-      "status": "IMPLEMENTATION_VERIFIED_SINGLE_GATEWAY",
       "assumptions": [
         "Single Gateway TCB authority domain",
         "Linearizable thread lock serialization"
