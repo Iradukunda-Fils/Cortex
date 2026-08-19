@@ -230,3 +230,105 @@ NO_WITNESS_FORK
 NO_AUTHORITY_EXPANSION
 BOUNDED_RESOURCE_USAGE
 ```
+
+---
+
+## 9. Declarative Configuration Schemas & Code Examples
+
+### 1. Python SDK Configuration Schema (`cortex.schema.scaling`)
+
+```python
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import List
+
+class BackpressureStrategy(str, Enum):
+    REJECT_NEW = "reject_new"          # Reject new intents when max_queue_depth is reached
+    SHED_LOW_PRIORITY = "shed_low_priority"
+
+class SchedulingStrategy(str, Enum):
+    LEAST_CONCURRENT = "least_concurrent"
+    ROUND_ROBIN = "round_robin"
+
+@dataclass(frozen=True)
+class LeasePolicy:
+    """Governs linearizable lease epochs and ownership fencing."""
+    lease_ttl_sec: float = 10.0          # Max lease ownership duration before recovery evaluation
+    heartbeat_interval_sec: float = 2.0  # L2 IPC ping/ack health check frequency
+    max_lease_renewals: int = 5          # Max renewals before mandatory re-authorization
+
+@dataclass(frozen=True)
+class ReplicaPolicy:
+    """Governs worker replica pool limits, draining, and admission bounds."""
+    min_replicas: int = 2
+    max_replicas: int = 5
+    drain_deadline_sec: float = 30.0     # Max time in DRAINING state before FORCED_RECOVERY
+    max_queue_depth: int = 100           # Global queue limit for bounded memory backpressure
+    backpressure_strategy: BackpressureStrategy = BackpressureStrategy.REJECT_NEW
+    scheduling_strategy: SchedulingStrategy = SchedulingStrategy.LEAST_CONCURRENT
+    lease_policy: LeasePolicy = field(default_factory=LeasePolicy)
+
+@dataclass(frozen=True)
+class ReplicaGroupDeploymentSpec:
+    """Complete deployment specification for a multi-replica plugin group."""
+    plugin_name: str
+    plugin_version: str
+    entrypoint: List[str]
+    capability_envelope: List[str]       # Fixed capability bound (Lambda_replica <= Lambda_deployment)
+    replica_policy: ReplicaPolicy = field(default_factory=ReplicaPolicy)
+```
+
+### 2. JSON Declarative Manifest (`deployment.json`)
+
+```json
+{
+  "$schema": "https://cortex.dev/schemas/v0.3/deployment.json",
+  "name": "GoDatabaseServiceGroup",
+  "version": "1.0.0",
+  "plugin": {
+    "entrypoint": ["./plugins/go_db/db_worker"],
+    "capability_envelope": ["database:write", "database:read"]
+  },
+  "scaling": {
+    "min_replicas": 2,
+    "max_replicas": 10,
+    "scheduling_strategy": "least_concurrent",
+    "drain_deadline_sec": 30.0
+  },
+  "lease": {
+    "lease_ttl_sec": 10.0,
+    "heartbeat_interval_sec": 2.0
+  },
+  "admission_control": {
+    "max_queue_depth": 200,
+    "backpressure_strategy": "reject_new",
+    "max_inflight_per_replica": 10
+  }
+}
+```
+
+### 3. YAML Kubernetes-Style Specification (`cortex-deployment.yaml`)
+
+```yaml
+apiVersion: cortex.dev/v0.3
+kind: ReplicaGroupDeployment
+metadata:
+  name: billing-engine-java
+  version: 2.1.0
+spec:
+  plugin:
+    entrypoint: ["java", "-jar", "./bin/BillingEngine.jar"]
+    capabilities: ["finance:charge", "audit:log"]
+  replicas:
+    min: 2
+    max: 6
+    drainDeadlineSeconds: 20
+    schedulingStrategy: "least_concurrent"
+  lease:
+    ttlSeconds: 5.0
+    heartbeatSeconds: 1.0
+  admissionControl:
+    maxQueueDepth: 100
+    backpressure: "reject_new"
+```
+
