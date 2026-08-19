@@ -1,5 +1,5 @@
 """
-Linearizable Gateway Lease Manager (Phase 2)
+Linearizable Gateway Lease Manager (Phase 2 & 4)
 
 Enforces atomic, mutually exclusive commit and revocation fencing bound to monotonic
 LeaseEpoch counters. Stale commits are rejected with StaleLeaseError.
@@ -12,9 +12,13 @@ linearizable mutually exclusive commit and revocation fencing at this boundary.
 import threading
 import uuid
 from dataclasses import dataclass
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 from cortex.tools.kernel.replica.identity import OwnershipIdentity
+from cortex.tools.kernel.replica.lifecycle import WorkerLifecycleStage
+
+if TYPE_CHECKING:
+    from cortex.tools.kernel.replica.router import WorkerRef
 
 
 class StaleLeaseError(Exception):
@@ -40,6 +44,72 @@ class LeaseManager:
         self._active_leases: Dict[str, LeaseRecord] = {}
         # invocation_id -> current_epoch
         self._latest_epoch: Dict[str, int] = {}
+        # worker_id -> WorkerRef (active registered Gateway worker state)
+        self._worker_registry: Dict[str, "WorkerRef"] = {}
+
+    def register_worker_state(self, worker_ref: "WorkerRef") -> None:
+        """Register or update active worker replica state in the Gateway TCB registry."""
+        with self._lock:
+            self._worker_registry[worker_ref.instance_id] = worker_ref
+
+    def unregister_worker(self, worker_id: str) -> None:
+        """Remove worker replica from Gateway TCB registry on eviction or process death."""
+        with self._lock:
+            self._worker_registry.pop(worker_id, None)
+
+    def revalidate_candidate(
+        self,
+        worker_ref: "WorkerRef",
+        active_config_gen: int,
+        active_config_hash: str,
+        active_sandbox_hash: str,
+        active_cap_hash: str,
+        max_inflight: int = 10,
+    ) -> bool:
+        """Atomically revalidate a proposed candidate snapshot inside the Gateway TCB lock.
+
+        Checks:
+        1. Worker exists in active registry
+        2. lifecycle_version matches registry version
+        3. stage == READY
+        4. config_generation matches active_config_gen
+        5. config_hash matches active_config_hash
+        6. sandbox_profile_hash matches active_sandbox_hash
+        7. capability_envelope_hash matches active_cap_hash
+        8. active inflight leases < max_inflight
+        """
+        with self._lock:
+            registered = self._worker_registry.get(worker_ref.instance_id)
+            if not registered:
+                return False
+
+            if registered.lifecycle_version != worker_ref.lifecycle_version:
+                return False
+
+            if registered.stage != WorkerLifecycleStage.READY:
+                return False
+
+            if registered.config_generation != active_config_gen:
+                return False
+
+            if registered.config_hash != active_config_hash:
+                return False
+
+            if registered.sandbox_profile_hash != active_sandbox_hash:
+                return False
+
+            if registered.capability_envelope_hash != active_cap_hash:
+                return False
+
+            # Calculate active inflight leases for this worker
+            active_count = sum(
+                1 for rec in self._active_leases.values()
+                if rec.assigned_worker_id == worker_ref.instance_id and rec.active and not rec.committed
+            )
+            if active_count >= max_inflight:
+                return False
+
+            return True
 
     def grant_lease(self, invocation_id: str, worker_id: str) -> OwnershipIdentity:
         """Atomically grants an epoch-bound lease to a worker for an invocation."""
