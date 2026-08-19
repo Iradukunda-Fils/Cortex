@@ -16,6 +16,7 @@ docs/
 │   └── cli.md                         # Cortex CLI command reference
 ├── architecture/                      # Kernel Specifications & Architecture
 │   ├── overview.md                    # Core System Architecture & Security Boundary
+│   ├── systems-engineering-qa-guide.md# Low-Level Systems, IPC, Polyglot & Systems Q&A Guide
 │   ├── canonical-serialization.md      # Cortex-CBE Formal Grammar & Serialization
 │   ├── identity-model.md              # 4-Domain Identity Taxonomy & UUIDv5 Derivation
 │   ├── recovery-and-state.md          # Replay State Machine & Recovery Evidence Model
@@ -49,6 +50,7 @@ research/                              # Empirical Research & Spikes Substrate
 
 ### 2. Architecture & Kernel Specifications
 - **[Kernel Architecture Overview](architecture/overview.md)**: System philosophy, dual-layer framing, 3-layer security boundary, and structural Mermaid diagrams.
+- **[Systems Engineering & Q&A Guide](architecture/systems-engineering-qa-guide.md)**: Low-level IPC mechanics, Linux sandboxing, polyglot worker contracts, 50+ plugin scaling, ML/GPU zero-copy DMA, and technical Q&A reference.
 - **[Cortex-CBE Serialization Specification](architecture/canonical-serialization.md)**: EBNF count grammar, IEEE 754 float rules, Unicode NFC normalization, and key sorting.
 - **[4-Domain Identity Model](architecture/identity-model.md)**: Logical vs. Idempotency vs. Application vs. Runtime identity separation, CBE tuple framing, and cleanroom test vectors.
 - **[Replay State Machine & Recovery Evidence](architecture/recovery-and-state.md)**: Evidence model, command execution lifecycle phases, and $P_{\text{semantic}}$ projection.
