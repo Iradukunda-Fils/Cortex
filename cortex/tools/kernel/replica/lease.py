@@ -12,7 +12,7 @@ linearizable mutually exclusive commit and revocation fencing at this boundary.
 import threading
 import uuid
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from cortex.tools.kernel.replica.identity import OwnershipIdentity
 from cortex.tools.kernel.replica.lifecycle import WorkerLifecycleStage
@@ -66,50 +66,97 @@ class LeaseManager:
         active_cap_hash: str,
         max_inflight: int = 10,
     ) -> bool:
-        """Atomically revalidate a proposed candidate snapshot inside the Gateway TCB lock.
-
-        Checks:
-        1. Worker exists in active registry
-        2. lifecycle_version matches registry version
-        3. stage == READY
-        4. config_generation matches active_config_gen
-        5. config_hash matches active_config_hash
-        6. sandbox_profile_hash matches active_sandbox_hash
-        7. capability_envelope_hash matches active_cap_hash
-        8. active inflight leases < max_inflight
-        """
+        """Atomically revalidate a proposed candidate snapshot inside the Gateway TCB lock."""
         with self._lock:
-            registered = self._worker_registry.get(worker_ref.instance_id)
-            if not registered:
-                return False
-
-            if registered.lifecycle_version != worker_ref.lifecycle_version:
-                return False
-
-            if registered.stage != WorkerLifecycleStage.READY:
-                return False
-
-            if registered.config_generation != active_config_gen:
-                return False
-
-            if registered.config_hash != active_config_hash:
-                return False
-
-            if registered.sandbox_profile_hash != active_sandbox_hash:
-                return False
-
-            if registered.capability_envelope_hash != active_cap_hash:
-                return False
-
-            # Calculate active inflight leases for this worker
-            active_count = sum(
-                1 for rec in self._active_leases.values()
-                if rec.assigned_worker_id == worker_ref.instance_id and rec.active and not rec.committed
+            return self._revalidate_unlocked(
+                worker_ref=worker_ref,
+                active_config_gen=active_config_gen,
+                active_config_hash=active_config_hash,
+                active_sandbox_hash=active_sandbox_hash,
+                active_cap_hash=active_cap_hash,
+                max_inflight=max_inflight,
             )
-            if active_count >= max_inflight:
-                return False
 
-            return True
+    def _revalidate_unlocked(
+        self,
+        worker_ref: "WorkerRef",
+        active_config_gen: int,
+        active_config_hash: str,
+        active_sandbox_hash: str,
+        active_cap_hash: str,
+        max_inflight: int,
+    ) -> bool:
+        registered = self._worker_registry.get(worker_ref.instance_id)
+        if not registered:
+            return False
+
+        if registered.lifecycle_version != worker_ref.lifecycle_version:
+            return False
+
+        if registered.stage != WorkerLifecycleStage.READY:
+            return False
+
+        if registered.config_generation != active_config_gen:
+            return False
+
+        if registered.config_hash != active_config_hash:
+            return False
+
+        if registered.sandbox_profile_hash != active_sandbox_hash:
+            return False
+
+        if registered.capability_envelope_hash != active_cap_hash:
+            return False
+
+        active_count = sum(
+            1 for rec in self._active_leases.values()
+            if rec.assigned_worker_id == worker_ref.instance_id and rec.active and not rec.committed
+        )
+        if active_count >= max_inflight:
+            return False
+
+        return True
+
+    def grant_lease_with_revalidation(
+        self,
+        invocation_id: str,
+        worker_ref: "WorkerRef",
+        active_config_gen: int,
+        active_config_hash: str,
+        active_sandbox_hash: str,
+        active_cap_hash: str,
+        max_inflight: int = 10,
+    ) -> Optional[OwnershipIdentity]:
+        """Atomically revalidates candidate AND grants lease inside a single lock acquisition (Linearization Point)."""
+        with self._lock:
+            if not self._revalidate_unlocked(
+                worker_ref=worker_ref,
+                active_config_gen=active_config_gen,
+                active_config_hash=active_config_hash,
+                active_sandbox_hash=active_sandbox_hash,
+                active_cap_hash=active_cap_hash,
+                max_inflight=max_inflight,
+            ):
+                return None
+
+            current_epoch = self._latest_epoch.get(invocation_id, 0) + 1
+            self._latest_epoch[invocation_id] = current_epoch
+
+            lease_id = str(uuid.uuid4())
+            ownership = OwnershipIdentity(
+                invocation_id=invocation_id,
+                lease_id=lease_id,
+                lease_epoch=current_epoch,
+            )
+
+            record = LeaseRecord(
+                ownership_identity=ownership,
+                assigned_worker_id=worker_ref.instance_id,
+                active=True,
+                committed=False,
+            )
+            self._active_leases[invocation_id] = record
+            return ownership
 
     def grant_lease(self, invocation_id: str, worker_id: str) -> OwnershipIdentity:
         """Atomically grants an epoch-bound lease to a worker for an invocation."""

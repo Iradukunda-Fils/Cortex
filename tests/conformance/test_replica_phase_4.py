@@ -1,5 +1,5 @@
 """
-Phase 4 Routing & Dispatch Conformance Test Suite (Gates RD-1 to RD-22)
+Phase 4 Routing & Dispatch Conformance Test Suite (Gates RD-1 to RD-24)
 
 Verifies unprivileged candidate resolution, deterministic least-inflight selection,
 atomic LeaseManager revalidation, TOCTOU race safety, bounded FIFO queueing,
@@ -7,6 +7,9 @@ state domain lock conflict serialization, zero-token possession isolation,
 and observational witness provenance logging.
 """
 
+import os
+import tempfile
+import threading
 import unittest
 
 from cortex.tools.kernel.replica.lease import LeaseManager
@@ -26,7 +29,7 @@ from cortex.tools.kernel.replica.router import (
 
 
 class TestReplicaPhase4(unittest.TestCase):
-    """Conformance test suite for RD-1 through RD-22 Phase 4 verification gates."""
+    """Conformance test suite for RD-1 through RD-24 Phase 4 verification gates."""
 
     def setUp(self) -> None:
         self.active_config_gen = 18
@@ -153,7 +156,7 @@ class TestReplicaPhase4(unittest.TestCase):
 
     # ── RD-7: Bounded FIFO Queue Handling ─────────────────────────────
     def test_rd7_bounded_fifo_queue_handling(self) -> None:
-        """RD-7: GatewayDispatcher enqueues invocations in FIFO order."""
+        """RD-7: GatewayDispatcher enqueues invocations in per-group FIFO order."""
         lease_mgr = LeaseManager()
         ledger = InvocationStateLedger()
         dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger)
@@ -303,7 +306,6 @@ class TestReplicaPhase4(unittest.TestCase):
         dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger)
 
         w_proposed = self._make_worker("w-1", config_gen=18)
-        # Register w-1 with updated config_gen=19 in TCB registry
         lease_mgr.register_worker_state(self._make_worker("w-1", config_gen=19))
 
         with self.assertRaises(NoEligibleWorkerNow):
@@ -348,7 +350,6 @@ class TestReplicaPhase4(unittest.TestCase):
         dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger)
 
         w_proposed = self._make_worker("w-1")
-        # Do not register worker in lease_mgr (simulates worker process exit)
 
         with self.assertRaises(NoEligibleWorkerNow):
             dispatcher.dispatch_invocation(
@@ -372,7 +373,6 @@ class TestReplicaPhase4(unittest.TestCase):
         w1 = self._make_worker("w-1", inflight=0)
         lease_mgr.register_worker_state(w1)
 
-        # First dispatch succeeds
         dispatcher.dispatch_invocation(
             invocation_id="inv-cap-1",
             intent_hash="0x9",
@@ -384,7 +384,6 @@ class TestReplicaPhase4(unittest.TestCase):
             active_cap_hash=self.active_cap_hash,
         )
 
-        # Second dispatch for w1 fails revalidation because active inflight is now 1 (== max_inflight)
         with self.assertRaises(NoEligibleWorkerNow):
             dispatcher.dispatch_invocation(
                 invocation_id="inv-cap-2",
@@ -409,7 +408,6 @@ class TestReplicaPhase4(unittest.TestCase):
 
         key = StateDomainKey("accounts", "/acc/1", "balance")
 
-        # First stateful mutation acquires lock
         dispatcher.dispatch_invocation(
             invocation_id="inv-state-1",
             intent_hash="0x11",
@@ -423,7 +421,6 @@ class TestReplicaPhase4(unittest.TestCase):
             state_domain_key=key,
         )
 
-        # Second mutation targeting same state domain key before release is rejected
         with self.assertRaises(ValueError):
             dispatcher.dispatch_invocation(
                 invocation_id="inv-state-2",
@@ -498,6 +495,96 @@ class TestReplicaPhase4(unittest.TestCase):
         self.assertFalse(hasattr(selected, "token"))
         self.assertFalse(hasattr(selected, "secret_key"))
         self.assertFalse(hasattr(selected, "bearer_token"))
+
+    # ── RD-23: Router/Lease/Commit Crash Recovery Boundary ───────────
+    def test_rd23_router_lease_commit_crash_recovery_boundary(self) -> None:
+        """RD-23: Invocation routed & assigned, Gateway crashes mid-execution, WAL replayed cleanly."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            journal_path = os.path.join(tmp_dir, "invocation_journal.jsonl")
+
+            # 1. Gateway Phase 1: Dispatch invocation to ASSIGNED state
+            lease_mgr = LeaseManager()
+            ledger_pre = InvocationStateLedger(journal_path=journal_path)
+            dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger_pre)
+
+            w1 = self._make_worker("w-node-1")
+            lease_mgr.register_worker_state(w1)
+
+            dispatcher.dispatch_invocation(
+                invocation_id="inv-crash-23",
+                intent_hash="0xCRASH23",
+                required_capabilities=["payments.execute"],
+                candidate_pool=[w1],
+                active_config_gen=18,
+                active_config_hash=self.active_config_hash,
+                active_sandbox_hash=self.active_sandbox_hash,
+                active_cap_hash=self.active_cap_hash,
+            )
+
+            # Advance to RUNNING before crash
+            ledger_pre.transition_state("inv-crash-23", InvocationState.RUNNING)
+
+            # 2. Simulate Gateway Crash & Restart: Instantiate new ledger from durable WAL file
+            ledger_post = InvocationStateLedger(journal_path=journal_path)
+            rec_post = ledger_post.get_record("inv-crash-23")
+
+            self.assertIsNotNone(rec_post)
+            assert rec_post is not None
+            self.assertEqual(rec_post.state, InvocationState.RUNNING)
+            self.assertEqual(rec_post.assigned_worker_id, "w-node-1")
+
+            # Assert recovery classification is ADMITTED_UNACTUATED (safe idempotency boundary)
+            bucket = ledger_post.classify_recovery("inv-crash-23")
+            self.assertEqual(bucket, RecoveryBucket.ADMITTED_UNACTUATED)
+
+    # ── RD-24: Concurrent Same-StateDomainKey Invocations ─────────────
+    def test_rd24_concurrent_same_state_domain_key_fencing(self) -> None:
+        """RD-24: Concurrent invocations targeting the same StateDomainKey enforce mutual exclusion."""
+        lease_mgr = LeaseManager()
+        ledger = InvocationStateLedger()
+        dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger)
+
+        w1 = self._make_worker("w-1")
+        w2 = self._make_worker("w-2")
+        lease_mgr.register_worker_state(w1)
+        lease_mgr.register_worker_state(w2)
+
+        key = StateDomainKey("ledger", "/wallets/w-44", "balance")
+
+        results: list[str] = []
+        errors: list[Exception] = []
+
+        def worker_task(inv_id: str) -> None:
+            try:
+                dispatcher.dispatch_invocation(
+                    invocation_id=inv_id,
+                    intent_hash="0xCONCUR",
+                    required_capabilities=["payments.execute"],
+                    candidate_pool=[w1, w2],
+                    active_config_gen=18,
+                    active_config_hash=self.active_config_hash,
+                    active_sandbox_hash=self.active_sandbox_hash,
+                    active_cap_hash=self.active_cap_hash,
+                    execution_class=ExecutionClass.SERIALIZED_STATE_DOMAIN,
+                    state_domain_key=key,
+                )
+                results.append(inv_id)
+            except Exception as ex:
+                errors.append(ex)
+
+        t1 = threading.Thread(target=worker_task, args=("inv-conc-1",))
+        t2 = threading.Thread(target=worker_task, args=("inv-conc-2",))
+
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+        # Exactly one invocation must succeed in acquiring lock; the second receives conflict exception
+        self.assertEqual(len(results), 1)
+        self.assertEqual(len(errors), 1)
+        self.assertIsInstance(errors[0], ValueError)
+        self.assertIn("State domain lock conflict", str(errors[0]))
 
 
 if __name__ == "__main__":

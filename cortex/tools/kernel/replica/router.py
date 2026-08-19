@@ -7,7 +7,7 @@ GatewayDispatcher, RecoveryEngine, and CommitSequencer integration.
 Invariants:
 1. Routing decisions are revocable proposals, not execution authority.
 2. Router possesses zero ExecutionTokens, capability keys, or TCB mutation authority.
-3. Candidate proposals are atomically revalidated inside LeaseManager.grant_lease().
+3. Candidate proposals are atomically revalidated inside LeaseManager.grant_lease_with_revalidation().
 4. Bounded FIFO queue per ReplicaGroup.
 """
 
@@ -157,7 +157,6 @@ class RoutingPolicy:
                 "ERR_NO_ELIGIBLE_WORKER_NOW: No ready replica satisfies metadata criteria"
             )
 
-        # Compute candidate set digest for audit log
         sorted_candidates = sorted(eligible_candidates, key=lambda w: (w.observed_inflight, w.instance_id))
         return sorted_candidates[0]
 
@@ -165,7 +164,7 @@ class RoutingPolicy:
 class GatewayDispatcher:
     """Gateway Control Plane Dispatcher & Queue Authority.
 
-    Coordinates candidate resolution, atomic LeaseManager revalidation, FIFO queueing,
+    Coordinates candidate resolution, atomic LeaseManager revalidation, per-group FIFO queueing,
     state domain serialization, and token dispatch.
     """
 
@@ -208,7 +207,7 @@ class GatewayDispatcher:
         state_domain_key: Optional[StateDomainKey] = None,
         target_state_version: Optional[int] = None,
     ) -> OwnershipIdentity:
-        """Executes the complete 8-stage dispatch pipeline with atomic revalidation.
+        """Executes the complete 8-stage dispatch pipeline with single-lock atomic revalidation.
 
         Returns OwnershipIdentity on successful lease grant and assignment.
         """
@@ -222,11 +221,19 @@ class GatewayDispatcher:
                 config_hash=active_config_hash,
             )
 
-        # Check queue capacity
+        # Determine target group_id (from candidates or default)
+        group_id = candidate_pool[0].group_id if candidate_pool else "default"
+
+        # Check total queue capacity across groups
         total_queued = sum(len(q) for q in self._fifo_queues.values())
         if total_queued >= self.max_queue_depth:
             self.ledger.transition_state(invocation_id, InvocationState.REJECTED)
             raise QueueFullError(f"ERR_QUEUE_FULL: Queue depth {total_queued} exceeds maximum {self.max_queue_depth}")
+
+        # Enqueue in group-specific FIFO queue
+        group_queue = self._fifo_queues.setdefault(group_id, [])
+        if invocation_id not in group_queue:
+            group_queue.append(invocation_id)
 
         # Stage 2-4: Resolve candidates
         remaining_pool = list(candidate_pool)
@@ -250,8 +257,9 @@ class GatewayDispatcher:
             # Stage 5-6: Select candidate
             candidate = self.policy.select_candidate(eligible)
 
-            # Stage 7: Atomic LeaseManager Revalidation & Grant
-            revalidated = self.lease_manager.revalidate_candidate(
+            # Stage 7: Single-Lock Atomic LeaseManager Revalidation & Grant (Linearization Point)
+            ownership = self.lease_manager.grant_lease_with_revalidation(
+                invocation_id=invocation_id,
                 worker_ref=candidate,
                 active_config_gen=active_config_gen,
                 active_config_hash=active_config_hash,
@@ -260,13 +268,16 @@ class GatewayDispatcher:
                 max_inflight=self.max_worker_inflight,
             )
 
-            if revalidated:
+            if ownership:
                 selected_candidate = candidate
-                ownership = self.lease_manager.grant_lease(invocation_id, candidate.instance_id)
                 break
             else:
-                # TOCTOU race: candidate became stale. Evict and retry.
+                # TOCTOU race: candidate state changed in Gateway lock. Evict candidate and retry selection.
                 remaining_pool = [w for w in remaining_pool if w.instance_id != candidate.instance_id]
+
+        # Dequeue from group-specific FIFO queue upon dispatch resolution
+        if invocation_id in group_queue:
+            group_queue.remove(invocation_id)
 
         if not selected_candidate or not ownership:
             raise NoEligibleWorkerNow(
