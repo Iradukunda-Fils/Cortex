@@ -17,6 +17,11 @@
     "hardware_l1_l2": "BOUNDED_REFINEMENT_TRACE_VERIFIED",
     "production_signed_off": false
   },
+  "release_provenance": {
+    "rc1_verification_baseline": "dfad89f5cc01b94513c035f4401c8fb0864e8521",
+    "rc1_evidence_generation": "1106a85531505cd2b33183a83e81e459dbf5e1a2",
+    "packaging_version_tip": "9130291f48d614c84aa3aff5e1b13b9467e5b9b1"
+  },
   "formal_baseline": {
     "source_v_files": 27,
     "active_pipeline_modules": 17,
