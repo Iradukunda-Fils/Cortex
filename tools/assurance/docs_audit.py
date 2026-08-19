@@ -196,6 +196,7 @@ def main() -> int:
         "docs/architecture/cli_and_configuration_audit.md",
         "docs/architecture/phase_5_load_balancing_specification.md",
         "docs/architecture/phase_4_documentation_and_generated_artifact_audit.md",
+        "docs/guides/cortex-configuration.md",
         "README.md",
     ]
 
