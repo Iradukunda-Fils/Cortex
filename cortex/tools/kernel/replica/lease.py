@@ -3,6 +3,10 @@ Linearizable Gateway Lease Manager (Phase 2)
 
 Enforces atomic, mutually exclusive commit and revocation fencing bound to monotonic
 LeaseEpoch counters. Stale commits are rejected with StaleLeaseError.
+
+LINEARIZABILITY DOMAIN: Single Gateway Authority Domain.
+Future multi-process or multi-node Gateway implementations MUST preserve
+linearizable mutually exclusive commit and revocation fencing at this boundary.
 """
 
 import threading
@@ -28,7 +32,7 @@ class LeaseRecord:
 
 
 class LeaseManager:
-    """Thread-safe, linearizable Gateway Lease Authority."""
+    """Thread-safe, linearizable Gateway Lease Authority (Single Gateway Authority Domain)."""
 
     def __init__(self) -> None:
         self._lock = threading.Lock()

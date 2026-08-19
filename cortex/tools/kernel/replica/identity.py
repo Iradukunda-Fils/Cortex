@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 
 class StaleConfigGenerationError(Exception):
-    """Raised when a worker operates under a stale ConfigGeneration (ERR_STALE_CONFIG_GENERATION)."""
+    """Raised when a worker operates under a stale ConfigGeneration or mismatched ConfigHash."""
 
     pass
 
@@ -19,8 +19,9 @@ class ExecutionIdentity:
     """Uniquely identifies a specific worker execution attempt runtime coordinate.
 
     Every worker carries both a ReplicaGeneration (deployment wave) and a
-    ConfigGeneration (immutable configuration snapshot version). The Gateway
-    rejects workers whose config_generation does not match the active deployment.
+    ConfigGeneration (immutable configuration snapshot version + SHA-256 hash).
+    The Gateway rejects workers whose config_generation or config_hash does not
+    match the active deployment.
     """
 
     group_id: str
@@ -28,6 +29,7 @@ class ExecutionIdentity:
     generation: int
     config_generation: int
     attempt_id: int
+    config_hash: str = ""
 
     def __post_init__(self) -> None:
         if not isinstance(self.group_id, str) or not self.group_id.strip():
@@ -43,7 +45,8 @@ class ExecutionIdentity:
 
     def coordinate_string(self) -> str:
         """Returns string representation for audit logs."""
-        return f"{self.group_id}:{self.instance_id}:g{self.generation}:cfg{self.config_generation}:a{self.attempt_id}"
+        hash_suffix = f":h{self.config_hash[:8]}" if self.config_hash else ""
+        return f"{self.group_id}:{self.instance_id}:g{self.generation}:cfg{self.config_generation}{hash_suffix}:a{self.attempt_id}"
 
 
 @dataclass(frozen=True)
