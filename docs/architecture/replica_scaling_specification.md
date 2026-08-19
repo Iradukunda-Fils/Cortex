@@ -1,6 +1,7 @@
-# Architecture Specification: Multi-Replica Worker Scaling, Lease Fencing & Canonical Commit Sequencing
+# Architecture Specification: Multi-Replica Worker Scaling, Linearizable Lease Fencing & Semantic Commit Domains
 
-> **Governance Status**: `SCALING DESIGN` — `ARCHITECTURAL REVIEW REQUIRED`  
+> **Governance Status**: `SCALING DESIGN` — `ARCHITECTURAL REVIEW: CONDITIONAL APPROVAL`  
+> **Implementation Status**: `BLOCKED UNTIL SPEC AMENDMENTS & PHASES 1–3 VERIFIED`  
 > **Pre-requisite Gate**: Must survive evaluation against the frozen Cortex v0.3.0-experimental-rc1 assurance baseline prior to promotion to mainline.
 
 ---
@@ -14,8 +15,8 @@ In traditional web orchestration (e.g., Kubernetes), Pods are treated as interch
 Cortex worker replicas execute causal, spatiotemporally bounded operations with potential **irreversible external side-effects** (hardware actuation, state mutations, financial charges). Therefore:
 
 1. **Replicas are Execution Agents**, not interchangeable Pods.
-2. **The Gateway TCB retains absolute ownership of Authority, Leases, and Commitment Ordering.**
-3. **Execution is parallel, but Commitment is strictly canonical and sequential.**
+2. **Execution MAY be parallel. Authoritative semantic commitment is serialized per conflict domain, and authoritative witness commitment is totally ordered within each witness domain.**
+3. **The Gateway TCB retains absolute ownership of Authority, Leases, and Commitment Ordering.**
 
 ```
                          CORTEX GATEWAY TCB (Authority & Commit)
@@ -23,12 +24,12 @@ Cortex worker replicas execute causal, spatiotemporally bounded operations with 
        ┌────────────────────────────┼────────────────────────────┐
        │                            │                            │
        ▼                            ▼                            ▼
- Replica Controller           Lease Manager                Recovery Engine
- (Lifecycle & Health)     (Fencing Tokens & Epochs)    (State Classification)
+ Replica Controller         Assignment & Lease Engine     Recovery Controller
+ (Lifecycle & Health)     (Linearizable Fencing Epochs)  (State Classification)
        │                            │                            │
        └────────────────────────────┼────────────────────────────┘
                                     ▼
-                          Worker Instance Pool
+                         Worker Registry / Pools
             ┌───────────────────────┼───────────────────────┐
             ▼                       ▼                       ▼
        Worker A                Worker B                Worker C
@@ -36,7 +37,7 @@ Cortex worker replicas execute causal, spatiotemporally bounded operations with 
             │                       │                       │
             └───────────────────────┼───────────────────────┘
                                     ▼
-                         Gateway Commit Sequencer
+                        Domain Commit Sequencer
                                     │
                       ┌─────────────┴─────────────┐
                       ▼                           ▼
@@ -49,26 +50,37 @@ Cortex worker replicas execute causal, spatiotemporally bounded operations with 
 
 ---
 
-## 2. Normative Invariants for Multi-Replica Scaling
+## 2. Separate Coordinate Models: Identity & Ownership
 
-### Invariant 1: Non-Equivalence of Replica Identity
-Every worker execution attempt MUST be uniquely identified by a 5-tuple coordinate:
-$$\text{ExecutionCoordinate} = (\text{ReplicaGroupID}, \text{ReplicaInstanceID}, \text{ReplicaGeneration}, \text{LeaseEpoch}, \text{ExecutionAttemptID})$$
+Execution attempts and invocation ownership represent fundamentally different concepts and MUST NOT be interchanged.
 
-A new deployment generation or replacement worker process MUST NEVER inherit an active lease epoch from a previous process.
+### 1. Execution Identity (Worker Runtime Coordinate)
+$$\text{ExecutionIdentity} = (\text{ReplicaGroupID}, \text{ReplicaInstanceID}, \text{ReplicaGeneration}, \text{ExecutionAttemptID})$$
 
-### Invariant 2: Capability Sub-Set Bound ($\Lambda_{\text{replica}} \subseteq \Lambda_{\text{deployment}}$)
+### 2. Ownership Identity (Gateway Lease Coordinate)
+$$\text{OwnershipIdentity} = (\text{InvocationID}, \text{LeaseID}, \text{LeaseEpoch})$$
+
+> **Normative Invariant**: `InvocationID` identifies the semantic invocation. `ExecutionAttemptID` identifies a particular execution attempt. `LeaseEpoch` identifies ownership authority for that attempt. These identifiers MUST NOT be interchangeable.
+
+---
+
+## 3. Normative System Invariants
+
+### Invariant 1: Capability Sub-Set Bound ($\Lambda_{\text{replica}} \subseteq \Lambda_{\text{deployment}}$)
 Scaling worker replicas MUST NEVER automatically expand system authority. Every worker replica instance inherits the identical frozen capability envelope:
 $$\Lambda_{\text{replica}} \subseteq \Lambda_{\text{deployment}}$$
 
-### Invariant 3: Fenced Lease Ownership (`LeaseEpoch`)
-For any given invocation $I_k$, the Gateway grants an exclusive, epoch-bound lease to Worker $W_x$:
-$$\text{Lease} = (\text{InvocationID}, W_x, \text{LeaseID}, \text{LeaseEpoch}, \text{ExpiryTimestamp})$$
+### Invariant 2: Linearizable Lease Fencing & Monotonic Authority
+- **Monotonic Authority**: Wall-clock timestamps (`ExpiryTimestamp`) MAY trigger operational recovery timeouts, but MUST NOT establish authority invalidation. The Gateway's monotonic `LeaseEpoch` is authoritative.
+- **Linearizable Fencing**: Lease fencing MUST be linearizable at the Gateway ownership boundary. A commit and lease revocation MUST NOT both succeed for the same invocation.
 
-If Worker $W_x$ stalls or loses connectivity, the Gateway increments $\text{LeaseEpoch} \to \text{LeaseEpoch} + 1$ and re-assigns the lease to Worker $W_y$. If $W_x$ attempts a late commit under stale epoch $e_{\text{old}}$, the Gateway MUST reject the commit with `ERR_STALE_LEASE_EPOCH`.
+If Worker $A$ (Epoch $e$) stalls, the Gateway increments $\text{LeaseEpoch} \to e + 1$ and re-assigns the lease to Worker $B$. If Worker $A$ attempts a late commit under stale epoch $e$, the Gateway MUST atomically reject the commit with `ERR_STALE_LEASE_EPOCH`.
+
+### Invariant 3: Non-Cloning of Live Authorization State
+Replica replacement MUST NOT clone live execution tokens, lease credentials, or ephemeral authorization state from a prior replica. Each replica instance receives fresh, execution-specific authorization from the Gateway.
 
 ### Invariant 4: Non-Replay of Actuated Operations
-Unacknowledged in-flight requests from a dead worker MUST NOT be naively re-routed. The Gateway Recovery Engine MUST classify invocation state into exactly one of four buckets:
+Unacknowledged in-flight requests from a failed or disconnected worker MUST NOT be naively re-routed. The Gateway Recovery Controller MUST classify invocation state into exactly one of four recovery buckets:
 
 ```
 UNACKNOWLEDGED REQUEST
@@ -89,9 +101,9 @@ UNACKNOWLEDGED REQUEST
 
 ---
 
-## 3. Invocation Ownership & Lifecycle State Machine
+## 4. Invocation Ownership & Recovery State Machine
 
-Every invocation passing through the Gateway follows a strict 6-phase state machine:
+Every invocation passing through the Gateway follows a strict state transition model. `RECOVERY_REQUIRED` acts as an explicit observation state during worker failure:
 
 ```
                        ┌────────────────────────┐
@@ -100,75 +112,121 @@ Every invocation passing through the Gateway follows a strict 6-phase state mach
                                    │ Assign Worker & LeaseEpoch
                                    ▼
                        ┌────────────────────────┐
-                       │        ASSIGNED        │ ──────► [ORPHANED]
+                       │        ASSIGNED        │ ──────► [RECOVERY_REQUIRED]
+                       └───────────┬────────────┘              │
+                                   │ Worker Acknowledges       │
+                                   ▼                           ▼
+                       ┌────────────────────────┐      classify_recovery()
+                       │        RUNNING         │ ───► ├── UNADMITTED
+                       └───────────┬────────────┘      ├── ADMITTED_UNACTUATED
+                                   │ Gateway Auth      ├── ACTUATED_COMMITTED
+                                   ▼                   └── ACTUATION_UNKNOWN
+                       ┌────────────────────────┐              │
+                       │       AUTHORIZED       │ ─────────────┤
+                       └───────────┬────────────┘              │
+                                   │ Actuation                 │
+                                   ▼                           │
+                       ┌────────────────────────┐              │
+                       │       ACTUATING        │ ─────────────┘ (INDETERMINATE)
                        └───────────┬────────────┘
-                                   │ Worker Acknowledges
-                                   ▼
-                       ┌────────────────────────┐
-                       │        RUNNING         │ ──────► [UNKNOWN]
-                       └───────────┬────────────┘
-                                   │ Gateway Authorizes Token
-                                   ▼
-                       ┌────────────────────────┐
-                       │       AUTHORIZED       │ ──────► [UNKNOWN]
-                       └───────────┬────────────┘
-                                   │ Actuation Initiated
-                                   ▼
-                       ┌────────────────────────┐
-                       │       ACTUATING        │ ──────► [INDETERMINATE]
-                       └───────────┬────────────┘
-                                   │ Gateway Commit Sequencer
+                                   │ Gateway Commit
                                    ▼
                        ┌────────────────────────┐
                        │       COMMITTED        │
-                       └────────────────────────┘
+                       └────────## 5. Disjoint Ordering Domains & Semantic Conflict Model
+
+Cortex explicitly decouples ordering into five disjoint domains:
+
 ```
+Transport Sequence (L2 Stream)
+       ≠
+Client Invocation Sequence (L3 Request)
+       ≠
+Execution Completion Order (Worker Finish Timing)
+       ≠
+Commit Sequence (Gateway Canonical Commit)
+       ≠
+Witness Sequence (Evidence Chain)
+```
+
+### Semantic Conflict & Ordering Rule
+> **Normative Rule**: Canonical commit ordering provides evidence ordering, but does NOT by itself guarantee semantic determinism for stateful operations. Operations that access overlapping mutable state MUST additionally satisfy an ordering, locking, version-validation, or commutativity rule.
+
+- **Witness Chain Generation**: Workers MUST NOT independently advance the authoritative witness chain. Only the Gateway commit sequencer appends authoritative witness state upon commit.
 
 ---
 
-## 4. Worker Lifecycle & Graceful Drain Protocol
+## 6. Worker Lifecycle & Graceful Drain Protocol
 
-Worker instances do not terminate abruptly when scaling down. They transition through a 5-stage lifecycle:
+Worker instances transition through a 6-stage lifecycle:
 
 ```
 [READY] ──► [DRAINING] ──► [QUIESCED] ──► [TERMINATING] ──► [TERMINATED]
+                │
+                └─► (timeout: drain_deadline) ──► [FORCED_RECOVERY]
 ```
 
 1. **`READY`**: Normal operation; worker receives new invocation assignments.
-2. **`DRAINING`**: Worker receives **zero new invocations**. Existing assigned invocations continue execution.
-3. **`QUIESCED`**: Worker has zero active invocations ($\text{owned\_invocations} = 0$), zero pending effects ($\text{pending\_effects} = 0$), and zero outstanding IPC frames ($\text{ipc\_outstanding} = 0$).
-4. **`TERMINATING`**: Gateway sends `SIGTERM` to worker process group.
-5. **`TERMINATED`**: Worker process reaped; socket descriptor closed.
+2. **`DRAINING`**: Worker receives **zero new invocations**. Existing assigned invocations continue execution until `drain_deadline`.
+3. **`FORCED_RECOVERY`**: Triggered if `drain_deadline` expires before `owned_invocations == 0`. Outstanding invocations are classified via the crash recovery state machine.
+4. **`QUIESCED`**: Worker satisfies:
+   $$\text{owned\_invocations} == 0 \quad \text{AND} \quad \text{pending\_effects} == 0 \quad \text{AND} \quad \text{ipc\_outstanding} == 0$$
+   where $\text{pending\_effect} \in \{\text{AUTHORIZED}, \text{ACTUATING}, \text{outcome\_unresolved}\}$.
+5. **`TERMINATING`**: Gateway sends `SIGTERM` to process group.
+6. **`TERMINATED`**: Worker process reaped; socket descriptor closed.
 
 ---
 
-## 5. Gateway Canonical Commit Sequencer
+## 7. Admission Control & Bounded Resource Backpressure
 
-To prevent nondeterministic witness logs when worker replicas execute tasks in parallel:
-- **Parallel Worker Execution**: Worker A, Worker B, and Worker C execute tasks concurrently in separate sandboxes.
-- **Canonical Commitment**: Workers push candidate state updates to the **Gateway Commit Sequencer**.
-- **Deterministic Witness Ordering**: The Gateway orders updates using a deterministic commit sequence number ($C_n$). Downstream witness evidence chains ($W_n$) depend strictly on $C_n$, ensuring 100% deterministic trace replays regardless of physical worker completion timing.
+> **Normative Rule**: Scaling MUST NOT relax bounded-memory guarantees. Queue limits, per-replica inflight limits, and global admission limits MUST remain enforced when `max_replicas` is reached.
 
----
-
-## 6. Implementation Roadmap (Phased Execution)
-
-Scaling must be implemented strictly in the following 10-phase sequence:
-
-1. **Worker Identity & Generation** (`ReplicaInstanceID`, `ReplicaGeneration`).
-2. **Durable Invocation Ownership & Fenced Lease Protocol** (`LeaseEpoch`).
-3. **Worker Lifecycle State Machine** (`READY` $\to$ `DRAINING` $\to$ `QUIESCED` $\to$ `TERMINATING`).
-4. **Assignment & Routing Engine** (Capability & Isolation-aware scoring).
-5. **Graceful Drain Protocol**.
-6. **Crash State Classification Engine** (`UNADMITTED`, `ADMITTED_UNACTUATED`, `ACTUATED_COMMITTED`, `INDETERMINATE`).
-7. **Gateway Canonical Commit Sequencer**.
-8. **Evidence & Witness Chain Integration**.
-9. **Multi-Replica Security & Fencing Tests**.
-10. **Autoscaler & Load Balancer Integration** (Multi-metric controller with hysteresis).
+When `max_replicas` is reached and system load spikes:
+- Gateway applies explicit **Backpressure** (rejecting or shedding non-critical intents).
+- Autoscaler decision function incorporates hysteresis and critical age metrics:
+  $$\text{AutoscaleTrigger} = f(\text{queue\_depth}, \text{queue\_growth}, \text{oldest\_authorized\_uncommitted\_age}, \text{p95\_latency}, \text{worker\_saturation})$$
 
 ---
 
-## 7. Next Governance Actions
-1. Publish `docs/architecture/replica_scaling_specification.md` to repository.
-2. Mark status in `docs/README.md` as `SCALING DESIGN` (`ARCHITECTURAL REVIEW REQUIRED`).
-3. Do not merge autoscaler/load-balancer code until Phases 1–8 pass all Gate A–E conformance verification gates.
+## 8. Verification Roadmap & Explicit Scaling Gates (RS-1 to RS-12)
+
+Implementation must proceed strictly in 10 phases. Autoscaling and routing code are **BLOCKED** until Phases 1–3 pass all RS-1 to RS-12 verification gates:
+
+### Phased Roadmap
+```
+1. Worker Identity & Generation (ReplicaInstanceID, ReplicaGeneration)
+  └─► 2. Durable Invocation Ownership & Fenced Lease Protocol (LeaseEpoch)
+        └─► 3. Worker Lifecycle State Machine (READY ➔ DRAINING ➔ QUIESCED ➔ TERMINATING)
+              └─► 4. Capability-Filtered Candidate Assignment & Routing
+                    └─► 5. Drain Protocol & Deadline Enforcement
+                          └─► 6. Crash State Classification Engine (RECOVERY_REQUIRED)
+                                └─► 7. Gateway Canonical Commit Sequencer & Conflict Validation
+                                      └─► 8. Witness Chain Integration
+                                            └─► 9. Multi-Replica Security & Fencing Tests
+                                                  └─► 10. Autoscaler & Admission Control
+```
+
+### Verification Gates (RS-1 through RS-12)
+- **RS-1 (Replica Identity)**: Generation and attempt coordinate separation.
+- **RS-2 (Lease Fencing)**: Stale epoch commit rejection (`ERR_STALE_LEASE_EPOCH`).
+- **RS-3 (Invocation Ownership)**: Single-owner lease invariants.
+- **RS-4 (Crash Classification)**: Non-replay of actuated operations & `Verdict.INDETERMINATE` flags.
+- **RS-5 (Commit Ordering)**: Conflict validation & canonical commit sequence.
+- **RS-6 (Witness Ordering)**: Total witness chain ordering.
+- **RS-7 (Drain Correctness)**: Quiescence verification & forced recovery timeouts.
+- **RS-8 (Backpressure)**: Bounded queue enforcement under max replica saturation.
+- **RS-9 (Capability Non-Expansion)**: Assert $\Lambda_{\text{replica}} \subseteq \Lambda_{\text{deployment}}$.
+- **RS-10 (Multi-Replica Adversarial)**: Anti-impersonation, stale worker reconnect, and cross-replica token reuse tests.
+- **RS-11 (Deterministic Replay)**: 100% trace replay parity under multi-worker parallel execution.
+- **RS-12 (Chaos/Recovery)**: Random `SIGKILL` injection during actuation cycles.
+
+### Required Invariant Assertions
+```text
+NO_UNAUTHORIZED_EFFECT
+NO_STALE_LEASE_COMMIT
+NO_DUPLICATE_NON_IDEMPOTENT_EFFECT
+NO_SILENT_INVOCATION_LOSS
+NO_WITNESS_FORK
+NO_AUTHORITY_EXPANSION
+BOUNDED_RESOURCE_USAGE
+```
