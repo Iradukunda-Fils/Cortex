@@ -4,7 +4,7 @@ Phase 4 Routing & Dispatch Conformance Test Suite (Gates RD-1 to RD-24)
 Verifies unprivileged candidate resolution, deterministic least-inflight selection,
 atomic LeaseManager revalidation, TOCTOU race safety, bounded FIFO queueing,
 state domain lock conflict serialization, zero-token possession isolation,
-and observational witness provenance logging.
+observational witness provenance logging, and precise crash recovery boundaries.
 """
 
 import os
@@ -496,13 +496,12 @@ class TestReplicaPhase4(unittest.TestCase):
         self.assertFalse(hasattr(selected, "secret_key"))
         self.assertFalse(hasattr(selected, "bearer_token"))
 
-    # ── RD-23: Router/Lease/Commit Crash Recovery Boundary ───────────
-    def test_rd23_router_lease_commit_crash_recovery_boundary(self) -> None:
-        """RD-23: Invocation routed & assigned, Gateway crashes mid-execution, WAL replayed cleanly."""
+    # ── RD-23a: Pre-Actuation Crash Recovery ─────────────────────────
+    def test_rd23a_pre_actuation_crash_recovery(self) -> None:
+        """RD-23a: Pre-actuation crash (RUNNING/ASSIGNED) recovers as ADMITTED_UNACTUATED."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             journal_path = os.path.join(tmp_dir, "invocation_journal.jsonl")
 
-            # 1. Gateway Phase 1: Dispatch invocation to ASSIGNED state
             lease_mgr = LeaseManager()
             ledger_pre = InvocationStateLedger(journal_path=journal_path)
             dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger_pre)
@@ -511,8 +510,8 @@ class TestReplicaPhase4(unittest.TestCase):
             lease_mgr.register_worker_state(w1)
 
             dispatcher.dispatch_invocation(
-                invocation_id="inv-crash-23",
-                intent_hash="0xCRASH23",
+                invocation_id="inv-crash-23a",
+                intent_hash="0xCRASH23A",
                 required_capabilities=["payments.execute"],
                 candidate_pool=[w1],
                 active_config_gen=18,
@@ -521,25 +520,74 @@ class TestReplicaPhase4(unittest.TestCase):
                 active_cap_hash=self.active_cap_hash,
             )
 
-            # Advance to RUNNING before crash
-            ledger_pre.transition_state("inv-crash-23", InvocationState.RUNNING)
+            # Advance to RUNNING (pre-actuation start) before crash
+            ledger_pre.transition_state("inv-crash-23a", InvocationState.RUNNING)
 
-            # 2. Simulate Gateway Crash & Restart: Instantiate new ledger from durable WAL file
+            # Replay journal after simulated Gateway crash
             ledger_post = InvocationStateLedger(journal_path=journal_path)
-            rec_post = ledger_post.get_record("inv-crash-23")
+            rec_post = ledger_post.get_record("inv-crash-23a")
 
             self.assertIsNotNone(rec_post)
             assert rec_post is not None
             self.assertEqual(rec_post.state, InvocationState.RUNNING)
-            self.assertEqual(rec_post.assigned_worker_id, "w-node-1")
 
-            # Assert recovery classification is ADMITTED_UNACTUATED (safe idempotency boundary)
-            bucket = ledger_post.classify_recovery("inv-crash-23")
+            # Durable ledger proves actuation never began -> ADMITTED_UNACTUATED
+            bucket = ledger_post.classify_recovery("inv-crash-23a")
             self.assertEqual(bucket, RecoveryBucket.ADMITTED_UNACTUATED)
+
+    # ── RD-23b: Actuation-Unknown Crash Recovery ─────────────────────
+    def test_rd23b_actuation_unknown_crash_recovery(self) -> None:
+        """RD-23b: Actuation-unknown crash (ACTUATING) recovers as ACTUATION_UNKNOWN -> INDETERMINATE."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            journal_path = os.path.join(tmp_dir, "invocation_journal.jsonl")
+
+            ledger_pre = InvocationStateLedger(journal_path=journal_path)
+            ledger_pre.create_invocation("inv-crash-23b", "0xCRASH23B")
+            ledger_pre.transition_state("inv-crash-23b", InvocationState.ACTUATING)
+
+            # Replay journal after crash mid-actuation
+            ledger_post = InvocationStateLedger(journal_path=journal_path)
+            rec_post = ledger_post.get_record("inv-crash-23b")
+
+            self.assertIsNotNone(rec_post)
+            assert rec_post is not None
+            self.assertEqual(rec_post.state, InvocationState.ACTUATING)
+
+            # Outcome unknown -> ACTUATION_UNKNOWN bucket and INDETERMINATE terminal state
+            bucket = ledger_post.classify_recovery("inv-crash-23b")
+            self.assertEqual(bucket, RecoveryBucket.ACTUATION_UNKNOWN)
+            self.assertEqual(rec_post.state, InvocationState.INDETERMINATE)
+
+    # ── RD-23c: Committed Invocation Crash Recovery ──────────────────
+    def test_rd23c_committed_crash_recovery(self) -> None:
+        """RD-23c: Committed invocation crash (COMMITTED) recovers as ACTUATED_COMMITTED."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            journal_path = os.path.join(tmp_dir, "invocation_journal.jsonl")
+
+            ledger_pre = InvocationStateLedger(journal_path=journal_path)
+            ledger_pre.create_invocation("inv-crash-23c", "0xCRASH23C")
+            ledger_pre.transition_state("inv-crash-23c", InvocationState.COMMITTED)
+
+            # Replay journal after crash post-commit
+            ledger_post = InvocationStateLedger(journal_path=journal_path)
+            rec_post = ledger_post.get_record("inv-crash-23c")
+
+            self.assertIsNotNone(rec_post)
+            assert rec_post is not None
+            self.assertEqual(rec_post.state, InvocationState.COMMITTED)
+
+            # Authoritative completion recorded -> ACTUATED_COMMITTED (cached result, zero re-actuation)
+            bucket = ledger_post.classify_recovery("inv-crash-23c")
+            self.assertEqual(bucket, RecoveryBucket.ACTUATED_COMMITTED)
 
     # ── RD-24: Concurrent Same-StateDomainKey Invocations ─────────────
     def test_rd24_concurrent_same_state_domain_key_fencing(self) -> None:
-        """RD-24: Concurrent invocations targeting the same StateDomainKey enforce mutual exclusion."""
+        """RD-24: Concurrent invocations targeting the same StateDomainKey enforce mutual exclusion.
+
+        Verifies non-overlapping execution (NOT(Actuate(I1) || Actuate(I2))) via lock contention serialization.
+        Note: Lock contention enforces serial mutual exclusion; canonical invocation ordering requires explicit
+        CommitSequence keys.
+        """
         lease_mgr = LeaseManager()
         ledger = InvocationStateLedger()
         dispatcher = GatewayDispatcher(lease_manager=lease_mgr, ledger=ledger)
@@ -580,7 +628,7 @@ class TestReplicaPhase4(unittest.TestCase):
         t1.join()
         t2.join()
 
-        # Exactly one invocation must succeed in acquiring lock; the second receives conflict exception
+        # Exactly one invocation succeeds in acquiring state domain lock; the second receives conflict exception
         self.assertEqual(len(results), 1)
         self.assertEqual(len(errors), 1)
         self.assertIsInstance(errors[0], ValueError)

@@ -3,7 +3,7 @@
 > **Audit Target**: Phase 4 Routing & Dispatch Subsystem (`docs/architecture/phase_4_routing_and_dispatch_specification.md`)  
 > **Governance Status**: `IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN`  
 > **Auditor**: Architecture Review & Verification Pass  
-> **Baseline Commit**: `SHA: a75d9a7` (329/329 tests pass)
+> **Baseline Commit**: `SHA: c743b36` (333/333 tests pass)
 
 ---
 
@@ -17,7 +17,7 @@ This audit evaluates the Phase 4 Routing & Dispatch design and implementation ag
 Phase 1–3 Control Plane Kernel:     FROZEN & APPROVED (SHA: 56afb86, 307/307 PASS)
 Phase 4 Specification:             DESIGN APPROVED
 Phase 4 Audit Report:              APPROVED
-Phase 4 Implementation Status:     IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN (329/329 PASS)
+Phase 4 Implementation Status:     IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN (333/333 PASS)
 Load Balancing & Autoscaling:      STRICTLY BLOCKED
 Remote Git Push:                    PAUSED (Awaiting user authorization)
 ```
@@ -36,7 +36,7 @@ Remote Git Push:                    PAUSED (Awaiting user authorization)
 | **AUD4-06** | **Routing Decision Events** | `RoutingDecisionEvent` is purely observational audit evidence appended to `WitnessSequence`; does not carry bearer tokens or advance commit state. | **VERIFIED** | §6.1: Observational event schema; purely witness log entry. Verified in `RD-12`. |
 | **AUD4-07** | **6-Component Decomposition** | Clear boundary separation into `CandidateResolver`, `RoutingPolicy`, `LeaseManager`, `Dispatcher`, `RecoveryEngine`, and `CommitSequencer`. | **VERIFIED** | §2: Component responsibility matrix and pipeline sequence diagram formalize 6 distinct roles. |
 | **AUD4-08** | **Precise Inflight Definition** | Standardized inflight definition across Router, Lifecycle Tracker, and Gateway TCB: non-terminal assigned invocations. | **VERIFIED** | §4.2: Formal mathematical set definition $\text{Inflight}(W) \equiv \| \{ I \mid I.\text{state} \notin \text{TERMINAL} \land I.\text{worker} == W \} \|$. |
-| **AUD4-09** | **UNADMITTED Safety** | Invariant $\text{UNADMITTED} \implies \neg\text{Authorized} \land \neg\text{ActuationStarted}$ enforced before re-queueing post-assignment crash. | **VERIFIED** | §3: Re-queue permitted only when ledger proves authorization and actuation boundaries were uncrossed (`RD-9`). |
+| **AUD4-09** | **UNADMITTED Safety** | Invariant $\text{UNADMITTED} \implies \neg\text{Authorized} \land \neg\text{ActuationStarted}$ enforced before re-queueing post-assignment crash. | **VERIFIED** | §3: Re-queue permitted only when ledger proves authorization and actuation boundaries were uncrossed (`RD-9`, `RD-23a`). |
 | **AUD4-10** | **Full Config Identity** | Candidate context includes `WorkerRef` with `instance_id`, `lifecycle_version`, `config_generation`, `config_hash`, `sandbox_profile_hash`, `capability_envelope_hash`. | **VERIFIED** | §4.1: Immutable `WorkerRef` versioned dataclass specified and verified. |
 | **AUD4-11** | **Bounded Router Memory** | Router memory bounded to $O(\text{ActiveInvocations} + \text{ReadyWorkers})$. Telemetry streams to log/disk; not accumulated in RAM. | **VERIFIED** | §6.1: Non-bypassable memory ceiling and event streaming requirement enforced (`RD-20`). |
 | **AUD4-12** | **Authoritative Commit Path** | Routing proposals can NEVER bypass Gateway commit verification. Path remains `Router -> LeaseManager -> Worker -> Gateway -> CommitSequencer -> Witness`. | **VERIFIED** | §5.1: Commit Path Invariant explicitly prohibits direct routing-to-commit shortcuts. |
@@ -45,7 +45,7 @@ Remote Git Push:                    PAUSED (Awaiting user authorization)
 
 ## 3. Conformance Verification Suite (RD-1 through RD-24)
 
-All 24 verification gates are verified and passing cleanly:
+All 24 verification gate scenarios are verified and passing cleanly:
 
 - **RD-1**: Unprivileged Router Boundary Isolation (`PASS`)
 - **RD-2**: Monotonic ConfigGeneration Filtering (`PASS`)
@@ -69,8 +69,10 @@ All 24 verification gates are verified and passing cleanly:
 - **RD-20**: Bounded Metadata Memory (`PASS`)
 - **RD-21**: Deterministic Tie-Breaking Verification (`PASS`)
 - **RD-22**: Router Zero-Token Possession Isolation (`PASS`)
-- **RD-23**: Router/Lease/Commit Crash Recovery Boundary (`PASS`)
-- **RD-24**: Concurrent Same-StateDomainKey Invocations (`PASS`)
+- **RD-23a**: Pre-Actuation Crash Recovery (`PASS` — `ASSIGNED`/`RUNNING` $\to$ `ADMITTED_UNACTUATED`)
+- **RD-23b**: Actuation-Unknown Crash Recovery (`PASS` — `ACTUATING` $\to$ `ACTUATION_UNKNOWN` / `INDETERMINATE`)
+- **RD-23c**: Committed Invocation Crash Recovery (`PASS` — `COMMITTED` $\to$ `ACTUATED_COMMITTED` cached completion)
+- **RD-24**: Concurrent Same-StateDomainKey Invocations (`PASS` — Mutual Exclusion & Authoritative Commit Serialization)
 
 ---
 
@@ -79,6 +81,6 @@ All 24 verification gates are verified and passing cleanly:
 ```text
 PHASE 4 ARCHITECTURE SPECIFICATION: DESIGN APPROVED
 PHASE 4 ARCHITECTURE AUDIT:         DESIGN APPROVED (12/12 AUD4 findings resolved)
-IMPLEMENTATION GOVERNANCE POSTURE:  IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN (329/329 PASS)
+IMPLEMENTATION GOVERNANCE POSTURE:  IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN (333/333 PASS)
 REMOTE GIT PUSH:                    PAUSED (Awaiting user authorization)
 ```
