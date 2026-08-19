@@ -96,6 +96,19 @@ When a worker process crashes (e.g., SIGSEGV, Out-of-Memory, unhandled runtime e
 - Status: `FAILED_PRE_ACTUATION`                                  - Host Gateway triggers Hardware Safe-Stop.
 ```
 
+### 3.1 Worker Auto-Respawn & State Catch-up
+1. **SIGCHLD & Socket EOF Interception**: The Gateway detects worker PID termination and socket disconnect on `FD 3`.
+2. **Token Invalidation**: Active single-use tokens assigned to the dead PID are invalidated immediately.
+3. **Evidence Log**: Appends a `Verdict.INDETERMINATE` evidence flag to `EventStore`.
+4. **Respawn & Re-sync**: Gateway launches a replacement sandboxed worker process, establishes a new socketpair `FD 3`, and replays state from `EventStore` to resynchronize the worker.
+
+### 3.2 Race Condition & Concurrency Prevention
+To prevent race conditions across concurrent workers:
+- **Monotonic Frame Counter ($Seq_n = Seq_{n-1} + 1$)**: Header sequence counter prevents out-of-order execution or duplicate packet injection.
+- **Hardware Epoch Monotonicity (`reg_hec`)**: State updates require an incrementing hardware epoch. Stale epoch updates ($Epoch_{recv} \le Epoch_{curr}$) are rejected at the hardware register layer.
+- **Single-Writer Gateway Event Bus**: All events from concurrent workers commit sequentially on a single-threaded atomic Gateway event pipeline.
+- **Single-Use Ephemeral Tokens**: Action tokens are single-use (`nonce` bound). Concurrent attempts to execute the same token result in `EXPIRED_OR_DUPLICATE_TOKEN` rejection for all but the first transaction.
+
 ---
 
 ## 4. Polyglot Execution & Multi-Language Worker Architecture
@@ -128,8 +141,9 @@ To support ANY language natively, an SDK requires only 3 primitives:
 To scale to 50+ plugins without memory exhaustion:
 
 1. **Capability Co-location (Grouped Workers)**: Plugins sharing privilege domains are co-located into shared worker processes, reducing 50 worker processes to 3–5 grouped containers (~120 MB RAM total).
-2. **Linux `epoll` $O(1)$ Multiplexing**: The Host Gateway manages all worker sockets on an asynchronous, non-blocking `epoll` reactor thread.
-3. **0.0% Idle CPU Overhead**: Worker event loops waiting for data on `FD 3` via `read()` or `recv()` are suspended in kernel space (`TASK_INTERRUPTIBLE`), using **0.0% CPU** while idle.
+2. **Worker Pool Instances**: For high-throughput plugins, the Gateway Pool Manager spawns multiple sandboxed worker instances (`SecureWorkerPoolManager`), balancing task events across active instance sockets (`FD 3`).
+3. **Linux `epoll` $O(1)$ Multiplexing**: The Host Gateway manages all worker sockets on an asynchronous, non-blocking `epoll` reactor thread.
+4. **0.0% Idle CPU Overhead**: Worker event loops waiting for data on `FD 3` via `read()` or `recv()` are suspended in kernel space (`TASK_INTERRUPTIBLE`), using **0.0% CPU** while idle.
 
 ---
 
