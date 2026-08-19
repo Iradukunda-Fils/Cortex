@@ -50,6 +50,7 @@ research/                              # Empirical Research & Spikes Substrate
 
 ### 2. Architecture & Kernel Specifications
 - **[Kernel Architecture Overview](architecture/overview.md)**: System philosophy, dual-layer framing, 3-layer security boundary, and structural Mermaid diagrams.
+- **[Multi-Replica Scaling & Lease Fencing Specification](architecture/replica_scaling_specification.md)**: (*SCALING DESIGN / REVIEW REQUIRED*) Normative contract for worker lease epochs, fencing tokens, canonical commit sequencing, and crash state classification.
 - **[Systems Engineering & Q&A Guide](architecture/systems-engineering-qa-guide.md)**: Low-level IPC mechanics, Linux sandboxing, polyglot worker contracts, 50+ plugin scaling, ML/GPU zero-copy DMA, and technical Q&A reference.
 - **[Cortex-CBE Serialization Specification](architecture/canonical-serialization.md)**: EBNF count grammar, IEEE 754 float rules, Unicode NFC normalization, and key sorting.
 - **[4-Domain Identity Model](architecture/identity-model.md)**: Logical vs. Idempotency vs. Application vs. Runtime identity separation, CBE tuple framing, and cleanroom test vectors.
