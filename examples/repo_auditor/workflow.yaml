@@ -1,14 +1,21 @@
+# Cortex v0.3 — Repository Audit Workflow Definition
+#
+# This workflow definition is consumed by CortexClient.create_workflow().
+# It describes the audit goal, execution policy, and initial intent parameters.
+
 name: repo_audit_workflow
 goal: Audit Repository Integrity
+
 policy:
   timeout_seconds: 300.0
   max_retries: 3
   abort_on_verification_failure: true
+
 initial_intent:
   goal: Audit Repository Integrity
   parameters:
     target_dir: .
     check_types:
-      - git_status
-      - syntax_linter
-      - unit_tests
+      - git_status_check
+      - syntax_check
+      - unit_test_check

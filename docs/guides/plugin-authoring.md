@@ -1,7 +1,7 @@
 # Building Plugins for Cortex: Complete Authoring Guide
 
 > **Target Audience**: Developers creating autonomous software components, AI agent extensions, and domain event processors for the Cortex platform.
-> **SDK Version**: `cortex-runtime >= 0.2.0`
+> **SDK Version**: `cortex-runtime >= 0.3.0`
 > **Public API Imports**: All examples in this guide import exclusively from the public `cortex` namespace.
 
 ---

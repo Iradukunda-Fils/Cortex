@@ -1,5 +1,5 @@
 """
-Cortex v0.2.0 Dogfood Harness: Controlled Synthetic Workload Profiler
+Cortex v0.3 Dogfood Harness: Controlled Synthetic Workload Profiler
 
 Runs the Repo Auditor pipeline with 5 controlled synthetic workload profiles,
 collecting operational metrics (duration, events, memory, replay, trace size).
@@ -46,7 +46,7 @@ PROFILE_STRESS_STEPS = 200
 PROFILE_VIOLATION_STEPS = 3
 
 # Cortex version from pyproject.toml
-CORTEX_VERSION = "0.2.0"
+CORTEX_VERSION = "0.3.0rc1"
 
 # ---------------------------------------------------------------------------
 # Data Structures
@@ -366,7 +366,7 @@ def run_dogfood_harness(output_base: str | None = None) -> list[ProfileResult]:
     os.makedirs(output_base, exist_ok=True)
 
     print("=" * 70)
-    print("  Cortex v0.2.0 Dogfood Harness: Controlled Synthetic Workloads")
+    print("  Cortex v0.3 Dogfood Harness: Controlled Synthetic Workloads")
     print("=" * 70)
     print(f"  Output: {output_base}")
     print()

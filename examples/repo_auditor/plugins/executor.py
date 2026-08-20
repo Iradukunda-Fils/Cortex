@@ -17,7 +17,7 @@ from cortex.compat import override
 
 EXECUTOR_MANIFEST = PluginManifest(
     name="auditor-executor",
-    version="0.1.0",
+    version="0.3.0",
     description="Dispatches command events for each audit plan step",
     consumes_events=["PlanGeneratedEvent"],
     produces_events=["CommandIssuedEvent"],

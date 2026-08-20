@@ -93,7 +93,7 @@ Cortex Platform Architecture Map
 | **$P1$: Authority Attenuation** | $\Lambda_{t+1} \subseteq \Lambda_t \land w_1 \sqsubseteq w_2$ | **PARTIAL** | Python `PluginContext` & Rust `cortex-emulator` STCR. |
 | **$P2$: Execution Parity** | $D_3 \equiv D_2 \equiv \text{SHA256}(\text{CBE}(\text{SignedIntent}))$ | **CERTIFIED** | 21/21 Gate H Scenarios PASS (`test_gate_h_adversarial.py`). |
 | **$P3$: Causal Witness** | $W_{t+1} = \text{SHA256}(W_t \parallel \text{CBE}(E_{t+1}) \parallel \text{CBE}(I_{t+1}))$ | **CERTIFIED** | 7/7 Gate I Scenarios PASS (`test_gate_i_causal_witness.py`). |
-| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **CERTIFIED** | 12/12 Gate J Scenarios PASS (`tools/cortex-verifier.py`). |
+| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **CERTIFIED** | 12/12 Gate J Scenarios PASS (`tools/cortex_verifier.py`). |
 | **Complete Mediation (Gate G)** | $\forall \text{eff} \in \text{Effects}, \text{eff} \text{ passes through } \text{ExecutionToken}$ | **SPECIFIED** | Sandbox & Narrow IPC Architecture (`gate_g_remediation_specification.md`). |
 
 ---

@@ -11,7 +11,7 @@ Plugins can declare manifests using JSON, YAML, or native Python dataclass struc
 ### YAML Schema (`manifest.yaml`)
 ```yaml
 name: "repository-auditor-plugin"
-version: "0.2.0"
+version: "0.3.0"
 description: "Executes read-only repository hygiene and static analysis tools"
 
 consumes_events:
@@ -32,7 +32,7 @@ required_capabilities:
 ```json
 {
   "name": "repository-auditor-plugin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Executes read-only repository hygiene and static analysis tools",
   "consumes_events": ["CommandIssuedEvent"],
   "produces_events": ["DriverTelemetryEvent", "VerificationResultEvent"],
