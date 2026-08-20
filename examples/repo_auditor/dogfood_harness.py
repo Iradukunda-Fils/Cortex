@@ -46,7 +46,7 @@ PROFILE_STRESS_STEPS = 200
 PROFILE_VIOLATION_STEPS = 3
 
 # Cortex version from pyproject.toml
-CORTEX_VERSION = "0.3.0rc1"
+CORTEX_VERSION = "0.3.0"
 
 # ---------------------------------------------------------------------------
 # Data Structures
