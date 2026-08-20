@@ -33,3 +33,9 @@ venv/
 .idea/
 .clangd
 .ruff_cache/
+
+# Private isolated workspace runtime and generated dirs
+.runtime/
+.generated/
+.cache/
+.artifacts/

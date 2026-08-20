@@ -15,7 +15,7 @@ from cortex.compat import override
 
 PLANNER_MANIFEST = PluginManifest(
     name="auditor-planner",
-    version="0.1.0",
+    version="0.3.0",
     description="Decomposes repository audit intents into step-wise execution plans",
     consumes_events=["IntentEvent"],
     produces_events=["PlanGeneratedEvent"],

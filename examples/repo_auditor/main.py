@@ -1,5 +1,15 @@
 """
-Autonomous Repository Auditor External Application Entrypoint
+Autonomous Repository Auditor — Cortex v0.3 Example Application
+
+Demonstrates the full Cortex plugin lifecycle:
+  1. Capability negotiation via PluginManifest
+  2. Event-driven workflow execution (Intent → Plan → Command → Telemetry → Verification)
+  3. Deterministic replay and causality-tree inspection
+  4. Sandbox violation detection and proof
+
+Usage:
+    uv run python -m examples.repo_auditor.main
+    uv run python -m examples.repo_auditor.main --simulate-violation
 """
 
 import argparse
@@ -13,25 +23,32 @@ from examples.repo_auditor.plugins import (
     ReadOnlyRepoToolPlugin,
 )
 
+# Platform capabilities granted to all plugins in this example.
+# In production, these would come from the Gateway's deployment configuration.
+PLATFORM_CAPABILITIES = {
+    "workflow.plan.create",
+    "workflow.command.issue",
+    "fs:read",
+    "exec:git",
+    "exec:pytest",
+    "hardware.telemetry.read",
+}
+
 
 def run_repo_auditor(simulate_violation: bool = False) -> int:
-    """Executes the Autonomous Repository Auditor Application."""
+    """Executes the Autonomous Repository Auditor Application.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
     print("==================================================================")
-    print("       Cortex v0.2 Dogfood App: Autonomous Repository Auditor     ")
+    print("   Cortex v0.3 Example App: Autonomous Repository Auditor        ")
     print("==================================================================")
 
-    # 1. Instantiate public CortexClient with platform capability grants
-    platform_caps = {
-        "workflow.plan.create",
-        "workflow.command.issue",
-        "fs:read",
-        "exec:git",
-        "exec:pytest",
-        "hardware.telemetry.read",
-    }
-    client = CortexClient(platform_capabilities=platform_caps)
+    # 1. Instantiate CortexClient with platform capability grants
+    client = CortexClient(platform_capabilities=PLATFORM_CAPABILITIES)
 
-    # 2. Instantiate and Register External Plugins
+    # 2. Register plugins — capability negotiation happens automatically
     planner = AuditorPlannerPlugin()
     executor = AuditorExecutorPlugin()
     repo_tool = ReadOnlyRepoToolPlugin(simulate_sandbox_violation=simulate_violation)
@@ -40,7 +57,7 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
     _ = client.register_plugin(executor)
     _ = client.register_plugin(repo_tool)
 
-    # 3. Create and Run Workflow
+    # 3. Create and execute the audit workflow
     workflow = client.create_workflow(
         name="repo_audit_workflow",
         goal="Audit Repository Integrity",
@@ -51,7 +68,7 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
 
     print(f"\n[+] Workflow Execution Final State: {executed_wf.state.value}")
 
-    # 4. Save and Inspect Trace
+    # 4. Save trace and inspect causality graph
     trace_path = f".cortex/events/{executed_wf.workflow_id}.json"
     _ = client.save_trace(executed_wf.workflow_id, trace_path)
 
@@ -70,17 +87,19 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
     else:
         print("\n[✓] All Verification Invariants Passed Cleanly!")
 
-    # 5. Deterministic Replay Verification
+    # 5. Deterministic replay verification
     replay_res = client.replay_workflow(trace_path)
     print("\n--- Deterministic Replay Engine ---")
     print(f"Events Replayed: {replay_res['replayed_count']}")
     print(f"Result Status:   {'PASSED' if replay_res['deterministic'] else 'FAILED'}")
     print(f"Lineage Reason:  {replay_res['reason']}")
 
+    # 6. Validate sandbox violation proof (when simulating)
     if simulate_violation:
         if executed_wf.state == WorkflowState.FAILED and failed_nodes:
             print(
-                "\n[✓] PROOF PASSED: CapabilitySandbox successfully intercepted and rejected unauthorized write invocation!"
+                "\n[✓] PROOF PASSED: CapabilitySandbox successfully intercepted "
+                "and rejected unauthorized write invocation!"
             )
             return 0
         else:
@@ -91,11 +110,13 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Autonomous Repository Auditor Dogfood App")
+    parser = argparse.ArgumentParser(
+        description="Cortex v0.3 Example: Autonomous Repository Auditor",
+    )
     _ = parser.add_argument(
         "--simulate-violation",
         action="store_true",
-        help="Simulate unauthorized capability write violation",
+        help="Simulate unauthorized capability write violation to test sandbox enforcement",
     )
     args = parser.parse_args()
     simulate_violation_flag = bool(getattr(args, "simulate_violation", False))
