@@ -1,19 +1,19 @@
 # Cortex Contributor Security Boundaries & Open-Source Governance
 
-**Version:** `v1.0.0`  
+**Version:** `v1.1.0`  
 **Status:** NORMATIVE GOVERNANCE SPECIFICATION  
-**Scope:** Open-Source Contribution Classification, Security Boundaries, and Review Hierarchy  
+**Scope:** Open-Source Contribution Classification, File-Path Security Rules, and Review Hierarchy  
 
 ---
 
 ## 1. Executive Summary
 
-Cortex is a spatiotemporal authority and semantic verification framework designed for high-concurrency, zero-trust execution. Because security boundaries (Seccomp/Landlock sandboxing, linearizable lease fencing, CBE cryptographic encoding, and Coq-verified evidence models) are critical to system integrity, open-source contributions MUST strictly adhere to the **Contributor Security Governance Framework**.
+Cortex is a spatiotemporal authority and semantic verification framework designed for high-concurrency, zero-trust execution. Because security boundaries (Seccomp/Landlock sandboxing, linearizable lease fencing, CBE cryptographic encoding, configuration resolution, and Coq-verified evidence models) are critical to system integrity, open-source contributions MUST strictly adhere to the **Contributor Security Governance Framework**.
 
 This document defines:
 1. The 4-tier contribution risk taxonomy.
-2. The mandatory Security Surface & Reviewer Matrix.
-3. The non-negotiable architectural priority hierarchy.
+2. The file-path based change classification matrix.
+3. The mandatory ARCHITECTURE-LOCKED protected-area policy.
 4. Pre-contribution requirements for security-sensitive subsystems.
 
 ---
@@ -46,22 +46,22 @@ All proposed repository changes and GitHub Issues are classified into one of 4 c
 ```
 +-----------------------------------------------------------------------------------+
 | TIER A: COMMUNITY-FRIENDLY (Low Risk)                                             |
-| Scope: Documentation, CLI UX, Local Schema Validators, Conformance Test Vectors   |
-| Review: Standard Maintainer Code Review                                           |
+| Scope: Documentation, CLI UX Utilities, Standalone Example Plugins, Test Fixtures |
+| Review: 1 Core Maintainer Approval                                                |
 +-----------------------------------------------------------------------------------+
                                          │
                                          ▼
 +-----------------------------------------------------------------------------------+
-| TIER B: MAINTAINER-REVIEWED SYSTEMS (Medium Risk)                                 |
-| Scope: Unprivileged Routing Policies, Local Queues, Observability, Telemetry      |
-| Review: Two Core Maintainer Approvals                                             |
+| TIER B: MAINTAINER-REVIEWED SYSTEMS (Medium Risk / Control Plane)                 |
+| Scope: Configuration Resolver & Schema Engine, Unprivileged Routing, Observability|
+| Review: 2 Core Maintainers + Security-Focused Review                              |
 +-----------------------------------------------------------------------------------+
                                          │
                                          ▼
 +-----------------------------------------------------------------------------------+
 | TIER C: SECURITY-REVIEW-REQUIRED (High Risk / Advanced)                           |
 | Scope: PyO3 Rust FFI Bindings, Seccomp BPF, Landlock, Recovery, IPC Framing       |
-| Review: Core Maintainer + Security Reviewer + Fuzzing & Sanitizer Audits          |
+| Review: Core Maintainer + Security Reviewer + Corpus Fuzzing & Sanitizers         |
 +-----------------------------------------------------------------------------------+
                                          │
                                          ▼
@@ -74,43 +74,59 @@ All proposed repository changes and GitHub Issues are classified into one of 4 c
 
 ---
 
-## 4. Security Surface & Reviewer Matrix
+## 4. File-Path Based Change Classification Matrix
 
-For every GitHub Issue or Pull Request, contributors MUST specify the affected **Security Surface**, **Required Reviewers**, **Allowed File Scope**, and **Mandatory Assurance Gates**:
+To prevent contributors or PR labels from mischaracterizing a security-critical change as a minor issue, review requirements are automatically enforced by **target file paths**:
 
-| Contribution Surface | Risk Tier | Security Surface | Required Reviewers | Allowed File Scope | Mandatory Assurance Gates |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Documentation & Guides** | `Tier A` | `None` | 1 Maintainer | `docs/**`, `README.md` | `docs_audit.py` PASS |
-| **CLI & UX Utilities** | `Tier A` | `None` | 1 Maintainer | `cortex/tools/cli/**` | `ruff`, `pyright`, unit tests |
-| **Local Config Resolver** | `Tier A` | `Configuration` | 1 Maintainer | `cortex/tools/config/**` | `CFG-01`..`CFG-05` vectors |
-| **Example Plugins** | `Tier A` | `None` | 1 Maintainer | `examples/plugins/**` | Profile A sandbox compliance |
-| **Unprivileged Routing** | `Tier B` | `Routing` | 2 Maintainers | `cortex/tools/kernel/replica/router.py` | `RD-1`..`RD-24` suite PASS |
-| **Load Balancing Policies**| `Tier B` | `Routing` | 2 Maintainers | `cortex/tools/kernel/replica/load_balancer.py` | `LB-1`..`LB-14` suite PASS |
-| **Rust CBE FFI Bindings** | `Tier C` | `CBE / Memory` | Maintainer + Security Reviewer | `crates/cortex-cbe-py/**` | Cross-runtime parity + Fuzzing |
-| **Sandbox & Seccomp** | `Tier C` | `Sandbox` | Maintainer + Security Reviewer | `cortex/tools/sandbox/**` | Gate G Complete Mediation |
-| **Lease & Ledger Core** | `Tier C` | `Lease / Ledger` | Maintainer + Security Reviewer | `cortex/tools/kernel/replica/lease.py`, `ledger.py` | Monotonic epoch & recovery tests |
-| **Multi-Gateway Consensus**| `Tier D` | `Consensus` | RFC Review Only | `docs/architecture/rfc_*` | Architecture Board Sign-off |
-| **Formal Proofs (Coq)** | `Tier D` | `Formal Proof` | Formal Verification Reviewer | `coq/**` | Coq Proof Assistant Compile |
+| Target File Path Pattern | Contribution Domain | Risk Tier | Required Reviewers | Mandatory Assurance & Test Requirements |
+| :--- | :--- | :--- | :--- | :--- |
+| `docs/**`, `README.md` | Documentation | `Tier A` | 1 Maintainer | `docs_audit.py` PASS |
+| `examples/plugins/**` | Example Plugins | `Tier A` | 1 Maintainer | Profile A sandbox compliance |
+| `cortex/tools/cli/**` | CLI & UX | `Tier A` | 1 Maintainer | `ruff`, `pyright`, unit test suite |
+| `cortex/tools/config/**` | **Configuration Resolver** | **`Tier B`** | **2 Maintainers + Security Review** | **`CFG-01`..`CFG-05` behavioral vectors** |
+| `cortex/schemas/v1/**` | Canonical Schema | `Tier B` | 2 Maintainers + Security Review | Schema reference integrity pass |
+| `cortex/tools/kernel/replica/router.py` | Unprivileged Router | `Tier B` | 2 Maintainers | `RD-1`..`RD-24` conformance suite |
+| `cortex/tools/kernel/replica/load_balancer.py`| Load Balancer | `Tier B` | 2 Maintainers | `LB-1`..`LB-14` conformance suite |
+| `cortex/tools/kernel/replica/lease.py` | **Lease Manager** | **`Tier C`** | **Maintainer + Security Reviewer** | **Atomic revalidation & fencing tests** |
+| `cortex/tools/kernel/replica/ledger.py` | **State Ledger** | **`Tier C`** | **Maintainer + Security Reviewer** | **Crash recovery classifier tests** |
+| `cortex/tools/sandbox/**` | **Sandbox & Seccomp** | **`Tier C`** | **Maintainer + Security Reviewer** | **Gate G Complete Mediation suite** |
+| `crates/cortex-cbe-py/**` | **PyO3 Rust FFI** | **`Tier C`** | **Maintainer + Security Reviewer** | **Corpus fuzzing + ASan/UBSan clean pass** |
+| `coq/**`, `verification/*.v` | **Coq Formal Proofs** | **`Tier D`** | **Formal Verification Reviewer** | **Coq Proof Assistant compilation** |
+| `rtl/**` | **Hardware STCR** | **`Tier D`** | **Hardware / Architect Reviewer** | **Verilated STCR pipeline trace bridge** |
 
 ---
 
-## 5. Security Boundary Guidelines for Specific Contributor Domains
+## 5. Protected-Area Policy: ARCHITECTURE-LOCKED Subsystems
 
-### 5.1 Configuration Resolution Boundaries
-- **Local Resolution Only:** Configuration schema validation MUST load repository-pinned schema files locally (`docs/architecture/configuration_schema_reference.md` / `cortex/schemas/v1/configuration.schema.json`).
-- **No Runtime Network Requests:** The schema `$id` URI (`https://cortex.security/...`) is strictly a canonical URI identity string. Configuration parsers MUST NOT issue HTTP/DNS network requests at runtime.
+The following components represent the core authority and verification substrate of Cortex. **Direct PRs modifying these subsystems without prior approved RFCs will be automatically closed:**
 
-### 5.2 FFI & Foreign Code Boundaries (Rust / PyO3)
-- Contributions introducing C-FFI or Rust PyO3 bindings cross a critical process memory boundary.
-- All FFI implementations MUST include:
-  1. Explicit memory ownership and lifetime assertions.
-  2. Panic-unwind boundary handling (`std::panic::catch_unwind`) to prevent process termination.
-  3. Input length and buffer boundary checks prior to unsafe memory operations.
-  4. Fuzzing test harnesses (`cargo fuzz`) demonstrating 0 crashes over $10^7$ iterations.
+```
+  [PROTECTED AREA] coq/**                     (Coq Formal Evidence Models)
+  [PROTECTED AREA] rtl/**                     (Spatio-Temporal Capability Register RTL)
+  [PROTECTED AREA] LeaseManager Authority      (LeaseEpoch Monotonic Fencing Logic)
+  [PROTECTED AREA] ExecutionIdentity Tokens    (Gateway TCB Bearer Identity Boundaries)
+  [PROTECTED AREA] Gateway Commit Sequencing  (Invocation Journal Fsync & Serialization)
+  [PROTECTED AREA] CBE Wire Format Primitives (Canonical Binary Encoding Specification)
+```
 
-### 5.3 Example Plugin Guidelines
-- Community-contributed example plugins MUST demonstrate **safe sandbox-first workloads**:
-  - `SQLite Read-Only Analyzer` (read-only filesystem queries).
-  - `AST Formatter & Refactoring Engine` (pure document transformation).
-  - `Local Static Code Analyzer` (in-memory data processing).
-- Plugins requiring network access, raw sockets, or web scraping MUST NOT be submitted as beginner examples; they belong to Tier C security-reviewed integrations.
+---
+
+## 6. Specific Subsystem Contributor Guidelines
+
+### 6.1 Configuration Resolution Boundaries
+- **Strict Offline Loading:** Configuration schema validation MUST load the repository-pinned schema file locally at `cortex/schemas/v1/configuration.schema.json`.
+- **Identity URI Only:** The `$id` string (`https://cortex.security/schemas/v1/configuration.schema.json`) is strictly a canonical URI identity string. Configuration parsers MUST NOT issue HTTP/DNS network requests at runtime.
+- **Tier Classification:** Configuration resolution is strictly classified as **Tier B (Security-Sensitive Control Plane)**.
+
+### 6.2 FFI & Foreign Code Boundaries (Rust / PyO3)
+- PyO3 Rust FFI contributions cross a critical process memory boundary and are strictly **Tier C Security-Sensitive**.
+- All FFI contributions MUST satisfy:
+  1. Corpus-guided fuzzing (`cargo fuzz`) using structured malformed CBE generators.
+  2. Memory safety verification under AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan).
+  3. Panic-unwind boundary protection (`std::panic::catch_unwind`).
+  4. Differential wire-format parity against reference Python, Rust, and Go CBE implementations.
+  5. Maximum input size, payload truncation, and memory allocation exhaustion test passes.
+
+### 6.3 Example Plugin Guidelines
+- Example plugins MUST demonstrate safe local sandbox workloads (SQLite read-only analysis, in-memory AST refactoring, JSON document transformation).
+- Network-heavy workloads (web scrapers, socket fetchers) are strictly prohibited from beginner example suites.
