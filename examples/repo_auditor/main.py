@@ -1,5 +1,5 @@
 """
-Autonomous Repository Auditor — Cortex v0.3 Example Application
+Autonomous Repository Auditor — Cortex v0.4.0 Example Application
 
 Demonstrates the full Cortex plugin lifecycle:
   1. Capability negotiation via PluginManifest
@@ -42,7 +42,7 @@ def run_repo_auditor(simulate_violation: bool = False) -> int:
         0 on success, 1 on failure.
     """
     print("==================================================================")
-    print("   Cortex v0.3 Example App: Autonomous Repository Auditor        ")
+    print("   Cortex v0.4.0 Example App: Autonomous Repository Auditor      ")
     print("==================================================================")
 
     # 1. Instantiate CortexClient with platform capability grants
