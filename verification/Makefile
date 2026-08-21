@@ -14,7 +14,8 @@ COQC     := coqc
 COQFLAGS := -R . Cortex
 
 # Module dependency order (topologically sorted)
-MODULES := AuthorityModel World Semantics LogicalRelation FTLR Substitution Soundness GateF_F0_ModelReconciliation GateF_F1_1_StateCorrespondence GateF_F1_2_StutteringPreservation GateF_F1_2_RealIPC_Stuttering GateF_F2_1_RestrictCap GateF_F2_2_GrantCap GrantCapRTL GateF_F3_1_InvocationSimulation GateL1_EpochMonotonicity
+MODULES := AuthorityModel World Semantics LogicalRelation FTLR Substitution Soundness GateF_F0_ModelReconciliation GateF_F1_1_StateCorrespondence GateF_F1_2_StutteringPreservation GateF_F1_2_RealIPC_Stuttering GateF_F2_1_RestrictCap GateF_F2_2_GrantCap GrantCapRTL GateF_F3_1_InvocationSimulation GateL1_EpochMonotonicity Phase4RoutingRefinement
+
 
 VFILES  := $(addsuffix .v, $(MODULES))
 VOFILES := $(addsuffix .vo, $(MODULES))
@@ -47,6 +48,8 @@ GateF_F2_2_GrantCap.vo:              GateF_F0_ModelReconciliation.vo GateF_F1_1_
 GrantCapRTL.vo:                      GateF_F0_ModelReconciliation.vo GateF_F1_1_StateCorrespondence.vo GateF_F2_2_GrantCap.vo
 GateF_F3_1_InvocationSimulation.vo: GateF_F0_ModelReconciliation.vo GateF_F1_1_StateCorrespondence.vo GateF_F2_1_RestrictCap.vo GateF_F2_2_GrantCap.vo
 GateL1_EpochMonotonicity.vo:         GateF_F0_ModelReconciliation.vo GateF_F1_1_StateCorrespondence.vo GateF_F3_1_InvocationSimulation.vo
+Phase4RoutingRefinement.vo:
+
 
 clean:
 	rm -f *.vo *.vok *.vos *.glob .*.aux

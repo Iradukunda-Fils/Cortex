@@ -18,8 +18,8 @@
     "production_signed_off": false
   },
   "formal_baseline": {
-    "source_v_files": 27,
-    "active_pipeline_modules": 17,
+    "source_v_files": 28,
+    "active_pipeline_modules": 18,
     "auxiliary_modules": 10,
     "compiled_vo_artifacts": 26,
     "admitted_proofs": 0,
@@ -262,6 +262,17 @@
         "Linearizable thread lock serialization"
       ],
       "platform_constraints": "Python 3.10+"
+    },
+    {
+      "claim_id": "CLAIM-PHASE-4-FORMAL-REFINEMENT",
+      "property": "Eligibility safety (RD-F1), capability containment (RD-F2), config generation/hash fencing (RD-F3), stale config rejection (RD-F4), router non-authority (RD-F5), UNADMITTED safety (RD-F6), single commitment (RD-F7), bounded admission (RD-F8), state-domain conflict safety (RD-F9), and TOCTOU revalidation safety (RD-F10)",
+      "tier": "FORMALLY_VERIFIED",
+      "status": "LOCKED",
+      "scope": "Phase 4 Gateway Routing & Lease Security Kernel (Single-Gateway Authority Domain)",
+      "artifact": "verification/Phase4RoutingRefinement.v",
+      "proof_or_test_method": "coqc -R . Cortex Phase4RoutingRefinement.v && Print Assumptions (13 theorems, 0 axioms, 0 admitted)",
+      "assumptions": [],
+      "platform_constraints": "Rocq/Coq >= 9.0"
     }
   ]
 }

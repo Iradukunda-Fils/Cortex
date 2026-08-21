@@ -130,3 +130,59 @@ The following components represent the core authority and verification substrate
 ### 6.3 Example Plugin Guidelines
 - Example plugins MUST demonstrate safe local sandbox workloads (SQLite read-only analysis, in-memory AST refactoring, JSON document transformation).
 - Network-heavy workloads (web scrapers, socket fetchers) are strictly prohibited from beginner example suites.
+
+---
+
+## 7. Mixed-PR Tier Inheritance Rule
+
+A pull request that touches files spanning multiple risk tiers MUST be classified at the **highest-risk tier** of any file it modifies. The lower-tier classification of individual files does not reduce the overall review requirement.
+
+**Examples:**
+
+| Files Modified | Individual Tiers | PR Classification |
+| :--- | :--- | :--- |
+| `docs/**` + `cortex/tools/kernel/replica/lease.py` | Tier A + Tier C | **Tier C** |
+| `cortex/tools/cli/**` + `cortex/tools/config/**` | Tier A + Tier B | **Tier B** |
+| `examples/plugins/**` + `verification/*.v` | Tier A + Tier D | **Tier D** |
+
+> [!WARNING]
+> Contributors MUST NOT split security-critical changes across multiple PRs to circumvent this rule. Any related changes to protected subsystems must be reviewed together.
+
+---
+
+## 8. Formal Verification Boundary (Phase 4+)
+
+Phase 4 introduces the first formally verified Gateway security kernel (`verification/Phase4RoutingRefinement.v`). The following properties are proven in Coq with **0 axioms and 0 admitted proofs**:
+
+| Proof ID | Property | Status |
+| :--- | :--- | :--- |
+| `RD-F1` | Eligibility Safety: Selected ⇒ Eligible | `FORMALLY_VERIFIED` |
+| `RD-F2` | Capability Containment: Λ_I ⊆ Λ_W | `FORMALLY_VERIFIED` |
+| `RD-F3` | Config Generation & Hash Fencing | `FORMALLY_VERIFIED` |
+| `RD-F4` | Stale Config Lease Rejection | `FORMALLY_VERIFIED` |
+| `RD-F5` | Router Non-Authority: Proposal ≠ Authorization | `FORMALLY_VERIFIED` |
+| `RD-F6` | UNADMITTED ⇒ ¬Authorized ∧ ¬Actuated | `FORMALLY_VERIFIED` |
+| `RD-F7` | Single Commitment & Idempotency | `FORMALLY_VERIFIED` |
+| `RD-F8` | Bounded Queue Admission | `FORMALLY_VERIFIED` |
+| `RD-F9` | State-Domain Conflict Rejection | `FORMALLY_VERIFIED` |
+| `RD-F10` | TOCTOU Revalidation Safety (Offline / Draining / GenDrift) | `FORMALLY_VERIFIED` |
+
+**Relationship to executable tests:**
+
+```
+        ABSTRACT PHASE 4 MODEL (Phase4RoutingRefinement.v)
+                       │
+                       ▼
+              Coq Safety Theorems (RD-F1..RD-F10)
+                       │
+                       ▼
+           Python Implementation (router.py, lease.py)
+                       │
+                       ▼
+             RD-1..RD-24 Conformance Tests
+                       │
+                       ▼
+          Race / Crash / Fault Injection Tests
+```
+
+Coq proves what the Gateway is allowed to guarantee; executable tests prove the implementation conforms.
