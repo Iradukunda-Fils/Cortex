@@ -10,7 +10,7 @@ The Gateway configuration defines the system-wide execution parameters, sandbox 
 
 ### 📋 YAML Example (`cortex.yaml`)
 ```yaml
-schema_version: "0.3.0"
+schema_version: "0.4.0"
 gateway_id: "gateway-primary-01"
 state_directory: "./.runtime/gateway_state"
 
@@ -38,7 +38,7 @@ sandbox_profiles:
 ### 📋 JSON Example (`cortex.json`)
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "gateway_id": "gateway-primary-01",
   "state_directory": "./.runtime/gateway_state",
   "database": {
@@ -75,7 +75,7 @@ A Plugin Deployment configuration defines replica counts, capabilities, resource
 
 ### 📋 YAML Example (`deployment.yaml`)
 ```yaml
-schema_version: "0.3.0"
+schema_version: "0.4.0"
 plugin_id: "repository-auditor"
 entrypoint: "examples/repo_auditor/main.py"
 
@@ -112,7 +112,7 @@ lifecycle:
 ### 📋 JSON Example (`deployment.json`)
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "plugin_id": "repository-auditor",
   "entrypoint": "examples/repo_auditor/main.py",
   "scaling": {
@@ -153,7 +153,7 @@ lifecycle:
 ## 3. Field Explanations
 
 ### 3.1 Metadata & Schema Settings
-* **`schema_version`** (String): Strict SemVer constraint. Must match `0.3.0`.
+* **`schema_version`** (String): Strict SemVer constraint. Must match `0.4.0`.
 * **`plugin_id`** (String): Unique identifier matching the registered plugin manifest.
 * **`entrypoint`** (String): Path to the executable binary or script executed in the sandboxed worker.
 

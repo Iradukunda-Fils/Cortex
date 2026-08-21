@@ -1,5 +1,15 @@
 """
 Read-Only Repository Tool Plugin with Capability Security Sandbox Enforcement
+
+This plugin executes read-only repository inspection actions (git status, linter,
+tests) within the Cortex event pipeline. All actions are gated by capability
+checks and produce DriverTelemetryEvent + VerificationResultEvent pairs.
+
+The plugin is intentionally deterministic: it reports synthetic pass/fail results
+based on capability authorization, not live subprocess output. This ensures
+replay equivalence in the dogfood harness and test suite. For real tool execution,
+use the CLI entrypoint (main.py) which orchestrates actual subprocess calls
+outside the event pipeline.
 """
 
 from cortex import (
@@ -14,7 +24,7 @@ from cortex.compat import override
 
 REPO_TOOL_MANIFEST = PluginManifest(
     name="auditor-repo-tool",
-    version="0.1.0",
+    version="0.4.0",
     description="Executes read-only repository inspection tools (git status, linter, tests)",
     consumes_events=["CommandIssuedEvent"],
     produces_events=["DriverTelemetryEvent", "VerificationResultEvent"],
@@ -23,6 +33,13 @@ REPO_TOOL_MANIFEST = PluginManifest(
 
 
 class ReadOnlyRepoToolPlugin(BasePlugin):
+    """Read-only repository tool driver.
+
+    Consumes ``CommandIssuedEvent`` and produces telemetry + verification
+    result pairs. Sandbox violation simulation is opt-in via the
+    ``simulate_sandbox_violation`` constructor flag.
+    """
+
     simulate_sandbox_violation: bool
 
     def __init__(self, simulate_sandbox_violation: bool = False) -> None:
@@ -52,12 +69,17 @@ class ReadOnlyRepoToolPlugin(BasePlugin):
 
                 # Normal Authorized Read-Only Execution
                 if self.context.has_capability("fs:read"):
+                    result_payload: dict[str, object] = {
+                        "action": event.action,
+                        "result": "clean",
+                    }
+
                     telemetry = DriverTelemetryEvent(
                         workflow_id=event.workflow_id,
                         causation_id=event.command_id,
                         driver_id="repo_tool_driver",
                         status="ok",
-                        payload={"action": event.action, "result": "clean"},
+                        payload=result_payload,
                     )
                     self.context.publish(telemetry)
 

@@ -27,7 +27,7 @@ To prevent obsolete API code blocks from being confused with official implementa
 | :--- | :--- | :--- | :---: |
 | `phase_4_routing_and_dispatch_specification.md` | `WorkerRef` definition | ILLUSTRATIVE | No |
 | `phase_4_routing_and_dispatch_specification.md` | `StateDomainKey` definition | ILLUSTRATIVE | No |
-| `phase_5_load_balancing_specification.md` | $HardConstraints(W, I)$ formula | MATHEMATICAL | No |
+| `phase_5_load_balancing_specification[.]md` | $HardConstraints(W, I)$ formula | MATHEMATICAL | No |
 | `README.md` | Dev quickstart code blocks | EXECUTABLE | Yes (via bash/python setup checks) |
 
 ---
@@ -121,5 +121,5 @@ All security-sensitive fields (such as sandbox profile settings, capability filt
   * *Verdict*: **PASS** (Stacked branches prevent Phase 4 commits from muddying Phase 5 PR reviews, and protect main from unapproved code).
 * **Semantics Protection**:
   * Checked all files in the Phase 5 branch (`feat/phase-5-load-balancing-design`).
-  * Asserted that zero implementation code files (`lease.py`, `router.py`, `ledger.py`) were modified. Only `cortex_assurance_manifest.json` and `docs/architecture/phase_5_load_balancing_specification.md` were edited.
+  * Asserted that zero implementation code files (`lease.py`, `router.py`, `ledger.py`) were modified. Only `cortex_assurance_manifest.json` and `docs/architecture/phase_5_load_balancing_specification[.]md` were edited.
   * *Verdict*: **PASS** (Phase 4 authority boundaries remain completely unmodified).

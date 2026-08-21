@@ -1,9 +1,24 @@
 name: repo-auditor
-version: 0.1.0
-description: Autonomous Repository Auditor Agent
+version: 0.4.0
+description: >
+  Autonomous Repository Auditor Agent — demonstrates Cortex plugin lifecycle,
+  capability-based sandbox enforcement, and deterministic event replay.
+
+consumes_events:
+  - IntentEvent
+  - PlanGeneratedEvent
+  - CommandIssuedEvent
+
+produces_events:
+  - PlanGeneratedEvent
+  - CommandIssuedEvent
+  - DriverTelemetryEvent
+  - VerificationResultEvent
+
 required_capabilities:
   - fs:read
   - exec:git
   - exec:pytest
   - workflow.plan.create
   - workflow.command.issue
+  - hardware.telemetry.read

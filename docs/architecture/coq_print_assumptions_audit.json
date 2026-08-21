@@ -1,0 +1,183 @@
+{
+  "audit_metadata": {
+    "module": "verification/Phase4RoutingRefinement.v",
+    "coq_version": "Rocq 9.1",
+    "total_theorems": 23,
+    "total_helper_lemmas": 4,
+    "total_proof_declarations": 27,
+    "total_axioms": 0,
+    "total_admitted": 0,
+    "total_parameters": 0,
+    "global_context_status": "CLOSED"
+  },
+  "normative_rd_obligations": [
+    {
+      "normative_id": "RD-F1",
+      "theorem_name": "rd_f1_eligibility_safety",
+      "statement": "Selected(W,I) => Eligible(W,I)",
+      "assumptions": "Closed under the global context",
+      "source_line": 152
+    },
+    {
+      "normative_id": "RD-F2",
+      "theorem_name": "rd_f2_capability_containment",
+      "statement": "Lambda_I subseteq Lambda_W",
+      "assumptions": "Closed under the global context",
+      "source_line": 171
+    },
+    {
+      "normative_id": "RD-F3",
+      "theorem_name": "rd_f3_config_fencing",
+      "statement": "GrantLease => (w_gen = target_gen /\\ w_hash = target_hash)",
+      "assumptions": "Closed under the global context",
+      "source_line": 189
+    },
+    {
+      "normative_id": "RD-F4",
+      "theorem_name": "rd_f4_lease_fencing_preservation",
+      "statement": "Stale config generation strictly rejects lease grant",
+      "assumptions": "Closed under the global context",
+      "source_line": 208
+    },
+    {
+      "normative_id": "RD-F5",
+      "theorem_name": "rd_f5_router_non_authority",
+      "statement": "RouterOutput !=> Authority",
+      "assumptions": "Closed under the global context",
+      "source_line": 237
+    },
+    {
+      "normative_id": "RD-F6",
+      "theorem_name": "rd_f6_unadmitted_safety",
+      "statement": "UNADMITTED => not Authorized and not Actuated",
+      "assumptions": "Closed under the global context",
+      "source_line": 283
+    },
+    {
+      "normative_id": "RD-F6-DURABLE",
+      "theorem_name": "rd_f6_unadmitted_durable_safety",
+      "statement": "UNADMITTED durable proof requires unbroken journal integrity with no auth or actuation markers",
+      "assumptions": "Closed under the global context",
+      "source_line": 449
+    },
+    {
+      "normative_id": "RD-F7",
+      "theorem_name": "rd_f7_single_commitment",
+      "statement": "#CommittedEffect(I) <= 1",
+      "assumptions": "Closed under the global context",
+      "source_line": 312
+    },
+    {
+      "normative_id": "RD-F7-IDEMPOTENT",
+      "theorem_name": "rd_f7_commit_idempotent",
+      "statement": "do_commit (do_commit cs) = do_commit cs",
+      "assumptions": "Closed under the global context",
+      "source_line": 320
+    },
+    {
+      "normative_id": "RD-F8",
+      "theorem_name": "rd_f8_bounded_admission",
+      "statement": "QueueDepth >= MaxQueueDepth => not CanEnqueue",
+      "assumptions": "Closed under the global context",
+      "source_line": 335
+    },
+    {
+      "normative_id": "RD-F9",
+      "theorem_name": "rd_f9_state_domain_safety",
+      "statement": "Domain locked by active execution rejects lease grant",
+      "assumptions": "Closed under the global context",
+      "source_line": 350
+    },
+    {
+      "normative_id": "RD-F10-OFFLINE",
+      "theorem_name": "rd_f10_toctou_offline",
+      "statement": "Worker LS_OFFLINE state rejects lease revalidation",
+      "assumptions": "Closed under the global context",
+      "source_line": 368
+    },
+    {
+      "normative_id": "RD-F10-DRAINING",
+      "theorem_name": "rd_f10_toctou_draining",
+      "statement": "Worker LS_DRAINING state rejects lease revalidation",
+      "assumptions": "Closed under the global context",
+      "source_line": 378
+    },
+    {
+      "normative_id": "RD-F10-DRIFT",
+      "theorem_name": "rd_f10_toctou_generation_drift",
+      "statement": "Worker generation drift rejects lease revalidation",
+      "assumptions": "Closed under the global context",
+      "source_line": 388
+    },
+    {
+      "normative_id": "RD-F11",
+      "theorem_name": "rd_f11_actuation_unknown_no_auto_retry",
+      "statement": "ACTUATION_UNKNOWN recovery bucket disallows automatic retry",
+      "assumptions": "Closed under the global context",
+      "source_line": 418
+    },
+    {
+      "normative_id": "RD-F12",
+      "theorem_name": "rd_f12_committed_no_retry",
+      "statement": "ACTUATED_COMMITTED recovery bucket disallows retry",
+      "assumptions": "Closed under the global context",
+      "source_line": 423
+    },
+    {
+      "normative_id": "RD-F13",
+      "theorem_name": "rd_f13_unadmitted_safe_retry",
+      "statement": "UNADMITTED recovery bucket is safe to retry or discard",
+      "assumptions": "Closed under the global context",
+      "source_line": 428
+    },
+    {
+      "normative_id": "RD-F14",
+      "theorem_name": "rd_f14_admitted_unactuated_safe_retry",
+      "statement": "ADMITTED_UNACTUATED recovery bucket is safe to retry",
+      "assumptions": "Closed under the global context",
+      "source_line": 433
+    },
+    {
+      "normative_id": "RD-F14-EXPLICIT",
+      "theorem_name": "rd_f14_admitted_unactuated_explicit_no_actuation",
+      "statement": "ADMITTED_UNACTUATED implies Authorized=true, ActuationStarted=false, RetrySafe=true",
+      "assumptions": "Closed under the global context",
+      "source_line": 480
+    },
+    {
+      "normative_id": "RD-F15",
+      "theorem_name": "rd_f15_concurrent_conflict_exclusion",
+      "statement": "ConcurrentExecution(I1,I2) /\\ Conflict(I1,I2) => not GrantLease(I2)",
+      "assumptions": "Closed under the global context",
+      "source_line": 499
+    },
+    {
+      "normative_id": "RD-F15-FENCE",
+      "theorem_name": "rd_f15_state_domain_actuation_fence",
+      "statement": "Domain locked condition prevents crossing actuation boundary",
+      "assumptions": "Closed under the global context",
+      "source_line": 510
+    },
+    {
+      "normative_id": "RD-F15-ASSIGNED-FENCE",
+      "theorem_name": "rd_f15_assigned_conflict_actuation_blocked",
+      "statement": "Assigned conflicting request cannot cross actuation boundary when domain is locked",
+      "assumptions": "Closed under the global context",
+      "source_line": 523
+    },
+    {
+      "normative_id": "RD-F16",
+      "theorem_name": "rd_f16_sandbox_hash_fencing",
+      "statement": "GrantLease => w_sandbox_hash = i_sandbox_hash",
+      "assumptions": "Closed under the global context",
+      "source_line": 543
+    },
+    {
+      "normative_id": "RD-F17",
+      "theorem_name": "rd_f17_cap_hash_fencing",
+      "statement": "GrantLease => w_cap_hash = i_cap_hash",
+      "assumptions": "Closed under the global context",
+      "source_line": 559
+    }
+  ]
+}

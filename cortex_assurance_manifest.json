@@ -23,8 +23,8 @@
     "packaging_version_tip": "9130291f48d614c84aa3aff5e1b13b9467e5b9b1"
   },
   "formal_baseline": {
-    "source_v_files": 27,
-    "active_pipeline_modules": 17,
+    "source_v_files": 28,
+    "active_pipeline_modules": 18,
     "auxiliary_modules": 10,
     "compiled_vo_artifacts": 26,
     "admitted_proofs": 0,
@@ -255,11 +255,22 @@
       "platform_constraints": "Verilator 5.0+ / Python 3.10+"
     },
     {
-      "claim_id": "CLAIM-PHASE-4-ROUTING",
+      "claim_id": "CLAIM-PHASE-4-FORMAL-SAFETY-KERNEL",
+      "property": "Formal safety kernel model: Eligibility safety (RD-F1), capability containment (RD-F2), config generation/hash fencing (RD-F3), stale config rejection (RD-F4), router non-authority (RD-F5), UNADMITTED safety (RD-F6), single commitment & idempotency (RD-F7), bounded admission (RD-F8), state-domain conflict safety (RD-F9), TOCTOU revalidation safety (RD-F10), recovery bucket safety (RD-F11..RD-F14), concurrent state-domain conflict exclusion (RD-F15), and sandbox & cap hash fencing (RD-F16..RD-F17)",
+      "tier": "FORMALLY_VERIFIED",
+      "status": "LOCKED",
+      "scope": "Phase 4 Gateway Routing & Lease Security Kernel (Model-Level Refinement)",
+      "artifact": "verification/Phase4RoutingRefinement.v",
+      "proof_or_test_method": "coqc -R . Cortex Phase4RoutingRefinement.v && coqchk && python3 scripts/verify_coq_assumptions.py (17 normative RD obligations + 6 supporting/durable/sub-case theorems + 4 helper lemmas = 27 total proof declarations, 0 axioms, 0 admitted)",
+      "assumptions": [],
+      "platform_constraints": "Rocq/Coq >= 9.0"
+    },
+    {
+      "claim_id": "CLAIM-PHASE-4-CONCRETE-IMPLEMENTATION",
       "property": "Unprivileged candidate resolution, atomic single-lock lease revalidation, crash-recovery boundary classification (RD-23a/b/c), and state domain mutual exclusion fencing (RD-24)",
       "tier": "IMPLEMENTATION_CERTIFIED",
       "status": "IMPLEMENTATION_VERIFIED",
-      "scope": "SINGLE_GATEWAY_TESTED_DOMAIN",
+      "scope": "Single Gateway Control Plane Implementation (Tested Domain)",
       "artifact": "tests/conformance/test_replica_phase_4.py",
       "proof_or_test_method": "python3 -m unittest tests/conformance/test_replica_phase_4.py",
       "assumptions": [
@@ -267,6 +278,19 @@
         "Linearizable thread lock serialization"
       ],
       "platform_constraints": "Python 3.10+"
+    },
+    {
+      "claim_id": "CLAIM-PHASE-4-CONCRETE-TO-COQ-REFINEMENT",
+      "property": "Simulation relation or formal proof mapping concrete Python control plane state transitions to Phase 4 abstract security kernel specifications",
+      "tier": "FORMALLY_VERIFIED",
+      "status": "BOUNDED_OR_OPEN",
+      "scope": "Full concrete-to-Coq refinement correspondence",
+      "artifact": "verification/Phase4RoutingRefinement.v",
+      "proof_or_test_method": "Empirical mapping only; formal simulation proof boundary is open",
+      "assumptions": [
+        "Semantic correspondence of Python dataclass attributes to Coq Record fields"
+      ],
+      "platform_constraints": "None"
     }
   ]
 }
