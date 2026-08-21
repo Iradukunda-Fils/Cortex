@@ -79,7 +79,7 @@ class WorkerRef:
     config_hash: str
     sandbox_profile_hash: str
     capability_envelope_hash: str
-    required_capabilities: List[str] = field(default_factory=list)
+    required_capabilities: list[str] = field(default_factory=list)
     observed_inflight: int = 0
     stage: WorkerLifecycleStage = WorkerLifecycleStage.READY
 
@@ -111,8 +111,8 @@ class CandidateResolver:
 
     def resolve_candidates(
         self,
-        candidate_pool: List[WorkerRef],
-        required_capabilities: List[str],
+        candidate_pool: list[WorkerRef],
+        required_capabilities: list[str],
         active_config_gen: int,
         active_config_hash: str,
         active_sandbox_hash: str,

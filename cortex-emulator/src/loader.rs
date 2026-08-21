@@ -40,6 +40,7 @@ pub struct Program {
     pub instructions: Vec<Instruction>,
 }
 
+#[allow(clippy::chunks_exact_to_as_chunks)]
 pub fn load_program<P: AsRef<Path>>(path: P) -> Result<Program, LoadError> {
     let mut file = File::open(path).map_err(|e| LoadError::IoError(e.to_string()))?;
     let mut buffer = Vec::new();
