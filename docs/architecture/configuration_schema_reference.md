@@ -1,31 +1,75 @@
 # Cortex Canonical Configuration Schema Reference
 
 **Version:** `v1.0.0`  
+**Schema Identifier ($id):** `https://cortex.security/schemas/v1/configuration.schema.json`  
 **Status:** NORMATIVE SPECIFICATION  
-**Scope:** Control Plane, Gateway Dispatcher, & Worker Replica Configuration  
+**Scope:** Control Plane, Gateway Dispatcher, & Worker Replica Desired State Configuration  
 
 ---
 
-## 1. Overview
+## 1. Governance & Source of Truth Hierarchy
 
-This document defines the **Canonical Configuration Schema** for the Cortex Control Plane and Execution Engine. All configuration files (`manifest.yaml`, `cortex.yaml`), environment overrides, and CLI options MUST conform to the parameter names, types, and constraints specified in this reference.
+This document defines the authoritative, normative configuration schema for the Cortex Control Plane and Execution Engine. Configuration resolution follows a strict single-directional authority hierarchy:
+
+```
+    JSON Schema ($id: https://cortex.security/schemas/v1/configuration.schema.json)
+                                   ↓
+                  Canonical Configuration Reference
+                                   ↓
+                   Resolver / DesiredConfig Engine
+                                   ↓
+      Adapters & Loaders (Manifest YAML / CLI / ENV / Control Plane API)
+```
+
+> [!IMPORTANT]
+> **Namespace Authority:** All official Cortex schema definitions belong strictly to the `https://cortex.security/schemas/...` URI domain. Schema URIs under `cortex.dev` or unverified external domains are forbidden in production deployments.
 
 ---
 
-## 2. Canonical JSON Schema (`v1.0.0`)
+## 2. Configuration Processing & Materialization Lifecycle
+
+To guarantee deterministic, fail-closed validation, configuration input payloads MUST be processed according to the following 10-stage sequential pipeline:
+
+```
+  [1] PARSE INPUT PAYLOAD (JSON/YAML)
+           ↓
+  [2] DEFAULT MATERIALIZATION (Apply normative schema default values)
+           ↓
+  [3] SCHEMA VALIDATION (Validate structure against canonical JSON Schema)
+           ↓
+  [4] SEMANTIC VALIDATION (Cross-field constraints, e.g. min_replicas <= max_replicas)
+           ↓
+  [5] SECURITY CEILING ENFORCEMENT (Clamp to host non-degradable ceiling)
+           ↓
+  [6] VOCABULARY NORMALIZATION (Translate legacy aliases to snake_case)
+           ↓
+  [7] CANONICAL ENCODING (CBE / Sorted UTF-8 key-value pairs)
+           ↓
+  [8] SHA-256 DIGEST COMPUTATION (Compute 64-char hex config_hash)
+           ↓
+  [9] IMMUTABLE SNAPSHOT CREATION (Bind config_hash to DesiredConfig)
+           ↓
+ [10] GENERATION BINDING (Assign monotonic config_generation = N + 1)
+```
+
+---
+
+## 3. Canonical JSON Schema (`v1.0.0`)
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cortex.dev/schemas/v1/configuration.schema.json",
-  "title": "CortexCanonicalConfiguration",
+  "$id": "https://cortex.security/schemas/v1/configuration.schema.json",
+  "title": "CortexDesiredConfiguration",
+  "description": "Normative schema for Cortex Control Plane desired execution state. Excludes derived identity metadata (config_hash, config_generation).",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "gateway",
     "replica_group",
-    "sandbox"
+    "sandbox",
+    "resource_limits"
   ],
   "properties": {
     "schema_version": {
@@ -39,7 +83,10 @@ This document defines the **Canonical Configuration Schema** for the Cortex Cont
         "max_queue_depth",
         "max_worker_inflight",
         "queue_timeout_sec",
-        "dispatch_deadline_sec"
+        "dispatch_deadline_sec",
+        "selection_policy",
+        "journal_path",
+        "fsync_policy"
       ],
       "properties": {
         "max_queue_depth": {
@@ -70,10 +117,23 @@ This document defines the **Canonical Configuration Schema** for the Cortex Cont
           "default": 5.0,
           "description": "Maximum seconds allowed to execute atomic dispatch pipeline"
         },
+        "selection_policy": {
+          "type": "string",
+          "enum": ["least_inflight_deterministic", "round_robin_deterministic"],
+          "default": "least_inflight_deterministic",
+          "description": "Algorithm used by RoutingPolicy for worker selection"
+        },
         "journal_path": {
           "type": "string",
+          "pattern": "^/(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9._-]+$",
           "default": "/var/log/cortex/invocation_journal.jsonl",
-          "description": "Path to append-only JSON-lines invocation state journal"
+          "description": "Absolute filesystem path to append-only JSON-lines invocation state journal"
+        },
+        "fsync_policy": {
+          "type": "string",
+          "enum": ["always", "batch", "never"],
+          "default": "always",
+          "description": "Fsync discipline for persistent ledger journal writes"
         }
       }
     },
@@ -95,11 +155,13 @@ This document defines the **Canonical Configuration Schema** for the Cortex Cont
         "min_replicas": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 1000,
           "default": 1
         },
         "max_replicas": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 1000,
           "default": 10
         },
         "drain_deadline_sec": {
@@ -116,30 +178,83 @@ This document defines the **Canonical Configuration Schema** for the Cortex Cont
       "additionalProperties": false,
       "required": [
         "profile_name",
-        "required_capabilities"
+        "required_capabilities",
+        "allowed_syscalls",
+        "landlock_paths",
+        "read_only_root",
+        "allowed_write_paths"
       ],
       "properties": {
         "profile_name": {
           "type": "string",
-          "enum": ["Profile_A_Linux_Strict", "Profile_B_Development_Permissive"]
+          "enum": ["Profile_A_Linux_Strict"],
+          "description": "Isolation profile name. Permissive/Development profiles MUST NOT be used in production schemas."
         },
         "required_capabilities": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+\\.[a-z0-9._-]+$"
           },
-          "uniqueItems": true
+          "uniqueItems": true,
+          "description": "Explicit capability identifiers (format: namespace.action)"
+        },
+        "allowed_syscalls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$"
+          },
+          "uniqueItems": true,
+          "description": "Whitelist of allowed Linux system call names for Seccomp filter"
+        },
+        "landlock_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^/(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9._-]*$"
+          },
+          "uniqueItems": true,
+          "description": "Filesystem path boundaries restricted by Landlock ABI"
         },
         "read_only_root": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Enforce read-only root filesystem mounting"
         },
         "allowed_write_paths": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^/tmp/sandbox_[a-zA-Z0-9_-]+$"
           },
-          "default": ["/tmp"]
+          "default": ["/tmp/sandbox_default"],
+          "uniqueItems": true,
+          "description": "Strictly restricted write path boundaries inside worker mount namespace"
+        }
+      }
+    },
+    "resource_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "memory_limit_mb",
+        "cpu_quota_percent"
+      ],
+      "properties": {
+        "memory_limit_mb": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 32768,
+          "default": 512,
+          "description": "Cgroups v2 hard memory ceiling in megabytes per worker"
+        },
+        "cpu_quota_percent": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 1600,
+          "default": 100,
+          "description": "CPU quota allocation percentage per worker"
         }
       }
     }
@@ -149,23 +264,34 @@ This document defines the **Canonical Configuration Schema** for the Cortex Cont
 
 ---
 
-## 3. Canonical Environment Variable Mapping
+## 4. Semantic Validation Rules (Post-Schema Checks)
 
-Environment variable overrides map directly to schema properties using the `CORTEX_` prefix and upper-case `snake_case`:
+Schema structural validation MUST be followed by semantic cross-field validation rules:
 
-| Environment Variable | Canonical Configuration Path | Data Type | Default Value |
-| :--- | :--- | :--- | :--- |
-| `CORTEX_MAX_QUEUE_DEPTH` | `gateway.max_queue_depth` | Integer | `1000` |
-| `CORTEX_MAX_WORKER_INFLIGHT` | `gateway.max_worker_inflight` | Integer | `10` |
-| `CORTEX_QUEUE_TIMEOUT_SEC` | `gateway.queue_timeout_sec` | Float | `30.0` |
-| `CORTEX_DISPATCH_DEADLINE_SEC`| `gateway.dispatch_deadline_sec`| Float | `5.0` |
-| `CORTEX_JOURNAL_PATH` | `gateway.journal_path` | String | `/var/log/cortex/invocation_journal.jsonl` |
-| `CORTEX_DRAIN_DEADLINE_SEC` | `replica_group.drain_deadline_sec`| Float | `30.0` |
+1. **Replica Bounds Constraint:** `replica_group.min_replicas <= replica_group.max_replicas`. Violation raises `SemanticValidationError("min_replicas cannot exceed max_replicas")`.
+2. **Strict Write Path Isolation:** `allowed_write_paths` MUST NOT overlap with system execution directories (`/bin`, `/sbin`, `/usr`, `/etc`, `/lib`, `/proc`, `/sys`). All write paths MUST begin with `/tmp/sandbox_`.
+3. **Capability Format Validation:** All strings in `required_capabilities` MUST conform to namespace notation (`<domain>.<action>`). Wildcard capabilities (`*`) are strictly prohibited.
+4. **Security Ceiling Non-Degradation:** If `sandbox.profile_name` is omitted or altered, it defaults to `Profile_A_Linux_Strict`.
 
 ---
 
-## 4. Normalization Rules
+## 5. Separation of Desired Config vs Derived Identity
 
-1. **Snake Case:** All field names MUST be formatted in lowercase `snake_case`. CamelCase keys (`queueTimeoutSec`) MUST be normalized during schema parsing.
-2. **Timeout Suffix:** All time durations MUST specify units explicitly via `_sec` suffix.
-3. **No Unrecognized Keys:** Configuration parsers MUST reject unrecognized keys with `ManifestError` or `ValueError` (strict schema mode).
+To prevent clients from forging identity hashes or generation counters, input documents contain ONLY `DesiredConfig`. Derived identity is created exclusively by the Gateway TCB:
+
+```python
+@dataclass(frozen=True)
+class DesiredConfig:
+    schema_version: str
+    gateway: GatewayConfig
+    replica_group: ReplicaGroupConfig
+    sandbox: SandboxConfig
+    resource_limits: ResourceLimitsConfig
+
+@dataclass(frozen=True)
+class DerivedConfigurationIdentity:
+    config_hash: str          # SHA-256 of CBE-encoded DesiredConfig
+    config_generation: int    # Monotonic generation counter (N + 1)
+    snapshot_timestamp: float # Monotonic creation time
+    desired_config: DesiredConfig
+```

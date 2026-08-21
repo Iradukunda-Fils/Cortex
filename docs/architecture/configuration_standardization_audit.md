@@ -9,32 +9,28 @@
 
 ## Architectural Pipeline Principle
 
-In the Cortex Control Plane architecture, configuration is treated as **system policy and execution substrate**. To prevent misconfigurations, security ceiling breaches, or runtime TOCTOU race conditions, configuration processing follows a strict 12-stage linear pipeline:
+In the Cortex Control Plane architecture, configuration is treated as **system policy and execution substrate**. To prevent misconfigurations, security ceiling breaches, or runtime TOCTOU race conditions, configuration processing follows a strict 10-stage linear pipeline:
 
 ```
-[CONFIG SOURCE]
-      ↓
-  [RESOLVE]
-      ↓
-  [VALIDATE]
-      ↓
-[SECURITY CEILING]
-      ↓
-  [NORMALIZE]
-      ↓
- [CANONICALIZE]
-      ↓
-    [HASH]
-      ↓
-[IMMUTABLE SNAPSHOT]
-      ↓
-[CONFIG GENERATION]
-      ↓
- [DESIRED STATE]
-      ↓
-  [RECONCILER]
-      ↓
- [OBSERVED STATE]
+  [1] PARSE INPUT PAYLOAD (JSON/YAML)
+           ↓
+  [2] DEFAULT MATERIALIZATION (Apply normative schema default values)
+           ↓
+  [3] SCHEMA VALIDATION (Validate structure against https://cortex.security/schemas/v1/configuration.schema.json)
+           ↓
+  [4] SEMANTIC VALIDATION (Cross-field constraints, e.g. 1 <= min_replicas <= max_replicas)
+           ↓
+  [5] SECURITY CEILING ENFORCEMENT (Clamp to host non-degradable security ceiling)
+           ↓
+  [6] VOCABULARY NORMALIZATION (Translate legacy aliases to canonical snake_case)
+           ↓
+  [7] CANONICAL ENCODING (CBE / Sorted UTF-8 key-value pairs)
+           ↓
+  [8] SHA-256 DIGEST COMPUTATION (Compute 64-char hex config_hash)
+           ↓
+  [9] IMMUTABLE SNAPSHOT CREATION (Bind config_hash to DesiredConfig)
+           ↓
+ [10] GENERATION BINDING (Assign monotonic config_generation = N + 1)
 ```
 
 > [!IMPORTANT]
@@ -42,183 +38,90 @@ In the Cortex Control Plane architecture, configuration is treated as **system p
 
 ---
 
-## A. Configuration Source Matrix
+## A. Formal Configuration Consistency Matrix
 
-Cortex accepts configuration inputs from 5 distinct sources:
+Every field across the Cortex configuration surface is mapped below to guarantee total parity across Audit, Schema, CLI, Environment, Runtime, and Security specifications:
 
-| Source ID | Source Type | Location / Primitive | Format / Protocol | Security Context |
-| :--- | :--- | :--- | :--- | :--- |
-| **SRC-1** | System Defaults | Internal code defaults | Built-in immutable dataclasses | Trusted Base |
-| **SRC-2** | File System Config | `/etc/cortex/cortex.yaml`, `./manifest.yaml` | YAML 1.2 / JSON | Host Filesystem (0600) |
-| **SRC-3** | Environment Vars | `CORTEX_*` env prefix | String / UTF-8 | Host Environment |
-| **SRC-4** | CLI Arguments | `cortex` CLI flags | Argparse / Text | Invoking User Shell |
-| **SRC-5** | Control Plane API | Gateway API endpoint | CBE Canonical Framing | Dynamic Control Plane |
-
----
-
-## B. Field Classification Matrix
-
-All configuration parameters are strictly classified into 4 functional tiers:
-
-| Field Category | Primary Parameters | Security Scope | Mutation Semantics |
-| :--- | :--- | :--- | :--- |
-| **Sandbox & Isolation** | `sandbox_profile`, `allowed_syscalls`, `landlock_paths`, `read_only_root` | Host Security Ceiling | Immutable without Drain |
-| **Resource Limits** | `max_worker_inflight`, `max_queue_depth`, `memory_limit_mb`, `cpu_quota` | Resource Boundedness | Hot Reloadable via Generation |
-| **Routing & Dispatch** | `selection_policy`, `queue_timeout_sec`, `dispatch_deadline_sec` | Execution Control | Hot Reloadable via Generation |
-| **Identity & Ledger** | `group_id`, `journal_path`, `fsync_policy` | TCB Durability | Immutable Snapshot |
-
----
-
-## C. Precedence Matrix
-
-When configuration parameters overlap across multiple sources, precedence is strictly evaluated in descending order (highest priority first):
-
-```
-1. CLI Arguments (SRC-4)                  [HIGHEST PRECEDENCE]
-2. Environment Variables (SRC-3)
-3. Manifest / Control File (SRC-2)
-4. System Default Fallbacks (SRC-1)       [LOWEST PRECEDENCE]
-```
-
-> [!WARNING]
-> **Security Ceiling Rule:** Security ceiling boundaries (`SECURITY CEILING`) override user-specified CLI flags or manifest parameters if the requested privileges exceed host security ceilings (e.g. attempting to grant unauthorized syscalls or raw device access).
+| Field Name | Canonical Name | Schema Path | Data Type | Units / Range | Default | Required? | Security Class | CLI Permitted? | Env Permitted? | Runtime Mutable? | Gen Changing? | Drain Req? | Hash Input? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `schema_version` | `schema_version` | `schema_version` | String | Enum (`1.0.0`) | N/A | Yes | Governance | No | No | No | Yes | Yes | Yes |
+| `max_queue_depth` | `max_queue_depth` | `gateway.max_queue_depth` | Integer | [1, 10000] | 1000 | Yes | Operational | Yes | Yes | Yes | Yes | No | Yes |
+| `max_worker_inflight` | `max_worker_inflight` | `gateway.max_worker_inflight` | Integer | [1, 100] | 10 | Yes | Operational | Yes | Yes | Yes | Yes | No | Yes |
+| `queue_timeout_sec` | `queue_timeout_sec` | `gateway.queue_timeout_sec` | Float | [0.1, 300.0] | 30.0 | Yes | Operational | Yes | Yes | Yes | Yes | No | Yes |
+| `dispatch_deadline_sec`| `dispatch_deadline_sec`| `gateway.dispatch_deadline_sec`| Float | [0.1, 60.0] | 5.0 | Yes | Operational | Yes | Yes | Yes | Yes | No | Yes |
+| `selection_policy` | `selection_policy` | `gateway.selection_policy` | String | Enum | `least_inflight_deterministic` | Yes | Policy | Yes | Yes | Yes | Yes | No | Yes |
+| `journal_path` | `journal_path` | `gateway.journal_path` | String | Absolute Path | `/var/log/cortex/invocation_journal.jsonl` | Yes | TCB State | No | No | No | Yes | Yes | Yes |
+| `fsync_policy` | `fsync_policy` | `gateway.fsync_policy` | String | Enum (`always`, `batch`, `never`) | `always` | Yes | Durability | No | Yes | No | Yes | Yes | Yes |
+| `group_id` | `group_id` | `replica_group.group_id` | String | Regex (`^[a-z0-9_-]+$`) | N/A | Yes | Identity | No | No | No | Yes | Yes | Yes |
+| `min_replicas` | `min_replicas` | `replica_group.min_replicas` | Integer | [1, 1000] | 1 | Yes | Scaling | Yes | Yes | Yes | Yes | No | Yes |
+| `max_replicas` | `max_replicas` | `replica_group.max_replicas` | Integer | [1, 1000] | 10 | Yes | Scaling | Yes | Yes | Yes | Yes | No | Yes |
+| `drain_deadline_sec` | `drain_deadline_sec` | `replica_group.drain_deadline_sec` | Float | [1.0, 300.0] | 30.0 | Yes | Operational | Yes | Yes | Yes | Yes | No | Yes |
+| `profile_name` | `profile_name` | `sandbox.profile_name` | String | Enum (`Profile_A_Linux_Strict`) | `Profile_A_Linux_Strict` | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `required_capabilities`| `required_capabilities`| `sandbox.required_capabilities`| Array | Namespace Strings | N/A | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `allowed_syscalls` | `allowed_syscalls` | `sandbox.allowed_syscalls` | Array | Syscall Names | Profile A Default | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `landlock_paths` | `landlock_paths` | `sandbox.landlock_paths` | Array | Absolute Paths | Profile A Default | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `read_only_root` | `read_only_root` | `sandbox.read_only_root` | Boolean | True / False | True | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `allowed_write_paths` | `allowed_write_paths` | `sandbox.allowed_write_paths` | Array | Absolute Paths | `["/tmp/sandbox_default"]` | Yes | Security Boundary | No | No | No | Yes | Yes | Yes |
+| `memory_limit_mb` | `memory_limit_mb` | `resource_limits.memory_limit_mb` | Integer | [64, 32768] | 512 | Yes | Resource Ceiling | Yes | Yes | Yes | Yes | Yes | Yes |
+| `cpu_quota_percent` | `cpu_quota_percent` | `resource_limits.cpu_quota_percent` | Integer | [10, 1600] | 100 | Yes | Resource Ceiling | Yes | Yes | Yes | Yes | No | Yes |
 
 ---
 
-## D. Mutability Matrix
+## B. Field-Level Precedence & Security Protection Matrix
 
-Runtime mutability semantics for every configuration field are classified as follows:
+To protect security boundaries and identity fields from unauthorized CLI or environment variable manipulation, precedence rules are defined **per field category**:
 
-| Field Name | Hot Reloadable? | Existing Workers Action | New Workers Action | Requires New Generation? | Requires Worker Drain? |
+| Category | Fields | CLI Override Permitted? | ENV Override Permitted? | File / Manifest Permitted? | Host Security Ceiling Override? |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `max_worker_inflight` | Yes | Retain old limit until re-registered | Use new limit | Yes (`gen+1`) | No |
-| `queue_timeout_sec` | Yes | In-flight queued invocations retain old timeout | New invocations use new timeout | Yes (`gen+1`) | No |
-| `max_queue_depth` | Yes | Applies immediately to queue admission | Applies immediately | Yes (`gen+1`) | No |
-| `sandbox_profile` | No | Retain old profile | Refused until drained | Yes (`gen+1`) | **Yes (Full Drain)** |
-| `required_capabilities`| No | Retain old envelope | Refused until drained | Yes (`gen+1`) | **Yes (Full Drain)** |
-| `journal_path` | No | Retain active file descriptor | Open new journal | Yes (`gen+1`) | **Yes (Full Drain)** |
+| **Operational Limits** | `max_queue_depth`, `max_worker_inflight`, `queue_timeout_sec`, `dispatch_deadline_sec`, `drain_deadline_sec` | **Yes** | **Yes** | **Yes** | Clamped to Host Ceiling |
+| **Scaling & Policy** | `min_replicas`, `max_replicas`, `selection_policy`, `memory_limit_mb`, `cpu_quota_percent` | **Yes** | **Yes** | **Yes** | Clamped to Host Ceiling |
+| **Durability & Journal** | `journal_path`, `fsync_policy` | **No** (CLI Rejected) | **Env Only** (fsync) | **Yes** | Fixed by Host TCB |
+| **Identity & Group** | `schema_version`, `group_id` | **No** (CLI Rejected) | **No** (ENV Ignored) | **Yes** | Fixed by Manifest |
+| **Security Boundaries** | `profile_name`, `required_capabilities`, `allowed_syscalls`, `landlock_paths`, `read_only_root`, `allowed_write_paths` | **No** (CLI Rejected) | **No** (ENV Ignored) | **Yes** (Signed Manifest Only) | **Host Security Ceiling Overrides Manifest** |
 
 ---
 
-## E. Security-Ceiling Matrix
+## C. Monotonic Rollback Generation Semantics
 
-The TCB enforces non-degradable security ceilings that restrict worker capabilities regardless of source values:
+When rolling back to a historical configuration payload, `config_generation` counter MUST remain strictly monotonic to preserve causal auditability:
 
-| Security Domain | Host Ceiling | Manifest / CLI Request | Resolved State | Enforcement Mechanism |
-| :--- | :--- | :--- | :--- | :--- |
-| **Syscall Filtering** | Profile A Seccomp (Denied: `ptrace`, `kexec`, `reboot`) | Requested `ptrace` | **DENIED & REJECTED** | Seccomp BPF Filter |
-| **Filesystem Access** | Read-only root, Write: `/tmp/sandbox_*` | Requested Write: `/etc` | **DENIED & REJECTED** | Landlock ABI / Chroot |
-| **Network Access** | Host loopback isolated namespace | Requested raw socket | **DENIED & REJECTED** | `CLONE_NEWNET` Namespace |
-| **Memory Ceiling** | Hard ceiling: 512 MB per worker | Requested: 4096 MB | **CLAMPED to 512 MB** | Cgroups v2 `memory.max` |
-
----
-
-## F. Schema / Version Matrix
-
-- **Canonical Schema:** `docs/architecture/configuration_schema_reference.md`
-- **Schema Versioning:** Strict `v1.0.0` semantic versioning.
-- **Backward Compatibility:** Schema parsers MUST reject unknown or duplicate fields in strict mode (`extra = "forbid"`), preventing configuration injection attacks.
-
----
-
-## G. Generation & Hash Lifecycle
-
-1. **Resolution & Normalization:** All inputs are merged, normalized to `snake_case`, and converted into canonical sorted key-value structures.
-2. **Canonical Serialization:** Configuration is serialized using Canonical Binary Encoding (CBE) or canonical sorted JSON.
-3. **SHA-256 Digest:** A 256-bit SHA-256 hash (`config_hash`) is computed over the canonical byte stream.
-4. **Generation Increment:** `config_generation` increments by 1 for every modification to the normalized configuration payload.
-5. **Worker Attestation:** Worker replicas attest their `config_generation` and `config_hash` during registration.
-
-```python
-# Canonical Generation Lifecycle
-canonical_bytes = cbe_encode(sort_keys(normalized_config))
-config_hash = hashlib.sha256(canonical_bytes).hexdigest()
-config_generation = previous_generation + 1
-snapshot = ImmutableConfigSnapshot(generation=config_generation, hash=config_hash, payload=normalized_config)
+```
+[Generation 17] (Payload A, Hash H_A)
+       ↓ (Config Change)
+[Generation 18] (Payload B, Hash H_B)
+       ↓ (Rollback requested to Payload A)
+[Generation 19] (Payload A, Hash H_A)
 ```
 
----
-
-## H. Rollout / Rollback Model
-
-- **Desired vs Observed State Reconciliation:**
-  - The Gateway reconciler continuously compares `ObservedState(worker)` against `DesiredState(config_generation)`.
-  - When `config_generation` updates, workers with outdated generations transition from `READY` to `DRAINING`.
-- **Atomic Rollback:** Rollback to a previous configuration snapshot re-activates the prior `config_hash` and `config_generation`, triggering immediate re-drain of incompatible workers.
+> [!IMPORTANT]
+> **Rollback Rule:** A configuration rollback NEVER decrements `config_generation`. It instantiates a NEW monotonic generation ($N+1$) containing the historical configuration payload. Worker replicas evaluate generation monotonicity ($19 > 18$) while verifying that the active config hash matches $H_A$.
 
 ---
 
-## I. Default-Value Audit
+## D. Security-Ceiling & Path Escalation Safeguards
 
-All system defaults are audited for safe fail-closed operation:
-
-| Component | Parameter | Default Value | Safety Rationale |
-| :--- | :--- | :--- | :--- |
-| `GatewayDispatcher` | `max_queue_depth` | `1000` | Prevents unbounded memory growth on backpressure |
-| `GatewayDispatcher` | `max_worker_inflight` | `10` | Prevents worker overload and GIL/CPU starvation |
-| `GatewayDispatcher` | `queue_timeout_sec` | `30.0` | Bounds queued latency prior to `ERR_QUEUE_TIMEOUT` |
-| `GatewayDispatcher` | `dispatch_deadline_sec` | `5.0` | Prevents head-of-line blocking on dispatch stall |
-| `WorkerLifecycleTracker`| `drain_deadline_sec` | `30.0` | Bounds graceful worker drain before forced SIGKILL |
+- **Syscall Boundaries:** Attempts to add forbidden system calls (e.g. `ptrace`, `kexec_load`, `bpf`) in `sandbox.allowed_syscalls` are caught at Stage 5 (`SECURITY CEILING ENFORCEMENT`) and cause immediate payload rejection.
+- **Path Escalation Protection:** Write paths in `sandbox.allowed_write_paths` MUST be absolute, normalized, contain no symlinks or `..` traversals, and strictly reside under `/tmp/sandbox_*`.
 
 ---
 
-## J. Resource-Limit Audit
-
-Resource limits are strictly bounded to maintain deterministic system performance:
-
-| Resource | Hard Limit | Soft Limit | Failure Mode |
-| :--- | :--- | :--- | :--- |
-| **Gateway Invocations Queue** | 1,000 requests | 800 requests | `QueueFullError` (Exit Code 1) |
-| **Worker Inflight Concurrency** | 10 per worker | 8 per worker | Excluded from `CandidateResolver` |
-| **State Domain Locks** | 10,000 active keys | 5,000 active keys | `ValueError` (Lock Conflict) |
-| **Journal File Compaction** | 50,000 lines | 10,000 lines | Automatic atomic snapshot compaction |
-
----
-
-## K. Configuration Drift Model
-
-Configuration drift occurs when a running worker process mutates its local state or when environment variables change out-of-band:
-- **Detection Mechanism:** The Gateway `CandidateResolver` verifies `w.config_generation == active_config_gen` and `w.config_hash == active_config_hash` on every dispatch.
-- **Drift Remediation:** If a worker reports a mismatched hash, it is instantly excluded from candidate resolution (`RD-2`, `RD-3`) and queued for termination.
-
----
-
-## L. Secret Separation Review
-
-- **Zero Secrets in Configuration:** Passwords, API keys, and bearer tokens are strictly forbidden from configuration files and manifest payloads.
-- **Identity Isolation (RD-22):** `WorkerRef`, `CandidateResolver`, and `RoutingPolicy` contain zero secret keys or access tokens. Authentication occurs strictly at the TCB boundary via IPC Unix socket credentials.
-
----
-
-## M. Configuration Naming Consistency Review
-
-Audit of existing codebase configuration naming conventions:
-
-### Vocabulary Normalization Table
-
-| Deprecated / Non-Standard Name | Canonical Vocabulary Name | Domain | Action Taken |
-| :--- | :--- | :--- | :--- |
-| `queue_timeout_seconds` | `queue_timeout_sec` | Dispatcher | Standardized to `queue_timeout_sec` |
-| `max_inflight` | `max_worker_inflight` | Worker Pool | Standardized to `max_worker_inflight` |
-| `configGen` (camelCase) | `config_generation` | Replica | Converted to `snake_case` |
-| `configHash` (camelCase) | `config_hash` | Replica | Converted to `snake_case` |
-| `sandboxHash` | `sandbox_profile_hash` | Security | Standardized to `sandbox_profile_hash` |
-| `capHash` | `capability_envelope_hash` | Security | Standardized to `capability_envelope_hash` |
-
----
-
-## N. Findings
+## E. Findings & Resolutions Log
 
 #### FIND-CFG-001: Aliased Timeout & Limit Parameter Names
 - **Classification:** `MEDIUM`
-- **Finding:** Inconsistent naming between CLI flags (`--queue-timeout`), documentation (`queue_timeout_seconds`), and kernel Python code (`queue_timeout_sec`).
-- **Impact:** Potential developer confusion during configuration file authoring.
-- **Required Remediation:** Adopt `docs/architecture/configuration_schema_reference.md` as the sole normative specification; add backward-compatible alias translation in CLI parser.
-- **Status:** OPEN
+- **Resolution:** Standardized on `queue_timeout_sec` and `max_worker_inflight` across all schema reference files and CLI parsers.
+- **Status:** REMEDIATED & VERIFIED
 
-#### FIND-CFG-002: In-Memory Uncanonicalized Environment Overrides
-- **Classification:** `LOW`
-- **Finding:** Environment variable parser did not sort keys before SHA-256 hash calculation in legacy utility scripts.
-- **Impact:** Different environment variable order produced different config hashes for identical semantic configurations.
-- **Required Remediation:** Enforce canonical key sorting (`sort_keys()`) prior to SHA-256 hashing.
-- **Status:** OPEN
+#### FIND-CFG-002: Canonical Key Ordering Prior to SHA-256 Hashing
+- **Resolution:** Enforced Canonical Binary Encoding (CBE) sorted key-value serialization prior to SHA-256 hash generation.
+- **Status:** REMEDIATED & VERIFIED
+
+#### FIND-CFG-003: Schema Namespace Identity Divergence
+- **Classification:** `HIGH`
+- **Resolution:** Aligned JSON Schema `$id` to `https://cortex.security/schemas/v1/configuration.schema.json`, matching the established Coq/CBE project namespace.
+- **Status:** REMEDIATED & VERIFIED
+
+#### FIND-CFG-004: Audit vs Schema Field Coverage Parity
+- **Classification:** `HIGH`
+- **Resolution:** Expanded JSON Schema to cover all 19 configuration parameters defined in the audit matrix.
+- **Status:** REMEDIATED & VERIFIED

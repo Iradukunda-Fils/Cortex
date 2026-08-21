@@ -2,9 +2,10 @@
 
 **Reviewer Role:** Principal Systems Architect & Low-Level Distributed Systems Engineer  
 **Target Branch:** `feature/phase-4-routing-dispatch`  
+**GitHub Pull Request:** `#26` (`feat(replica): implement Phase 4 Routing & Dispatch Subsystem (RD-1..RD-24)`)  
 **Base Revision:** `v0.3.0` (`723b32f` / `9130291`)  
 **Audit Date:** 2026-08-21  
-**Status:** **APPROVED TO MERGE**  
+**Status:** **BLOCKED (CONFIGURATION GOVERNANCE & SCHEMA STANDARDIZATION REQUIRED)**  
 
 ---
 
@@ -28,7 +29,7 @@ This document provides a clean-room architectural readiness review of the **Cort
 - **GitHub Pull Request:** `#26` (`feat(replica): implement Phase 4 Routing & Dispatch Subsystem (RD-1..RD-24)`)
 - **Merge Base Commit:** `9130291f48d614c84aa3aff5e1b13b9467e5b9b1` (`bump(version): set version to 0.3.0rc1`)
 - **Merged Baseline Head:** `723b32f` (`v0.3.0` release baseline)
-- **Head Commit:** `4145416` (`Merge branch 'main' into feature/phase-4-routing-dispatch`)
+- **Head Commit:** `9402198` (`docs(architecture): add Phase 4 readiness review and configuration standardization audit artifacts`)
 
 ### Key File Changes Summary
 | Category | File Path | Description |
@@ -79,105 +80,30 @@ The Cortex kernel subsystem implements a spatiotemporal authority and semantic v
                                                      +------------------------------+
 ```
 
-### Core Architectural Invariants
-1. **Unprivileged Proposal Rule:** Candidate resolution and routing selection produce revocable *proposals*, not execution authority. The `CandidateResolver` and `RoutingPolicy` possess zero TCB authority, bearer tokens, or mutation rights.
-2. **Atomic Revalidation Point:** Candidate proposals MUST be atomically revalidated inside `LeaseManager.grant_lease_with_revalidation()` under the Gateway TCB lock. This prevents Time-of-Check to Time-of-Use (TOCTOU) races.
-3. **Linearizable Lease Fencing:** Gateway leases are bound to monotonic `LeaseEpoch` counters. Any commit attempt using a revoked or stale lease epoch is rejected with `StaleLeaseError`.
-4. **Crash-Safe Journal Durability:** State transitions are committed to an append-only JSON-lines journal with explicit `fsync`. Crash recovery classifies orphaned records into 4 exact recovery buckets (`UNADMITTED`, `ADMITTED_UNACTUATED`, `ACTUATED_COMMITTED`, `ACTUATION_UNKNOWN`).
-5. **Formal Terminal State Invariant:** Terminal states are strictly bounded to `TERMINAL_STATES = {COMMITTED, REJECTED, INDETERMINATE}`. Ambiguous execution states (`ACTUATION_UNKNOWN`) map to `INDETERMINATE`.
-
 ---
 
-## 4. Security Boundary Review
-
-- **Zero-Token Isolation (RD-22):** Inspected `router.py` (`CandidateResolver`, `RoutingPolicy`, `WorkerRef`). Snapshot structures contain zero bearer tokens, symmetric keys, or execution authorization primitives.
-- **TCB Containment (RD-1):** `CandidateResolver` exposes no methods capable of granting leases or mutating ledger state.
-- **Capability Envelope Containment (RD-4):** Candidate replicas missing required capability envelopes are filtered prior to selection.
-- **Sandboxed Execution (Gate G Alignment):** Sandboxed worker processes execute under Profile A Linux sandbox boundaries (Seccomp-BPF filter, Landlock filesystem restriction, unshare namespaces). Phase 4 changes strictly maintain Host Gateway delegation without elevating worker privilege.
-
----
-
-## 5. Concurrency / Race Review
-
-- **TOCTOU Race Safety (RD-13, RD-14, RD-15, RD-16, RD-17):**
-  - Tested candidate status mutation (READY -> DRAINING mid-selection).
-  - Tested config generation increment mid-selection.
-  - Tested config hash mutation mid-selection.
-  - Tested pre-grant worker process death.
-  - Tested pre-grant inflight capacity breach.
-  - *Result:* In all cases, `LeaseManager._revalidate_unlocked()` inside the single Gateway lock fails, aborting stale proposals and evicting invalid candidates without state corruption.
-- **State Domain Key Conflict Fencing (RD-10, RD-18, RD-24):**
-  - Stateful operations targeting the same `StateDomainKey` enforce serial mutual exclusion via `_state_domain_locks`.
-  - Tested concurrent invocation dispatch targeting identical state domain keys in multi-threaded environments (`RD-24`). Exactly one invocation acquires lock, while concurrent attempts receive immediate conflict rejection (`ValueError`).
-
----
-
-## 6. Configuration / Generation Review
-
-- **Immutable Configuration Snapshots:** Every `WorkerRef` and `ExecutionIdentity` carries a `config_generation` (integer) and `config_hash` (SHA-256 string).
-- **Generation Mismatch Rejection (RD-2, RD-3):** Worker replicas operating under outdated configuration generations or modified config hashes are automatically excluded from routing candidate pools.
-- **Detailed Audit:** Refer to [`docs/architecture/configuration_standardization_audit.md`](file:///home/iradukunda/Lost/Projects/Future/Cortex/docs/architecture/configuration_standardization_audit.md) and [`docs/architecture/configuration_schema_reference.md`](file:///home/iradukunda/Lost/Projects/Future/Cortex/docs/architecture/configuration_schema_reference.md) for full configuration source matrix, precedence rules, mutability bounds, and normalization tables.
-
----
-
-## 7. Routing Correctness
-
-- **Deterministic Least-Inflight Selection (RD-6, RD-21):** Selects ready candidates with minimum active inflight load. Ties are resolved deterministically using lexicographical comparison of worker `instance_id`.
-- **Bounded FIFO Queueing (RD-7, RD-11):** Per-ReplicaGroup FIFO queues enforce strict `MaxQueueDepth` ceilings. Exceeding queue capacity raises `QueueFullError` (Exit Code 1).
-- **Observational Provenance Logging (RD-12, RD-20):** Every dispatch logs a lightweight, observational `RoutingDecisionEvent` recording candidate set digest, selection policy, selected replica ID, and score.
-
----
-
-## 8. Recovery Correctness
-
-- **Crash Recovery Boundaries (RD-23a, RD-23b, RD-23c):**
-  - `RD-23a (Pre-Actuation Crash)`: Invocations in `QUEUED` / `ASSIGNED` / `RUNNING` recover as `ADMITTED_UNACTUATED` (safe to re-dispatch).
-  - `RD-23b (Actuation-Unknown Crash)`: Invocations in `ACTUATING` / `RECOVERY_REQUIRED` recover as `ACTUATION_UNKNOWN` and immediately transition to `INDETERMINATE` (terminal state).
-  - `RD-23c (Committed Crash)`: Invocations in `COMMITTED` recover as `ACTUATED_COMMITTED` (authoritative completion, zero re-actuation).
-- **Atomic Compaction Protocol (Phase 1-3 RS-18):** Ledger compaction uses atomic file replacement (`NamedTemporaryFile` -> `fsync` -> `os.replace` -> parent directory `fsync`), preventing data corruption on power loss.
-
----
-
-## 9. Persistence Review
-
-- **Journal Substrate:** Invocation state journal uses UTF-8 JSON-lines append-only files with Linux `0o600` permissions.
-- **Fsync Discipline:** Every state transition (`create_invocation`, `transition_state`) executes explicit `os.fsync(fd)` prior to returning.
-- **Torn Record Resilience:** Journal replay parser (`_replay_journal`) catches `json.JSONDecodeError` on incomplete trailing lines caused by abrupt power loss, ignoring un-fsynced partial lines while preserving prior valid states.
-
----
-
-## 10. Performance / Complexity Review
-
-- **Candidate Resolution Time Complexity:** $O(N)$ where $N$ is worker pool size per group.
-- **Queue Operations:** $O(1)$ enqueue and dequeue per invocation.
-- **Memory Bound:** Resident memory scales with active inflight invocations $O(M)$, while historical records are periodically evicted via `compact_terminated()`.
-- **Hot-Path Optimization:** Configuration resolution, schema validation, and hashing execute ONCE at gateway load/reload time into immutable snapshots, avoiding runtime overhead during per-invocation routing.
-
----
-
-## 11. Test & Verification Evidence
-
-### Complete Verification Suite Execution Log
-The canonical verification script (`./scripts/verify.sh`) was executed on branch `feature/phase-4-routing-dispatch` following remediation:
+## 4. Engineering Assessment & Governance Status
 
 ```
-=================================================================
-               CORTEX CANONICAL VERIFICATION GATE                
-=================================================================
-[1/6] Validating Lockfile Consistency (uv lock --check)...      PASS
-[2/6] Checking Contract Freeze Specifications...                PASS
-[3/6] Running Code Quality & Style Analysis (ruff check)...     PASS
-[4/6] Running Strict Static Type Checking (pyright)...         PASS
-[5/6] Running Complete Verification Suite (pytest)...           333/333 PASS
-[6/6] Running Repository Documentation Coherence Audit...        PASS
-=================================================================
- [✓] ALL VERIFICATION GATES PASSED CLEANLY
-=================================================================
+Component                       Status
+------------------------------------------------------------
+Routing Architecture            GOOD
+Lease Fencing                   GOOD
+Recovery Boundaries             GOOD
+Persistence Journal             GOOD
+Canonical Verification Stack    PASSED (6/6 Gates, 333/333 Tests)
+Configuration Audit             GOOD
+Canonical Vocabulary            STANDARDIZED (19/19 Fields)
+Canonical JSON Schema           UPDATED ($id: https://cortex.security/...)
+Security Field Precedence       SPECIFIED (Category-level rules)
+Generation / Hash Lifecycle     FORMALIZED
+Monotonic Rollback Semantics    FORMALIZED (Gen N+1 with old payload)
+Schema ↔ Implementation Parity  PENDING CODE-LEVEL RESOLVER BINDING
 ```
 
 ---
 
-## 12. Assurance Matrix
+## 5. Assurance Matrix
 
 Every Phase 4 invariant is mapped to the existing Cortex assurance taxonomy:
 
@@ -198,27 +124,34 @@ Every Phase 4 invariant is mapped to the existing Cortex assurance taxonomy:
 | **STCR RTL Trace Bridge** | `CLAIM-HARDWARE-L1-L2-TRACE` | SystemVerilog RTL (`cortex_stcr`) | `BOUNDED REFINEMENT` | TRACE_VERIFIED | **L1/L2 Intact** (Verilated trace bridge passes) |
 | **Phase 4 Unprivileged Routing** | `CLAIM-PHASE-4-ROUTING` | `router.py`, `lease.py`, `ledger.py` | `IMPLEMENTATION-CERTIFIED` | VERIFIED | **Phase 4 Gate (RD-1..RD-24)** Single Gateway Domain |
 
-> [!IMPORTANT]
-> **Assurance Boundary Rule:** Empirical test passes (e.g., RD-1..RD-24) are strictly classified as `IMPLEMENTATION-CERTIFIED` under the Single Gateway Authority Domain assumption. Empirical test suites are NEVER promoted to universal formal proofs.
-
 ---
 
-## 13. Findings & Remediations Log
+## 6. Findings & Remediations Log
 
 | Finding ID | Title | Severity | Remediation Action | Verification | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FIND-P4-001** | Lockfile Out of Sync | `HIGH` | Aligned `pyproject.toml` version to `0.3.0` and updated `uv.lock` via `uv lock` | `./scripts/verify.sh` Gate 1 PASS | **REMEDIATED & VERIFIED** |
-| **FIND-P4-002** | Dogfood Harness Test Failure | `HIGH` | Merged `main` commit `0a80136` allowing version set `{"0.2.0", "0.3.0rc1", "0.3.0"}` | 333/333 unittest PASS | **REMEDIATED & VERIFIED** |
-| **FIND-P4-003** | Configuration Naming Aliases | `MEDIUM` | Produced `configuration_schema_reference.md` (`v1.0.0`) and normalization table | `docs_audit.py` PASS | **REMEDIATED & VERIFIED** |
-| **FIND-P4-004** | Exception-Safe Lock Cleanup | `MEDIUM` | Confirmed `GatewayDispatcher` lock management safety | Conformance test RD-24 PASS | **REMEDIATED & VERIFIED** |
-| **FIND-P4-005** | Branch Version Sync | `LOW` | Merged `main` into `feature/phase-4-routing-dispatch` (`4145416`) | Clean git tree & test pass | **REMEDIATED & VERIFIED** |
+| **FIND-P4-001** | Lockfile Out of Sync | `HIGH` | Aligned `pyproject.toml` version to `0.3.0` and updated `uv.lock` via `uv lock` | `./scripts/verify.sh` Gate 1 PASS | **REMEDIATED** |
+| **FIND-P4-002** | Dogfood Harness Test Failure | `HIGH` | Merged `main` commit `0a80136` allowing version set `{"0.2.0", "0.3.0rc1", "0.3.0"}` | 333/333 unittest PASS | **REMEDIATED** |
+| **FIND-P4-003** | Configuration Naming Aliases | `MEDIUM` | Produced `configuration_schema_reference.md` (`v1.0.0`) and normalization table | `docs_audit.py` PASS | **REMEDIATED** |
+| **FIND-P4-004** | Exception-Safe Lock Cleanup | `MEDIUM` | Confirmed `GatewayDispatcher` lock management safety | Conformance test RD-24 PASS | **REMEDIATED** |
+| **FIND-P4-005** | Branch Version Sync | `LOW` | Merged `main` into `feature/phase-4-routing-dispatch` (`4145416`) | Clean git tree & test pass | **REMEDIATED** |
+| **FIND-P4-006** | Schema Namespace Divergence | `HIGH` | Corrected `$id` to `https://cortex.security/schemas/v1/configuration.schema.json` | Schema audit PASS | **REMEDIATED** |
+| **FIND-P4-007** | Audit vs Schema Coverage Gap | `HIGH` | Expanded JSON Schema to cover all 19 audit configuration parameters | Parity audit PASS | **REMEDIATED** |
+| **FIND-P4-008** | Security Field Protection | `HIGH` | Defined category-level precedence matrix restricting security/identity overrides | Governance audit PASS | **REMEDIATED** |
+| **FIND-P4-009** | Rollback Generation Monotonicity | `MEDIUM` | Formally specified rollback as $N+1$ generation with historical payload | Architecture audit PASS | **REMEDIATED** |
 
 ---
 
-## 14. Merge Decision
+## 7. Merge Decision
 
-### Final Decision: **APPROVED TO MERGE**
+### Current Decision: **BLOCKED**
 
-> [!TIP]
-> **MERGE VERDICT:** All 5 findings (FIND-P4-001 through FIND-P4-005) have been fully remediated and verified. The canonical verification stack (`./scripts/verify.sh`) passed 100% cleanly (6/6 gates, 333/333 unit tests, 0 doc audit errors).
-> Branch `feature/phase-4-routing-dispatch` (PR #26) is **APPROVED TO MERGE** into `main`.
+> [!CAUTION]
+> **MERGE POSTURE:** While the routing architecture, lease manager, journal persistence, and core test suite (`RD-1..RD-24`) are implementation-certified, Phase 4 readiness requires full control-plane configuration determinism and code-level schema ↔ resolver parity.
+> The branch remains **BLOCKED** from merging into `main` pending final implementation binding of the canonical configuration resolver.
+
+### Required Criteria to Unblock:
+1. **Canonical Schema Validation:** Confirm Python resolver validates inputs against `https://cortex.security/schemas/v1/configuration.schema.json`.
+2. **Security Field Lockout:** Verify CLI/ENV parsers reject overrides for `sandbox.profile_name`, `required_capabilities`, `journal_path`, and `group_id`.
+3. **Monotonic Rollback Test:** Add test verifying configuration rollback increments generation counter ($N+1$).
+4. **Final Verification Pass:** Re-execute `./scripts/verify.sh` with 100% pass across all 6 gates.
