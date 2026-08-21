@@ -29,8 +29,11 @@ uv run pyright
 echo "[5/6] Executing Full Regression Test Suite (unittest)..."
 uv run python -m unittest discover -s tests -v
 
-echo "[6/6] Running Repository Documentation Coherence Audit (docs_audit.py)..."
+echo "[6/7] Running Repository Documentation Coherence Audit (docs_audit.py)..."
 uv run python3 tools/assurance/docs_audit.py
+
+echo "[7/7] Verifying Coq Print Assumptions Audit Artifact Consistency..."
+uv run python3 scripts/verify_coq_assumptions.py
 
 echo "================================================================="
 echo " [✓] ALL VERIFICATION GATES PASSED CLEANLY"

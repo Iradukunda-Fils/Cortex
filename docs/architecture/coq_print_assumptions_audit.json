@@ -3,6 +3,8 @@
     "module": "verification/Phase4RoutingRefinement.v",
     "coq_version": "Rocq 9.1",
     "total_theorems": 23,
+    "total_helper_lemmas": 4,
+    "total_proof_declarations": 27,
     "total_axioms": 0,
     "total_admitted": 0,
     "total_parameters": 0,
@@ -56,7 +58,7 @@
       "theorem_name": "rd_f6_unadmitted_durable_safety",
       "statement": "UNADMITTED durable proof requires unbroken journal integrity with no auth or actuation markers",
       "assumptions": "Closed under the global context",
-      "source_line": 444
+      "source_line": 449
     },
     {
       "normative_id": "RD-F7",
@@ -140,35 +142,42 @@
       "theorem_name": "rd_f14_admitted_unactuated_explicit_no_actuation",
       "statement": "ADMITTED_UNACTUATED implies Authorized=true, ActuationStarted=false, RetrySafe=true",
       "assumptions": "Closed under the global context",
-      "source_line": 476
+      "source_line": 480
     },
     {
       "normative_id": "RD-F15",
       "theorem_name": "rd_f15_concurrent_conflict_exclusion",
       "statement": "ConcurrentExecution(I1,I2) /\\ Conflict(I1,I2) => not GrantLease(I2)",
       "assumptions": "Closed under the global context",
-      "source_line": 498
+      "source_line": 499
     },
     {
       "normative_id": "RD-F15-FENCE",
       "theorem_name": "rd_f15_state_domain_actuation_fence",
       "statement": "Domain locked condition prevents crossing actuation boundary",
       "assumptions": "Closed under the global context",
-      "source_line": 507
+      "source_line": 510
+    },
+    {
+      "normative_id": "RD-F15-ASSIGNED-FENCE",
+      "theorem_name": "rd_f15_assigned_conflict_actuation_blocked",
+      "statement": "Assigned conflicting request cannot cross actuation boundary when domain is locked",
+      "assumptions": "Closed under the global context",
+      "source_line": 523
     },
     {
       "normative_id": "RD-F16",
       "theorem_name": "rd_f16_sandbox_hash_fencing",
       "statement": "GrantLease => w_sandbox_hash = i_sandbox_hash",
       "assumptions": "Closed under the global context",
-      "source_line": 520
+      "source_line": 543
     },
     {
       "normative_id": "RD-F17",
       "theorem_name": "rd_f17_cap_hash_fencing",
       "statement": "GrantLease => w_cap_hash = i_cap_hash",
       "assumptions": "Closed under the global context",
-      "source_line": 536
+      "source_line": 559
     }
   ]
 }

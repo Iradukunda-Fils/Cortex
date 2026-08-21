@@ -507,13 +507,32 @@ Section Phase4RoutingRefinement.
     apply rd_f9_state_domain_safety. exact Hlocked.
   Qed.
 
+  Definition CanCrossActuationBoundary (gs : GatewayState) (i : InvocationRequest) : bool :=
+    negb (domain_locked (i_domain_key i) (g_active_domains gs)).
+
   Theorem rd_f15_state_domain_actuation_fence :
     forall (gs : GatewayState) (w2 : WorkerReplica) (i2 : InvocationRequest),
       domain_locked (i_domain_key i2) (g_active_domains gs) = true ->
-      GrantLeaseCondition gs w2 i2 = false.
+      CanCrossActuationBoundary gs i2 = false.
   Proof.
     intros gs w2 i2 Hlocked.
-    exact (rd_f9_state_domain_safety gs w2 i2 Hlocked).
+    unfold CanCrossActuationBoundary.
+    rewrite Hlocked. reflexivity.
+  Qed.
+
+  Theorem rd_f15_assigned_conflict_actuation_blocked :
+    forall (gs : GatewayState) (i1 i2 : InvocationRequest),
+      invocations_conflict i1 i2 = true ->
+      domain_locked (i_domain_key i1) (g_active_domains gs) = true ->
+      CanCrossActuationBoundary gs i2 = false.
+  Proof.
+    intros gs i1 i2 Hconflict Hlocked1.
+    unfold invocations_conflict in Hconflict.
+    apply nat_eqb_eq in Hconflict.
+    unfold CanCrossActuationBoundary.
+    unfold domain_locked in *.
+    rewrite <- Hconflict.
+    rewrite Hlocked1. reflexivity.
   Qed.
 
   (* ----------------------------------------------------------------------- *)
@@ -578,6 +597,7 @@ Section Phase4RoutingRefinement.
   Print Assumptions rd_f14_admitted_unactuated_explicit_no_actuation.
   Print Assumptions rd_f15_concurrent_conflict_exclusion.
   Print Assumptions rd_f15_state_domain_actuation_fence.
+  Print Assumptions rd_f15_assigned_conflict_actuation_blocked.
   Print Assumptions rd_f16_sandbox_hash_fencing.
   Print Assumptions rd_f17_cap_hash_fencing.
 
