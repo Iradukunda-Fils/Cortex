@@ -123,7 +123,7 @@ class TestDogfoodWorkloads(unittest.TestCase):
         """Environment metadata must be populated."""
         result = run_profile(WORKLOAD_PROFILES[0], self.test_dir)
         self.assertTrue(len(result.environment.python_version) > 0)
-        self.assertEqual(result.environment.cortex_version, "0.2.0")
+        self.assertIn(result.environment.cortex_version, {"0.2.0", "0.3.0rc1", "0.3.0"})
         self.assertTrue(len(result.environment.os_name) > 0)
 
 
