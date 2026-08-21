@@ -37,23 +37,27 @@ Section Phase4RoutingRefinement.
     | LS_READY.
 
   Record WorkerReplica := mkWorker {
-    w_id        : nat;
-    w_gen       : nat;
-    w_hash      : nat;
-    w_profile   : SandboxProfileId;
-    w_state     : LifecycleStage;
-    w_inflight  : nat;
-    w_limit     : nat;
-    w_n_caps    : nat;
+    w_id            : nat;
+    w_gen           : nat;            (* ConfigGeneration *)
+    w_hash          : nat;            (* ConfigHash *)
+    w_profile       : SandboxProfileId;
+    w_sandbox_hash  : nat;            (* SandboxProfileHash *)
+    w_cap_hash      : nat;            (* CapabilityEnvelopeHash *)
+    w_state         : LifecycleStage;
+    w_inflight      : nat;
+    w_limit         : nat;
+    w_n_caps        : nat;
   }.
 
   Record InvocationRequest := mkInvocation {
-    i_id          : nat;
-    i_target_gen  : nat;
-    i_target_hash : nat;
-    i_profile     : SandboxProfileId;
-    i_domain_key  : StateDomainKey;
-    i_n_req_caps  : nat;
+    i_id            : nat;
+    i_target_gen    : nat;
+    i_target_hash   : nat;
+    i_profile       : SandboxProfileId;
+    i_sandbox_hash  : nat;            (* Required SandboxProfileHash *)
+    i_cap_hash      : nat;            (* Required CapabilityEnvelopeHash *)
+    i_domain_key    : StateDomainKey;
+    i_n_req_caps    : nat;
   }.
 
   (* ----------------------------------------------------------------------- *)
@@ -107,13 +111,17 @@ Section Phase4RoutingRefinement.
     | _ => false
     end.
 
+  (* Worker Identity = (ConfigGeneration, ConfigHash, SandboxProfileHash,
+     CapabilityEnvelopeHash). All four components MUST match for eligibility. *)
   Definition HardConstraints (w : WorkerReplica) (i : InvocationRequest) : bool :=
     andb (lifecycle_ready (w_state w))
     (andb (Nat.eqb (w_gen w) (i_target_gen i))
     (andb (Nat.eqb (w_hash w) (i_target_hash i))
     (andb (Nat.eqb (w_profile w) (i_profile i))
+    (andb (Nat.eqb (w_sandbox_hash w) (i_sandbox_hash i))
+    (andb (Nat.eqb (w_cap_hash w) (i_cap_hash i))
     (andb (caps_contained (i_n_req_caps i) (w_n_caps w))
-          (Nat.ltb (w_inflight w) (w_limit w)))))).
+          (Nat.ltb (w_inflight w) (w_limit w)))))))).
 
   (* ----------------------------------------------------------------------- *)
   (* 5. GATEWAY STATE & LEASE MANAGER MODEL                                  *)
@@ -152,6 +160,9 @@ Section Phase4RoutingRefinement.
     exact Hhard.
   Qed.
 
+  Ltac peel_left H :=
+    apply andb_true_elim in H; destruct H as [_ H].
+
   (* ----------------------------------------------------------------------- *)
   (* 7. RD-F2: CAPABILITY CONTAINMENT                                        *)
   (*    Λ_I ⊆ Λ_W                                                           *)
@@ -165,10 +176,7 @@ Section Phase4RoutingRefinement.
     intros gs w i H.
     apply rd_f1_eligibility_safety in H.
     unfold HardConstraints in H.
-    apply andb_true_elim in H. destruct H as [_ H].
-    apply andb_true_elim in H. destruct H as [_ H].
-    apply andb_true_elim in H. destruct H as [_ H].
-    apply andb_true_elim in H. destruct H as [_ H].
+    peel_left H; peel_left H; peel_left H; peel_left H; peel_left H; peel_left H.
     apply andb_true_elim in H. destruct H as [Hcaps _].
     exact Hcaps.
   Qed.
@@ -232,14 +240,14 @@ Section Phase4RoutingRefinement.
            g_active_domains gs = nil ->
            HasActiveLease gs (pp_worker_id p) (pp_inv_id p) ->
            GrantLeaseCondition gs
-             (mkWorker (pp_worker_id p) 0 0 0 LS_OFFLINE 0 0 0)
-             (mkInvocation (pp_inv_id p) 1 0 0 0 0) = true).
+             (mkWorker (pp_worker_id p) 0 0 0 0 0 LS_OFFLINE 0 0 0)
+             (mkInvocation (pp_inv_id p) 1 0 0 0 0 0 0) = true).
   Proof.
     intros p Habs.
     assert (Hbad : GrantLeaseCondition
       (mkGateway 0 10 nil)
-      (mkWorker (pp_worker_id p) 0 0 0 LS_OFFLINE 0 0 0)
-      (mkInvocation (pp_inv_id p) 1 0 0 0 0) = true).
+      (mkWorker (pp_worker_id p) 0 0 0 0 0 LS_OFFLINE 0 0 0)
+      (mkInvocation (pp_inv_id p) 1 0 0 0 0 0 0) = true).
     { apply Habs. - reflexivity. - constructor. }
     unfold GrantLeaseCondition in Hbad.
     unfold HardConstraints in Hbad.
@@ -386,7 +394,105 @@ Section Phase4RoutingRefinement.
   Qed.
 
   (* ----------------------------------------------------------------------- *)
-  (* 16. ASSUMPTION AUDIT                                                    *)
+  (* 16. RECOVERY BUCKET FORMAL MODEL                                        *)
+  (*                                                                         *)
+  (* Models the concrete RecoveryBucket taxonomy from ledger.py:              *)
+  (*   UNADMITTED / ADMITTED_UNACTUATED / ACTUATED_COMMITTED / ACTUATION_UNKNOWN *)
+  (* ----------------------------------------------------------------------- *)
+
+  Inductive RecoveryBucket :=
+    | RB_UNADMITTED
+    | RB_ADMITTED_UNACTUATED
+    | RB_ACTUATED_COMMITTED
+    | RB_ACTUATION_UNKNOWN.
+
+  Definition recovery_safe_to_retry (rb : RecoveryBucket) : bool :=
+    match rb with
+    | RB_UNADMITTED => true          (* Never authorized — safe to discard or retry *)
+    | RB_ADMITTED_UNACTUATED => true  (* Authorized but no actuation started — safe to retry *)
+    | RB_ACTUATED_COMMITTED => false  (* Effect committed — MUST NOT retry *)
+    | RB_ACTUATION_UNKNOWN => false   (* Non-idempotent effect may have occurred — MUST NOT auto-retry *)
+    end.
+
+  (* RD-F11: ACTUATION_UNKNOWN must not be automatically retried *)
+  Theorem rd_f11_actuation_unknown_no_auto_retry :
+    recovery_safe_to_retry RB_ACTUATION_UNKNOWN = false.
+  Proof. reflexivity. Qed.
+
+  (* RD-F12: ACTUATED_COMMITTED must not be retried *)
+  Theorem rd_f12_committed_no_retry :
+    recovery_safe_to_retry RB_ACTUATED_COMMITTED = false.
+  Proof. reflexivity. Qed.
+
+  (* RD-F13: UNADMITTED is always safe to retry or discard *)
+  Theorem rd_f13_unadmitted_safe_retry :
+    recovery_safe_to_retry RB_UNADMITTED = true.
+  Proof. reflexivity. Qed.
+
+  (* RD-F14: ADMITTED_UNACTUATED is safe to retry *)
+  Theorem rd_f14_admitted_unactuated_safe_retry :
+    recovery_safe_to_retry RB_ADMITTED_UNACTUATED = true.
+  Proof. reflexivity. Qed.
+
+  (* ----------------------------------------------------------------------- *)
+  (* 17. CONCURRENT STATE-DOMAIN CONFLICT INVARIANT                          *)
+  (*                                                                         *)
+  (* ConcurrentExecution(I1,I2) ∧ Conflict(I1,I2) => ¬ConcurrentActuation   *)
+  (* ----------------------------------------------------------------------- *)
+
+  Definition invocations_conflict (i1 i2 : InvocationRequest) : bool :=
+    Nat.eqb (i_domain_key i1) (i_domain_key i2).
+
+  Theorem rd_f15_concurrent_conflict_exclusion :
+    forall (gs : GatewayState) (w1 w2 : WorkerReplica) (i1 i2 : InvocationRequest),
+      invocations_conflict i1 i2 = true ->
+      GrantLeaseCondition gs w1 i1 = true ->
+      domain_locked (i_domain_key i2) (g_active_domains gs) = true ->
+      GrantLeaseCondition gs w2 i2 = false.
+  Proof.
+    intros gs w1 w2 i1 i2 Hconflict Hgrant1 Hlocked.
+    apply rd_f9_state_domain_safety. exact Hlocked.
+  Qed.
+
+  (* ----------------------------------------------------------------------- *)
+  (* 18. SANDBOX & CAPABILITY HASH FENCING                                   *)
+  (* ----------------------------------------------------------------------- *)
+
+  Theorem rd_f16_sandbox_hash_fencing :
+    forall (gs : GatewayState) (w : WorkerReplica) (i : InvocationRequest),
+      GrantLeaseCondition gs w i = true ->
+      Nat.eqb (w_sandbox_hash w) (i_sandbox_hash i) = true.
+  Proof.
+    intros gs w i H.
+    apply rd_f1_eligibility_safety in H.
+    unfold HardConstraints in H.
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [Hsbx _].
+    exact Hsbx.
+  Qed.
+
+  Theorem rd_f17_cap_hash_fencing :
+    forall (gs : GatewayState) (w : WorkerReplica) (i : InvocationRequest),
+      GrantLeaseCondition gs w i = true ->
+      Nat.eqb (w_cap_hash w) (i_cap_hash i) = true.
+  Proof.
+    intros gs w i H.
+    apply rd_f1_eligibility_safety in H.
+    unfold HardConstraints in H.
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [Hcap _].
+    exact Hcap.
+  Qed.
+
+  (* ----------------------------------------------------------------------- *)
+  (* 19. ASSUMPTION AUDIT                                                    *)
   (* ----------------------------------------------------------------------- *)
 
   Print Assumptions rd_f1_eligibility_safety.
@@ -402,5 +508,12 @@ Section Phase4RoutingRefinement.
   Print Assumptions rd_f10_toctou_offline.
   Print Assumptions rd_f10_toctou_draining.
   Print Assumptions rd_f10_toctou_generation_drift.
+  Print Assumptions rd_f11_actuation_unknown_no_auto_retry.
+  Print Assumptions rd_f12_committed_no_retry.
+  Print Assumptions rd_f13_unadmitted_safe_retry.
+  Print Assumptions rd_f14_admitted_unactuated_safe_retry.
+  Print Assumptions rd_f15_concurrent_conflict_exclusion.
+  Print Assumptions rd_f16_sandbox_hash_fencing.
+  Print Assumptions rd_f17_cap_hash_fencing.
 
 End Phase4RoutingRefinement.
