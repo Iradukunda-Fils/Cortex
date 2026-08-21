@@ -24,7 +24,7 @@ from cortex.compat import override
 
 REPO_TOOL_MANIFEST = PluginManifest(
     name="auditor-repo-tool",
-    version="0.3.0",
+    version="0.4.0",
     description="Executes read-only repository inspection tools (git status, linter, tests)",
     consumes_events=["CommandIssuedEvent"],
     produces_events=["DriverTelemetryEvent", "VerificationResultEvent"],
