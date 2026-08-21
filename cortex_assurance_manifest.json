@@ -2,7 +2,7 @@
   "$schema": "./assurance_manifest_v1.schema.json",
   "manifest_version": "1.0.0",
   "generated_at": "2026-08-17T20:26:15Z",
-  "last_verified_commit": "0ac0707e9b2323375d30b4f536df084cfd14c45b",
+  "last_verified_commit": "92bfad9f34cf1d767a0535d2c7a98d23344df822",
   "repository": "Iradukunda-Fils/Cortex",
   "overall_status": {
     "substrate_l0_l2": "SUBSTANTIALLY_ESTABLISHED",
