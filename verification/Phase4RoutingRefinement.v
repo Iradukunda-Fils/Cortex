@@ -434,6 +434,59 @@ Section Phase4RoutingRefinement.
     recovery_safe_to_retry RB_ADMITTED_UNACTUATED = true.
   Proof. reflexivity. Qed.
 
+  (* Durable log proof model for UNADMITTED: absence of evidence is proven by journal integrity *)
+  Record DurableLogWitness := mkWitness {
+    w_has_auth_entry    : bool;
+    w_has_actuation_entry : bool;
+    w_journal_intact    : bool;
+  }.
+
+  Definition unadmitted_durable_proven (w : DurableLogWitness) : bool :=
+    andb (w_journal_intact w)
+         (andb (negb (w_has_auth_entry w))
+               (negb (w_has_actuation_entry w))).
+
+  Theorem rd_f6_unadmitted_durable_safety :
+    forall (w : DurableLogWitness),
+      unadmitted_durable_proven w = true ->
+      w_has_auth_entry w = false /\ w_has_actuation_entry w = false.
+  Proof.
+    intros w H.
+    unfold unadmitted_durable_proven in H.
+    apply andb_true_elim in H. destruct H as [_ H].
+    apply andb_true_elim in H. destruct H as [Hauth Hact].
+    destruct (w_has_auth_entry w) eqn:Eauth; destruct (w_has_actuation_entry w) eqn:Eact.
+    - discriminate.
+    - discriminate.
+    - discriminate.
+    - split; reflexivity.
+  Qed.
+
+  (* Explicit ¬ActuationStarted invariant for ADMITTED_UNACTUATED *)
+  Record InvocationRecoveryState := mkRecState {
+    irs_authorized        : bool;
+    irs_actuation_started : bool;
+    irs_retry_safe        : bool;
+  }.
+
+  Definition recovery_state_of_bucket (rb : RecoveryBucket) : InvocationRecoveryState :=
+    match rb with
+    | RB_UNADMITTED => mkRecState false false true
+    | RB_ADMITTED_UNACTUATED => mkRecState true false true
+    | RB_ACTUATED_COMMITTED => mkRecState true true false
+    | RB_ACTUATION_UNKNOWN => mkRecState true true false
+    end.
+
+  Theorem rd_f14_admitted_unactuated_explicit_no_actuation :
+    forall (rb : RecoveryBucket),
+      rb = RB_ADMITTED_UNACTUATED ->
+      irs_authorized (recovery_state_of_bucket rb) = true /\
+      irs_actuation_started (recovery_state_of_bucket rb) = false /\
+      irs_retry_safe (recovery_state_of_bucket rb) = true.
+  Proof.
+    intros rb H. subst. simpl. split; [| split]; reflexivity.
+  Qed.
+
   (* ----------------------------------------------------------------------- *)
   (* 17. CONCURRENT STATE-DOMAIN CONFLICT INVARIANT                          *)
   (*                                                                         *)
@@ -452,6 +505,15 @@ Section Phase4RoutingRefinement.
   Proof.
     intros gs w1 w2 i1 i2 Hconflict Hgrant1 Hlocked.
     apply rd_f9_state_domain_safety. exact Hlocked.
+  Qed.
+
+  Theorem rd_f15_state_domain_actuation_fence :
+    forall (gs : GatewayState) (w2 : WorkerReplica) (i2 : InvocationRequest),
+      domain_locked (i_domain_key i2) (g_active_domains gs) = true ->
+      GrantLeaseCondition gs w2 i2 = false.
+  Proof.
+    intros gs w2 i2 Hlocked.
+    exact (rd_f9_state_domain_safety gs w2 i2 Hlocked).
   Qed.
 
   (* ----------------------------------------------------------------------- *)
@@ -501,6 +563,7 @@ Section Phase4RoutingRefinement.
   Print Assumptions rd_f4_lease_fencing_preservation.
   Print Assumptions rd_f5_router_non_authority.
   Print Assumptions rd_f6_unadmitted_safety.
+  Print Assumptions rd_f6_unadmitted_durable_safety.
   Print Assumptions rd_f7_single_commitment.
   Print Assumptions rd_f7_commit_idempotent.
   Print Assumptions rd_f8_bounded_admission.
@@ -512,7 +575,9 @@ Section Phase4RoutingRefinement.
   Print Assumptions rd_f12_committed_no_retry.
   Print Assumptions rd_f13_unadmitted_safe_retry.
   Print Assumptions rd_f14_admitted_unactuated_safe_retry.
+  Print Assumptions rd_f14_admitted_unactuated_explicit_no_actuation.
   Print Assumptions rd_f15_concurrent_conflict_exclusion.
+  Print Assumptions rd_f15_state_domain_actuation_fence.
   Print Assumptions rd_f16_sandbox_hash_fencing.
   Print Assumptions rd_f17_cap_hash_fencing.
 

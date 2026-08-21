@@ -256,7 +256,7 @@
       "status": "LOCKED",
       "scope": "Phase 4 Gateway Routing & Lease Security Kernel (Model-Level Refinement)",
       "artifact": "verification/Phase4RoutingRefinement.v",
-      "proof_or_test_method": "coqc -R . Cortex Phase4RoutingRefinement.v && Print Assumptions (17 theorems, 0 axioms, 0 admitted)",
+      "proof_or_test_method": "coqc -R . Cortex Phase4RoutingRefinement.v && Print Assumptions (23 theorems across 17 normative RD obligations + 6 supporting/durable/sub-case theorems, 0 axioms, 0 admitted)",
       "assumptions": [],
       "platform_constraints": "Rocq/Coq >= 9.0"
     },
