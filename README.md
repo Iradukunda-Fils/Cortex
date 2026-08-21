@@ -125,7 +125,7 @@ python3 tests/conformance/run_certification.py
 ### 4. Run Independent Verifier Engine CLI
 Verify raw untrusted evidence bundles out-of-band without importing runtime modules:
 ```bash
-python3 tools/cortex_verifier.py tests/conformance/fixtures/evidence_bundle_valid.json
+python3 tools/cortex_verifier.py tests/golden/f4c_evidence_corpus/valid_chain.json
 # Output: VERDICT: VALID (0) - EVIDENCE_VERIFIED_VALID
 ```
 
