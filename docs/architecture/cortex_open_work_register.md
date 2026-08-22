@@ -1,7 +1,7 @@
 # Cortex Open Work Register
 **Authoritative Remaining Engineering Obligations & Backlog Ledger**  
 **Date:** August 22, 2026  
-**Repository Baseline SHA:** `c9d72d3` (`main`)
+**Repository Baseline SHA:** `f74f41f` (`main`)
 
 ---
 
@@ -9,9 +9,7 @@
 
 | Work ID | Description | Source | Issue | Priority | Security Impact | Formal Impact | Dependency | Target Release | Current Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **OPEN-001** | F4c Verifier Domain Universal Equivalence Formal Proof | Formal Roadmap | #21 | HIGH | Medium (Verification completeness) | High (`GateF_F4c_VerifierSpec.v`) | None | v0.4.1 | OPEN_REQUIRED |
-| **OPEN-002** | SystemVerilog RTL Step Extraction Universal Coq Proof | Formal Roadmap | #22 | HIGH | High (Hardware TCB binding) | High (`DelegationChainRTL.v`) | None | v0.4.1 | OPEN_REQUIRED |
-| **OPEN-003** | External Security Review & P0-P13 Production Readiness | Security Plan | #23 | CRITICAL | Critical (Production Sign-off) | High (Full Matrix P1..P4) | #21, #22 | v1.0.0 | OPEN_REQUIRED |
+| **OPEN-003** | External Security Review & P0-P13 Production Readiness | Security Plan | #23 | CRITICAL | Critical (Production Sign-off) | High (Full Matrix P1..P4) | WORK-021, WORK-022 | v1.0.0 | OPEN_REQUIRED |
 | **OPEN-005** | Concrete-to-Coq Forward Simulation Refinement Relation | DEBT-005 | #32 | HIGH | High (Code-to-Proof Soundness) | Critical (Bridge concrete Python -> Rocq) | #21 | v0.4.1 | OPEN_REQUIRED |
 | **OPEN-006** | Finalize WASM Profile B Sandbox Filters & Test Matrix | DEBT-006 | #33 | MEDIUM | High (Sandbox Isolation) | Medium (Gate G bounds) | None | v0.4.1 | OPEN_REQUIRED |
 | **OPEN-007** | Single-Gateway Dynamic Load Balancer Engine (`load_balancer.py`) | Phase 5 Spec | #34 | HIGH | Medium (Availability & Rate Limits) | Medium (Routing Safety) | PR #27 spec | v0.5.0 | OPEN_REQUIRED |
