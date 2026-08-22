@@ -1,5 +1,5 @@
 """
-Cortex Kernel Runtime Core
+Cortex Kernel Package
 """
 
 __all__: list[str] = []

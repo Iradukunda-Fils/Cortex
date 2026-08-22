@@ -48,9 +48,42 @@ class ManifestError(CortexError):
         super().__init__(message, exit_code=3)
 
 
+class ConfigurationError(CortexError):
+    """Base exception for configuration resolution and validation errors."""
+
+    def __init__(self, message: str, exit_code: int = 4):
+        super().__init__(message, exit_code=exit_code)
+
+
+class SchemaValidationError(ConfigurationError):
+    """Raised when configuration fails JSON Schema structural validation."""
+
+    def __init__(self, message: str):
+        super().__init__(message, exit_code=4)
+
+
+class SemanticValidationError(ConfigurationError):
+    """Raised when configuration fails semantic cross-field constraints."""
+
+    def __init__(self, message: str):
+        super().__init__(message, exit_code=4)
+
+
+class SecurityCeilingViolationError(ConfigurationError):
+    """Raised when configuration attempts to degrade or bypass security profile ceilings."""
+
+    def __init__(self, message: str):
+        super().__init__(message, exit_code=4)
+
+
 __all__ = [
     "CapabilityViolationError",
+    "ConfigurationError",
     "CortexError",
     "ManifestError",
+    "SchemaValidationError",
+    "SecurityCeilingViolationError",
+    "SemanticValidationError",
     "WorkflowExecutionError",
 ]
+
