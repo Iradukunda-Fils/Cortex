@@ -2,10 +2,12 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|:--|:--|
-| v0.2.x | ✅ Active support |
-| < v0.2.0 | ❌ No support |
+| Version | Supported | Notes |
+|:---|:---|:---|
+| v0.5.x | 🚀 Active Development | Target release for Phase 5 Dynamic Load Balancing |
+| v0.4.x | ✅ Active Support | Mainline production candidate baseline |
+| v0.3.x | ⚡ Security Patches | Maintenance mode |
+| < v0.3.0 | ❌ End of Life | Unsupported legacy release |
 
 ## Reporting a Vulnerability
 
