@@ -1,7 +1,7 @@
 # Cortex Documentation Status & Canonical Mapping Register
 **Authoritative Documentation Governance Matrix**  
-**Date:** August 22, 2026  
-**Repository Baseline SHA:** `1927eb4` (`main`)
+**Date:** August 23, 2026  
+**Repository Baseline SHA:** `3b3a98b` (`main`)
 
 ---
 
