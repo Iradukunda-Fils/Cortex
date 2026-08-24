@@ -72,6 +72,10 @@ class TestDynamicLoadBalancer(unittest.TestCase):
         4. Worker A post-recovery attempts to present Epoch 1 -> REJECTED (StaleLeaseEpochError).
         5. Worker B presents Epoch 2 -> ACCEPTED.
         """
+        lb = DynamicLoadBalancer(self.idempotency_engine)
+        lb.register_worker("worker_a", capacity=10, capabilities={"execution.submit"})
+        lb.register_worker("worker_b", capacity=5, capabilities={"execution.submit"})
+
         op = CanonicalOperation(
             invocation_id="inv_critical_fencing_100",
             resource_id="db://cluster/transaction_99",
@@ -80,25 +84,27 @@ class TestDynamicLoadBalancer(unittest.TestCase):
         )
 
         # 1. Assign to Worker A at Epoch 1
-        asgn1 = self.load_balancer.assign_execution(
+        asgn1 = lb.assign_execution(
             op=op,
             execution_attempt_id="att_1",
             adapter_request_id="req_1",
             user_capabilities={"execution.submit"},
         )
+        self.assertEqual(asgn1.worker_id, "worker_a")
         self.assertEqual(asgn1.lease_epoch, 1)
         original_key = asgn1.context.idempotency_key
 
         # 2. Worker A becomes UNHEALTHY
-        self.load_balancer.update_worker_status("worker_a", WorkerStatus.UNHEALTHY)
+        lb.update_worker_status("worker_a", WorkerStatus.UNHEALTHY)
 
         # 3. Reassign to Worker B at Epoch 2
-        asgn2 = self.load_balancer.reassign_failed_execution(
+        asgn2 = lb.reassign_failed_execution(
             op=op,
             new_attempt_id="att_2",
             new_adapter_request_id="req_2",
             user_capabilities={"execution.submit"},
         )
+        self.assertEqual(asgn2.worker_id, "worker_b")
         self.assertEqual(asgn2.lease_epoch, 2)
         self.assertNotEqual(asgn1.worker_id, asgn2.worker_id)
         # Assert same IdempotencyKey preserved across workers!
