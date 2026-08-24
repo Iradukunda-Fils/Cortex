@@ -6,6 +6,7 @@ Canonical Namespace: https://schemas.cortex.internal/v1
 
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -80,10 +81,12 @@ class DynamicLoadBalancer:
     Coordinates worker admittance, capacity management, rebalancing, worker draining,
     and execution assignment while delegating authorization and idempotency key derivation
     strictly to the Gateway PEP and GatewayIdempotencyEngine.
+    Thread-safe implementation using re-entrant lock (RLock).
     """
 
     def __init__(self, idempotency_engine: GatewayIdempotencyEngine) -> None:
         self._idempotency_engine = idempotency_engine
+        self._lock = threading.RLock()
         self._workers: Dict[str, WorkerNode] = {}
         self._active_assignments: Dict[str, ExecutionAssignment] = {}  # invocation_id -> ExecutionAssignment
         self._invocation_epochs: Dict[str, int] = {}  # invocation_id -> current lease_epoch
@@ -98,14 +101,15 @@ class DynamicLoadBalancer:
         if capacity <= 0:
             raise ValueError(f"Worker capacity must be > 0, got {capacity}")
 
-        node = WorkerNode(
-            worker_id=worker_id,
-            capacity=capacity,
-            capabilities=set(capabilities or []),
-            status=WorkerStatus.ACTIVE,
-        )
-        self._workers[worker_id] = node
-        return node
+        with self._lock:
+            node = WorkerNode(
+                worker_id=worker_id,
+                capacity=capacity,
+                capabilities=set(capabilities or []),
+                status=WorkerStatus.ACTIVE,
+            )
+            self._workers[worker_id] = node
+            return node
 
     def update_worker_status(
         self,
@@ -114,14 +118,15 @@ class DynamicLoadBalancer:
         active_load: Optional[int] = None,
     ) -> None:
         """Updates health status and current load of a registered worker."""
-        worker = self._workers.get(worker_id)
-        if not worker:
-            raise WorkerNotFoundError(f"Worker {worker_id!r} not registered")
+        with self._lock:
+            worker = self._workers.get(worker_id)
+            if not worker:
+                raise WorkerNotFoundError(f"Worker {worker_id!r} not registered")
 
-        worker.status = status
-        worker.last_heartbeat_ts = time.time()
-        if active_load is not None:
-            worker.active_load = max(0, active_load)
+            worker.status = status
+            worker.last_heartbeat_ts = time.time()
+            if active_load is not None:
+                worker.active_load = max(0, active_load)
 
     def select_target_worker(
         self,
@@ -132,22 +137,23 @@ class DynamicLoadBalancer:
         Selects least-loaded eligible worker matching capability requirements.
         Eligibility check DOES NOT substitute for Gateway authorization.
         """
-        # Capability check: user must possess required capability
-        if required_capability not in user_capabilities:
-            raise NoEligibleWorkerError(
-                f"User capabilities {user_capabilities!r} do not include required capability {required_capability!r}"
-            )
+        with self._lock:
+            # Capability check: user must possess required capability
+            if required_capability not in user_capabilities:
+                raise NoEligibleWorkerError(
+                    f"User capabilities {user_capabilities!r} do not include required capability {required_capability!r}"
+                )
 
-        eligible = [
-            w for w in self._workers.values()
-            if w.is_eligible and (not w.capabilities or required_capability in w.capabilities)
-        ]
+            eligible = [
+                w for w in self._workers.values()
+                if w.is_eligible and (not w.capabilities or required_capability in w.capabilities)
+            ]
 
-        if not eligible:
-            raise NoEligibleWorkerError("No healthy worker with available capacity found")
+            if not eligible:
+                raise NoEligibleWorkerError("No healthy worker with available capacity found")
 
-        # Select least-loaded worker (Tie-breaker: worker_id string sorting for determinism)
-        return min(eligible, key=lambda w: (w.active_load / w.capacity, w.worker_id))
+            # Select least-loaded worker (Tie-breaker: worker_id string sorting for determinism)
+            return min(eligible, key=lambda w: (w.active_load / w.capacity, w.worker_id))
 
     def assign_execution(
         self,
@@ -162,37 +168,38 @@ class DynamicLoadBalancer:
         Admits an execution request, selects target worker, advances lease epoch,
         derives Gateway idempotency key, and issues ExecutionAssignment.
         """
-        target_worker = self.select_target_worker(
-            required_capability=required_capability,
-            user_capabilities=user_capabilities,
-        )
+        with self._lock:
+            target_worker = self.select_target_worker(
+                required_capability=required_capability,
+                user_capabilities=user_capabilities,
+            )
 
-        current_epoch = self._invocation_epochs.get(op.invocation_id, 0)
-        next_epoch = current_epoch + 1
+            current_epoch = self._invocation_epochs.get(op.invocation_id, 0)
+            next_epoch = current_epoch + 1
 
-        # Create Gateway-authoritative execution context (handles fencing & HMAC derivation)
-        ctx = self._idempotency_engine.create_adapter_context(
-            op=op,
-            execution_attempt_id=execution_attempt_id,
-            adapter_request_id=adapter_request_id,
-            lease_epoch=next_epoch,
-            secret_version=secret_version,
-        )
+            # Create Gateway-authoritative execution context (handles fencing & HMAC derivation)
+            ctx = self._idempotency_engine.create_adapter_context(
+                op=op,
+                execution_attempt_id=execution_attempt_id,
+                adapter_request_id=adapter_request_id,
+                lease_epoch=next_epoch,
+                secret_version=secret_version,
+            )
 
-        assignment = ExecutionAssignment(
-            invocation_id=op.invocation_id,
-            execution_attempt_id=execution_attempt_id,
-            worker_id=target_worker.worker_id,
-            lease_epoch=next_epoch,
-            context=ctx,
-        )
+            assignment = ExecutionAssignment(
+                invocation_id=op.invocation_id,
+                execution_attempt_id=execution_attempt_id,
+                worker_id=target_worker.worker_id,
+                lease_epoch=next_epoch,
+                context=ctx,
+            )
 
-        # Update internal balances
-        target_worker.active_load += 1
-        self._active_assignments[op.invocation_id] = assignment
-        self._invocation_epochs[op.invocation_id] = next_epoch
+            # Update internal balances
+            target_worker.active_load += 1
+            self._active_assignments[op.invocation_id] = assignment
+            self._invocation_epochs[op.invocation_id] = next_epoch
 
-        return assignment
+            return assignment
 
     def reassign_failed_execution(
         self,
@@ -207,50 +214,54 @@ class DynamicLoadBalancer:
         Reassigns a failed or crashed invocation to a new healthy worker.
         Advances LeaseEpoch (Epoch_n+1 > Epoch_n) and preserves identical HMAC IdempotencyKey.
         """
-        prev_assignment = self._active_assignments.get(op.invocation_id)
-        if prev_assignment:
-            # Decrement load on old worker if still registered
-            old_worker = self._workers.get(prev_assignment.worker_id)
-            if old_worker and old_worker.active_load > 0:
-                old_worker.active_load -= 1
+        with self._lock:
+            prev_assignment = self._active_assignments.get(op.invocation_id)
+            if prev_assignment:
+                # Decrement load on old worker if still registered
+                old_worker = self._workers.get(prev_assignment.worker_id)
+                if old_worker and old_worker.active_load > 0:
+                    old_worker.active_load -= 1
 
-        # Assign to new target worker (automatically increments lease epoch)
-        new_assignment = self.assign_execution(
-            op=op,
-            execution_attempt_id=new_attempt_id,
-            adapter_request_id=new_adapter_request_id,
-            user_capabilities=user_capabilities,
-            required_capability=required_capability,
-            secret_version=secret_version,
-        )
-
-        # Assert key preservation invariant
-        if prev_assignment:
-            assert new_assignment.context.idempotency_key == prev_assignment.context.idempotency_key, (
-                "Reassignment violated idempotency key preservation invariant"
+            # Assign to new target worker (automatically increments lease epoch)
+            new_assignment = self.assign_execution(
+                op=op,
+                execution_attempt_id=new_attempt_id,
+                adapter_request_id=new_adapter_request_id,
+                user_capabilities=user_capabilities,
+                required_capability=required_capability,
+                secret_version=secret_version,
             )
 
-        return new_assignment
+            # Assert key preservation invariant
+            if prev_assignment:
+                assert new_assignment.context.idempotency_key == prev_assignment.context.idempotency_key, (
+                    "Reassignment violated idempotency key preservation invariant"
+                )
+
+            return new_assignment
 
     def complete_execution(self, invocation_id: str) -> None:
         """Marks execution completed and releases worker capacity."""
-        assignment = self._active_assignments.pop(invocation_id, None)
-        if assignment:
-            worker = self._workers.get(assignment.worker_id)
-            if worker and worker.active_load > 0:
-                worker.active_load -= 1
+        with self._lock:
+            assignment = self._active_assignments.pop(invocation_id, None)
+            if assignment:
+                worker = self._workers.get(assignment.worker_id)
+                if worker and worker.active_load > 0:
+                    worker.active_load -= 1
 
     def drain_worker(self, worker_id: str) -> List[str]:
         """
         Transitions worker to DRAINING status and returns list of active invocation_ids to reassign.
         """
-        worker = self._workers.get(worker_id)
-        if not worker:
-            raise WorkerNotFoundError(f"Worker {worker_id!r} not registered")
+        with self._lock:
+            worker = self._workers.get(worker_id)
+            if not worker:
+                raise WorkerNotFoundError(f"Worker {worker_id!r} not registered")
 
-        worker.status = WorkerStatus.DRAINING
-        drained_invocations = [
-            inv_id for inv_id, asgn in self._active_assignments.items()
-            if asgn.worker_id == worker_id
-        ]
-        return drained_invocations
+            worker.status = WorkerStatus.DRAINING
+            drained_invocations = [
+                inv_id for inv_id, asgn in self._active_assignments.items()
+                if asgn.worker_id == worker_id
+            ]
+            return drained_invocations
+
