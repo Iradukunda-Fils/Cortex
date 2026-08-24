@@ -100,6 +100,7 @@ class TestEffectReconciliationEngine(unittest.TestCase):
         self.assertTrue(self.engine.is_resource_quarantined("db://payments/charge_99"))
         record = self.engine.get_quarantine_record("db://payments/charge_99")
         self.assertIsNotNone(record)
+        assert record is not None
         self.assertEqual(record.invocation_id, "inv_rec_100")
         self.assertEqual(record.execution_attempt_id, "att_1")
 
