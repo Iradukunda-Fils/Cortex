@@ -15,6 +15,7 @@ from cortex.cbe.errors import CBEError
 MAGIC_BYTES: Final[bytes] = b"CF"  # 0x43 0x46
 HEADER_SIZE: Final[int] = 11
 MAX_FRAME_SIZE: Final[int] = 16_777_216  # 16 MiB
+MAX_DECODER_BUFFER_SIZE: Final[int] = 16_842_763  # 16.0625 MiB protocol derived bound (C_decoder^(1))
 MAX_SEQUENCE: Final[int] = 4_294_967_295  # UINT32_MAX
 
 
@@ -194,6 +195,10 @@ class StreamDecoder:
 
     def feed(self, chunk: bytes) -> list[CortexFrame]:
         """Feeds chunk of bytes and returns decoded CortexFrames."""
+        if len(self._buffer) + len(chunk) > MAX_DECODER_BUFFER_SIZE:
+            raise CBEFrameTooLargeError(
+                f"Stream decoder buffer size {len(self._buffer) + len(chunk)} exceeds maximum limit {MAX_DECODER_BUFFER_SIZE} bytes"
+            )
         self._buffer.extend(chunk)
         frames: list[CortexFrame] = []
 
