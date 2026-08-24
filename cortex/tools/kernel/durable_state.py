@@ -126,30 +126,45 @@ class DurableStateStore:
         return record
 
     def replay_all_records(self) -> List[WALRecord]:
-        """Reads and verifies all records from disk. Stops cleanly on end of file."""
+        """Reads and verifies all records from disk. Stops cleanly at the last valid record on corruption or EOF."""
         if not self.wal_file_path.exists():
             return []
 
         records: List[WALRecord] = []
+        expected_seq_no = 1
         with open(self.wal_file_path, "rb") as f:
             while True:
                 header_bytes = f.read(self.HEADER_SIZE)
                 if not header_bytes:
                     break  # End of file reached
                 if len(header_bytes) < self.HEADER_SIZE:
-                    # Truncated write at end of file (crash during write)
+                    # Truncated header at end of file (crash during write)
                     break
 
-                magic, payload_len, expected_crc, seq_no = struct.unpack(">4sIIQ", header_bytes)
-                payload_bytes = f.read(payload_len)
-                if len(payload_bytes) < payload_len:
-                    # Truncated write during payload
+                try:
+                    magic, payload_len, expected_crc, seq_no = struct.unpack(">4sIIQ", header_bytes)
+                    if magic != b"CWAL":
+                        # Invalid magic header / corruption vector -> stop replay at last valid record
+                        break
+
+                    payload_bytes = f.read(payload_len)
+                    if len(payload_bytes) < payload_len:
+                        # Truncated write during payload -> stop replay at last valid record
+                        break
+
+                    record = WALRecord.deserialize(header_bytes, payload_bytes)
+                    # Enforce strict sequence monotonicity (seq_no == expected_seq_no)
+                    if record.seq_no != expected_seq_no:
+                        # Sequence gap, duplicate, or rollback -> stop replay at last valid record
+                        break
+
+                    records.append(record)
+                    expected_seq_no += 1
+                except (WALCorruptRecordError, struct.error, ValueError):
+                    # Corruption detected -> halt replay safely at last valid record
                     break
 
-                record = WALRecord.deserialize(header_bytes, payload_bytes)
-                records.append(record)
-                self._next_seq_no = max(self._next_seq_no, record.seq_no + 1)
-
+        self._next_seq_no = expected_seq_no
         return records
 
     def close(self) -> None:
