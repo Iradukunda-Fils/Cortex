@@ -11,7 +11,6 @@ import unittest
 
 from cortex.tools.kernel.durable_state import (
     DurableStateStore,
-    WALCorruptRecordError,
     WALRecord,
     WALRecordType,
 )
@@ -51,12 +50,12 @@ class TestPhase6WALAdversarialGate(unittest.TestCase):
     def test_partial_payload_write_recovery(self) -> None:
         """Truncated payload write stops replay cleanly at last valid record."""
         store = DurableStateStore(self.test_dir)
-        r1 = store.append_record(
+        store.append_record(
             WALRecordType.REGISTER_WORKER,
             timestamp_ms=100,
             data={"worker_id": "w1", "max_concurrency": 5},
         )
-        r2 = store.append_record(
+        store.append_record(
             WALRecordType.ASSIGN_EXECUTION,
             timestamp_ms=105,
             data={"invocation_id": "inv_1", "worker_id": "w1", "lease_epoch": 1},

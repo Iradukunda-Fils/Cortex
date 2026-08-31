@@ -26,7 +26,7 @@ from cortex.compat import override
 
 
 class TestDocSnippetsPublicSDKImports(unittest.TestCase):
-    """Assert that documentation markdown Python code blocks contain zero internal module leaks."""
+    """Assert that documentation markdown Python code blocks contain zero internal module leaks or fabricated APIs."""
 
     def test_doc_files_do_not_import_internal_modules(self) -> None:
         """Python code blocks in docs/ must not contain imports from cortex.tools.*."""
@@ -49,6 +49,23 @@ class TestDocSnippetsPublicSDKImports(unittest.TestCase):
                         [],
                         f"Doc file '{md_path.relative_to(docs_dir)}' code block #{i + 1} contains internal import 'from cortex.tools'",
                     )
+
+    def test_doc_files_do_not_use_fabricated_apis(self) -> None:
+        """Documentation must not use invented helper APIs like 'get_kernel_resource_authority'."""
+        docs_dir = Path(__file__).resolve().parent.parent.parent / "docs"
+        md_files = list(docs_dir.glob("**/*.md"))
+
+        fabricated_pattern = re.compile(r"\bget_kernel_[a_zA-Z0-9_]+")
+
+        for md_path in md_files:
+            with self.subTest(file=md_path.name):
+                content = md_path.read_text(encoding="utf-8")
+                matches = fabricated_pattern.findall(content)
+                self.assertEqual(
+                    matches,
+                    [],
+                    f"Doc file '{md_path.relative_to(docs_dir)}' contains fabricated API calls: {matches}",
+                )
 
 
 class TestDocQuickstartSnippetExecution(unittest.TestCase):

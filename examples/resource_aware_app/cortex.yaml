@@ -1,0 +1,19 @@
+schema:
+  name: cortex-app-manifest
+  version: "1"
+
+project:
+  name: resource-aware-demo-app
+  version: "1.0.0"
+  environment: development
+
+resource_policy:
+  schema_name: cortex-resource-policy
+  schema_version: "1"
+  resource_profile:
+    cpu:
+      capacity: 4.0
+      unit: cores
+    memory:
+      capacity: 8.0
+      unit: GiB

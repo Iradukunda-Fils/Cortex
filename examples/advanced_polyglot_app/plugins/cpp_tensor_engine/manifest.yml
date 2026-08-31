@@ -1,0 +1,16 @@
+plugin:
+  name: cpp_tensor_engine
+  version: "1.0.0"
+  language: CPP
+  description: "C++20 SIMD-vectorized tensor analytics & risk calculation plugin"
+
+capabilities:
+  required:
+    - name: "native.cpp.simd"
+  forbidden:
+    - "network.outbound"
+
+performance_benefits:
+  - "AVX-512 SIMD vectorization"
+  - "Zero-overhead C++20 template abstractions"
+  - "Custom high-concurrency memory pools"

@@ -7,8 +7,8 @@ Canonical Namespace: https://schemas.cortex.internal/v1
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import Enum, auto
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any, Final, Optional
 
 MAX_INLINE_PAYLOAD_BYTES: Final[int] = 65_536  # 64 KiB Limit

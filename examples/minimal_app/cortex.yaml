@@ -1,0 +1,8 @@
+schema:
+  name: cortex-app-manifest
+  version: "1"
+
+project:
+  name: minimal-demo-app
+  version: "1.0.0"
+  environment: development

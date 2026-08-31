@@ -77,7 +77,7 @@ class TestPhase6DurableStateStore(unittest.TestCase):
     def test_wal_truncated_crash_recovery(self) -> None:
         """Verifies that trailing un-synced/partial writes are safely ignored during replay."""
         store = DurableStateStore(self.test_dir)
-        r1 = store.append_record(
+        store.append_record(
             WALRecordType.LEADER_EPOCH_ADVANCE,
             timestamp_ms=2000,
             data={"leader_epoch": 10},

@@ -13,7 +13,6 @@ from cortex.tools.kernel.load_balancer import (
     InvalidWorkerError,
     LoadBalancerError,
     ProductionDynamicLoadBalancer,
-    WorkerHealthStatus,
 )
 
 

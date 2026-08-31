@@ -21,8 +21,6 @@ from cortex.tools.kernel.idempotency import (
 )
 from cortex.tools.kernel.load_balancer import (
     DynamicLoadBalancer,
-    NoEligibleWorkerError,
-    WorkerStatus,
 )
 from cortex.tools.kernel.object_ref import (
     BoundedChunkReader,

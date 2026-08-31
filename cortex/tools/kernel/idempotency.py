@@ -6,8 +6,8 @@ Canonical Namespace: https://schemas.cortex.internal/v1
 
 from __future__ import annotations
 
-import hmac
 import hashlib
+import hmac
 from dataclasses import dataclass
 from typing import Dict
 
@@ -62,10 +62,10 @@ class CanonicalOperation:
 class GatewayIdempotencyEngine:
     """
     Authoritative Gateway HMAC-SHA256 Idempotency Engine (TCB scope).
-    
+
     The Gateway turns:
       Invocation + Canonical Operation + Domain Secret Version -> IdempotencyKey
-      
+
     Adapters and workers MUST NOT derive or mutate idempotency keys.
     """
 

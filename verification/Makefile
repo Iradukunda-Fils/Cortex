@@ -14,20 +14,45 @@ COQC     := coqc
 COQFLAGS := -R . Cortex
 
 # Module dependency order (topologically sorted)
-MODULES := AuthorityModel World Semantics LogicalRelation FTLR Substitution Soundness GateF_F0_ModelReconciliation GateF_F1_1_StateCorrespondence GateF_F1_2_StutteringPreservation GateF_F1_2_RealIPC_Stuttering GateF_F2_1_RestrictCap GateF_F2_2_GrantCap GrantCapRTL GateF_F3_1_InvocationSimulation GateL1_EpochMonotonicity Phase4RoutingRefinement
-
-
+MODULES := AuthorityModel World Semantics LogicalRelation FTLR Substitution Soundness GateF_F0_ModelReconciliation GateF_F1_1_StateCorrespondence GateF_F1_2_StutteringPreservation GateF_F1_2_RealIPC_Stuttering GateF_F2_1_RestrictCap GateF_F2_2_GrantCap GrantCapRTL GateF_F3_1_InvocationSimulation GateL1_EpochMonotonicity Phase4RoutingRefinement Phase5LoadBalancerRefinement Phase5Simulation Phase6WALSafety Phase7Reservation
 VFILES  := $(addsuffix .v, $(MODULES))
 VOFILES := $(addsuffix .vo, $(MODULES))
 
-.PHONY: all clean audit
+.PHONY: all clean audit tla verify-fast verify-kernel verify-coq verify-tla-safe verify-full verify-stress verify-benchmark all-coq
 
-all: $(VOFILES)
-	@echo ""
+all: verify-full
+
+all-coq: $(VOFILES)
+
+tla:
 	@echo "============================================================"
-	@echo " BUILD COMPLETE: All modules compiled successfully."
+	@echo " TLA+ DISTRIBUTED AUTHORITY MODEL CHECKING (TLC BOUNDED)"
 	@echo "============================================================"
-	@$(MAKE) --no-print-directory audit
+	java -Xmx1G -XX:+UseParallelGC -cp tla/tla2tools.jar tlc2.TLC -workers 2 tla/Phase6DistributedAuthority.tla -config tla/Phase6DistributedAuthority.cfg
+
+verify-fast:
+	python3 verify_controller.py verify-fast
+
+verify-kernel:
+	python3 verify_controller.py verify-kernel
+
+verify-coq:
+	python3 verify_controller.py verify-coq
+
+verify-tla-safe:
+	python3 verify_controller.py verify-tla-safe
+
+verify-full:
+	python3 verify_controller.py verify-full
+
+verify-stress:
+	python3 verify_controller.py verify-stress
+
+verify-benchmark:
+	python3 verify_controller.py verify-benchmark
+
+
+
 
 %.vo: %.v
 	$(COQC) $(COQFLAGS) $<
@@ -49,6 +74,9 @@ GrantCapRTL.vo:                      GateF_F0_ModelReconciliation.vo GateF_F1_1_
 GateF_F3_1_InvocationSimulation.vo: GateF_F0_ModelReconciliation.vo GateF_F1_1_StateCorrespondence.vo GateF_F2_1_RestrictCap.vo GateF_F2_2_GrantCap.vo
 GateL1_EpochMonotonicity.vo:         GateF_F0_ModelReconciliation.vo GateF_F1_1_StateCorrespondence.vo GateF_F3_1_InvocationSimulation.vo
 Phase4RoutingRefinement.vo:
+Phase5LoadBalancerRefinement.vo:      Phase4RoutingRefinement.vo
+Phase5Simulation.vo:                  Phase5LoadBalancerRefinement.vo
+Phase6WALSafety.vo:
 
 
 clean:

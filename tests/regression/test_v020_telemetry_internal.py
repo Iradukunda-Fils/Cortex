@@ -19,9 +19,9 @@ from cortex._telemetry.models import calculate_quantiles
 class TestInternalTelemetryHarness(unittest.TestCase):
     """Regression test suite for private internal telemetry module."""
 
-    def test_public_api_symbols_frozen_at_21(self) -> None:
-        """Public API surface must remain locked at exactly 21 symbols."""
-        self.assertEqual(len(cortex.__all__), 21)
+    def test_public_api_symbols_frozen_at_23(self) -> None:
+        """Public API surface must remain locked at exactly 23 symbols."""
+        self.assertEqual(len(cortex.__all__), 23)
         self.assertNotIn("_telemetry", cortex.__all__)
         self.assertNotIn("TelemetryCollector", cortex.__all__)
 

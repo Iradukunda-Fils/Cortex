@@ -7,9 +7,8 @@ Canonical Namespace: https://schemas.cortex.internal/v1
 from __future__ import annotations
 
 import hashlib
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import BinaryIO, Final, Generator, Optional, Protocol
+from dataclasses import dataclass
+from typing import Final, Generator, Optional, Protocol
 
 from cortex.tools.kernel.adapter_contract import AdapterExecutionContext
 
@@ -45,7 +44,7 @@ class ObjectRef:
     """
     Canonical ObjectRef metadata handle.
     Schema URI: https://schemas.cortex.internal/v1/objectref.json
-    
+
     ObjectRef represents content identity and integrity ONLY.
     It MUST NOT contain credentials, authorization tokens, physical endpoints, or bearer tokens.
     """
@@ -70,7 +69,7 @@ class PhysicalLocatorHandle:
     """
     Opaque capability token handle returned to workers by DataPlaneResolver.
     Schema URI: https://schemas.cortex.internal/v1/physical-locator-handle.json
-    
+
     Contains NO physical storage topology (no s3://, /mnt/, hosts, ports, or credentials).
     Bound to InvocationID, ExecutionAttemptID, and a temporal validity window.
     """

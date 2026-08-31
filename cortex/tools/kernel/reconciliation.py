@@ -6,9 +6,9 @@ Canonical Namespace: https://schemas.cortex.internal/v1
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional, Protocol, Set
+from typing import Dict, Optional, Protocol
 
 from cortex.tools.kernel.adapter_contract import (
     AdapterExecutionContext,
@@ -73,11 +73,11 @@ class WitnessProbe(Protocol):
 class EffectReconciliationEngine:
     """
     3-Layer Effect Reconciliation Engine (v1.5.0-FROZEN):
-    
+
     1. Layer 1: Idempotency Querying
     2. Layer 2: External Witness Probing
     3. Layer 3: Indeterminate Quarantine Isolation
-    
+
     Invariant:
     UnknownEffect ^ NonIdempotent ==> State = INDETERMINATE ==> QuarantineScope <= StateDomain
     """
@@ -137,7 +137,7 @@ class EffectReconciliationEngine:
 
         # Layer 3: Indeterminate Quarantine Isolation for Non-Idempotent Operations
         self._invocation_states[ctx.invocation_id] = InvocationState.INDETERMINATE
-        
+
         quarantine_record = QuarantineRecord(
             quarantine_id=f"quar_{ctx.invocation_id}_{ctx.execution_attempt_id}",
             invocation_id=ctx.invocation_id,

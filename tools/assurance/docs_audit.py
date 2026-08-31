@@ -126,7 +126,7 @@ def audit_md_file(file_path: str, known_symbols: Set[str], test_methods: Set[str
         if any(x in p for x in {".com", ".dev", ".io", ".org", "github", "http", "img.shields"}):
             continue
         # Skip environment variables and placeholder/example paths
-        if any(x in p for x in {"CORTEX_STATE_DIR", "BillingEngine", "export.csv"}):
+        if any(x in p for x in {"CORTEX_STATE_DIR", "BillingEngine", "export.csv", "invocation_journal.jsonl"}):
             continue
         full_path = os.path.join(ROOT_DIR, p)
         checks += 1

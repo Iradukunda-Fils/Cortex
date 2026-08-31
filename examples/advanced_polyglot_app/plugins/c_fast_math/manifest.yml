@@ -1,0 +1,17 @@
+plugin:
+  name: c_fast_math
+  version: "1.0.0"
+  language: C
+  description: "High-performance low-latency matrix dot-product compute plugin in C"
+
+capabilities:
+  required:
+    - name: "native.c.compute"
+  forbidden:
+    - "network.outbound"
+    - "storage.write"
+
+performance_benefits:
+  - "Sub-microsecond latency execution"
+  - "Zero garbage collection pauses"
+  - "Direct CPU L1/L2 cache locality"

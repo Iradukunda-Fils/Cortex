@@ -4,7 +4,6 @@ Conformance and Security Boundary Tests for ObjectRef Data Plane, Opaque Locator
 
 import hashlib
 import unittest
-from typing import Generator
 
 from cortex.tools.kernel.adapter_contract import AdapterExecutionContext
 from cortex.tools.kernel.object_ref import (

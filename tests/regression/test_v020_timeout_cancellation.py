@@ -17,9 +17,9 @@ from cortex._research.timeout_cancellation import execute_timeout_cancellation_r
 class TestTimeoutCancellationResearchSuite(unittest.TestCase):
     """Regression test suite for Issue #12 workflow timeout and cancellation semantics."""
 
-    def test_public_api_symbols_frozen_at_21(self) -> None:
-        """Public API surface must remain locked at exactly 21 symbols."""
-        self.assertEqual(len(cortex.__all__), 21)
+    def test_public_api_symbols_frozen_at_23(self) -> None:
+        """Public API surface must remain locked at exactly 23 symbols."""
+        self.assertEqual(len(cortex.__all__), 23)
         self.assertNotIn("_research", cortex.__all__)
 
     def test_internal_package_has_empty_all(self) -> None:

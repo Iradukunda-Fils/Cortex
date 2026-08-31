@@ -2,13 +2,14 @@
 Cortex Phase 6.1: Durable State Engine & Write-Ahead Logging (WAL)
 Normative Baseline: v1.5.1-FINAL-FROZEN
 
-Provides crash-safe disk persistence for LeaseEpochs, worker assignments,
+Provides crash-safe disk persistence for    s, worker assignments,
 idempotency tracking, and quarantine records via an append-only WAL with
 CRC32 integrity validation and atomic sync semantics.
 """
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import struct
@@ -16,7 +17,7 @@ import zlib
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 
 class WALRecordType(Enum):
@@ -118,9 +119,14 @@ class DurableStateStore:
         self._open_file()
         if self._file_handle is None:
             raise RuntimeError("WAL file handle failed to open.")
-        self._file_handle.write(serialized)
-        self._file_handle.flush()
-        os.fsync(self._file_handle.fileno())
+        fd = self._file_handle.fileno()
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        try:
+            self._file_handle.write(serialized)
+            self._file_handle.flush()
+            os.fsync(fd)
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)
 
         self._next_seq_no += 1
         return record
