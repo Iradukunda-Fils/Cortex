@@ -134,5 +134,11 @@ Application developers can configure resource demands, timeouts, and retry polic
 
 The Cortex Developer Contract distinguishes between:
 1. **Coq Mathematical Models (`PROVEN`)**: Formally proven properties of state transitions ($S_R$).
-2. **Python Implementation (`IMPLEMENTED / RUNTIME-VERIFIED`)**: Concrete executable code. It is verified by the integration and unit tests, not via mechanical extraction from Coq.
-3. **Refinement Model (`REFINEMENT-PROPOSED`)**: The theoretical correspondence between Python state and Coq state, not yet machine-verified.
+2. **Python Implementation (`IMPLEMENTED / RUNTIME-VERIFIED`)**: Concrete executable code, verified by unit and integration tests.
+3. **Refinement Model (`UNPROVEN / OPEN`)**: The formal refinement mapping ($Python \to Coq$), which remains unproven.
+
+Phase 8.0 explicitly targets machine-checked refinement proofs for:
+- **Phase 4 routing refinement (Issue #32)** ($R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$) — **`UNPROVEN / OPEN`**
+- **Phase 7 ResourceAuthority reservation refinement** ($R_{\text{Phase7}}(C_{\text{Python}}, A_{\text{Coq}})$) — **`UNPROVEN / OPEN`**
+
+Tests do not substitute for formal refinement proofs. The active objective of Phase 8 is verification of these simulation refinement theorems.

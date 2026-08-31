@@ -245,11 +245,45 @@ Phase 7.7 establishes the complete four-way separation of concerns:
 $$\boxed{ \text{Scheduler} = \text{where should this run?} } \quad\parallel\quad \boxed{ \text{ResourceAuthority} = \text{is this allowed and reserved?} }$$
 $$\boxed{ \text{WorkerSupervisor} = \text{how is execution contained?} } \quad\parallel\quad \boxed{ \text{Autoscaler} = \text{should capacity change?} }$$
 
-1. **Globally Unique Resource Identities**: Identifiers are scoped across nodes ($GPUIdentity = (NodeID, GPUID, PartitionID?)$, $WorkerIdentity = (NodeID, WorkerID, Generation)$). Local IDs are strictly prohibited as global identities.
-2. **Multi-Node Resource Fragmentation**: Explicitly detected when aggregate cluster capacity is sufficient ($\sum_w R_w \ge d_i$), but no single worker satisfies vector demand ($d_i \npreceq R_w$).
-3. **Autoscaler Boundary & Safety**: The `AutoscalerController` NEVER mutates $S_R$ directly. It invokes `ResourceAuthority` scale methods (`scale_up_register_worker`, `scale_down_drain_worker`, `scale_down_retire_worker`). Scale-down strictly enforces:
-   $$\boxed{ CapacityReusable(w) \implies ExecutionTreeTerminated(w) \land ExitObserved(w) \land OldAuthorizationInvalid(w) }$$
-4. **Hysteresis Controls**: Minimum residency window ($T_{residency} \ge 30s$) and cooldown window ($T_{cooldown} \ge 15s$) eliminate scale-up / scale-down thrashing.
+#### 7.7.1 Scope & Capability Classification
 
+To maintain documentation truth, the system capabilities are classified as follows:
 
+| Component / Layer | Classification | Details |
+| :--- | :--- | :--- |
+| **Distributed Placement Model** | **`IMPLEMENTED & RUNTIME-VERIFIED`** | Selection/placement strategy over logical multi-node states in a single process memory space. |
+| **Distributed Execution** | **`UNPROVEN / OPEN`** | No cross-node process execution dispatcher is implemented. |
+| **Cross-Node Transport** | **`UNPROVEN / OPEN`** | No remote networking layer (e.g., gRPC, TCP) exists for node coordination. |
+| **Autoscaling Policy/Decision Engine** | **`IMPLEMENTED & RUNTIME-VERIFIED`** | Evaluates queue pressure, tracks worker residency, and requests transition states (`DRAIN`, `RETIRE`) on `ResourceAuthority`. |
+| **Worker Provisioning Engine** | **`UNPROVEN / OPEN`** | No physical virtual machine, bare metal, or container provisioning hook is implemented. |
+
+$$\text{Distributed Placement Model} \neq \text{Distributed Execution} \neq \text{Cross-Node Transport}$$
+
+#### 7.7.2 Stale-Read Retry & Authoritative Validation
+
+The scheduler treats telemetry strictly as observational estimation, ensuring telemetry updates cannot bypass authoritative guards:
+
+$$\text{Telemetry} \rightarrow \text{Candidate Estimate} \xrightarrow{\text{Proposes } w^*} \text{ResourceAuthority.reserve()} \rightarrow \text{Authoritative Validation} \rightarrow \text{Success / Rejection}$$
+
+- **Non-Authority of Telemetry**: Telemetry is only used as an optimization hint for selection cost.
+- **Atomic Fenced Reservation**: A placement proposal is a recommendation only. State mutation and reservation success are linearized exclusively inside `ResourceAuthority.reserve()`. Stale state results in deterministic rejection and retry.
+- **Global Identities**: Identifiers are scoped across nodes preventing namespace collision:
+  - $\text{GPUIdentity} = (\text{NodeID}, \text{GPUID}, \text{PartitionID?})$
+  - $\text{WorkerIdentity} = (\text{NodeID}, \text{WorkerID}, \text{Generation})$
+
+#### 7.7.3 Empirical Benchmark Results (Logical Cluster Simulation)
+
+Benchmarks were run under a **Logical Cluster Simulation** where $N$ logical workers are simulated inside a single OS process memory space across 10 logical nodes:
+
+- **10 workers**: Selection P50 = 149.8 µs, Total P50 = 326.5 µs, Total P99 = 397.3 µs
+- **100 workers**: Selection P50 = 1.31 ms, Total P50 = 1.91 ms, Total P99 = 3.64 ms
+- **1000 workers**: Selection P50 = 19.59 ms, Total P50 = 24.97 ms, Total P99 = 150.29 ms
+- **RSS Footprint**: 34.5 MB constant
+
+#### 7.7.4 Invariant & Autoscaling Safety
+
+- **Scale-Up Policy**: Evaluates queue depth and registers workers via `ResourceAuthority.scale_up_register_worker()`.
+- **Scale-Down Safety**: Enforces the retirement invariant:
+  $$\boxed{ CapacityReusable(w) \implies ExecutionTreeTerminated(w) \land ExitObserved(w) \land OldAuthorizationInvalid(w) }$$
+- **Hysteresis Controls**: Minimum residency window ($T_{residency} \ge 30s$) and cooldown window ($T_{cooldown} \ge 15s$) prevent rapid scale oscillation.
 

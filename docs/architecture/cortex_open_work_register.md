@@ -96,6 +96,8 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
 - **Phase 7.7a**: Heterogeneous Distributed Placement Engine (`distributed_scheduler.py`, global identities, multi-node fragmentation, locality, stale-read retry — **CLOSED / RUNTIME-VERIFIED & BENCHMARKED**)
 - **Phase 7.7b**: Autoscaling Controller Engine (`autoscaler.py`, control loop, scale-up/down safety, quiescence retirable checks, hysteresis — **CLOSED / RUNTIME-VERIFIED & ADVERSARIALLY TESTED**)
 - **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **ACTIVE NEXT GATE**
+  - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ (Concrete routing gateway refinement for Issue #32) — **`UNPROVEN / OPEN`**
+  - **Obligation 2**: $R_{\text{Phase7}}(C_{\text{Python}}, A_{\text{Coq}})$ (Resource reservation refinement between Python and `Phase7Reservation.v`) — **`UNPROVEN / OPEN`**
 
 ---
 
