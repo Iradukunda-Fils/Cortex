@@ -96,8 +96,14 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
 - **Phase 7.7a**: Heterogeneous Distributed Placement Model (`distributed_scheduler.py`, global identities, multi-node fragmentation, locality, stale-read retry — **CLOSED / RUNTIME-VERIFIED & BENCHMARKED (LOGICAL SIMULATION)**)
 - **Phase 7.7b**: Autoscaling Policy/Decision Engine (`autoscaler.py`, control loop, scale-up/down safety, quiescence retirable checks, hysteresis — **CLOSED / RUNTIME-VERIFIED & ADVERSARIALLY TESTED**)
 - **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **ACTIVE NEXT GATE**
-  - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ (Concrete routing gateway refinement for Issue #32) — **`UNPROVEN / OPEN`**
-  - **Obligation 2**: $R_{\text{Phase7}}(C_{\text{Python}}, A_{\text{Coq}})$ (Resource reservation refinement between Python and `Phase7Reservation.v`) — **`UNPROVEN / OPEN`**
+  - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ Gateway Refinement (Issue #32) — `OPEN / PROOF TARGET`
+  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — `OPEN REQUIRED`
+  - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — `MODEL GAP`
+  - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — `MODEL GAP`
+  - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — `MODEL GAP`
+  - **Obligation 6**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — `OPEN / PROOF TARGET`
+  - **Obligation 7**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — `OPEN / PROOF TARGET`
+  - **Obligation 8**: Forward Simulation Step Preservation for Reserve/Release (Issue #58) — `OPEN / PROOF TARGET`
 
 ---
 

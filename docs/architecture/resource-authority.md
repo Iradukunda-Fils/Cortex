@@ -26,17 +26,29 @@ Configuration describes policy and initial resource constraints. It **never** di
 
 ## 2. Mathematical Formalization & Coq Refinement
 
-The Python implementation $C_{\text{Python}}$ is formally bound to the proven Coq abstract state model $A_{\text{Coq}}$ via the refinement relation $R(C, A)$:
+The Python implementation $C_{\text{Python}}$ is bound to the Coq abstract state model $A_{\text{Coq}}$ via formal concrete transition semantics $C_{\text{formal}}$ (Issue #52):
+
+$$\boxed{ \text{Python Code } (C_{\text{Python}}) \longrightarrow \text{Formal Concrete Semantics } (C_{\text{formal}}) \xrightarrow{\quad\alpha\quad} \text{Abstract Coq Model } (A_{\text{Coq}}) }$$
 
 $$\boxed{ R(c, a) \iff \alpha(c) = a \;\land\; \text{Invariant}(a) }$$
 
 $$\boxed{ R(c, a) \land c \xrightarrow{op} c' \implies \exists a': a \xrightarrow{op^*} a' \land R(c', a') }$$
 
-### Abstraction Function $\alpha: C_{\text{Python}} \to A_{\text{Coq}}$
+### Abstraction Function $\alpha: C_{\text{formal}} \to A_{\text{Coq}}$ & Vector Projection
 
-The abstraction function maps internal Python containers (`_reservations`, `_lease_epochs`, `_worker_generations`, `_gpu_owners`) into abstract Coq state tuples:
+The abstraction function maps internal Python containers (`_reservations`, `_lease_epochs`, `_worker_generations`, `_gpu_owners`) into abstract Coq state tuples using a scalar projection $\alpha_{\text{vector}\to\text{scalar}}(\mathbf{d}) = \text{cpu\_mcores}(\mathbf{d})$ (Issue #53):
 
 $$\alpha(C) = \langle R_{list}, K_{cap}, U_{used}, M_{margin}, \Delta_{uncertainty}, E_A, L_{leases}, G_{generations}, \Omega_{gpus} \rangle$$
+
+### Phase 8.0 Refinement Proof Obligation Tracker
+- **GAP-A (Issue #52)**: Formal concrete semantics $C_{\text{formal}}$ transition system (`OPEN REQUIRED`).
+- **GAP-B (Issue #53)**: Vector-to-scalar projection audit $\alpha_{\text{vector}\to\text{scalar}}$ (`MODEL GAP`).
+- **GAP-C (Issue #54)**: `StepExpire` abstract transition constructor & capacity reclamation (`MODEL GAP`).
+- **GAP-D (Issue #55)**: `StepRevoke` abstract transition constructor & fencing (`MODEL GAP`).
+- **GAP-E (Issue #56)**: WAL durable prefix simulation refinement theorem $D'$ (`PROOF TARGET`).
+- **GAP-F (Issue #57)**: Initial state correspondence theorem $\alpha(C_0) = A_0$ (PO-8.1) (`PROOF TARGET`).
+- **GAP-G (Issue #58)**: Core step simulation relation for `reserve`, `reserve_gpu`, and `release` (`PROOF TARGET`).
+- **GAP-H (Issue #32)**: Phase 4 routing gateway simulation refinement $R_{\text{Phase4}}(C,A)$ (`PROOF TARGET`).
 
 ### Proved System Invariants
 
