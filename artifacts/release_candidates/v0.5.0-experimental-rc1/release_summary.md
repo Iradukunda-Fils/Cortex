@@ -55,4 +55,8 @@ All 562 unit, integration, conformance, and performance tests pass with 100% par
 With the runtime architecture sealed at `v0.5.0rc1` on `release/0.5.x`, the architecture is **FROZEN** ($\Delta \text{Architecture} = 0$). Phase 8.0 strictly mandates machine-checked refinement proofs:
 1. Construct $R_{\text{Phase7}}(C, A)$ in `verification/Phase7Refinement.v` for `ResourceAuthority`.
 2. Construct $R_{\text{Phase4}}(C, A)$ in `verification/Phase4Refinement.v` to close Issue #32.
-3. No algorithmic optimizations or feature extensions are permitted without a demonstrated benchmark bottleneck.
+3. **Mandatory Mismatch Classification Rule**: Every discrepancy between concrete Python behavior $C$ and abstract Coq model $A$ MUST be classified into exactly one of:
+   $$\boxed{ \text{Implementation Bug} \;|\; \text{Model Gap} \;|\; \text{Mapping Error} \;|\; \text{Specification Error} \;|\; \text{Unsupported Behavior} }$$
+   before changing any code or proof, preventing the pattern of weakening the formal model to match implementation shortcuts.
+4. No algorithmic optimizations or feature extensions are permitted without a demonstrated benchmark bottleneck.
+
