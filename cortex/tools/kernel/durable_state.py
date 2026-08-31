@@ -68,15 +68,11 @@ class WALRecord:
             raise WALCorruptRecordError(f"Invalid WAL magic header: {magic!r}")
 
         if len(payload_bytes) != payload_len:
-            raise WALCorruptRecordError(
-                f"Payload length mismatch: expected {payload_len}, got {len(payload_bytes)}"
-            )
+            raise WALCorruptRecordError(f"Payload length mismatch: expected {payload_len}, got {len(payload_bytes)}")
 
         actual_crc = zlib.crc32(payload_bytes) & 0xFFFFFFFF
         if actual_crc != expected_crc:
-            raise WALCorruptRecordError(
-                f"CRC32 mismatch: calculated {actual_crc:#010x}, expected {expected_crc:#010x}"
-            )
+            raise WALCorruptRecordError(f"CRC32 mismatch: calculated {actual_crc:#010x}, expected {expected_crc:#010x}")
 
         payload_dict = json.loads(payload_bytes.decode("utf-8"))
         return cls(

@@ -24,9 +24,9 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 EXCLUDE_DIRS = {".git", ".venv", "__pycache__", ".runtime", ".generated", ".cache"}
 
 # Regex patterns
-PATH_PATTERN = re.compile(r'(?:[a-zA-Z0-9_\-\.]+/)+[a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+')
-GATE_PATTERN = re.compile(r'\b(RD|RS|LB)-\d+[a-z]?\b')
-SYMBOL_PATTERN = re.compile(r'`([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)`')
+PATH_PATTERN = re.compile(r"(?:[a-zA-Z0-9_\-\.]+/)+[a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+")
+GATE_PATTERN = re.compile(r"\b(RD|RS|LB)-\d+[a-z]?\b")
+SYMBOL_PATTERN = re.compile(r"`([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)`")
 
 
 def get_all_python_symbols() -> Set[str]:
@@ -132,7 +132,9 @@ def audit_md_file(file_path: str, known_symbols: Set[str], test_methods: Set[str
         checks += 1
         if not os.path.exists(full_path):
             # Gracefully handle references to the replica management subsystem when it is not present on the current branch
-            if "cortex/tools/replica" in p.replace("/kernel/", "/") and not os.path.exists(os.path.join(ROOT_DIR, "cortex/tools/kernel/replica/router.py")):
+            if "cortex/tools/replica" in p.replace("/kernel/", "/") and not os.path.exists(
+                os.path.join(ROOT_DIR, "cortex/tools/kernel/replica/router.py")
+            ):
                 warnings += 1
                 continue
             print(f"  [FAIL] Referenced path does not exist: {p}")
@@ -144,7 +146,21 @@ def audit_md_file(file_path: str, known_symbols: Set[str], test_methods: Set[str
         # Clean dot notation like 'LeaseManager.grant_lease' -> check class name or method
         base_sym = sym.split(".")[0]
         # Ignore common python/system keywords
-        if base_sym in {"str", "int", "float", "dict", "list", "set", "bool", "True", "False", "None", "self", "args", "kwargs"}:
+        if base_sym in {
+            "str",
+            "int",
+            "float",
+            "dict",
+            "list",
+            "set",
+            "bool",
+            "True",
+            "False",
+            "None",
+            "self",
+            "args",
+            "kwargs",
+        }:
             continue
         checks += 1
         if base_sym not in known_symbols:

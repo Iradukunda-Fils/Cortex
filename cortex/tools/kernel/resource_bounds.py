@@ -37,7 +37,9 @@ class ResourceAction(str, Enum):
 class ResourceBoundExceededError(Exception):
     """Raised when a resource container exceeds its Count or Byte bounds under REJECT policy."""
 
-    def __init__(self, resource_name: str, current: int, max_bound: int, bound_type: str, action: ResourceAction) -> None:
+    def __init__(
+        self, resource_name: str, current: int, max_bound: int, bound_type: str, action: ResourceAction
+    ) -> None:
         super().__init__(
             f"Resource boundary violation for '{resource_name}': {bound_type} {current} >= max {max_bound}. Action: {action.value}"
         )
@@ -83,7 +85,9 @@ class ResourceBoundValidator:
         """Retrieves a registered rule by resource name."""
         return self._rules.get(resource_name)
 
-    def evaluate(self, resource_name: str, current_count: int, current_bytes: int) -> Tuple[bool, Optional[ResourceAction], Optional[str]]:
+    def evaluate(
+        self, resource_name: str, current_count: int, current_bytes: int
+    ) -> Tuple[bool, Optional[ResourceAction], Optional[str]]:
         """
         Evaluates whether a container violates Count(X) >= B_X or ByteSize(X) >= S_X.
         Returns: (is_violated, ActionToTake, ReasonDescription)

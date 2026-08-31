@@ -184,9 +184,7 @@ class DataPlaneResolver:
 
         # 2. Resource Policy Check
         if not resource_policy_allowed:
-            raise DataPlaneAccessDeniedError(
-                f"Resource policy denies access to object {obj_ref.object_id!r}"
-            )
+            raise DataPlaneAccessDeniedError(f"Resource policy denies access to object {obj_ref.object_id!r}")
 
         # 3. Invocation Authority Check (provenance match if set)
         if obj_ref.provenance and obj_ref.provenance != auth_ctx.invocation_id:
@@ -195,7 +193,9 @@ class DataPlaneResolver:
             )
 
         # Generate opaque handle (SHA-256 token digest)
-        token_input = f"{auth_ctx.invocation_id}:{auth_ctx.execution_attempt_id}:{obj_ref.object_id}:{obj_ref.content_digest}"
+        token_input = (
+            f"{auth_ctx.invocation_id}:{auth_ctx.execution_attempt_id}:{obj_ref.object_id}:{obj_ref.content_digest}"
+        )
         opaque_token = f"locator_tok_{hashlib.sha256(token_input.encode()).hexdigest()[:32]}"
 
         handle = PhysicalLocatorHandle(

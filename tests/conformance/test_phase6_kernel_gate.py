@@ -96,7 +96,9 @@ class TestPhase6KernelGate(unittest.TestCase):
     def test_issue47_resource_bound_count_and_byte_triggers(self) -> None:
         """Validates Count >= B_X or ByteSize >= S_X triggers with action policies."""
         validator = ResourceBoundValidator()
-        validator.register_rule(ResourceBoundRule("test_queue", max_count=5, max_bytes=100, action=ResourceAction.REJECT))
+        validator.register_rule(
+            ResourceBoundRule("test_queue", max_count=5, max_bytes=100, action=ResourceAction.REJECT)
+        )
 
         # Under limit -> PASS
         validator.validate_or_raise("test_queue", prospective_count=4, prospective_bytes=80)
@@ -161,19 +163,31 @@ class TestPhase6KernelGate(unittest.TestCase):
             KernelInvariantChecker.verify_proof_3_capacity_conservation(workers, {"inv_1": "w1"})
 
         # Proof 4: Lease Fencing
-        KernelInvariantChecker.verify_proof_4_lease_fencing(requested_lease_epoch=10, active_lease_epoch=10, invocation_id="inv_1")
+        KernelInvariantChecker.verify_proof_4_lease_fencing(
+            requested_lease_epoch=10, active_lease_epoch=10, invocation_id="inv_1"
+        )
         with self.assertRaises(KernelInvariantViolationError):
-            KernelInvariantChecker.verify_proof_4_lease_fencing(requested_lease_epoch=9, active_lease_epoch=10, invocation_id="inv_1")
+            KernelInvariantChecker.verify_proof_4_lease_fencing(
+                requested_lease_epoch=9, active_lease_epoch=10, invocation_id="inv_1"
+            )
 
         # Proof 5: Worker Incarnation Fencing
-        KernelInvariantChecker.verify_proof_5_incarnation_fencing(presented_generation=2, active_generation=2, worker_id="w1")
+        KernelInvariantChecker.verify_proof_5_incarnation_fencing(
+            presented_generation=2, active_generation=2, worker_id="w1"
+        )
         with self.assertRaises(KernelInvariantViolationError):
-            KernelInvariantChecker.verify_proof_5_incarnation_fencing(presented_generation=1, active_generation=2, worker_id="w1")
+            KernelInvariantChecker.verify_proof_5_incarnation_fencing(
+                presented_generation=1, active_generation=2, worker_id="w1"
+            )
 
         # Proof 6: Authority Epoch Fencing
-        KernelInvariantChecker.verify_proof_6_authority_epoch_fencing(presented_authority_epoch=5, active_authority_epoch=5)
+        KernelInvariantChecker.verify_proof_6_authority_epoch_fencing(
+            presented_authority_epoch=5, active_authority_epoch=5
+        )
         with self.assertRaises(KernelInvariantViolationError):
-            KernelInvariantChecker.verify_proof_6_authority_epoch_fencing(presented_authority_epoch=4, active_authority_epoch=5)
+            KernelInvariantChecker.verify_proof_6_authority_epoch_fencing(
+                presented_authority_epoch=4, active_authority_epoch=5
+            )
 
         # Proof 7: Quarantine Containment
         quarantined = {"inv_q1": True}
@@ -198,7 +212,9 @@ class TestPhase6KernelGate(unittest.TestCase):
         def invariant_fn(state: str) -> bool:
             return state.startswith("replayed_")
 
-        KernelInvariantChecker.verify_proof_10_recovery_invariant_preservation(dummy_replay, invariant_fn, b"valid_prefix")
+        KernelInvariantChecker.verify_proof_10_recovery_invariant_preservation(
+            dummy_replay, invariant_fn, b"valid_prefix"
+        )
 
     def test_derived_capability_index_invariant_i9(self) -> None:
         """
@@ -233,4 +249,3 @@ class TestPhase6KernelGate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

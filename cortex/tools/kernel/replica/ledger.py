@@ -35,11 +35,13 @@ class InvocationState(Enum):
 # Formal terminal state invariant:
 # TerminalState(I) ∈ {COMMITTED, REJECTED, INDETERMINATE}
 # LOST, DROPPED, ORPHANED_FOREVER, UNKNOWN are prohibited as terminal states.
-TERMINAL_STATES = frozenset({
-    InvocationState.COMMITTED,
-    InvocationState.REJECTED,
-    InvocationState.INDETERMINATE,
-})
+TERMINAL_STATES = frozenset(
+    {
+        InvocationState.COMMITTED,
+        InvocationState.REJECTED,
+        InvocationState.INDETERMINATE,
+    }
+)
 
 
 class RecoveryBucket(Enum):
@@ -121,7 +123,7 @@ class InvocationStateLedger:
         # Check for snapshot header
         if header_line.startswith("# SNAPSHOT_HEADER:"):
             try:
-                header_raw = header_line[len("# SNAPSHOT_HEADER:"):].strip()
+                header_raw = header_line[len("# SNAPSHOT_HEADER:") :].strip()
                 header_data = json.loads(header_raw)
                 self._snapshot_gen = header_data.get("snapshot_generation", 0)
                 expected_hash = header_data.get("checkpoint_hash", "")
@@ -211,8 +213,11 @@ class InvocationStateLedger:
             )
             self._records[invocation_id] = record
             self._append_journal(
-                invocation_id, InvocationState.QUEUED,
-                intent_hash=intent_hash, config_generation=config_generation, config_hash=config_hash,
+                invocation_id,
+                InvocationState.QUEUED,
+                intent_hash=intent_hash,
+                config_generation=config_generation,
+                config_hash=config_hash,
             )
             return record
 
@@ -238,8 +243,10 @@ class InvocationStateLedger:
                 record.lease_epoch = lease_epoch
 
             self._append_journal(
-                invocation_id, to_state,
-                assigned_worker_id=worker_id, lease_epoch=lease_epoch,
+                invocation_id,
+                to_state,
+                assigned_worker_id=worker_id,
+                lease_epoch=lease_epoch,
             )
             return record
 
@@ -299,10 +306,7 @@ class InvocationStateLedger:
 
     def _compact_terminated_unlocked(self) -> int:
         """Internal unlocked implementation of snapshot compaction."""
-        to_remove = [
-            inv_id for inv_id, rec in self._records.items()
-            if rec.state in TERMINAL_STATES
-        ]
+        to_remove = [inv_id for inv_id, rec in self._records.items() if rec.state in TERMINAL_STATES]
 
         # Record all evicted IDs in persistent terminal set
         for inv_id in to_remove:
@@ -325,7 +329,7 @@ class InvocationStateLedger:
                     "lease_epoch": rec.lease_epoch,
                     "state": rec.state.name,
                 }
-                body_lines.append(json.dumps(entry, sort_keys=True, separators=(',', ':')) + "\n")
+                body_lines.append(json.dumps(entry, sort_keys=True, separators=(",", ":")) + "\n")
 
             body_content = "".join(body_lines).encode("utf-8")
             checkpoint_hash = hashlib.sha256(body_content).hexdigest()

@@ -66,8 +66,7 @@ class QuarantineRecord:
 class WitnessProbe(Protocol):
     """Protocol for external witness/status probes."""
 
-    def probe_status(self, ctx: AdapterExecutionContext) -> ExecutionStatus:
-        ...
+    def probe_status(self, ctx: AdapterExecutionContext) -> ExecutionStatus: ...
 
 
 class EffectReconciliationEngine:

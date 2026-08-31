@@ -16,11 +16,10 @@ from __future__ import annotations
 
 import time
 import unittest
+
 from cortex.tools.kernel.resource_authority import (
-    ResourceAuthority,
     ReservationStatus,
-    WorkerLifecycleState,
-    ReservationRecord,
+    ResourceAuthority,
 )
 
 
@@ -142,7 +141,7 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
         ra_orig = ResourceAuthority(capacity=100000, use_min_heap_expiration=True)
         now = 1_000_000_000
 
-        r1 = ra_orig.reserve(
+        ra_orig.reserve(
             res_id=1,
             res_inv=10,
             res_att=100,
@@ -153,7 +152,7 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
             worker_generation=1,
             expiration_timestamp_ns=now + 500,
         )
-        r2 = ra_orig.reserve(
+        ra_orig.reserve(
             res_id=2,
             res_inv=20,
             res_att=200,
@@ -265,13 +264,25 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
         for i in range(n_reservations):
             exp_ts = now + (i + 1) * 1000
             ra_base.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
             ra_heap.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
 
@@ -280,7 +291,8 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
         # Baseline: measure just the candidate identification (linear scan)
         t0 = time.perf_counter_ns()
         candidates_base = [
-            r.res_id for r in ra_base._reservations.values()
+            r.res_id
+            for r in ra_base._reservations.values()
             if r.res_status.is_active()
             and r.expiration_timestamp_ns is not None
             and r.expiration_timestamp_ns <= sweep_time
@@ -313,13 +325,25 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
         for i in range(n_reservations):
             exp_ts = now + (i + 1) * 1000
             ra_base2.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
             ra_heap2.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
 
@@ -334,29 +358,33 @@ class TestCandidateEMinHeapExpirationPrototype(unittest.TestCase):
         self.assertEqual(len(exp_base), n_to_expire)
         self.assertEqual(len(exp_heap), n_to_expire)
 
-        select_speedup = t_select_base_us / t_select_heap_us if t_select_heap_us > 0 else float('inf')
-        full_speedup = t_full_base_us / t_full_heap_us if t_full_heap_us > 0 else float('inf')
+        select_speedup = t_select_base_us / t_select_heap_us if t_select_heap_us > 0 else float("inf")
+        full_speedup = t_full_base_us / t_full_heap_us if t_full_heap_us > 0 else float("inf")
 
         print(f"\n{'=' * 90}")
         print(f" CANDIDATE E EXPIRATION SWEEP BENCHMARK (N={n_reservations}, K={n_to_expire} expired)")
         print(f"{'=' * 90}")
-        print(f" Phase 1: Pure Selection Cost (candidate identification only)")
+        print(" Phase 1: Pure Selection Cost (candidate identification only)")
         print(f"   Baseline O(N) Linear Scan:   {t_select_base_us:>12.2f} µs")
         print(f"   Candidate E O(K·log N) Heap: {t_select_heap_us:>12.2f} µs")
         print(f"   Selection Speedup:           {select_speedup:>12.2f}x")
-        print(f"")
-        print(f" Phase 2: Full Sweep (selection + per-item expire + check_invariants)")
+        print("")
+        print(" Phase 2: Full Sweep (selection + per-item expire + check_invariants)")
         print(f"   Baseline Full Sweep:         {t_full_base_us:>12.2f} µs")
         print(f"   Candidate E Full Sweep:      {t_full_heap_us:>12.2f} µs")
         print(f"   Full Sweep Speedup:          {full_speedup:>12.2f}x")
-        print(f"")
-        print(f" Attribution Analysis:")
+        print("")
+        print(" Attribution Analysis:")
         t_per_item_base = (t_full_base_us - t_select_base_us) / n_to_expire if n_to_expire > 0 else 0
         t_per_item_heap = (t_full_heap_us - t_select_heap_us) / n_to_expire if n_to_expire > 0 else 0
         print(f"   Per-item expire() cost (baseline): {t_per_item_base:>10.2f} µs/item")
         print(f"   Per-item expire() cost (heap):     {t_per_item_heap:>10.2f} µs/item")
-        print(f"   Selection as % of total (base):    {(t_select_base_us / t_full_base_us * 100) if t_full_base_us > 0 else 0:>10.2f}%")
-        print(f"   Selection as % of total (heap):    {(t_select_heap_us / t_full_heap_us * 100) if t_full_heap_us > 0 else 0:>10.2f}%")
+        print(
+            f"   Selection as % of total (base):    {(t_select_base_us / t_full_base_us * 100) if t_full_base_us > 0 else 0:>10.2f}%"
+        )
+        print(
+            f"   Selection as % of total (heap):    {(t_select_heap_us / t_full_heap_us * 100) if t_full_heap_us > 0 else 0:>10.2f}%"
+        )
         print(f"{'=' * 90}")
 
 

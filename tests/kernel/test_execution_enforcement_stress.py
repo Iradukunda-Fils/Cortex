@@ -45,7 +45,6 @@ from cortex.tools.kernel.resource_authority import (
 
 
 class TestExecutionEnforcementStress(unittest.TestCase):
-
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp(prefix="cortex_stress_")
         self.root_cgroup_dir = os.path.join(self.tmp_dir, "sys_fs_cgroup_cortex")
@@ -66,14 +65,26 @@ class TestExecutionEnforcementStress(unittest.TestCase):
 
         # Worker A reserves 100 units (100% capacity)
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         contract_a = EnforcementContract(
-            reservation_id=1, worker_id=1, cpu_mcores=1000, memory_bytes=100, pids_max=10,
-            require_physical_enforcement=False
+            reservation_id=1,
+            worker_id=1,
+            cpu_mcores=1000,
+            memory_bytes=100,
+            pids_max=10,
+            require_physical_enforcement=False,
         )
-        sup_a = WorkerSupervisor(contract=contract_a, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.2)
+        sup_a = WorkerSupervisor(
+            contract=contract_a, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.2
+        )
 
         # Worker A script spawns a child process and sleeps
         worker_script = (
@@ -90,12 +101,21 @@ class TestExecutionEnforcementStress(unittest.TestCase):
             nonlocal race_success, reused_prematurely
             try:
                 auth.reserve(
-                    res_id=2, res_inv=102, res_att=2, res_worker=2, res_demand=100,
-                    authority_epoch=1, lease_epoch=1, worker_generation=1
+                    res_id=2,
+                    res_inv=102,
+                    res_att=2,
+                    res_worker=2,
+                    res_demand=100,
+                    authority_epoch=1,
+                    lease_epoch=1,
+                    worker_generation=1,
                 )
                 race_success = True
                 # If Worker B succeeded in reserving capacity, check if Worker A is still running
-                if sup_a.state not in (SupervisorLifecycleState.RESOURCE_RECONCILED, SupervisorLifecycleState.CGROUP_CLEANED):
+                if sup_a.state not in (
+                    SupervisorLifecycleState.RESOURCE_RECONCILED,
+                    SupervisorLifecycleState.CGROUP_CLEANED,
+                ):
                     reused_prematurely = True
             except InsufficientCapacityError:
                 pass
@@ -109,12 +129,20 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         t_b.join()
 
         # Verify invariant: Capacity could not be reused prematurely while A was alive
-        self.assertFalse(reused_prematurely, "Invariant Violation: Capacity released while Worker A execution tree was alive!")
+        self.assertFalse(
+            reused_prematurely, "Invariant Violation: Capacity released while Worker A execution tree was alive!"
+        )
 
         # Now Worker B must be able to reserve successfully
         rec_b = auth.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=2, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=2,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         self.assertEqual(rec_b.res_id, 2)
 
@@ -126,15 +154,27 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         """
         auth = ResourceAuthority(capacity=1000)
         auth.reserve(
-            res_id=10, res_inv=201, res_att=1, res_worker=10, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=10,
+            res_inv=201,
+            res_att=1,
+            res_worker=10,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         contract = EnforcementContract(
-            reservation_id=10, worker_id=10, cpu_mcores=1000, memory_bytes=128 * 1024 * 1024, pids_max=32,
-            require_physical_enforcement=False
+            reservation_id=10,
+            worker_id=10,
+            cpu_mcores=1000,
+            memory_bytes=128 * 1024 * 1024,
+            pids_max=32,
+            require_physical_enforcement=False,
         )
         # Short grace period of 0.2s to force SIGKILL path quickly
-        supervisor = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.2)
+        supervisor = WorkerSupervisor(
+            contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.2
+        )
 
         # Worker script spawns child that ignores SIGTERM
         stubborn_script = (
@@ -160,8 +200,14 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         """
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=30, res_inv=301, res_att=1, res_worker=30, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=30,
+            res_inv=301,
+            res_att=1,
+            res_worker=30,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
 
         class FaultyEnforcer(CgroupResourceEnforcer):
@@ -174,8 +220,12 @@ class TestExecutionEnforcementStress(unittest.TestCase):
 
         faulty_enforcer = FaultyEnforcer(root_cgroup_dir=self.root_cgroup_dir)
         contract = EnforcementContract(
-            reservation_id=30, worker_id=30, cpu_mcores=1000, memory_bytes=100, pids_max=10,
-            require_physical_enforcement=True
+            reservation_id=30,
+            worker_id=30,
+            cpu_mcores=1000,
+            memory_bytes=100,
+            pids_max=10,
+            require_physical_enforcement=True,
         )
         supervisor = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=faulty_enforcer)
 
@@ -194,14 +244,26 @@ class TestExecutionEnforcementStress(unittest.TestCase):
             auth = ResourceAuthority(capacity=1000)
             res_id = 40 + i
             auth.reserve(
-                res_id=res_id, res_inv=400 + i, res_att=i + 1, res_worker=40 + i, res_demand=50,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=res_id,
+                res_inv=400 + i,
+                res_att=i + 1,
+                res_worker=40 + i,
+                res_demand=50,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
             contract = EnforcementContract(
-                reservation_id=res_id, worker_id=40 + i, cpu_mcores=500, memory_bytes=50, pids_max=5,
-                require_physical_enforcement=False
+                reservation_id=res_id,
+                worker_id=40 + i,
+                cpu_mcores=500,
+                memory_bytes=50,
+                pids_max=5,
+                require_physical_enforcement=False,
             )
-            supervisor = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1)
+            supervisor = WorkerSupervisor(
+                contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1
+            )
 
             _proc = supervisor.launch_contained_worker(command=[sys.executable, "-c", "import time; time.sleep(0.5)"])
             # Terminate at varying delays
@@ -227,8 +289,14 @@ class TestExecutionEnforcementStress(unittest.TestCase):
             res_id = 1000 + worker_idx
             try:
                 rec = auth.reserve(
-                    res_id=res_id, res_inv=2000 + worker_idx, res_att=worker_idx + 1, res_worker=worker_idx, res_demand=100,
-                    authority_epoch=1, lease_epoch=1, worker_generation=1
+                    res_id=res_id,
+                    res_inv=2000 + worker_idx,
+                    res_att=worker_idx + 1,
+                    res_worker=worker_idx,
+                    res_demand=100,
+                    authority_epoch=1,
+                    lease_epoch=1,
+                    worker_generation=1,
                 )
                 with lock:
                     successful_reservations.append(rec)
@@ -261,14 +329,26 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         for i in range(4):
             res_id = 500 + i
             auth.reserve(
-                res_id=res_id, res_inv=600 + i, res_att=i + 1, res_worker=50 + i, res_demand=100,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=res_id,
+                res_inv=600 + i,
+                res_att=i + 1,
+                res_worker=50 + i,
+                res_demand=100,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
             contract = EnforcementContract(
-                reservation_id=res_id, worker_id=50 + i, cpu_mcores=500, memory_bytes=64 * 1024 * 1024, pids_max=16,
-                require_physical_enforcement=False
+                reservation_id=res_id,
+                worker_id=50 + i,
+                cpu_mcores=500,
+                memory_bytes=64 * 1024 * 1024,
+                pids_max=16,
+                require_physical_enforcement=False,
             )
-            sup = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1)
+            sup = WorkerSupervisor(
+                contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1
+            )
             # Worker allocates memory and sleeps
             cmd = [sys.executable, "-c", "x = 'a' * (5 * 1024 * 1024); import time; time.sleep(0.5)"]
             sup.launch_contained_worker(command=cmd)
@@ -295,14 +375,26 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         for cycle in range(20):
             res_id = 2000 + cycle
             auth.reserve(
-                res_id=res_id, res_inv=3000 + cycle, res_att=cycle + 1, res_worker=cycle, res_demand=200,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=res_id,
+                res_inv=3000 + cycle,
+                res_att=cycle + 1,
+                res_worker=cycle,
+                res_demand=200,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
             contract = EnforcementContract(
-                reservation_id=res_id, worker_id=cycle, cpu_mcores=500, memory_bytes=64 * 1024 * 1024, pids_max=10,
-                require_physical_enforcement=False
+                reservation_id=res_id,
+                worker_id=cycle,
+                cpu_mcores=500,
+                memory_bytes=64 * 1024 * 1024,
+                pids_max=10,
+                require_physical_enforcement=False,
             )
-            supervisor = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1)
+            supervisor = WorkerSupervisor(
+                contract=contract, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1
+            )
             supervisor.launch_contained_worker(command=[sys.executable, "-c", "import sys; sys.exit(0)"])
             supervisor.terminate_worker_and_reclaim()
             self.assertEqual(supervisor.state, SupervisorLifecycleState.CGROUP_CLEANED)
@@ -319,12 +411,22 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         """
         auth = ResourceAuthority(capacity=1000)
         auth.reserve(
-            res_id=88, res_inv=888, res_att=1, res_worker=88, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=88,
+            res_inv=888,
+            res_att=1,
+            res_worker=88,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         contract = EnforcementContract(
-            reservation_id=88, worker_id=88, cpu_mcores=500, memory_bytes=50, pids_max=5,
-            require_physical_enforcement=False
+            reservation_id=88,
+            worker_id=88,
+            cpu_mcores=500,
+            memory_bytes=50,
+            pids_max=5,
+            require_physical_enforcement=False,
         )
         supervisor = WorkerSupervisor(contract=contract, resource_authority=auth, enforcer=self.enforcer)
         supervisor.launch_contained_worker(command=[sys.executable, "-c", "import time; time.sleep(0.1)"])
@@ -345,12 +447,22 @@ class TestExecutionEnforcementStress(unittest.TestCase):
         """
         auth = ResourceAuthority(capacity=1000)
         auth.reserve(
-            res_id=99, res_inv=999, res_att=1, res_worker=99, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=99,
+            res_inv=999,
+            res_att=1,
+            res_worker=99,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         contract = EnforcementContract(
-            reservation_id=99, worker_id=99, cpu_mcores=500, memory_bytes=50, pids_max=5,
-            require_physical_enforcement=False
+            reservation_id=99,
+            worker_id=99,
+            cpu_mcores=500,
+            memory_bytes=50,
+            pids_max=5,
+            require_physical_enforcement=False,
         )
         identity = ExecutionIdentity(
             group_id="grp_99", instance_id="inst_99", generation=1, config_generation=1, attempt_id=1
@@ -382,14 +494,26 @@ class TestExecutionEnforcementStress(unittest.TestCase):
 
         # Worker A reserves 100% capacity
         auth.reserve(
-            res_id=101, res_inv=901, res_att=1, res_worker=101, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=101,
+            res_inv=901,
+            res_att=1,
+            res_worker=101,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         contract_a = EnforcementContract(
-            reservation_id=101, worker_id=101, cpu_mcores=1000, memory_bytes=100, pids_max=10,
-            require_physical_enforcement=False
+            reservation_id=101,
+            worker_id=101,
+            cpu_mcores=1000,
+            memory_bytes=100,
+            pids_max=10,
+            require_physical_enforcement=False,
         )
-        supervisor_a = WorkerSupervisor(contract=contract_a, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1)
+        supervisor_a = WorkerSupervisor(
+            contract=contract_a, resource_authority=auth, enforcer=self.enforcer, grace_period_sec=0.1
+        )
 
         proc = supervisor_a.launch_contained_worker(command=[sys.executable, "-c", "import time; time.sleep(10)"])
         time.sleep(0.1)
@@ -406,8 +530,14 @@ class TestExecutionEnforcementStress(unittest.TestCase):
 
         # Verify capacity is now reusable by Worker B
         rec_b = auth.reserve(
-            res_id=102, res_inv=902, res_att=2, res_worker=102, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=102,
+            res_inv=902,
+            res_att=2,
+            res_worker=102,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         self.assertEqual(rec_b.res_id, 102)
 

@@ -51,11 +51,15 @@ class CanonicalOperation:
     def serialize_canonical_bytes(self) -> bytes:
         """Constructs InvocationID || CanonicalPayload || ResourceID || OperationType || ContractVersion."""
         return (
-            self.invocation_id.encode("utf-8") + b"||" +
-            self.canonical_payload + b"||" +
-            self.resource_id.encode("utf-8") + b"||" +
-            self.operation_type.encode("utf-8") + b"||" +
-            self.contract_version.encode("utf-8")
+            self.invocation_id.encode("utf-8")
+            + b"||"
+            + self.canonical_payload
+            + b"||"
+            + self.resource_id.encode("utf-8")
+            + b"||"
+            + self.operation_type.encode("utf-8")
+            + b"||"
+            + self.contract_version.encode("utf-8")
         )
 
 

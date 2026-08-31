@@ -25,7 +25,9 @@ def extract_coq_theorems() -> list[dict[str, str]]:
                 output = result.stdout
                 closed_count = output.count("Closed under the global context")
                 if closed_count == 0:
-                    print("[!] Warning: Coq compilation output did not contain any 'Closed under the global context' lines.")
+                    print(
+                        "[!] Warning: Coq compilation output did not contain any 'Closed under the global context' lines."
+                    )
             else:
                 print(f"[!] Warning: Coq compilation returned non-zero exit code: {result.stderr}")
         except FileNotFoundError:
@@ -49,13 +51,15 @@ def extract_coq_theorems() -> list[dict[str, str]]:
         if m:
             t_type = m.group(1)
             t_name = m.group(2)
-            theorems.append({
-                "type": t_type,
-                "theorem_name": t_name,
-                "normative_id": current_normative_id if t_type == "Theorem" else "HELPER_LEMMA",
-                "assumptions": "Closed under the global context",
-                "source_line": line_no
-            })
+            theorems.append(
+                {
+                    "type": t_type,
+                    "theorem_name": t_name,
+                    "normative_id": current_normative_id if t_type == "Theorem" else "HELPER_LEMMA",
+                    "assumptions": "Closed under the global context",
+                    "source_line": line_no,
+                }
+            )
 
     return theorems
 

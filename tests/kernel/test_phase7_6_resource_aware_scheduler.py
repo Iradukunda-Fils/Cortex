@@ -25,20 +25,15 @@ Architectural verification:
 import threading
 import time
 import unittest
-from typing import Set
 
 from cortex.tools.kernel.resource_authority import (
     DemandVector,
-    GPUCollisionError,
-    InsufficientCapacityError,
-    InvalidFencingError,
     ResourceAuthority,
     WorkerLifecycleState,
 )
 from cortex.tools.kernel.scheduler import (
     CostFunction,
     NoFeasibleWorkerError,
-    PlacementCost,
     PlacementRejectedError,
     ResourceAwareScheduler,
     SchedulingIntent,
@@ -271,10 +266,15 @@ class TestCapacityRaces(unittest.TestCase):
 
         def schedule_task(tid, inv_id, att_id, lease):
             try:
-                result = sched.schedule(_make_intent(
-                    task_id=tid, inv_id=inv_id, att_id=att_id,
-                    cpu=1000, lease_epoch=lease,
-                ))
+                result = sched.schedule(
+                    _make_intent(
+                        task_id=tid,
+                        inv_id=inv_id,
+                        att_id=att_id,
+                        cpu=1000,
+                        lease_epoch=lease,
+                    )
+                )
                 results.append(result)
             except (PlacementRejectedError, NoFeasibleWorkerError) as e:
                 errors.append(e)
@@ -390,8 +390,12 @@ class TestReservationExpiry(unittest.TestCase):
         # First reservation fills capacity
         now_ns = time.time_ns()
         auth.reserve(
-            res_id=99, res_inv=999, res_att=999, res_worker=1,
-            res_demand=1000, expiration_timestamp_ns=now_ns - 1,
+            res_id=99,
+            res_inv=999,
+            res_att=999,
+            res_worker=1,
+            res_demand=1000,
+            expiration_timestamp_ns=now_ns - 1,
         )
 
         # Sweep expired reservations
@@ -436,7 +440,9 @@ class TestScalarFallback(unittest.TestCase):
         sched.register_worker(_make_worker(1, cpu=4000))
 
         result = sched.schedule_scalar(
-            task_id=1, invocation_id=101, attempt_id=1,
+            task_id=1,
+            invocation_id=101,
+            attempt_id=1,
             cpu_demand=1000,
         )
         self.assertIsNotNone(result.reservation)

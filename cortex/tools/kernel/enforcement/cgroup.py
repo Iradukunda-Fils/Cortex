@@ -228,9 +228,7 @@ class CgroupResourceEnforcer:
 
         return stats
 
-    def remove_worker_cgroup(
-        self, worker_cgroup_path: str, max_retries: int = DEFAULT_MAX_REMOVAL_RETRIES
-    ) -> bool:
+    def remove_worker_cgroup(self, worker_cgroup_path: str, max_retries: int = DEFAULT_MAX_REMOVAL_RETRIES) -> bool:
         """
         Deletes the worker cgroup directory. Handles Linux kernel async page freeing retries.
         """

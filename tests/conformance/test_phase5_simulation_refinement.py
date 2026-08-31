@@ -19,7 +19,6 @@ from cortex.tools.kernel.load_balancer import (
 
 
 class TestPhase5SimulationRefinement(unittest.TestCase):
-
     def test_simulation_init_state(self):
         """Validates that a fresh ProductionDynamicLoadBalancer satisfies init simulation (R(C0, A0))."""
         lb = ProductionDynamicLoadBalancer()
@@ -112,4 +111,3 @@ class TestPhase5SimulationRefinement(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

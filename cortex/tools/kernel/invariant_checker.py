@@ -139,7 +139,9 @@ class KernelInvariantChecker:
             )
 
     @staticmethod
-    def verify_proof_8_wal_replay_determinism(replay_fn: Callable[[bytes], Any], wal_bytes_1: bytes, wal_bytes_2: bytes) -> None:
+    def verify_proof_8_wal_replay_determinism(
+        replay_fn: Callable[[bytes], Any], wal_bytes_1: bytes, wal_bytes_2: bytes
+    ) -> None:
         """
         Proof 8: WAL Deterministic Replay.
         Verifies D_1 == D_2 => Replay(D_1) == Replay(D_2).
@@ -224,4 +226,3 @@ class KernelInvariantChecker:
                         "Invariant I_9 (Derived Capability Index Consistency)",
                         f"Registered worker '{wid}' with capability '{cap}' missing from derived index",
                     )
-

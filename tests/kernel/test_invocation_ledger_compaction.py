@@ -103,7 +103,7 @@ class TestInvocationLedgerCompaction(unittest.TestCase):
                 header_line = f.readline()
 
             self.assertTrue(header_line.startswith("# SNAPSHOT_HEADER:"))
-            header_raw = header_line[len("# SNAPSHOT_HEADER:"):].strip()
+            header_raw = header_line[len("# SNAPSHOT_HEADER:") :].strip()
             header_data = json.loads(header_raw)
 
             self.assertIn("snapshot_generation", header_data)

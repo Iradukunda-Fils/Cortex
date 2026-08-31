@@ -25,15 +25,12 @@ import threading
 import time
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, Optional, Set
 
 from cortex.tools.kernel.resource_authority import (
-    InvalidFencingError,
-    InvalidStateTransitionError,
     ResourceAuthority,
     WorkerLifecycleState,
     WorkerNotQuiescentError,
-    WorkerScalingRecord,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,6 +39,7 @@ logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 # Scaling Actions & Decision Types
 # -----------------------------------------------------------------------------
+
 
 class ScalingAction(Enum):
     NO_ACTION = auto()
@@ -53,6 +51,7 @@ class ScalingAction(Enum):
 @dataclass(frozen=True)
 class ScalingDecision:
     """Outcome of an autoscaling evaluation loop."""
+
     action: ScalingAction
     worker_id: Optional[int]
     generation: Optional[int]
@@ -64,24 +63,27 @@ class ScalingDecision:
 # Autoscaler Policy Configuration
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class AutoscalerConfig:
     """
     Autoscaling Hysteresis & Threshold Configuration.
     Prevents destructive scale-up / scale-down thrashing.
     """
-    high_queue_threshold: int = 10        # Queue depth triggering scale-up
-    low_queue_threshold: int = 0          # Queue depth allowing scale-down
-    min_worker_replicas: int = 1          # Minimum active worker count
-    max_worker_replicas: int = 20         # Maximum active worker count
-    min_residency_sec: float = 30.0       # Minimum residency window before worker retirement
-    cooldown_sec: float = 15.0            # Cooldown window after a scaling action
+
+    high_queue_threshold: int = 10  # Queue depth triggering scale-up
+    low_queue_threshold: int = 0  # Queue depth allowing scale-down
+    min_worker_replicas: int = 1  # Minimum active worker count
+    max_worker_replicas: int = 20  # Maximum active worker count
+    min_residency_sec: float = 30.0  # Minimum residency window before worker retirement
+    cooldown_sec: float = 15.0  # Cooldown window after a scaling action
     default_capabilities: Set[str] = field(default_factory=lambda: {"python"})
 
 
 # -----------------------------------------------------------------------------
 # Phase 7.7b Autoscaling Controller
 # -----------------------------------------------------------------------------
+
 
 class AutoscalingController:
     """
@@ -117,8 +119,10 @@ class AutoscalingController:
         """Returns count of non-retired workers registered in ResourceAuthority."""
         with self._lock:
             return sum(
-                1 for w in self._authority._worker_states.values()
-                if w.state in (WorkerLifecycleState.REGISTERING, WorkerLifecycleState.ACTIVE, WorkerLifecycleState.DRAINING)
+                1
+                for w in self._authority._worker_states.values()
+                if w.state
+                in (WorkerLifecycleState.REGISTERING, WorkerLifecycleState.ACTIVE, WorkerLifecycleState.DRAINING)
             )
 
     # -------------------------------------------------------------------------
@@ -191,7 +195,7 @@ class AutoscalingController:
         gen = 1
 
         try:
-            w_rec = self._authority.scale_up_register_worker(
+            self._authority.scale_up_register_worker(
                 worker_id=new_w_id,
                 generation=gen,
                 capabilities=self._config.default_capabilities,
@@ -232,7 +236,8 @@ class AutoscalingController:
         """
         # Find candidate worker (active or draining)
         candidates = [
-            w for w in self._authority._worker_states.values()
+            w
+            for w in self._authority._worker_states.values()
             if w.state in (WorkerLifecycleState.ACTIVE, WorkerLifecycleState.DRAINING, WorkerLifecycleState.QUIESCENT)
         ]
 
@@ -246,10 +251,12 @@ class AutoscalingController:
             )
 
         # Prefer candidate with fewest active assignments and oldest registration
-        candidates.sort(key=lambda w: (
-            w.active_assignments_count,
-            -self._worker_registration_timestamps.get(w.worker_id, 0),
-        ))
+        candidates.sort(
+            key=lambda w: (
+                w.active_assignments_count,
+                -self._worker_registration_timestamps.get(w.worker_id, 0),
+            )
+        )
 
         candidate = candidates[0]
         w_id = candidate.worker_id

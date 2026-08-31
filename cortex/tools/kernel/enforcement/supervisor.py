@@ -38,6 +38,7 @@ DEFAULT_GRACE_PERIOD_SEC: float = 5.0
 
 class ExecutionContainmentError(Exception):
     """Raised when worker startup fails to establish the required physical enforcement boundary."""
+
     pass
 
 
@@ -91,7 +92,7 @@ class WorkerSupervisor:
 
         # Step 1: Detect capability & create cgroup
         capability = self.enforcer.detect_environment()
-        physical_enforcement_active = (capability == EnvironmentCapability.SUPPORTED_AVAILABLE)
+        physical_enforcement_active = capability == EnvironmentCapability.SUPPORTED_AVAILABLE
 
         if self.contract.require_physical_enforcement and not physical_enforcement_active:
             with self._lock:

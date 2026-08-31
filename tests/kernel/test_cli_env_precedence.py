@@ -158,7 +158,6 @@ class TestConfigResolverComprehensive(unittest.TestCase):
             if os.path.exists(symlink_path) or os.path.islink(symlink_path):
                 os.unlink(symlink_path)
 
-
     def test_06_stateful_generation_and_durable_restart(self) -> None:
         """Verify durable state persistence and generation continuity across restarts."""
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
@@ -177,7 +176,6 @@ class TestConfigResolverComprehensive(unittest.TestCase):
             self.assertIsNotNone(engine2.current_identity)
             assert engine2.current_identity is not None
             self.assertEqual(engine2.current_identity.config_generation, 2)
-
 
             # Next change increments to generation 3 across restart boundary
             id3 = engine2.admit(self.resolver, cli_overrides={"gateway": {"max_queue_depth": 700}})

@@ -115,7 +115,7 @@ class TestDynamicLoadBalancer(unittest.TestCase):
             self.idempotency_engine.validate_lease_epoch_and_attempt(
                 invocation_id="inv_critical_fencing_100",
                 execution_attempt_id="att_3",  # Stale attempt from Worker A
-                presented_epoch=1,             # Stale epoch 1 <= active epoch 2
+                presented_epoch=1,  # Stale epoch 1 <= active epoch 2
             )
 
         # 5. Worker B validates Epoch 3 (subsequent progression) -> ACCEPTED

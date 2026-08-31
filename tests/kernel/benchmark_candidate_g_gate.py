@@ -7,11 +7,11 @@ Optimized setup with dynamic iterations to prevent O(N^2) init overhead bottlene
 
 from __future__ import annotations
 
-import time
-import os
 import gc
+import os
 import statistics
-from typing import List, Dict, Any
+import time
+from typing import Any, Dict, List
 
 try:
     import psutil
@@ -34,9 +34,7 @@ def get_rss_bytes() -> int:
         return 0
 
 
-def run_benchmark_for_config(
-    N: int, K: int, use_batched: bool, iterations: int
-) -> Dict[str, Any]:
+def run_benchmark_for_config(N: int, K: int, use_batched: bool, iterations: int) -> Dict[str, Any]:
     """Runs benchmark for a single configuration and returns statistical metrics."""
     durations_us: List[float] = []
     rss_start = get_rss_bytes()
@@ -114,16 +112,20 @@ def main():
         print(f"Profiling scale N={N}, K={K} (Candidate G)...")
         res_batch = run_benchmark_for_config(N, K, use_batched=True, iterations=iters)
 
-        results.append({
-            "N": N,
-            "K": K,
-            "base": res_base,
-            "batch": res_batch,
-        })
+        results.append(
+            {
+                "N": N,
+                "K": K,
+                "base": res_base,
+                "batch": res_batch,
+            }
+        )
 
     # Print markdown report
     print("\n# CANDIDATE G PROMOTION GATE BENCHMARK REPORT\n")
-    print("| Scale ($N$) | Expired ($K$) | Mode | P50 Latency | P95 Latency | P99 Latency | RSS Growth (KB) | Speedup |")
+    print(
+        "| Scale ($N$) | Expired ($K$) | Mode | P50 Latency | P95 Latency | P99 Latency | RSS Growth (KB) | Speedup |"
+    )
     print("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |")
 
     for r in results:

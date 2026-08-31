@@ -13,17 +13,14 @@ Covers all Phase 7.7a & 7.7b requirements:
   9. Authority boundary invariant preservation (Autoscaler & Scheduler NEVER mutate S_R directly)
 """
 
-import time
 import unittest
-from typing import Dict, Set
 
 from cortex.tools.kernel.autoscaler import (
-    AutoscalingController,
     AutoscalerConfig,
+    AutoscalingController,
     ScalingAction,
 )
 from cortex.tools.kernel.distributed_scheduler import (
-    DistributedPlacementCost,
     DistributedPlacementEngine,
     DistributedWorkerView,
     GlobalGPUIdentity,
@@ -32,15 +29,10 @@ from cortex.tools.kernel.distributed_scheduler import (
 )
 from cortex.tools.kernel.resource_authority import (
     DemandVector,
-    GPUCollisionError,
-    InsufficientCapacityError,
     ResourceAuthority,
     WorkerLifecycleState,
 )
 from cortex.tools.kernel.scheduler import (
-    CostFunction,
-    NoFeasibleWorkerError,
-    PlacementRejectedError,
     SchedulingIntent,
     WorkerTelemetry,
 )
@@ -113,7 +105,9 @@ class TestDistributedPlacement(unittest.TestCase):
         engine.register_worker(w2)
 
         intent = SchedulingIntent(
-            task_id=1, invocation_id=101, attempt_id=1,
+            task_id=1,
+            invocation_id=101,
+            attempt_id=1,
             demand_vector=DemandVector(cpu_mcores=1000),
         )
 
@@ -144,7 +138,9 @@ class TestMultiNodeFragmentation(unittest.TestCase):
         self.assertTrue(is_fragmented)
 
         intent = SchedulingIntent(
-            task_id=1, invocation_id=101, attempt_id=1,
+            task_id=1,
+            invocation_id=101,
+            attempt_id=1,
             demand_vector=demand,
         )
 
@@ -172,7 +168,9 @@ class TestStaleReadRetry(unittest.TestCase):
         auth_a.reserve(res_id=99, res_inv=999, res_att=999, res_worker=1, res_demand=1000)
 
         intent = SchedulingIntent(
-            task_id=1, invocation_id=101, attempt_id=1,
+            task_id=1,
+            invocation_id=101,
+            attempt_id=1,
             demand_vector=DemandVector(cpu_mcores=1000),
             lease_epoch=2,
         )

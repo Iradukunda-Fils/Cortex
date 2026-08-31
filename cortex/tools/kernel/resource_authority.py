@@ -34,49 +34,59 @@ logger = logging.getLogger(__name__)
 # Exceptions
 # -----------------------------------------------------------------------------
 
+
 class RefinementCertificateError(Exception):
     """Raised when authoritative state schema changes without updating RCA-7.3 certificate."""
+
     pass
 
 
 class InvalidFencingError(Exception):
     """Raised when an operation fails authority epoch, lease epoch, or generation fencing."""
+
     pass
 
 
 class InsufficientCapacityError(Exception):
     """Raised when resource request exceeds schedulable available capacity (Proof P2)."""
+
     pass
 
 
 class UniquenessViolationError(Exception):
     """Raised when invocation or attempt uniqueness is violated (Proof P1a/P1b/P12)."""
+
     pass
 
 
 class GPUCollisionError(Exception):
     """Raised when attempting to reserve an already owned exclusive GPU (Proof P11)."""
+
     pass
 
 
 class InvalidStateTransitionError(Exception):
     """Raised when an invalid lifecycle transition is attempted."""
+
     pass
 
 
 class DeclarativeSchemaValidationError(Exception):
     """Raised when a declarative resource policy fails schema validation."""
+
     pass
 
 
 class WorkerNotQuiescentError(Exception):
     """Raised when attempting to retire a worker that still has active assignments or reservations."""
+
     pass
 
 
 # -----------------------------------------------------------------------------
 # Declarative Resource Policy & Unit Normalization
 # -----------------------------------------------------------------------------
+
 
 class FieldClassification(Enum):
     AUTHORITATIVE = auto()
@@ -89,8 +99,8 @@ class FieldClassification(Enum):
 
 @dataclass(frozen=True)
 class NormalizedResourceLimits:
-    cpu_mcores: int            # Millicores (1 core = 1000 mcores)
-    memory_bytes: int          # Bytes (1 GiB = 1073741824 B)
+    cpu_mcores: int  # Millicores (1 core = 1000 mcores)
+    memory_bytes: int  # Bytes (1 GiB = 1073741824 B)
     gpu_devices: Tuple[int, ...]
     vram_bytes: int
     io_capacity: int
@@ -109,6 +119,7 @@ class DemandVector:
       - Rate-based: io_capacity, network_mbps
       - Discrete: gpu_devices (tuple of exclusive GPU IDs)
     """
+
     cpu_mcores: int = 0
     memory_bytes: int = 0
     gpu_devices: Tuple[int, ...] = ()
@@ -302,25 +313,41 @@ class DeclarativeResourcePolicy:
 
             prof = raw.get("resource_profile", {})
             cpu_cfg = prof.get("cpu", {})
-            cpu_val = f"{cpu_cfg.get('capacity', 0)}{cpu_cfg.get('unit', '')}" if "unit" in cpu_cfg else cpu_cfg.get("capacity", 0)
+            cpu_val = (
+                f"{cpu_cfg.get('capacity', 0)}{cpu_cfg.get('unit', '')}"
+                if "unit" in cpu_cfg
+                else cpu_cfg.get("capacity", 0)
+            )
             cpu_mcores = parse_resource_unit(cpu_val, default_unit="cpu")
 
             mem_cfg = prof.get("memory", {})
-            mem_val = f"{mem_cfg.get('capacity', 0)}{mem_cfg.get('unit', '')}" if "unit" in mem_cfg else mem_cfg.get("capacity", 0)
+            mem_val = (
+                f"{mem_cfg.get('capacity', 0)}{mem_cfg.get('unit', '')}"
+                if "unit" in mem_cfg
+                else mem_cfg.get("capacity", 0)
+            )
             mem_bytes = parse_resource_unit(mem_val, default_unit="memory")
 
             gpu_cfg = prof.get("gpu", {})
             gpu_devs = tuple(sorted(gpu_cfg.get("devices", [])))
 
             vram_cfg = prof.get("vram", {})
-            vram_val = f"{vram_cfg.get('capacity', 0)}{vram_cfg.get('unit', '')}" if "unit" in vram_cfg else vram_cfg.get("capacity", 0)
+            vram_val = (
+                f"{vram_cfg.get('capacity', 0)}{vram_cfg.get('unit', '')}"
+                if "unit" in vram_cfg
+                else vram_cfg.get("capacity", 0)
+            )
             vram_bytes = parse_resource_unit(vram_val, default_unit="memory")
 
             io_cfg = prof.get("io", {})
             io_cap = int(io_cfg.get("capacity", 0))
 
             net_cfg = prof.get("network", {})
-            net_val = f"{net_cfg.get('capacity', 0)}{net_cfg.get('unit', '')}" if "unit" in net_cfg else net_cfg.get("capacity", 0)
+            net_val = (
+                f"{net_cfg.get('capacity', 0)}{net_cfg.get('unit', '')}"
+                if "unit" in net_cfg
+                else net_cfg.get("capacity", 0)
+            )
             net_mbps = parse_resource_unit(net_val, default_unit="network")
 
             fd_cfg = prof.get("file_descriptors", {})
@@ -330,7 +357,11 @@ class DeclarativeResourcePolicy:
             thr_cap = int(thr_cfg.get("capacity", 1024))
 
             stor_cfg = prof.get("storage", {})
-            stor_val = f"{stor_cfg.get('capacity', 0)}{stor_cfg.get('unit', '')}" if "unit" in stor_cfg else stor_cfg.get("capacity", 0)
+            stor_val = (
+                f"{stor_cfg.get('capacity', 0)}{stor_cfg.get('unit', '')}"
+                if "unit" in stor_cfg
+                else stor_cfg.get("capacity", 0)
+            )
             stor_bytes = parse_resource_unit(stor_val, default_unit="memory")
 
             limits = NormalizedResourceLimits(
@@ -382,6 +413,7 @@ class DeclarativeResourcePolicy:
 # FSM State & Status Enums
 # -----------------------------------------------------------------------------
 
+
 class ReservationStatus(Enum):
     PENDING = auto()
     ACTIVE = auto()
@@ -408,7 +440,7 @@ class ReservationRecord:
     res_inv: int
     res_att: int
     res_worker: int
-    res_demand: int              # CPU millicores (backwards compatible)
+    res_demand: int  # CPU millicores (backwards compatible)
     res_authority_epoch: int
     res_lease_epoch: int
     res_generation: int
@@ -429,6 +461,7 @@ class ReservationRecord:
         ResourceAuthority -> ReservationRecord -> EnforcementContract -> WorkerSupervisor -> Cgroup.
         """
         from cortex.tools.kernel.enforcement.contract import EnforcementContract
+
         vec = self.get_effective_demand_vector()
         return EnforcementContract(
             reservation_id=self.res_id,
@@ -452,6 +485,7 @@ class WorkerScalingRecord:
 @dataclass(frozen=True)
 class AbstractReservationState:
     """Coq-equivalent abstract reservation state S_R."""
+
     rs_reservations: Tuple[ReservationRecord, ...]
     rs_capacity: int
     rs_used_capacity: int
@@ -463,16 +497,17 @@ class AbstractReservationState:
     rs_gpu_owners: Tuple[Tuple[int, int], ...]
 
 
-
 # -----------------------------------------------------------------------------
 # Core Authoritative Resource Kernel
 # -----------------------------------------------------------------------------
+
 
 class ResourceAuthority:
     """
     Authoritative Resource Kernel (Phase 7.3 Concrete Refinement Engine).
     Thread-safe implementation enforcing formal linearizable transitions.
     """
+
     REFINEMENT_CERTIFICATE_VERSION: str = "RCA-7.3-v1"
 
     def __init__(
@@ -506,14 +541,14 @@ class ResourceAuthority:
         self._safety_margin: int = safety_margin
         self._uncertainty: int = uncertainty
         self._authority_epoch: int = authority_epoch
-        self._lease_epochs: Dict[int, int] = {}       # res_inv -> Epoch
-        self._worker_generations: Dict[int, int] = {} # res_worker -> Generation
-        self._gpu_owners: Dict[int, int] = {}          # GPUId -> ReservationId
-        self._quarantine: Dict[int, ReservationRecord] = {} # ResID -> Record
+        self._lease_epochs: Dict[int, int] = {}  # res_inv -> Epoch
+        self._worker_generations: Dict[int, int] = {}  # res_worker -> Generation
+        self._gpu_owners: Dict[int, int] = {}  # GPUId -> ReservationId
+        self._quarantine: Dict[int, ReservationRecord] = {}  # ResID -> Record
 
         # Worker Scaling Lifecycle State Core
         self._worker_states: Dict[int, WorkerScalingRecord] = {}
-        self._retired_tombstones: Dict[Tuple[int, int], bool] = {} # (worker_id, generation) -> True
+        self._retired_tombstones: Dict[Tuple[int, int], bool] = {}  # (worker_id, generation) -> True
 
         # Policy & Configuration (Non-Authoritative until initialized)
         self._declarative_policy: Optional[DeclarativeResourcePolicy] = declarative_policy
@@ -648,7 +683,9 @@ class ResourceAuthority:
 
             current_gen = self._worker_generations.get(worker_id, 0)
             if generation <= current_gen:
-                raise InvalidFencingError(f"Worker {worker_id} registration generation {generation} <= current {current_gen}")
+                raise InvalidFencingError(
+                    f"Worker {worker_id} registration generation {generation} <= current {current_gen}"
+                )
 
             record = WorkerScalingRecord(
                 worker_id=worker_id,
@@ -684,8 +721,7 @@ class ResourceAuthority:
             return w_rec.state == WorkerLifecycleState.QUIESCENT or w_rec.state == WorkerLifecycleState.FENCED
 
         active_res_for_worker = sum(
-            1 for r in self._reservations.values()
-            if r.res_worker == worker_id and r.res_status.is_active()
+            1 for r in self._reservations.values() if r.res_worker == worker_id and r.res_status.is_active()
         )
 
         if w_rec.active_assignments_count == 0 and active_res_for_worker == 0:
@@ -785,20 +821,32 @@ class ResourceAuthority:
 
             # 1. Authority Epoch Fencing Check (P6)
             if authority_epoch != self._authority_epoch:
-                raise InvalidFencingError(f"P6 Fencing Reject: Stale authority epoch {authority_epoch} != active {self._authority_epoch}")
+                raise InvalidFencingError(
+                    f"P6 Fencing Reject: Stale authority epoch {authority_epoch} != active {self._authority_epoch}"
+                )
 
             # 2. Incarnation Tombstone & Worker Generation Fencing Check (P7)
             if (res_worker, worker_generation) in self._retired_tombstones:
-                raise InvalidFencingError(f"P7 Fencing Reject: Worker {res_worker} gen {worker_generation} is retired in tombstones")
+                raise InvalidFencingError(
+                    f"P7 Fencing Reject: Worker {res_worker} gen {worker_generation} is retired in tombstones"
+                )
 
             if res_worker in self._worker_states:
                 w_rec = self._worker_states[res_worker]
-                if w_rec.state in (WorkerLifecycleState.DRAINING, WorkerLifecycleState.QUIESCENT, WorkerLifecycleState.RETIRED):
-                    raise InvalidFencingError(f"P7 Fencing Reject: Worker {res_worker} is in state {w_rec.state.name} (not accepting placement)")
+                if w_rec.state in (
+                    WorkerLifecycleState.DRAINING,
+                    WorkerLifecycleState.QUIESCENT,
+                    WorkerLifecycleState.RETIRED,
+                ):
+                    raise InvalidFencingError(
+                        f"P7 Fencing Reject: Worker {res_worker} is in state {w_rec.state.name} (not accepting placement)"
+                    )
 
             active_gen = self._worker_generations.get(res_worker, worker_generation)
             if worker_generation != active_gen:
-                raise InvalidFencingError(f"P7 Fencing Reject: Worker {res_worker} gen {worker_generation} != active {active_gen}")
+                raise InvalidFencingError(
+                    f"P7 Fencing Reject: Worker {res_worker} gen {worker_generation} != active {active_gen}"
+                )
 
             # 3. Identity & Uniqueness Check (P1a, P1b, P12)
             if res_id in self._reservations:
@@ -807,7 +855,9 @@ class ResourceAuthority:
             for r in self._reservations.values():
                 if r.res_status.is_active():
                     if r.res_inv == res_inv:
-                        raise UniquenessViolationError(f"P1a Reject: Active reservation exists for Invocation {res_inv}")
+                        raise UniquenessViolationError(
+                            f"P1a Reject: Active reservation exists for Invocation {res_inv}"
+                        )
                     if r.res_att == res_att:
                         raise UniquenessViolationError(f"P1b Reject: Active reservation exists for Attempt {res_att}")
 
@@ -822,7 +872,11 @@ class ResourceAuthority:
                     raise GPUCollisionError(f"P11 Reject: GPU {g} already owned by reservation {self._gpu_owners[g]}")
 
             # 6. Capacity Safety Check (P2)
-            sum_active = sum(r.get_effective_demand_vector().cpu_mcores for r in self._reservations.values() if r.res_status.is_active())
+            sum_active = sum(
+                r.get_effective_demand_vector().cpu_mcores
+                for r in self._reservations.values()
+                if r.res_status.is_active()
+            )
             max_schedulable = self._capacity - self._safety_margin - self._uncertainty
             if sum_active + eff_demand + self._used_capacity > max_schedulable:
                 raise InsufficientCapacityError(
@@ -832,7 +886,10 @@ class ResourceAuthority:
             # Additional multi-dimensional policy checks
             if self._declarative_policy is not None:
                 limits = self._declarative_policy.limits
-                sum_active_vec = sum((r.get_effective_demand_vector() for r in self._reservations.values() if r.res_status.is_active()), DemandVector())
+                sum_active_vec = sum(
+                    (r.get_effective_demand_vector() for r in self._reservations.values() if r.res_status.is_active()),
+                    DemandVector(),
+                )
                 total_vec = sum_active_vec + effective_vector
 
                 if limits.memory_bytes > 0:
@@ -943,7 +1000,8 @@ class ResourceAuthority:
             else:
                 # Control Baseline: O(N) linear scan over active reservations
                 to_expire = [
-                    r.res_id for r in self._reservations.values()
+                    r.res_id
+                    for r in self._reservations.values()
                     if r.res_status.is_active()
                     and r.expiration_timestamp_ns is not None
                     and r.expiration_timestamp_ns <= now_ns
@@ -972,8 +1030,7 @@ class ResourceAuthority:
         backup_status: Dict[int, ReservationStatus] = {}
         backup_gpu_owners = dict(self._gpu_owners)
         backup_worker_states = {
-            w_id: (w_rec.active_assignments_count, w_rec.state)
-            for w_id, w_rec in self._worker_states.items()
+            w_id: (w_rec.active_assignments_count, w_rec.state) for w_id, w_rec in self._worker_states.items()
         }
         backup_quarantine = dict(self._quarantine)
         backup_min_heap = list(self._min_heap)
@@ -995,7 +1052,8 @@ class ResourceAuthority:
                     candidates.append(res_id)
             else:
                 candidates = [
-                    r.res_id for r in self._reservations.values()
+                    r.res_id
+                    for r in self._reservations.values()
                     if r.res_status.is_active()
                     and r.expiration_timestamp_ns is not None
                     and r.expiration_timestamp_ns <= now_ns
@@ -1062,7 +1120,9 @@ class ResourceAuthority:
             if rec.res_status == ReservationStatus.PENDING:
                 rec.res_status = ReservationStatus.ACTIVE
             elif rec.res_status != ReservationStatus.ACTIVE:
-                raise InvalidStateTransitionError(f"Cannot activate reservation {res_id} in state {rec.res_status.name}")
+                raise InvalidStateTransitionError(
+                    f"Cannot activate reservation {res_id} in state {rec.res_status.name}"
+                )
 
             self.check_invariants()
             return rec
@@ -1083,17 +1143,25 @@ class ResourceAuthority:
             rec = self._reservations[res_id]
 
             if authority_epoch is not None and authority_epoch != self._authority_epoch:
-                raise InvalidFencingError(f"P6 Fencing Reject on Release: Stale authority epoch {authority_epoch} != active {self._authority_epoch}")
+                raise InvalidFencingError(
+                    f"P6 Fencing Reject on Release: Stale authority epoch {authority_epoch} != active {self._authority_epoch}"
+                )
 
             if res_worker is not None and worker_generation is not None:
                 if (res_worker, worker_generation) in self._retired_tombstones:
-                    raise InvalidFencingError(f"P7 Fencing Reject on Release: Worker {res_worker} gen {worker_generation} is retired in tombstones")
+                    raise InvalidFencingError(
+                        f"P7 Fencing Reject on Release: Worker {res_worker} gen {worker_generation} is retired in tombstones"
+                    )
                 active_gen = self._worker_generations.get(res_worker, worker_generation)
                 if worker_generation != active_gen:
-                    raise InvalidFencingError(f"P7 Fencing Reject on Release: Worker {res_worker} gen {worker_generation} != active {active_gen}")
+                    raise InvalidFencingError(
+                        f"P7 Fencing Reject on Release: Worker {res_worker} gen {worker_generation} != active {active_gen}"
+                    )
 
             if lease_epoch is not None and lease_epoch < rec.res_lease_epoch:
-                raise InvalidFencingError(f"P14 Fencing Reject on Release: Stale lease epoch {lease_epoch} < record lease {rec.res_lease_epoch}")
+                raise InvalidFencingError(
+                    f"P14 Fencing Reject on Release: Stale lease epoch {lease_epoch} < record lease {rec.res_lease_epoch}"
+                )
 
             if rec.res_status not in (ReservationStatus.ACTIVE, ReservationStatus.PENDING):
                 return rec
@@ -1129,11 +1197,15 @@ class ResourceAuthority:
             rec = self._reservations[res_id]
 
             if authority_epoch is not None and authority_epoch != self._authority_epoch:
-                raise InvalidFencingError(f"P6 Fencing Reject on Expire: Stale authority epoch {authority_epoch} != active {self._authority_epoch}")
+                raise InvalidFencingError(
+                    f"P6 Fencing Reject on Expire: Stale authority epoch {authority_epoch} != active {self._authority_epoch}"
+                )
 
             if res_worker is not None and worker_generation is not None:
                 if (res_worker, worker_generation) in self._retired_tombstones:
-                    raise InvalidFencingError(f"P7 Fencing Reject on Expire: Worker {res_worker} gen {worker_generation} is retired in tombstones")
+                    raise InvalidFencingError(
+                        f"P7 Fencing Reject on Expire: Worker {res_worker} gen {worker_generation} is retired in tombstones"
+                    )
 
             if rec.res_status not in (ReservationStatus.ACTIVE, ReservationStatus.PENDING):
                 return rec
@@ -1169,11 +1241,15 @@ class ResourceAuthority:
             rec = self._reservations[res_id]
 
             if authority_epoch is not None and authority_epoch != self._authority_epoch:
-                raise InvalidFencingError(f"P6 Fencing Reject on Revoke: Stale authority epoch {authority_epoch} != active {self._authority_epoch}")
+                raise InvalidFencingError(
+                    f"P6 Fencing Reject on Revoke: Stale authority epoch {authority_epoch} != active {self._authority_epoch}"
+                )
 
             if res_worker is not None and worker_generation is not None:
                 if (res_worker, worker_generation) in self._retired_tombstones:
-                    raise InvalidFencingError(f"P7 Fencing Reject on Revoke: Worker {res_worker} gen {worker_generation} is retired in tombstones")
+                    raise InvalidFencingError(
+                        f"P7 Fencing Reject on Revoke: Worker {res_worker} gen {worker_generation} is retired in tombstones"
+                    )
 
             if rec.res_status not in (ReservationStatus.ACTIVE, ReservationStatus.PENDING):
                 return rec
@@ -1198,7 +1274,9 @@ class ResourceAuthority:
         """Linearization Point for OpAuthoritySuccession."""
         with self._lock:
             if new_epoch <= self._authority_epoch:
-                raise InvalidFencingError(f"P14 Reject: New authority epoch {new_epoch} <= current {self._authority_epoch}")
+                raise InvalidFencingError(
+                    f"P14 Reject: New authority epoch {new_epoch} <= current {self._authority_epoch}"
+                )
 
             self._authority_epoch = new_epoch
             self.check_invariants()
@@ -1222,7 +1300,9 @@ class ResourceAuthority:
             for r in records:
                 self._reservations[r.res_id] = r
                 self._lease_epochs[r.res_inv] = max(self._lease_epochs.get(r.res_inv, 0), r.res_lease_epoch)
-                self._worker_generations[r.res_worker] = max(self._worker_generations.get(r.res_worker, 0), r.res_generation)
+                self._worker_generations[r.res_worker] = max(
+                    self._worker_generations.get(r.res_worker, 0), r.res_generation
+                )
 
                 if r.res_status.is_active():
                     eff_vec = r.get_effective_demand_vector()

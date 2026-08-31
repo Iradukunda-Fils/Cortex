@@ -159,7 +159,6 @@ class VersionedReadView:
 
 @dataclass
 class InvocationRecord:
-
     """
     Authoritative state record for a logical invocation (Issue #46).
     Enforces Invocation Lifecycle FSM disjoint state totality.
@@ -186,7 +185,10 @@ class InvocationRecord:
                 InvocationLifecycleState.COMPLETED,
                 InvocationLifecycleState.QUARANTINED,
             },
-            InvocationLifecycleState.QUARANTINED: {InvocationLifecycleState.RECONCILED, InvocationLifecycleState.ACTIVE},
+            InvocationLifecycleState.QUARANTINED: {
+                InvocationLifecycleState.RECONCILED,
+                InvocationLifecycleState.ACTIVE,
+            },
             InvocationLifecycleState.COMPLETED: {InvocationLifecycleState.RECONCILED},
             InvocationLifecycleState.RECONCILED: set(),
         }
@@ -247,7 +249,6 @@ class AssignmentRecord:
     lease_epoch: int
     assigned_at_ms: int
     generation: int = DEFAULT_INITIAL_PROCESS_GENERATION
-
 
 
 @dataclass(frozen=True)
@@ -364,8 +365,6 @@ class ProductionDynamicLoadBalancer:
             capability_index_snapshot=cap_snap,
         )
 
-
-
     def rebuild_capability_index(self) -> None:
         """
         Reconstructs derived capability index f(S_A) deterministically from authoritative state S_A.
@@ -377,7 +376,6 @@ class ProductionDynamicLoadBalancer:
                 for cap in worker.capabilities:
                     self._capability_index.setdefault(cap, set()).add(worker_id)
             self._publish_versioned_read_view_unlocked()
-
 
     def assert_capability_index_consistency(self) -> None:
         """
@@ -404,7 +402,6 @@ class ProductionDynamicLoadBalancer:
                         raise LoadBalancerError(
                             f"Invariant I_9 Violation: Registered worker '{wid}' with capability '{cap}' missing from derived index."
                         )
-
 
     def register_worker(
         self,
@@ -464,7 +461,6 @@ class ProductionDynamicLoadBalancer:
             self._workers[worker_id] = node
             self._publish_versioned_read_view_unlocked()
 
-
     def record_heartbeat(self, worker_id: str, current_unix_ms: int) -> None:
         with self._lock:
             if worker_id in self._workers:
@@ -480,8 +476,7 @@ class ProductionDynamicLoadBalancer:
                 self._workers[worker_id].status = WorkerHealthStatus.DRAINING
                 self._publish_versioned_read_view_unlocked()
             drained_invocations = [
-                inv_id for inv_id, record in self._assignments.items()
-                if record.worker_id == worker_id
+                inv_id for inv_id, record in self._assignments.items() if record.worker_id == worker_id
             ]
             return drained_invocations
 
@@ -495,8 +490,7 @@ class ProductionDynamicLoadBalancer:
         for worker_id in to_remove:
             # Shift active assignments associated with evicted worker to quarantine
             orphaned_invocations = [
-                inv_id for inv_id, record in self._assignments.items()
-                if record.worker_id == worker_id
+                inv_id for inv_id, record in self._assignments.items() if record.worker_id == worker_id
             ]
             for inv_id in orphaned_invocations:
                 record = self._assignments.pop(inv_id)
@@ -536,7 +530,10 @@ class ProductionDynamicLoadBalancer:
                 worker = view.workers_snapshot.get(wid)
                 if worker is None:
                     continue
-                if current_unix_ms - worker.last_heartbeat_ms <= self._heartbeat_timeout_ms and worker.available_capacity > 0:
+                if (
+                    current_unix_ms - worker.last_heartbeat_ms <= self._heartbeat_timeout_ms
+                    and worker.available_capacity > 0
+                ):
                     snapshot_eligible_workers.append(worker)
 
             if not snapshot_eligible_workers:
@@ -565,9 +562,6 @@ class ProductionDynamicLoadBalancer:
 
             selected = max(eligible_workers, key=lambda w: (w.available_capacity, w.worker_id))
             return selected.worker_id
-
-
-
 
     def assign_execution(
         self,
@@ -658,7 +652,6 @@ class ProductionDynamicLoadBalancer:
         if worker_id in self._workers:
             self._workers[worker_id].active_load = cnt
         return cnt
-
 
     def validate_state_invariants(self) -> bool:
         """
@@ -765,7 +758,6 @@ class ProductionDynamicLoadBalancer:
                 self._sync_worker_active_load(worker_id)
 
 
-
 class DynamicLoadBalancer:
     """
     Gateway-integrated Dynamic Load Balancer wrapper for backwards compatibility
@@ -818,7 +810,8 @@ class DynamicLoadBalancer:
                 )
 
             eligible = [
-                w for w in self._kernel._workers.values()
+                w
+                for w in self._kernel._workers.values()
                 if w.is_eligible and (not w.capabilities or required_capability in w.capabilities)
             ]
 

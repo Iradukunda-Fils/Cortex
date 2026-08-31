@@ -489,7 +489,9 @@ class TestReplicaPhase4(unittest.TestCase):
         resolver = CandidateResolver()
         w1 = self._make_worker("w-1")
 
-        resolved = resolver.resolve_candidates([w1], ["payments.execute"], 18, self.active_config_hash, self.active_sandbox_hash, self.active_cap_hash)
+        resolved = resolver.resolve_candidates(
+            [w1], ["payments.execute"], 18, self.active_config_hash, self.active_sandbox_hash, self.active_cap_hash
+        )
         selected = policy.select_candidate(resolved)
 
         self.assertFalse(hasattr(selected, "token"))

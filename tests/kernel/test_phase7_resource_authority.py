@@ -21,7 +21,6 @@ from cortex.tools.kernel.resource_authority import (
 
 
 class TestPhase7ResourceAuthority(unittest.TestCase):
-
     def test_tv_73_01_concurrent_reserve_same_invocation(self):
         """TV-73-01: Two simultaneous reserve requests for same InvocationId."""
         auth = ResourceAuthority()
@@ -87,65 +86,123 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         auth = ResourceAuthority(authority_epoch=2)
         with self.assertRaises(InvalidFencingError):
             auth.reserve(
-                res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=1,
+                res_inv=101,
+                res_att=1,
+                res_worker=1,
+                res_demand=100,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
 
     def test_tv_73_04_stale_lease_epoch(self):
         """TV-73-04: Reserve with non-monotonic lease epoch."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=5, worker_generation=1
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=5,
+            worker_generation=1,
         )
         auth.release(1)
 
         with self.assertRaises(InvalidFencingError):
             auth.reserve(
-                res_id=2, res_inv=101, res_att=2, res_worker=1, res_demand=100,
-                authority_epoch=1, lease_epoch=5, worker_generation=1
+                res_id=2,
+                res_inv=101,
+                res_att=2,
+                res_worker=1,
+                res_demand=100,
+                authority_epoch=1,
+                lease_epoch=5,
+                worker_generation=1,
             )
 
     def test_tv_73_05_stale_worker_generation(self):
         """TV-73-05: Reserve with stale worker generation."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=10, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=3
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=10,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=3,
         )
         auth.release(1)
 
         with self.assertRaises(InvalidFencingError):
             auth.reserve(
-                res_id=2, res_inv=102, res_att=2, res_worker=10, res_demand=100,
-                authority_epoch=1, lease_epoch=1, worker_generation=2
+                res_id=2,
+                res_inv=102,
+                res_att=2,
+                res_worker=10,
+                res_demand=100,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=2,
             )
 
     def test_tv_73_06_gpu_collision(self):
         """TV-73-06: ReserveGPU on an already owned exclusive GPU."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=0
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=0,
         )
         with self.assertRaises(GPUCollisionError):
             auth.reserve(
-                res_id=2, res_inv=102, res_att=2, res_worker=2, res_demand=100,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=0
+                res_id=2,
+                res_inv=102,
+                res_att=2,
+                res_worker=2,
+                res_demand=100,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                gpu_id=0,
             )
 
     def test_tv_73_07_gpu_release(self):
         """TV-73-07: Release of GPU reservation frees the GPU for new reservation."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=0
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=0,
         )
         auth.release(1)
 
         rec2 = auth.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=2, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=0
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=2,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=0,
         )
         self.assertEqual(rec2.res_id, 2)
 
@@ -154,8 +211,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         auth = ResourceAuthority(capacity=1000, safety_margin=50, uncertainty=50)
         with self.assertRaises(InsufficientCapacityError):
             auth.reserve(
-                res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=950,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=1,
+                res_inv=101,
+                res_att=1,
+                res_worker=1,
+                res_demand=950,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
 
     def test_tv_73_09_release_unauthorized_caller(self):
@@ -168,8 +231,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         """TV-73-10: Double release of same ReservationId is idempotent."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         rec1 = auth.release(1)
         self.assertEqual(rec1.res_status, ReservationStatus.RELEASED)
@@ -181,8 +250,15 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         """TV-73-11: Expiry transitions reservation to EXPIRED and reclaims capacity."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=3
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=3,
         )
         rec = auth.expire(1)
         self.assertEqual(rec.res_status, ReservationStatus.EXPIRED)
@@ -193,8 +269,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         """TV-73-12: Revocation transitions reservation to REVOKED and isolates it."""
         auth = ResourceAuthority()
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         rec = auth.revoke(1)
         self.assertEqual(rec.res_status, ReservationStatus.REVOKED)
@@ -204,12 +286,25 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         """TV-73-13: Process crash and WAL replay produces state satisfying alpha(C) = A."""
         auth1 = ResourceAuthority()
         auth1.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, gpu_id=2
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=2,
         )
         auth1.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=1, res_demand=200,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=1,
+            res_demand=200,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         auth1.release(1)
 
@@ -224,9 +319,15 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         """TV-73-14: Terminal reservation resurrection attempt blocked during recovery."""
         auth = ResourceAuthority()
         rec = ReservationRecord(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            res_authority_epoch=1, res_lease_epoch=1, res_generation=1,
-            res_status=ReservationStatus.RELEASED
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            res_authority_epoch=1,
+            res_lease_epoch=1,
+            res_generation=1,
+            res_status=ReservationStatus.RELEASED,
         )
         auth.recover_from_records([rec], authority_epoch=1)
 
@@ -240,8 +341,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
         auth = ResourceAuthority(capacity=10000)
         for i in range(1, 1001):
             auth.reserve(
-                res_id=i, res_inv=i, res_att=i, res_worker=1, res_demand=5,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=i,
+                res_inv=i,
+                res_att=i,
+                res_worker=1,
+                res_demand=5,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
             auth.release(i)
 
@@ -256,13 +363,25 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
 
         with self.assertRaises(InsufficientCapacityError):
             auth.reserve(
-                res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=150,
-                authority_epoch=1, lease_epoch=1, worker_generation=1
+                res_id=1,
+                res_inv=101,
+                res_att=1,
+                res_worker=1,
+                res_demand=150,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
             )
 
         rec = auth.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=1, res_demand=50,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=1,
+            res_demand=50,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         self.assertEqual(rec.res_id, 2)
 
@@ -276,8 +395,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
                 inv_id = res_id
                 try:
                     auth.reserve(
-                        res_id=res_id, res_inv=inv_id, res_att=1, res_worker=worker_id,
-                        res_demand=10, authority_epoch=1, lease_epoch=1, worker_generation=1
+                        res_id=res_id,
+                        res_inv=inv_id,
+                        res_att=1,
+                        res_worker=worker_id,
+                        res_demand=10,
+                        authority_epoch=1,
+                        lease_epoch=1,
+                        worker_generation=1,
                     )
                     auth.release(res_id)
                 except Exception:
@@ -367,8 +492,14 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
 
         # Make a reservation on worker 1
         _rec = auth.reserve(
-            res_id=10, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1
+            res_id=10,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
 
         # ScaleDown Drain phase
@@ -377,6 +508,7 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
 
         # Attempting retirement must raise WorkerNotQuiescentError
         from cortex.tools.kernel.resource_authority import WorkerNotQuiescentError
+
         with self.assertRaises(WorkerNotQuiescentError):
             auth.scale_down_retire_worker(1)
 
@@ -395,4 +527,3 @@ class TestPhase7ResourceAuthority(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

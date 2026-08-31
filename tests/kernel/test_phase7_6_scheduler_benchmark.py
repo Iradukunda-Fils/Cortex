@@ -6,10 +6,7 @@ Measures: P50, P95, P99, P99.9, CPU, RSS, selection time, reservation time, end-
 Compares against frozen Candidate G scalar baseline.
 """
 
-import os
 import resource
-import statistics
-import sys
 import time
 import unittest
 from typing import List
@@ -60,10 +57,12 @@ class TestPhase76SchedulerBenchmark(unittest.TestCase):
                 is_healthy=True,
             )
             sched.register_worker(view)
-            sched.update_telemetry(WorkerTelemetry(
-                worker_id=i,
-                active_task_count=i % 10,
-            ))
+            sched.update_telemetry(
+                WorkerTelemetry(
+                    worker_id=i,
+                    active_task_count=i % 10,
+                )
+            )
 
         # Run scheduling benchmark
         n_tasks = min(n_workers, 500)
@@ -83,13 +82,13 @@ class TestPhase76SchedulerBenchmark(unittest.TestCase):
             )
 
             start = time.time_ns()
-            worker, cost = sched.select_worker(intent)
+            sched.select_worker(intent)
             sel_end = time.time_ns()
             selection_times_ns.append(sel_end - start)
 
             # Full schedule (including ResourceAuthority.reserve())
             start2 = time.time_ns()
-            result = sched.schedule(intent)
+            sched.schedule(intent)
             end2 = time.time_ns()
             total_times_ns.append(end2 - start2)
 
@@ -131,10 +130,14 @@ class TestPhase76SchedulerBenchmark(unittest.TestCase):
 
     def _print_metrics(self, m: dict) -> None:
         print(f"\n--- Benchmark: {m['n_workers']} workers, {m['n_tasks']} tasks ---")
-        print(f"  Selection: P50={m['selection_p50_us']:.1f}µs  P95={m['selection_p95_us']:.1f}µs  "
-              f"P99={m['selection_p99_us']:.1f}µs  P99.9={m['selection_p999_us']:.1f}µs")
-        print(f"  Total:     P50={m['total_p50_us']:.1f}µs  P95={m['total_p95_us']:.1f}µs  "
-              f"P99={m['total_p99_us']:.1f}µs  P99.9={m['total_p999_us']:.1f}µs")
+        print(
+            f"  Selection: P50={m['selection_p50_us']:.1f}µs  P95={m['selection_p95_us']:.1f}µs  "
+            f"P99={m['selection_p99_us']:.1f}µs  P99.9={m['selection_p999_us']:.1f}µs"
+        )
+        print(
+            f"  Total:     P50={m['total_p50_us']:.1f}µs  P95={m['total_p95_us']:.1f}µs  "
+            f"P99={m['total_p99_us']:.1f}µs  P99.9={m['total_p999_us']:.1f}µs"
+        )
         print(f"  RSS: {m['rss_mb']:.1f} MB")
 
 

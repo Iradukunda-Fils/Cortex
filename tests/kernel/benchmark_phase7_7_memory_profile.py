@@ -10,20 +10,17 @@ Reports at each tier boundary: N=0 (baseline), 10, 100, 1000.
 """
 
 import gc
-import os
 import resource
 import sys
-import time
-from typing import Dict, List
+from typing import Dict
 
 from cortex.tools.kernel.distributed_scheduler import (
     DistributedPlacementEngine,
     DistributedWorkerView,
-    GlobalGPUIdentity,
     GlobalWorkerIdentity,
 )
 from cortex.tools.kernel.resource_authority import DemandVector, ResourceAuthority, WorkerLifecycleState
-from cortex.tools.kernel.scheduler import CostFunction, SchedulingIntent, WorkerTelemetry
+from cortex.tools.kernel.scheduler import WorkerTelemetry
 
 
 def get_rss_mb() -> float:
@@ -53,8 +50,10 @@ def run_memory_profile():
     print("=" * 80)
     print("Phase 7.7 Memory Profiling Benchmark")
     print("=" * 80)
-    print(f"{'Tier':>8} | {'Workers':>8} | {'RSS_cur(MB)':>12} | {'RSS_max(MB)':>12} | "
-          f"{'Engine(bytes)':>14} | {'Per-Worker(bytes)':>18}")
+    print(
+        f"{'Tier':>8} | {'Workers':>8} | {'RSS_cur(MB)':>12} | {'RSS_max(MB)':>12} | "
+        f"{'Engine(bytes)':>14} | {'Per-Worker(bytes)':>18}"
+    )
     print("-" * 80)
 
     gc.collect()
@@ -62,8 +61,7 @@ def run_memory_profile():
     rss_max_baseline = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024 / (1024 * 1024)
 
     # Baseline: no engine
-    print(f"{'base':>8} | {'0':>8} | {rss_baseline:>12.2f} | {rss_max_baseline:>12.2f} | "
-          f"{'N/A':>14} | {'N/A':>18}")
+    print(f"{'base':>8} | {'0':>8} | {rss_baseline:>12.2f} | {rss_max_baseline:>12.2f} | {'N/A':>14} | {'N/A':>18}")
 
     authorities: Dict[str, ResourceAuthority] = {}
     for n in range(1, n_nodes + 1):
@@ -80,8 +78,7 @@ def run_memory_profile():
             rss_now = get_rss_mb()
             rss_max = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024 / (1024 * 1024)
             eng_size = measure_engine_object_size(engine)
-            print(f"{'init':>8} | {0:>8} | {rss_now:>12.2f} | {rss_max:>12.2f} | "
-                  f"{eng_size:>14} | {'N/A':>18}")
+            print(f"{'init':>8} | {0:>8} | {rss_now:>12.2f} | {rss_max:>12.2f} | {eng_size:>14} | {'N/A':>18}")
             prev_engine_size = eng_size
             continue
 
@@ -112,8 +109,10 @@ def run_memory_profile():
         delta_bytes = eng_size - prev_engine_size
         per_worker = delta_bytes / added if added > 0 else 0
 
-        print(f"{tier_target:>8} | {tier_target:>8} | {rss_now:>12.2f} | {rss_max:>12.2f} | "
-              f"{eng_size:>14} | {per_worker:>18.1f}")
+        print(
+            f"{tier_target:>8} | {tier_target:>8} | {rss_now:>12.2f} | {rss_max:>12.2f} | "
+            f"{eng_size:>14} | {per_worker:>18.1f}"
+        )
 
         prev_engine_size = eng_size
         prev_workers = tier_target

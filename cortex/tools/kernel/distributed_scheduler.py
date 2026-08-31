@@ -24,9 +24,8 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Set, Tuple
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set, Tuple
 
 from cortex.tools.kernel.resource_authority import (
     DemandVector,
@@ -40,7 +39,6 @@ from cortex.tools.kernel.resource_authority import (
 from cortex.tools.kernel.scheduler import (
     CostFunction,
     NoFeasibleWorkerError,
-    PlacementCost,
     PlacementRejectedError,
     SchedulingIntent,
     WorkerTelemetry,
@@ -53,12 +51,14 @@ logger = logging.getLogger(__name__)
 # Globally Unique Identities
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class GlobalGPUIdentity:
     """
     Globally Unique GPU Identity: (NodeID, GPUID, PartitionID?).
     Prevents global namespace collisions across multi-node topologies.
     """
+
     node_id: str
     gpu_id: int
     partition_id: Optional[int] = None
@@ -75,6 +75,7 @@ class GlobalWorkerIdentity:
     Globally Unique Worker Identity: (NodeID, WorkerID, Generation).
     Eliminates node-local worker ID collisions.
     """
+
     node_id: str
     worker_id: int
     generation: int
@@ -87,12 +88,14 @@ class GlobalWorkerIdentity:
 # Multi-Node Worker Scheduling View
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class DistributedWorkerView:
     """
     Immutable read-only view of a distributed worker node.
     Combines authoritative registration data with topology & locality metadata.
     """
+
     identity: GlobalWorkerIdentity
     state: WorkerLifecycleState
     capabilities: frozenset
@@ -111,14 +114,17 @@ class DistributedWorkerView:
 # Distributed Placement Exceptions
 # -----------------------------------------------------------------------------
 
+
 class ResourceFragmentationError(Exception):
     """Raised when cluster aggregate capacity is sufficient, but no single node satisfies demand."""
+
     pass
 
 
 # -----------------------------------------------------------------------------
 # Distributed Cost Ranking
 # -----------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class DistributedPlacementCost:
@@ -130,6 +136,7 @@ class DistributedPlacementCost:
         3. Residual CPU millicores (higher is better)
         4. Global worker identity string (lexicographical tie-breaking)
     """
+
     locality_penalty: float
     primary_cost: float
     residual_cpu_mcores: int
@@ -148,6 +155,7 @@ class DistributedPlacementCost:
 # -----------------------------------------------------------------------------
 # Phase 7.7a Distributed Placement Engine
 # -----------------------------------------------------------------------------
+
 
 class DistributedPlacementEngine:
     """

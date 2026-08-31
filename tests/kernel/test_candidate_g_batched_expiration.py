@@ -16,16 +16,15 @@ Verifies:
 
 from __future__ import annotations
 
+import threading
 import time
 import unittest
-import threading
 from unittest.mock import patch
+
 from cortex.tools.kernel.resource_authority import (
-    ResourceAuthority,
     ReservationStatus,
+    ResourceAuthority,
     WorkerLifecycleState,
-    ReservationRecord,
-    UniquenessViolationError,
 )
 
 
@@ -41,12 +40,26 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         # Create 5 reservations in both
         for i in range(5):
             ra_base.reserve(
-                res_id=i, res_inv=10+i, res_att=100+i, res_worker=1, res_demand=10,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+                res_id=i,
+                res_inv=10 + i,
+                res_att=100 + i,
+                res_worker=1,
+                res_demand=10,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                expiration_timestamp_ns=now + 50,
             )
             ra_batch.reserve(
-                res_id=i, res_inv=10+i, res_att=100+i, res_worker=1, res_demand=10,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+                res_id=i,
+                res_inv=10 + i,
+                res_att=100 + i,
+                res_worker=1,
+                res_demand=10,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                expiration_timestamp_ns=now + 50,
             )
 
         # Sweep both at now + 100
@@ -65,16 +78,30 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
 
         # Setup one reservation to expire
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         # Thread racing to reserve a new item during sweep
         def concurrent_reserve():
             time.sleep(0.01)
             ra.reserve(
-                res_id=2, res_inv=20, res_att=200, res_worker=1, res_demand=10,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 200
+                res_id=2,
+                res_inv=20,
+                res_att=200,
+                res_worker=1,
+                res_demand=10,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                expiration_timestamp_ns=now + 200,
             )
 
         t = threading.Thread(target=concurrent_reserve)
@@ -95,8 +122,15 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         # Release first
@@ -113,8 +147,15 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         # Renew -> extends expiration and increments generation_id
@@ -136,8 +177,15 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         ra.revoke(1)
@@ -153,12 +201,20 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         # Manually push a duplicate stale heap entry
         import heapq
+
         heapq.heappush(ra._min_heap, (now + 50, 1, 99))  # Incorrect generation_id=99
 
         # Sweep at now + 100
@@ -174,13 +230,19 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
 
         # Initialize worker scaling record
         from cortex.tools.kernel.resource_authority import WorkerScalingRecord
-        ra._worker_states[1] = WorkerScalingRecord(
-            worker_id=1, generation=1, state=WorkerLifecycleState.ACTIVE
-        )
+
+        ra._worker_states[1] = WorkerScalingRecord(worker_id=1, generation=1, state=WorkerLifecycleState.ACTIVE)
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         self.assertEqual(ra._worker_states[1].active_assignments_count, 1)
@@ -195,8 +257,15 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra_orig.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
         ra_orig.expire_reservations_sweep(now + 100)
 
@@ -205,10 +274,7 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         ra_recovered = ResourceAuthority(capacity=1000, use_batched_sweep=True)
         ra_recovered.recover_from_records(records, authority_epoch=1)
 
-        self.assertEqual(
-            ra_recovered._reservations[1].res_status,
-            ReservationStatus.EXPIRED
-        )
+        self.assertEqual(ra_recovered._reservations[1].res_status, ReservationStatus.EXPIRED)
 
     def test_failure_midway_through_batch_transactional_rollback(self) -> None:
         """9. Verifies transactional rollback (all-or-nothing) if check_invariants fails."""
@@ -216,12 +282,26 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         now = 1_000_000_000
 
         ra.reserve(
-            res_id=1, res_inv=10, res_att=100, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=1,
+            res_inv=10,
+            res_att=100,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
         ra.reserve(
-            res_id=2, res_inv=20, res_att=200, res_worker=1, res_demand=10,
-            authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=now + 50
+            res_id=2,
+            res_inv=20,
+            res_att=200,
+            res_worker=1,
+            res_demand=10,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            expiration_timestamp_ns=now + 50,
         )
 
         # Force check_invariants to throw an error
@@ -243,12 +323,26 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         for i in range(20):
             exp_ts = now + (i + 1) * 10
             ra_base.reserve(
-                res_id=i, res_inv=100+i, res_att=1000+i, res_worker=1, res_demand=10,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=exp_ts
+                res_id=i,
+                res_inv=100 + i,
+                res_att=1000 + i,
+                res_worker=1,
+                res_demand=10,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                expiration_timestamp_ns=exp_ts,
             )
             ra_batch.reserve(
-                res_id=i, res_inv=100+i, res_att=1000+i, res_worker=1, res_demand=10,
-                authority_epoch=1, lease_epoch=1, worker_generation=1, expiration_timestamp_ns=exp_ts
+                res_id=i,
+                res_inv=100 + i,
+                res_att=1000 + i,
+                res_worker=1,
+                res_demand=10,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
+                expiration_timestamp_ns=exp_ts,
             )
 
         # Release some
@@ -282,8 +376,7 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
 
         for res_id in range(20):
             self.assertEqual(
-                recovered_base._reservations[res_id].res_status,
-                recovered_batch._reservations[res_id].res_status
+                recovered_base._reservations[res_id].res_status, recovered_batch._reservations[res_id].res_status
             )
 
     def test_performance_benchmark_batched_vs_baseline(self) -> None:
@@ -298,13 +391,25 @@ class TestCandidateGBatchedExpiration(unittest.TestCase):
         for i in range(n_reservations):
             exp_ts = now + (i + 1) * 1000
             ra_base.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
             ra_batch.reserve(
-                res_id=i, res_inv=10000 + i, res_att=100000 + i, res_worker=1,
-                res_demand=1, authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=i,
+                res_inv=10000 + i,
+                res_att=100000 + i,
+                res_worker=1,
+                res_demand=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 expiration_timestamp_ns=exp_ts,
             )
 

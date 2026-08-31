@@ -72,4 +72,3 @@ class WorkerLifecycleTracker:
     def transition_terminated(self) -> None:
         with self._lock:
             self.stage = WorkerLifecycleStage.TERMINATED
-

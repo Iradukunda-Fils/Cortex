@@ -64,9 +64,7 @@ def acquire_reservation(job_mem_mb: float) -> Tuple[bool, float, float]:
                 data = json.load(f)
                 # Purge stale reservations older than 600s
                 now = time.time()
-                reserved_mem = sum(
-                    v["mem_mb"] for v in data.values() if now - v["timestamp"] < 600
-                )
+                reserved_mem = sum(v["mem_mb"] for v in data.values() if now - v["timestamp"] < 600)
         except Exception:
             reserved_mem = 0.0
 
@@ -132,7 +130,10 @@ PROFILES: Dict[str, ProfileConfig] = {
         max_rss_mb=1000.0,
         timeout_sec=120,
         commands=[
-            ("Coq Kernel Models", "make -C verification Phase4RoutingRefinement.vo Phase5LoadBalancerRefinement.vo Phase5Simulation.vo Phase6WALSafety.vo"),
+            (
+                "Coq Kernel Models",
+                "make -C verification Phase4RoutingRefinement.vo Phase5LoadBalancerRefinement.vo Phase5Simulation.vo Phase6WALSafety.vo",
+            ),
             ("Python Conformance", "python3 -m unittest discover -s tests/conformance"),
             ("Axiom Audit", "make -C verification audit"),
         ],
@@ -155,7 +156,10 @@ PROFILES: Dict[str, ProfileConfig] = {
         max_rss_mb=1800.0,
         timeout_sec=240,
         commands=[
-            ("TLA+ Bounded Model Check", "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg"),
+            (
+                "TLA+ Bounded Model Check",
+                "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg",
+            ),
         ],
     ),
     "verify-full": ProfileConfig(
@@ -167,7 +171,10 @@ PROFILES: Dict[str, ProfileConfig] = {
         commands=[
             ("Coq Full Compilation", "make -C verification all-coq"),
             ("Axiom Audit", "make -C verification audit"),
-            ("TLA+ Bounded Model Check", "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg"),
+            (
+                "TLA+ Bounded Model Check",
+                "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg",
+            ),
             ("Python Conformance", "python3 -m unittest discover -s tests/conformance"),
         ],
     ),
@@ -178,7 +185,10 @@ PROFILES: Dict[str, ProfileConfig] = {
         max_rss_mb=3500.0,
         timeout_sec=600,
         commands=[
-            ("TLA+ Stress Model Check", "java -Xmx2G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 4 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg"),
+            (
+                "TLA+ Stress Model Check",
+                "java -Xmx2G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 4 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg",
+            ),
         ],
     ),
     "verify-benchmark": ProfileConfig(
@@ -220,7 +230,9 @@ def run_bounded_job(name: str, cmd: str, max_rss_mb: float, timeout_sec: int) ->
 
             elapsed = time.time() - start_time
             if elapsed > timeout_sec:
-                print(f"\n[RESOURCE CONTROLLER ERROR] Job '{name}' EXCEEDED TIMEOUT ({timeout_sec}s). Terminating process...")
+                print(
+                    f"\n[RESOURCE CONTROLLER ERROR] Job '{name}' EXCEEDED TIMEOUT ({timeout_sec}s). Terminating process..."
+                )
                 process.terminate()
                 try:
                     process.wait(timeout=5)
@@ -232,7 +244,9 @@ def run_bounded_job(name: str, cmd: str, max_rss_mb: float, timeout_sec: int) ->
             ru = resource.getrusage(resource.RUSAGE_CHILDREN)
             child_rss_mb = ru.ru_maxrss / 1024.0
             if child_rss_mb > max_rss_mb:
-                print(f"\n[RESOURCE CONTROLLER ERROR] Job '{name}' EXCEEDED MAX RSS CEILING ({child_rss_mb:.2f} MB > {max_rss_mb:.2f} MB). Terminating process...")
+                print(
+                    f"\n[RESOURCE CONTROLLER ERROR] Job '{name}' EXCEEDED MAX RSS CEILING ({child_rss_mb:.2f} MB > {max_rss_mb:.2f} MB). Terminating process..."
+                )
                 process.terminate()
                 try:
                     process.wait(timeout=5)
@@ -284,7 +298,9 @@ def main() -> None:
     if not admitted and not args.force:
         print("\n" + "!" * 80)
         print(f"[ADMISSION DENIED] Insufficient unreserved system memory for profile '{profile.name}'.")
-        print(f"Available ({avail_mem:.2f} MB) - Reserved ({reserved_mem:.2f} MB) - Margin ({DEFAULT_HOST_SAFETY_MARGIN_MB:.2f} MB) < Required ({profile.required_mem_mb:.2f} MB).")
+        print(
+            f"Available ({avail_mem:.2f} MB) - Reserved ({reserved_mem:.2f} MB) - Margin ({DEFAULT_HOST_SAFETY_MARGIN_MB:.2f} MB) < Required ({profile.required_mem_mb:.2f} MB)."
+        )
         print("Halting verification to protect host stability.")
         print("!" * 80 + "\n")
         sys.exit(1)

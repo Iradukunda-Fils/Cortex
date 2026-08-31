@@ -22,7 +22,6 @@ from cortex.tools.kernel.replica.lifecycle import WorkerLifecycleTracker
 from cortex.tools.kernel.resource_authority import (
     DemandVector,
     GPUCollisionError,
-    InsufficientCapacityError,
     InvalidFencingError,
     ResourceAuthority,
 )
@@ -50,7 +49,11 @@ class TestPhase75EnforcementCompositionGate(unittest.TestCase):
             require_physical_enforcement=False,
         )
         identity = ExecutionIdentity(
-            group_id=f"grp_{worker_id}", instance_id=f"inst_{worker_id}", generation=1, config_generation=1, attempt_id=1
+            group_id=f"grp_{worker_id}",
+            instance_id=f"inst_{worker_id}",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         tracker = WorkerLifecycleTracker(execution_identity=identity)
         return WorkerSupervisor(
@@ -108,7 +111,7 @@ class TestPhase75EnforcementCompositionGate(unittest.TestCase):
             auth.release(1, authority_epoch=99)
 
         # Supervisor terminates worker execution and reclaims
-        telemetry = sup.terminate_worker_and_reclaim()
+        sup.terminate_worker_and_reclaim()
         self.assertEqual(sup.state, SupervisorLifecycleState.CGROUP_CLEANED)
         self.assertIsNotNone(proc.poll())
 
@@ -143,11 +146,11 @@ class TestPhase75EnforcementCompositionGate(unittest.TestCase):
         vec_gpu0 = DemandVector.from_dict({"cpu": "100m", "gpu": [0]})
 
         # GPU 0 on Node A
-        rec_a = auth_node_a.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, demand_vector=vec_gpu0)
+        auth_node_a.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, demand_vector=vec_gpu0)
         self.assertEqual(auth_node_a._gpu_owners[0], 1)
 
         # GPU 0 on Node B is a distinct physical resource (NodeB, GPU0) -> reserve succeeds!
-        rec_b = auth_node_b.reserve(res_id=2, res_inv=102, res_att=2, res_worker=2, demand_vector=vec_gpu0)
+        auth_node_b.reserve(res_id=2, res_inv=102, res_att=2, res_worker=2, demand_vector=vec_gpu0)
         self.assertEqual(auth_node_b._gpu_owners[0], 2)
 
         # Conflict on Node A: Second reservation claiming GPU 0 on Node A fails with GPUCollisionError!

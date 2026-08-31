@@ -69,7 +69,9 @@ def run_profiled_stage(stage_name: str, command: str, timeout_sec: int = 300) ->
     cpu_sec = round(end_cpu - start_cpu, 2)
     peak_rss = get_peak_rss_mb()
 
-    print(f"[PROFILER] Completed {stage_name}: Status={status}, Peak RSS={peak_rss} MB, Wall={wall_sec}s, CPU={cpu_sec}s")
+    print(
+        f"[PROFILER] Completed {stage_name}: Status={status}, Peak RSS={peak_rss} MB, Wall={wall_sec}s, CPU={cpu_sec}s"
+    )
 
     return StageResourceMetrics(
         stage_name=stage_name,
@@ -91,7 +93,10 @@ def main() -> None:
         ("Coq Kernel Core", "make -C verification Phase5Simulation.vo Phase6WALSafety.vo"),
         ("Coq Full Suite", "make -C verification all-coq"),
         ("Axiom Audit", "make -C verification audit"),
-        ("TLA+ Bounded TLC", "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg"),
+        (
+            "TLA+ Bounded TLC",
+            "java -Xmx1G -XX:+UseParallelGC -cp verification/tla/tla2tools.jar tlc2.TLC -workers 2 verification/tla/Phase6DistributedAuthority.tla -config verification/tla/Phase6DistributedAuthority.cfg",
+        ),
         ("Python Conformance", "python3 -m unittest discover -s tests/conformance"),
         ("Python Performance Benchmark", "python3 -m unittest tests/performance/test_scheduler_benchmark.py"),
     ]
@@ -110,7 +115,9 @@ def main() -> None:
     print(f"{'Stage Name':<30} | {'Status':<15} | {'Peak RSS (MB)':<13} | {'Wall (s)':<8} | {'CPU (s)':<8}")
     print("-" * 85)
     for m in metrics_list:
-        print(f"{m.stage_name:<30} | {m.status:<15} | {m.peak_rss_mb:<13.2f} | {m.wall_time_sec:<8.2f} | {m.cpu_time_sec:<8.2f}")
+        print(
+            f"{m.stage_name:<30} | {m.status:<15} | {m.peak_rss_mb:<13.2f} | {m.wall_time_sec:<8.2f} | {m.cpu_time_sec:<8.2f}"
+        )
     print("=" * 85 + "\n")
 
 

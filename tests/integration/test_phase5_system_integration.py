@@ -68,8 +68,12 @@ class TestPhase5SystemIntegration(unittest.TestCase):
         self.data_plane = DataPlaneResolver()
 
         # Register execution workers
-        self.load_balancer.register_worker("worker_alpha", capacity=3, capabilities={"compute.heavy", "storage.read", "execution.submit"})
-        self.load_balancer.register_worker("worker_beta", capacity=5, capabilities={"compute.heavy", "storage.read", "execution.submit"})
+        self.load_balancer.register_worker(
+            "worker_alpha", capacity=3, capabilities={"compute.heavy", "storage.read", "execution.submit"}
+        )
+        self.load_balancer.register_worker(
+            "worker_beta", capacity=5, capabilities={"compute.heavy", "storage.read", "execution.submit"}
+        )
 
     def test_full_pipeline_success_with_object_ref_and_reconciliation(self) -> None:
         # 1. Prepare ObjectRef

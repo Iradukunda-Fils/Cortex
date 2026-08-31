@@ -18,6 +18,7 @@ UNLIMITED_RESOURCE_VALUE: str = "max"
 
 class EnvironmentCapability(Enum):
     """Classification of host OS execution enforcement capabilities."""
+
     SUPPORTED_AVAILABLE = auto()
     SUPPORTED_UNAVAILABLE = auto()
     PERMISSION_DENIED = auto()
@@ -26,6 +27,7 @@ class EnvironmentCapability(Enum):
 
 class SupervisorLifecycleState(Enum):
     """Lifecycle state machine for WorkerSupervisor process orchestration."""
+
     CREATED = auto()
     ATTACHING = auto()
     RUNNING = auto()
@@ -44,6 +46,7 @@ class EnforcementContract:
     Immutable specification of OS-level constraints required for worker execution.
     Derived directly from an authorized ResourceAuthority reservation.
     """
+
     reservation_id: int
     worker_id: int
     cpu_mcores: int
@@ -74,6 +77,7 @@ class EnforcementContract:
 @dataclass
 class SupervisorTelemetry:
     """Operational observability telemetry for worker process execution."""
+
     reservation_id: int
     worker_id: int
     cgroup_path: str

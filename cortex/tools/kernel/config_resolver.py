@@ -441,7 +441,12 @@ class ConfigResolver:
         if isinstance(data, dict):
             res: dict[str, Any] = {}
             for k, v in data.items():
-                if k in ("required_capabilities", "allowed_syscalls", "landlock_paths", "allowed_write_paths") and isinstance(v, list):
+                if k in (
+                    "required_capabilities",
+                    "allowed_syscalls",
+                    "landlock_paths",
+                    "allowed_write_paths",
+                ) and isinstance(v, list):
                     # Array Taxonomy: SET fields are lexicographically sorted for canonical encoding
                     sorted_elems = sorted([str(self._normalize_by_field_class(elem)) for elem in v])
                     res[k] = sorted_elems

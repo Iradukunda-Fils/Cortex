@@ -15,15 +15,14 @@ from cortex.tools.kernel.resource_authority import (
     GPUCollisionError,
     InsufficientCapacityError,
     InvalidFencingError,
-    ReservationRecord,
     ReservationStatus,
     ResourceAuthority,
+    UniquenessViolationError,
     parse_resource_unit,
 )
 
 
 class TestConcreteResourceVectorAuthority(unittest.TestCase):
-
     def test_unit_string_normalization(self):
         """Validates exact integer normalization for CPU, Memory, Network, and IO strings."""
         # CPU millicores
@@ -58,13 +57,15 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
     def test_multi_dimensional_vector_reserve(self):
         """Validates reservation with full multi-dimensional DemandVector."""
         auth = ResourceAuthority(capacity=16000)
-        vec = DemandVector.from_dict({
-            "cpu": "4",
-            "memory": "8GiB",
-            "vram": "12GiB",
-            "gpu": [0],
-            "network": "100Mbps",
-        })
+        vec = DemandVector.from_dict(
+            {
+                "cpu": "4",
+                "memory": "8GiB",
+                "vram": "12GiB",
+                "gpu": [0],
+                "network": "100Mbps",
+            }
+        )
 
         rec = auth.reserve(
             res_id=1,
@@ -109,8 +110,13 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         # Valid reservation within bounds (15 GiB memory limit = 16 - 2 = 14 GiB max)
         valid_vec = DemandVector.from_dict({"cpu": "4", "memory": "10GiB", "vram": "16GiB"})
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=valid_vec,
         )
 
@@ -118,8 +124,13 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         overflow_vec = DemandVector.from_dict({"cpu": "2", "memory": "6GiB", "vram": "2GiB"})
         with self.assertRaises(InsufficientCapacityError):
             auth.reserve(
-                res_id=2, res_inv=102, res_att=2, res_worker=1,
-                authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=2,
+                res_inv=102,
+                res_att=2,
+                res_worker=1,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 demand_vector=overflow_vec,
             )
 
@@ -129,8 +140,13 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         vec_gpus = DemandVector.from_dict({"cpu": "4", "gpu": [0, 1]})
 
         rec1 = auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec_gpus,
         )
 
@@ -142,8 +158,13 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         vec_collision = DemandVector.from_dict({"cpu": "2", "gpu": [1, 2]})
         with self.assertRaises(GPUCollisionError):
             auth.reserve(
-                res_id=2, res_inv=102, res_att=2, res_worker=2,
-                authority_epoch=1, lease_epoch=1, worker_generation=1,
+                res_id=2,
+                res_inv=102,
+                res_att=2,
+                res_worker=2,
+                authority_epoch=1,
+                lease_epoch=1,
+                worker_generation=1,
                 demand_vector=vec_collision,
             )
 
@@ -154,8 +175,13 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
 
         # Now reservation 2 with GPUs [1, 2] should succeed
         rec2 = auth.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=2,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=2,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec_collision,
         )
         self.assertEqual(rec2.res_id, 2)
@@ -163,15 +189,22 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
     def test_gate_a_enforcement_contract_derivation(self):
         """Validates derivation of immutable Gate A EnforcementContract from ReservationRecord."""
         auth = ResourceAuthority(capacity=16000)
-        vec = DemandVector.from_dict({
-            "cpu": "8",
-            "memory": "16GiB",
-            "threads": 2048,
-        })
+        vec = DemandVector.from_dict(
+            {
+                "cpu": "8",
+                "memory": "16GiB",
+                "threads": 2048,
+            }
+        )
 
         rec = auth.reserve(
-            res_id=10, res_inv=101, res_att=1, res_worker=42,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=10,
+            res_inv=101,
+            res_att=1,
+            res_worker=42,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec,
         )
 
@@ -188,8 +221,14 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         """Validates FSM linearization point for OpActivate."""
         auth = ResourceAuthority(capacity=16000)
         rec = auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=100,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=100,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
         )
         self.assertEqual(rec.res_status, ReservationStatus.ACTIVE)
 
@@ -205,13 +244,23 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         vec2 = DemandVector.from_dict({"cpu": "2", "memory": "4GiB"})
 
         auth1.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec1,
         )
         auth1.reserve(
-            res_id=2, res_inv=102, res_att=2, res_worker=1,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+            res_id=2,
+            res_inv=102,
+            res_att=2,
+            res_worker=1,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec2,
         )
 
@@ -231,9 +280,14 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         auth = ResourceAuthority(capacity=16000)
         vec = DemandVector.from_dict({"cpu": "4", "memory": "8GiB", "gpu": [0]})
 
-        rec = auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1,
-            authority_epoch=1, lease_epoch=1, worker_generation=1,
+        auth.reserve(
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
             demand_vector=vec,
         )
 
@@ -258,8 +312,14 @@ class TestConcreteResourceVectorAuthority(unittest.TestCase):
         """Phase 7.3a: Validates fencing credential checks on release, expire, and revoke."""
         auth = ResourceAuthority(capacity=16000)
         rec = auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=1000,
-            authority_epoch=1, lease_epoch=2, worker_generation=1,
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=1000,
+            authority_epoch=1,
+            lease_epoch=2,
+            worker_generation=1,
         )
 
         # Stale authority epoch on release must be rejected

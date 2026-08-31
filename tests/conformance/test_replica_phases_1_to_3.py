@@ -31,13 +31,19 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs1_replica_identity_coordinate_separation(self) -> None:
         """RS-1: ExecutionIdentity and OwnershipIdentity must be distinct and non-coercible."""
         exec_id = ExecutionIdentity(
-            group_id="payments", instance_id="w-1", generation=1, config_generation=1, config_hash="sha256_abc", attempt_id=1,
+            group_id="payments",
+            instance_id="w-1",
+            generation=1,
+            config_generation=1,
+            config_hash="sha256_abc",
+            attempt_id=1,
         )
         owner_id = OwnershipIdentity(invocation_id="inv-101", lease_id="l-1", lease_epoch=1)
 
         self.assertNotEqual(type(exec_id), type(owner_id))
         self.assertEqual(
-            exec_id.coordinate_string(), "payments:w-1:g1:cfg1:hsha256_a:a1",
+            exec_id.coordinate_string(),
+            "payments:w-1:g1:cfg1:hsha256_a:a1",
         )
         self.assertEqual(owner_id.coordinate_string(), "inv:inv-101:lease:l-1:ep1")
 
@@ -45,16 +51,28 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs2_generation_isolation(self) -> None:
         """RS-2: Generation coordinates must increment strictly."""
         exec_gen1 = ExecutionIdentity(
-            group_id="payments", instance_id="w-1", generation=1, config_generation=1, attempt_id=1,
+            group_id="payments",
+            instance_id="w-1",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         exec_gen2 = ExecutionIdentity(
-            group_id="payments", instance_id="w-1", generation=2, config_generation=1, attempt_id=1,
+            group_id="payments",
+            instance_id="w-1",
+            generation=2,
+            config_generation=1,
+            attempt_id=1,
         )
 
         self.assertLess(exec_gen1.generation, exec_gen2.generation)
         with self.assertRaises(ValueError):
             ExecutionIdentity(
-                group_id="payments", instance_id="w-1", generation=0, config_generation=1, attempt_id=1,
+                group_id="payments",
+                instance_id="w-1",
+                generation=0,
+                config_generation=1,
+                attempt_id=1,
             )
 
     # ── RS-3: Lease Monotonicity ──────────────────────────────────────
@@ -97,14 +115,14 @@ class TestReplicaPhases1To3(unittest.TestCase):
             commit_error = None
             revoke_result = None
 
-            def do_commit(id_val: str=inv_id, ep_val: int=target_epoch) -> None:
+            def do_commit(id_val: str = inv_id, ep_val: int = target_epoch) -> None:
                 nonlocal commit_result, commit_error
                 try:
                     commit_result = mgr.commit_invocation(invocation_id=id_val, lease_epoch=ep_val)
                 except StaleLeaseError as e:
                     commit_error = e
 
-            def do_revoke(id_val: str=inv_id, ep_val: int=target_epoch) -> None:
+            def do_revoke(id_val: str = inv_id, ep_val: int = target_epoch) -> None:
                 nonlocal revoke_result
                 revoke_result = mgr.revoke_lease(invocation_id=id_val, lease_epoch=ep_val)
 
@@ -250,7 +268,11 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs7_drain_correctness(self) -> None:
         """RS-7: Worker tracker must transition READY -> DRAINING -> QUIESCED when work hits 0."""
         identity = ExecutionIdentity(
-            group_id="billing", instance_id="w-10", generation=1, config_generation=1, attempt_id=1,
+            group_id="billing",
+            instance_id="w-10",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         tracker = WorkerLifecycleTracker(execution_identity=identity, drain_deadline_sec=10.0)
 
@@ -265,7 +287,11 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs8_forced_recovery_timeout(self) -> None:
         """RS-8: Worker tracker must transition to FORCED_RECOVERY if drain_deadline expires."""
         identity = ExecutionIdentity(
-            group_id="billing", instance_id="w-11", generation=1, config_generation=1, attempt_id=1,
+            group_id="billing",
+            instance_id="w-11",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         tracker = WorkerLifecycleTracker(execution_identity=identity, drain_deadline_sec=0.05)
 
@@ -281,10 +307,18 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs9_no_token_cloning(self) -> None:
         """RS-9: ExecutionIdentity attempts must have distinct IDs across worker replacements."""
         attempt1 = ExecutionIdentity(
-            group_id="test", instance_id="w-1", generation=1, config_generation=1, attempt_id=1,
+            group_id="test",
+            instance_id="w-1",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         attempt2 = ExecutionIdentity(
-            group_id="test", instance_id="w-2", generation=1, config_generation=1, attempt_id=2,
+            group_id="test",
+            instance_id="w-2",
+            generation=1,
+            config_generation=1,
+            attempt_id=2,
         )
 
         self.assertNotEqual(attempt1.instance_id, attempt2.instance_id)
@@ -294,7 +328,11 @@ class TestReplicaPhases1To3(unittest.TestCase):
     def test_rs10_capability_bound(self) -> None:
         """RS-10: Coordinate structures preserve immutable capability group strings."""
         exec_id = ExecutionIdentity(
-            group_id="bounded_group", instance_id="w-1", generation=1, config_generation=1, attempt_id=1,
+            group_id="bounded_group",
+            instance_id="w-1",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         self.assertEqual(exec_id.group_id, "bounded_group")
 
@@ -352,13 +390,28 @@ class TestReplicaPhases1To3(unittest.TestCase):
         active_config_hash = "sha256_hash_A"
 
         stale_gen_worker = ExecutionIdentity(
-            group_id="payments", instance_id="w-old-gen", generation=1, config_generation=17, config_hash=active_config_hash, attempt_id=1,
+            group_id="payments",
+            instance_id="w-old-gen",
+            generation=1,
+            config_generation=17,
+            config_hash=active_config_hash,
+            attempt_id=1,
         )
         mismatched_hash_worker = ExecutionIdentity(
-            group_id="payments", instance_id="w-wrong-hash", generation=2, config_generation=18, config_hash="sha256_hash_B", attempt_id=1,
+            group_id="payments",
+            instance_id="w-wrong-hash",
+            generation=2,
+            config_generation=18,
+            config_hash="sha256_hash_B",
+            attempt_id=1,
         )
         current_worker = ExecutionIdentity(
-            group_id="payments", instance_id="w-valid", generation=2, config_generation=18, config_hash=active_config_hash, attempt_id=1,
+            group_id="payments",
+            instance_id="w-valid",
+            generation=2,
+            config_generation=18,
+            config_hash=active_config_hash,
+            attempt_id=1,
         )
 
         # Rejection assertions

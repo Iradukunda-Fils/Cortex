@@ -21,9 +21,9 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from cortex.tools.kernel.resource_authority import (
     DemandVector,
@@ -31,7 +31,6 @@ from cortex.tools.kernel.resource_authority import (
     InsufficientCapacityError,
     InvalidFencingError,
     ReservationRecord,
-    ReservationStatus,
     ResourceAuthority,
     WorkerLifecycleState,
 )
@@ -43,29 +42,35 @@ logger = logging.getLogger(__name__)
 # Exceptions
 # -----------------------------------------------------------------------------
 
+
 class SchedulerError(Exception):
     """Base exception for all scheduler errors."""
+
     pass
 
 
 class NoFeasibleWorkerError(SchedulerError):
     """Raised when no worker passes the feasibility predicate F_i."""
+
     pass
 
 
 class PlacementRejectedError(SchedulerError):
     """Raised when ResourceAuthority rejects the scheduler's placement proposal."""
+
     pass
 
 
 class StaleSchedulingViewError(SchedulerError):
     """Raised when the scheduling read view is stale relative to authoritative state."""
+
     pass
 
 
 # -----------------------------------------------------------------------------
 # Telemetry Snapshot (Non-Authoritative)
 # -----------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class WorkerTelemetry:
@@ -74,6 +79,7 @@ class WorkerTelemetry:
     WARNING: Telemetry != Authority. Telemetry may influence R_sched but
     the final reservation decision must be validated atomically by ResourceAuthority.
     """
+
     worker_id: int
     cpu_used_mcores: int = 0
     memory_used_bytes: int = 0
@@ -88,12 +94,14 @@ class WorkerTelemetry:
 # Worker Scheduling View (Read-Only Snapshot)
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class WorkerSchedulingView:
     """
     Immutable read-only snapshot of a worker's schedulable state.
     Combines authoritative registration data with non-authoritative telemetry.
     """
+
     worker_id: int
     generation: int
     state: WorkerLifecycleState
@@ -116,20 +124,23 @@ class WorkerSchedulingView:
 # Cost Function & Tie-Breaking
 # -----------------------------------------------------------------------------
 
+
 class CostFunction(Enum):
     """Scheduling cost function selector."""
-    LEAST_LOADED = auto()          # Minimize active task count
-    BEST_FIT = auto()              # Minimize wasted residual capacity
-    WORST_FIT = auto()             # Maximize residual capacity after placement
-    ROUND_ROBIN = auto()           # Deterministic round-robin (stateful)
+
+    LEAST_LOADED = auto()  # Minimize active task count
+    BEST_FIT = auto()  # Minimize wasted residual capacity
+    WORST_FIT = auto()  # Maximize residual capacity after placement
+    ROUND_ROBIN = auto()  # Deterministic round-robin (stateful)
 
 
 @dataclass(frozen=True)
 class PlacementCost:
     """Deterministic cost tuple for worker placement ranking."""
-    primary_cost: float            # Lower is better
-    residual_cpu_mcores: int       # Tie-breaking: higher residual preferred
-    worker_id: int                 # Final tie-breaking: lowest worker_id wins (deterministic)
+
+    primary_cost: float  # Lower is better
+    residual_cpu_mcores: int  # Tie-breaking: higher residual preferred
+    worker_id: int  # Final tie-breaking: lowest worker_id wins (deterministic)
 
     def __lt__(self, other: PlacementCost) -> bool:
         if self.primary_cost != other.primary_cost:
@@ -143,6 +154,7 @@ class PlacementCost:
 # Scheduling Intent (Public API Input)
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class SchedulingIntent:
     """
@@ -151,12 +163,13 @@ class SchedulingIntent:
 
     The scheduler normalizes this into a DemandVector and evaluates feasibility.
     """
+
     task_id: int
     invocation_id: int
     attempt_id: int
     demand_vector: DemandVector
     required_capabilities: frozenset = frozenset()
-    affinity_worker_id: Optional[int] = None      # Soft preference, not a guarantee
+    affinity_worker_id: Optional[int] = None  # Soft preference, not a guarantee
     authority_epoch: int = 1
     lease_epoch: int = 1
     worker_generation: int = 1
@@ -167,9 +180,11 @@ class SchedulingIntent:
 # Scheduling Result
 # -----------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class SchedulingResult:
     """Outcome of a scheduling decision."""
+
     intent: SchedulingIntent
     selected_worker_id: int
     feasible_set_size: int
@@ -182,6 +197,7 @@ class SchedulingResult:
 # -----------------------------------------------------------------------------
 # Phase 7.6 Resource-Aware Scheduler
 # -----------------------------------------------------------------------------
+
 
 class ResourceAwareScheduler:
     """

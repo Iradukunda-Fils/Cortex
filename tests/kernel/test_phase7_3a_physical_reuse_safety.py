@@ -41,7 +41,6 @@ from cortex.tools.kernel.resource_authority import (
 
 
 class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
-
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp(prefix="cortex_73a_test_")
         self.root_cgroup_dir = os.path.join(self.tmp_dir, "sys_fs_cgroup_cortex")
@@ -61,7 +60,11 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
             require_physical_enforcement=False,
         )
         identity = ExecutionIdentity(
-            group_id=f"grp_{worker_id}", instance_id=f"inst_{worker_id}", generation=1, config_generation=1, attempt_id=1
+            group_id=f"grp_{worker_id}",
+            instance_id=f"inst_{worker_id}",
+            generation=1,
+            config_generation=1,
+            attempt_id=1,
         )
         tracker = WorkerLifecycleTracker(execution_identity=identity)
         return WorkerSupervisor(
@@ -98,11 +101,7 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
         auth.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=1000)
 
         # Worker handles SIGTERM gracefully and exits
-        script = (
-            "import signal, sys, time; "
-            "signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0)); "
-            "time.sleep(10)"
-        )
+        script = "import signal, sys, time; signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0)); time.sleep(10)"
         sup = self._make_supervisor(auth, res_id=1, worker_id=1, cpu=1000)
         proc = sup.launch_contained_worker(command=[sys.executable, "-c", script])
         time.sleep(0.2)
@@ -121,16 +120,12 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
         auth.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=1000)
 
         # Worker ignores SIGTERM
-        script = (
-            "import signal, time; "
-            "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-            "while True: time.sleep(1)"
-        )
+        script = "import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); while True: time.sleep(1)"
         sup = self._make_supervisor(auth, res_id=1, worker_id=1, cpu=1000)
         proc = sup.launch_contained_worker(command=[sys.executable, "-c", script])
         time.sleep(0.2)
 
-        telemetry = sup.terminate_worker_and_reclaim()
+        sup.terminate_worker_and_reclaim()
         self.assertIsNotNone(proc.poll())
         self.assertEqual(sup.state, SupervisorLifecycleState.CGROUP_CLEANED)
 
@@ -267,7 +262,7 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
         """Scenario 10: Crash before cgroup cleanup -> Recovery maintains capacity bounds without overcommit."""
         auth1 = ResourceAuthority(capacity=1000, safety_margin=0, uncertainty=0)
         vec = DemandVector.from_dict({"cpu": "1", "memory": "256MiB"})
-        rec1 = auth1.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, demand_vector=vec)
+        auth1.reserve(res_id=1, res_inv=101, res_att=1, res_worker=1, demand_vector=vec)
 
         records = list(auth1._reservations.values())
 
@@ -275,7 +270,9 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
         auth2.recover_from_records(records, authority_epoch=1)
 
         self.assertEqual(auth2._reservations[1].res_status.name, "ACTIVE")
-        active_demand = sum(r.get_effective_demand_vector().cpu_mcores for r in auth2._reservations.values() if r.res_status.is_active())
+        active_demand = sum(
+            r.get_effective_demand_vector().cpu_mcores for r in auth2._reservations.values() if r.res_status.is_active()
+        )
         self.assertEqual(active_demand, 1000)
         self.assertTrue(auth2.check_invariants())
 
@@ -283,8 +280,14 @@ class TestPhase73aPhysicalReuseSafety(unittest.TestCase):
         """Scenario 11: Stale credentials cannot release or mutate a newer reservation."""
         auth = ResourceAuthority(capacity=1000, safety_margin=0, uncertainty=0)
         auth.reserve(
-            res_id=1, res_inv=101, res_att=1, res_worker=1, res_demand=500,
-            authority_epoch=1, lease_epoch=2, worker_generation=1
+            res_id=1,
+            res_inv=101,
+            res_att=1,
+            res_worker=1,
+            res_demand=500,
+            authority_epoch=1,
+            lease_epoch=2,
+            worker_generation=1,
         )
 
         with self.assertRaises(InvalidFencingError):

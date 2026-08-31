@@ -106,14 +106,22 @@ class TestDeveloperExecutableContract(unittest.TestCase):
         authority = ResourceAuthority(capacity=cpu)
 
         # 1. Register worker 1 (State: ACTIVE)
-        authority.scale_up_register_worker(worker_id=1, generation=1, capabilities={"compute.heavy", "workflow.plan.create"})
+        authority.scale_up_register_worker(
+            worker_id=1, generation=1, capabilities={"compute.heavy", "workflow.plan.create"}
+        )
         self.assertFalse(authority.is_worker_retirable(worker_id=1))  # Active state != Quiescent
 
         # 2. Reserve GPU 0 on worker 1 while ACTIVE
         rec = authority.reserve(
-            res_id=101, res_inv=1, res_att=1, res_worker=1,
-            res_demand=1000, authority_epoch=1, lease_epoch=1,
-            worker_generation=1, gpu_id=0
+            res_id=101,
+            res_inv=1,
+            res_att=1,
+            res_worker=1,
+            res_demand=1000,
+            authority_epoch=1,
+            lease_epoch=1,
+            worker_generation=1,
+            gpu_id=0,
         )
         self.assertIsNotNone(rec)
 

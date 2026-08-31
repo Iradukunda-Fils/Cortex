@@ -10,7 +10,6 @@ from cortex.tools.kernel.resource_authority import discover_physical_capacity, p
 
 
 class TestProgressiveDisclosureAPI(unittest.TestCase):
-
     def test_physical_capacity_discovery(self):
         """Validates physical hardware capacity discovery on host machine."""
         cpu_mcores, memory_bytes = discover_physical_capacity()

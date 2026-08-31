@@ -13,11 +13,10 @@ from typing import Dict, List
 from cortex.tools.kernel.distributed_scheduler import (
     DistributedPlacementEngine,
     DistributedWorkerView,
-    GlobalGPUIdentity,
     GlobalWorkerIdentity,
 )
 from cortex.tools.kernel.resource_authority import DemandVector, ResourceAuthority, WorkerLifecycleState
-from cortex.tools.kernel.scheduler import CostFunction, SchedulingIntent, WorkerTelemetry
+from cortex.tools.kernel.scheduler import SchedulingIntent, WorkerTelemetry
 
 
 def _percentile(data: List[float], p: float) -> float:
@@ -122,10 +121,14 @@ class TestPhase77DistributedBenchmark(unittest.TestCase):
 
     def _print_metrics(self, m: dict) -> None:
         print(f"\n--- Phase 7.7 Distributed Benchmark: {m['n_workers']} workers, {m['n_tasks']} tasks ---")
-        print(f"  Selection: P50={m['selection_p50_us']:.1f}µs  P95={m['selection_p95_us']:.1f}µs  "
-              f"P99={m['selection_p99_us']:.1f}µs  P99.9={m['selection_p999_us']:.1f}µs")
-        print(f"  Total:     P50={m['total_p50_us']:.1f}µs  P95={m['total_p95_us']:.1f}µs  "
-              f"P99={m['total_p99_us']:.1f}µs  P99.9={m['total_p999_us']:.1f}µs")
+        print(
+            f"  Selection: P50={m['selection_p50_us']:.1f}µs  P95={m['selection_p95_us']:.1f}µs  "
+            f"P99={m['selection_p99_us']:.1f}µs  P99.9={m['selection_p999_us']:.1f}µs"
+        )
+        print(
+            f"  Total:     P50={m['total_p50_us']:.1f}µs  P95={m['total_p95_us']:.1f}µs  "
+            f"P99={m['total_p99_us']:.1f}µs  P99.9={m['total_p999_us']:.1f}µs"
+        )
         print(f"  RSS: {m['rss_mb']:.1f} MB")
 
 
