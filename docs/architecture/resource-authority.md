@@ -265,8 +265,8 @@ The scheduler treats telemetry strictly as observational estimation, ensuring te
 
 $$\text{Telemetry} \rightarrow \text{Candidate Estimate} \xrightarrow{\text{Proposes } w^*} \text{ResourceAuthority.reserve()} \rightarrow \text{Authoritative Validation} \rightarrow \text{Success / Rejection}$$
 
-- **Non-Authority of Telemetry**: Telemetry is only used as an optimization hint for selection cost.
-- **Atomic Fenced Reservation**: A placement proposal is a recommendation only. State mutation and reservation success are linearized exclusively inside `ResourceAuthority.reserve()`. Stale state results in deterministic rejection and retry.
+- **Telemetry is Advisory**: Telemetry is used only as an optimization hint for candidate cost ranking. Stale telemetry cannot authorize an invalid reservation, but a reservation may succeed if the authoritative state still satisfies the request despite stale telemetry.
+- **Atomic Fenced Reservation**: A placement proposal is a recommendation only. State mutation and reservation success are linearized exclusively inside `ResourceAuthority.reserve()`. Rejection occurs only when the authoritative state violates reservation preconditions.
 - **Global Identities**: Identifiers are scoped across nodes preventing namespace collision:
   - $\text{GPUIdentity} = (\text{NodeID}, \text{GPUID}, \text{PartitionID?})$
   - $\text{WorkerIdentity} = (\text{NodeID}, \text{WorkerID}, \text{Generation})$
@@ -278,11 +278,15 @@ Benchmarks were run under a **Logical Cluster Simulation** where $N$ logical wor
 - **10 workers**: Selection P50 = 149.8 µs, Total P50 = 326.5 µs, Total P99 = 397.3 µs
 - **100 workers**: Selection P50 = 1.31 ms, Total P50 = 1.91 ms, Total P99 = 3.64 ms
 - **1000 workers**: Selection P50 = 19.59 ms, Total P50 = 24.97 ms, Total P99 = 150.29 ms
-- **RSS Footprint**: 34.5 MB constant
+- **Scheduler State Memory**: ~131–144 bytes/worker (130 KB at N=1000). Process RSS_cur grows from 20.4 → 21.4 MB (Δ ≈ 1 MB). Peak `ru_maxrss` of 34.8 MB reflects CPython runtime overhead, not scheduler state.
 
-#### 7.7.4 Invariant & Autoscaling Safety
+#### 7.7.4 Autoscaling Policy Engine & Safety
 
-- **Scale-Up Policy**: Evaluates queue depth and registers workers via `ResourceAuthority.scale_up_register_worker()`.
+The `AutoscalingController` is a **Policy/Decision Engine**, not a worker provisioner. It does not spawn OS processes, containers, or virtual machines.
+
+$$\boxed{ \text{Scale Decision} \not\Rightarrow \text{New Worker Process Exists} }$$
+
+- **Scale-Up Policy**: Evaluates queue depth and registers logical worker records via `ResourceAuthority.scale_up_register_worker()`. No physical provisioning occurs.
 - **Scale-Down Safety**: Enforces the retirement invariant:
   $$\boxed{ CapacityReusable(w) \implies ExecutionTreeTerminated(w) \land ExitObserved(w) \land OldAuthorizationInvalid(w) }$$
 - **Hysteresis Controls**: Minimum residency window ($T_{residency} \ge 30s$) and cooldown window ($T_{cooldown} \ge 15s$) prevent rapid scale oscillation.
