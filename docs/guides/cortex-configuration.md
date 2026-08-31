@@ -1,180 +1,136 @@
-# Cortex Configuration Guide
+# Cortex Configuration Reference
 
-This guide provides concrete YAML and JSON examples for configuring the Cortex Gateway and Plugin Deployments. It explains all configuration keys, structural validations, and security limits to ensure developers and operators can configure Cortex securely and deterministically.
-
----
-
-## 1. Cortex Gateway Configuration (`cortex.yaml` / `cortex.json`)
-
-The Gateway configuration defines the system-wide execution parameters, sandbox profile definitions, and local database settings.
-
-### 📋 YAML Example (`cortex.yaml`)
-```yaml
-schema_version: "0.4.0"
-gateway_id: "gateway-primary-01"
-state_directory: "./.runtime/gateway_state"
-
-database:
-  db_path: "./.runtime/gateway_state/ledger[.]db"
-  wal_mode: true
-  sync_on_commit: true
-
-sandbox_profiles:
-  - name: "strict-zero-trust"
-    clone_newpid: true
-    clone_newnet: true
-    clone_newns: true
-    seccomp_bpf_enabled: true
-    allowed_fds: [0, 1, 2, 3]
-
-  - name: "development-audit"
-    clone_newpid: true
-    clone_newnet: false # Allow localhost communication for testing
-    clone_newns: true
-    seccomp_bpf_enabled: true
-    allowed_fds: [0, 1, 2, 3]
-```
-
-### 📋 JSON Example (`cortex.json`)
-```json
-{
-  "schema_version": "0.4.0",
-  "gateway_id": "gateway-primary-01",
-  "state_directory": "./.runtime/gateway_state",
-  "database": {
-    "db_path": "./.runtime/gateway_state/ledger[.]db",
-    "wal_mode": true,
-    "sync_on_commit": true
-  },
-  "sandbox_profiles": [
-    {
-      "name": "strict-zero-trust",
-      "clone_newpid": true,
-      "clone_newnet": true,
-      "clone_newns": true,
-      "seccomp_bpf_enabled": true,
-      "allowed_fds": [0, 1, 2, 3]
-    },
-    {
-      "name": "development-audit",
-      "clone_newpid": true,
-      "clone_newnet": false,
-      "clone_newns": true,
-      "seccomp_bpf_enabled": true,
-      "allowed_fds": [0, 1, 2, 3]
-    }
-  ]
-}
-```
+**Normative Document Version**: v1.0.0-FINAL  
+**Reference Schema**: `cortex/schemas/v1/configuration.schema.json`  
+**Configuration Resolver**: `cortex/tools/kernel/config_resolver.py`
 
 ---
 
-## 2. Plugin Deployment Configuration (`deployment.yaml` / `deployment.json`)
+## 1. Desired Configuration Overview
 
-A Plugin Deployment configuration defines replica counts, capabilities, resource allocation, and lifecycle limits for a specific plugin group.
+Cortex uses a canonical configuration structure to define gateway parameters, replica group sizes, sandbox profiles, and resource limits. The configuration is validated against a strict JSON Schema (Draft 2020-12) and normalized to guarantee deterministic, reproducible state.
 
-### 📋 YAML Example (`deployment.yaml`)
+---
+
+## 2. Canonical Configuration Templates
+
+### 📋 YAML Template (`cortex.yaml`)
 ```yaml
-schema_version: "0.4.0"
-plugin_id: "repository-auditor"
-entrypoint: "examples/repo_auditor/main.py"
+schema_version: "1.0.0"
 
-scaling:
-  min_replicas: 2
-  max_replicas: 5
-  max_queue_depth: 100
+gateway:
+  max_queue_depth: 1000
+  max_worker_inflight: 10
+  queue_timeout_sec: 30.0
+  dispatch_deadline_sec: 5.0
+  selection_policy: "least_inflight_deterministic"
+  journal_path: "/var/log/cortex/invocation_journal.jsonl"
+  fsync_policy: "always"
 
-security:
-  sandbox_profile: "strict-zero-trust"
-  capability_ceiling:
-    - "fs:read"
-    - "exec:git"
-    - "exec:pytest"
-    - "workflow.plan.create"
-    - "workflow.command.issue"
+replica_group:
+  group_id: "default_group"
+  min_replicas: 1
+  max_replicas: 10
+  drain_deadline_sec: 30.0
 
-resources:
-  cpu_limit: "1.5"
+sandbox:
+  profile_name: "Profile_A_Linux_Strict"
+  required_capabilities:
+    - "host.read"
+    - "host.write"
+  allowed_syscalls:
+    - "clock_gettime"
+    - "exit"
+    - "futex"
+    - "read"
+    - "write"
+  landlock_paths:
+    - "/tmp"
+    - "/var/log"
+  read_only_root: true
+  allowed_write_paths:
+    - "/tmp/sandbox_default"
+
+resource_limits:
   memory_limit_mb: 512
-  storage_limit_mb: 1024
-
-routing:
-  load_policy: "least-inflight"
-  backpressure_strategy: "retry-backoff"
-  advisory_balancing: true
-
-lifecycle:
-  drain_deadline_sec: 30
-  heartbeat_interval_sec: 5
-  unhealthy_threshold: 3
+  cpu_quota_percent: 100
 ```
 
-### 📋 JSON Example (`deployment.json`)
+### 📋 JSON Template (`cortex.json`)
 ```json
 {
-  "schema_version": "0.4.0",
-  "plugin_id": "repository-auditor",
-  "entrypoint": "examples/repo_auditor/main.py",
-  "scaling": {
-    "min_replicas": 2,
-    "max_replicas": 5,
-    "max_queue_depth": 100
+  "schema_version": "1.0.0",
+  "gateway": {
+    "max_queue_depth": 1000,
+    "max_worker_inflight": 10,
+    "queue_timeout_sec": 30.0,
+    "dispatch_deadline_sec": 5.0,
+    "selection_policy": "least_inflight_deterministic",
+    "journal_path": "/var/log/cortex/invocation_journal.jsonl",
+    "fsync_policy": "always"
   },
-  "security": {
-    "sandbox_profile": "strict-zero-trust",
-    "capability_ceiling": [
-      "fs:read",
-      "exec:git",
-      "exec:pytest",
-      "workflow.plan.create",
-      "workflow.command.issue"
+  "replica_group": {
+    "group_id": "default_group",
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "drain_deadline_sec": 30.0
+  },
+  "sandbox": {
+    "profile_name": "Profile_A_Linux_Strict",
+    "required_capabilities": [
+      "host.read",
+      "host.write"
+    ],
+    "allowed_syscalls": [
+      "clock_gettime",
+      "exit",
+      "futex",
+      "read",
+      "write"
+    ],
+    "landlock_paths": [
+      "/tmp",
+      "/var/log"
+    ],
+    "read_only_root": true,
+    "allowed_write_paths": [
+      "/tmp/sandbox_default"
     ]
   },
-  "resources": {
-    "cpu_limit": "1.5",
+  "resource_limits": {
     "memory_limit_mb": 512,
-    "storage_limit_mb": 1024
-  },
-  "routing": {
-    "load_policy": "least-inflight",
-    "backpressure_strategy": "retry-backoff",
-    "advisory_balancing": true
-  },
-  "lifecycle": {
-    "drain_deadline_sec": 30,
-    "heartbeat_interval_sec": 5,
-    "unhealthy_threshold": 3
+    "cpu_quota_percent": 100
   }
 }
 ```
 
 ---
 
-## 3. Field Explanations
+## 3. Configuration Fields Specification
 
-### 3.1 Metadata & Schema Settings
-* **`schema_version`** (String): Strict SemVer constraint. Must match `0.4.0`.
-* **`plugin_id`** (String): Unique identifier matching the registered plugin manifest.
-* **`entrypoint`** (String): Path to the executable binary or script executed in the sandboxed worker.
+### 3.1 Gateway Parameters (`gateway`)
+*   **`max_queue_depth`** (Integer, Default: `1000`): Maximum aggregate queued invocations across all replica groups. Excess causes queue overflow errors.
+*   **`max_worker_inflight`** (Integer, Default: `10`): Maximum concurrent task executions allowed on a single worker.
+*   **`queue_timeout_sec`** (Number, Default: `30.0`): Max seconds an invocation can remain in the queue before timing out.
+*   **`dispatch_deadline_sec`** (Number, Default: `5.0`): Maximum time allowed for executing the placement and lease checks.
+*   **`selection_policy`** (String, Default: `"least_inflight_deterministic"`): Algorithm used for picking workers. Supported: `"least_inflight_deterministic"`, `"round_robin_deterministic"`.
+*   **`journal_path`** (String, Default: `"/var/log/cortex/invocation_journal.jsonl"`): Absolute path to the persistent WAL ledger journal.
+*   **`fsync_policy`** (String, Default: `"always"`): Disk sync policy for durability. Supported: `"always"`, `"batch"`, `"never"`.
 
-### 3.2 Scaling Class
-* **`min_replicas`** (Integer): The minimum number of healthy, active worker processes.
-* **`max_replicas`** (Integer): The ceiling limit of active worker processes allowed under load.
-* **`max_queue_depth`** (Integer): Maximum depth of the per-group FIFO buffer before incoming requests trigger backpressure.
+### 3.2 Replica Group Configuration (`replica_group`)
+*   **`group_id`** (String): Unique identifier pattern (`^[a-z0-9_-]+$`).
+*   **`min_replicas`** (Integer, Default: `1`): Minimum active workers maintained.
+*   **`max_replicas`** (Integer, Default: `10`): Maximum worker scaling ceiling.
+*   **`drain_deadline_sec`** (Number, Default: `30.0`): Grace period in seconds given to draining workers before forced teardown.
 
-### 3.3 Security Class
-* **`sandbox_profile`** (String): Target profile name defined in the Gateway configuration.
-* **`capability_ceiling`** (Array of Strings): The maximum allowed list of capabilities. If a plugin's manifest requests a capability outside this list, registration will fail immediately (`CapabilityCeilingViolation`).
+### 3.3 Sandbox Profile Configuration (`sandbox`)
+*   **`profile_name`** (String): Mandatory profile name. In production, must be `"Profile_A_Linux_Strict"`.
+*   **`required_capabilities`** (Array of Strings): Explicit capability tokens using dot notation (e.g. `"host.read"`).
+*   **`allowed_syscalls`** (Array of Strings): Whitelisted Linux syscall names permitted by Seccomp filter.
+*   **`landlock_paths`** (Array of Strings): Filesystem path boundaries restricted by Landlock.
+*   **`read_only_root`** (Boolean, Default: `true`): Enforce read-only mounting of the root filesystem.
+*   **`allowed_write_paths`** (Array of Strings): Permitted write boundaries inside the worker namespace (e.g. `"/tmp/sandbox_default"`).
 
-### 3.4 Resources Class
-* **`cpu_limit`** (String): Max fraction of physical cores (e.g., `"1.5"`).
-* **`memory_limit_mb`** (Integer): RAM ceiling in Megabytes. Exceeding triggers standard Out-Of-Memory (OOM) termination.
-* **`storage_limit_mb`** (Integer): Disk quota allocated to ephemeral directories.
-
-### 3.5 Advisory Routing Class
-* **`load_policy`** (String): Target routing algorithm (e.g., `"least-inflight"`).
-* **`advisory_balancing`** (Boolean): When `true`, enables soft metric scores for Phase 5 balancing. Does not bypass hard safety limits.
-
-### 3.6 Lifecycle Class
-* **`drain_deadline_sec`** (Integer): Maximum time allowed for active workloads to finish before a worker is reaped.
-* **`heartbeat_interval_sec`** (Integer): Rate at which health checks are reported back to the Gateway.
+### 3.4 Resource Limits (`resource_limits`)
+*   **`memory_limit_mb`** (Integer, Default: `512`): Hard memory ceiling in megabytes per worker (enforced via cgroups v2 `memory.max`).
+*   **`cpu_quota_percent`** (Integer, Default: `100`): CPU quota percentage per worker (enforced via cgroups v2 `cpu.max` CFS period/quota).

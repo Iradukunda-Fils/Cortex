@@ -22,9 +22,9 @@ produces_events:
   - "VerificationResultEvent"
 
 required_capabilities:
-  - "fs:read"
-  - "exec:git"
-  - "exec:pytest"
+  - "fs.read"
+  - "exec.git"
+  - "exec.pytest"
   - "hardware.telemetry.read"
 ```
 
@@ -37,9 +37,9 @@ required_capabilities:
   "consumes_events": ["CommandIssuedEvent"],
   "produces_events": ["DriverTelemetryEvent", "VerificationResultEvent"],
   "required_capabilities": [
-    "fs:read",
-    "exec:git",
-    "exec:pytest",
+    "fs.read",
+    "exec.git",
+    "exec.pytest",
     "hardware.telemetry.read"
   ]
 }
@@ -49,18 +49,18 @@ required_capabilities:
 
 ## 🔒 Standard Capability Namespaces
 
-Capabilities follow a namespaced convention (`domain:action` or `domain.subdomain:action`) to enforce granular permission boundaries:
+Capabilities follow a strict dot-separated namespace convention (`namespace.action` or `namespace.subnamespace.action`) to enforce granular permission boundaries. Colon-separated format or wildcards (`*`) are explicitly rejected by the kernel validator.
 
 | Namespace | Example Capability | Description | Permission Scope |
 | :--- | :--- | :--- | :--- |
 | `workflow.*` | `workflow.plan.create` | Generating plan events | Internal kernel workflow planning |
 | `workflow.*` | `workflow.command.issue` | Issuing executable command events | Command dispatcher authorization |
-| `fs:*` | `fs:read` | Read-only file system access | File reading & metadata inspection |
-| `fs:*` | `fs:write` | Write / Edit file system access | File creation, modification, deletion |
-| `exec:*` | `exec:git` | Git command execution | Invoking `git status`, `git diff`, etc. |
-| `exec:*` | `exec:pytest` | Test suite execution | Invoking `pytest` test runners |
-| `net:*` | `net:http:outbound` | Outbound HTTP/HTTPS requests | Web API and remote service integration |
-| `db:*` | `db:read:users` | Database read queries | Table-level read operations |
+| `fs.*` | `fs.read` | Read-only file system access | File reading & metadata inspection |
+| `fs.*` | `fs.write` | Write / Edit file system access | File creation, modification, deletion |
+| `exec.*` | `exec.git` | Git command execution | Invoking `git status`, `git diff`, etc. |
+| `exec.*` | `exec.pytest` | Test suite execution | Invoking `pytest` test runners |
+| `net.*` | `net.http.outbound` | Outbound HTTP/HTTPS requests | Web API and remote service integration |
+| `db.*` | `db.read.users` | Database read queries | Table-level read operations |
 | `hardware.*` | `hardware.telemetry.read` | Telemetry sensor access | Reading hardware telemetry metrics |
 
 ---
@@ -79,8 +79,8 @@ CUSTOM_MANIFEST = PluginManifest(
     consumes_events=["VerificationResultEvent"],
     produces_events=["DriverTelemetryEvent"],
     required_capabilities=[
-        "api:slack:send_message",  # Custom capability token
-        "audit:alert:publish"      # Custom capability token
+        "api.slack.send_message",  # Custom capability token
+        "audit.alert.publish"      # Custom capability token
     ],
 )
 ```
@@ -98,6 +98,7 @@ stateDiagram-v2
     NEGOTIATING --> ACTIVE: All required_capabilities granted
     NEGOTIATING --> REJECTED: Any required_capability denied
     ACTIVE --> SUSPENDED: Runtime capability violation triggered
+    ACTIVE --> DEACTIVATED: Manual suspension or teardown
 ```
 
 ### Lifecycle States

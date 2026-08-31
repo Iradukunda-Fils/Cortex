@@ -17,7 +17,7 @@ Cortex explicitly decouples transport framing boundaries from higher-layer secur
 | **Payload Length Validation ($\le 16\text{ MiB}$)** | ✅ Provided | N/A |
 | **In-Session Sequence Ordering (`uint32`)** | ✅ Provided | N/A |
 | **Cross-Session Replay Prevention** | ❌ **NOT Provided** | Monotonic `LeaseEpoch` fencing & `InvocationStateLedger` |
-| **Cryptographic Data Integrity** | ❌ **NOT Provided** | `SignedIntent` / `CommitEvent` SHA-256 digest chains |
+| **Cryptographic Data Integrity** | ❌ **NOT Provided** | `CommitEvent` / `CausalWitness` SHA-256 rolling digest chains |
 | **Authentication & Worker Identity** | ❌ **NOT Provided** | `ExecutionToken`, TLS certificates, POSIX socket peer creds |
 | **Authorization & Capability Scoping** | ❌ **NOT Provided** | Gateway TCB, `LeaseManager`, Linux Landlock/Seccomp |
 

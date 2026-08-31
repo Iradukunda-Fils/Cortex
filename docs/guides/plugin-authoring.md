@@ -63,7 +63,7 @@ from cortex.compat import override
 | `PluginManifest` | Dataclass | Metadata, consumed events, produced events, and required capability tokens. |
 | `BasePlugin` | ABC | Base class that plugin implementations inherit from. |
 | `PluginContext` | Class | Host interface passed to active plugins. Provides `.has_capability()` and `.publish()`. |
-| `Capability` | Dataclass | Immutable token representing a specific privilege (e.g., `fs:read`, `exec:git`). |
+| `Capability` | Dataclass | Immutable token representing a specific privilege (e.g., `fs.read`, `exec.git`). |
 | `override` | Decorator | Cross-version decorator compatibility shim for Python < 3.12. |
 
 ---
@@ -85,7 +85,7 @@ AUDITOR_MANIFEST = PluginManifest(
     description="Analyzes repository structure and publishes audit findings",
     consumes_events=["IntentEvent", "CommandIssuedEvent"],
     produces_events=["DriverTelemetryEvent", "VerificationResultEvent"],
-    required_capabilities=["fs:read", "exec:git"],
+    required_capabilities=["fs.read", "exec.git"],
 )
 ```
 
@@ -132,7 +132,7 @@ Before executing any privilege-sensitive operation or emitting results, verify a
             return
 
         # Check permission boundary
-        if not self.context.has_capability("fs:read"):
+        if not self.context.has_capability("fs.read"):
             return  # Permission denied by sandbox policy
 ```
 
@@ -209,14 +209,14 @@ class RoguePlugin(BasePlugin):
         match event:
             case CommandIssuedEvent() if self.context:
                 # Attempting unauthorized write capability
-                if not self.context.has_capability("fs:write"):
+                if not self.context.has_capability("fs.write"):
                     # Emit a verification failure event
                     failure = VerificationResultEvent(
                         workflow_id=event.workflow_id,
                         causation_id=event.event_id,
                         passed=False,
                         rule_id="CAPABILITY_VIOLATION",
-                        details={"required": "fs:write", "status": "DENIED"},
+                        details={"required": "fs.write", "status": "DENIED"},
                     )
                     self.context.publish(failure)
 ```
@@ -272,7 +272,7 @@ EXECUTOR_MANIFEST = PluginManifest(
     description="Executes planned steps",
     consumes_events=["PlanGeneratedEvent"],
     produces_events=["DriverTelemetryEvent", "VerificationResultEvent"],
-    required_capabilities=["fs:read"],
+    required_capabilities=["fs.read"],
 )
 
 # --- 2. Plugin Implementations ---
@@ -305,7 +305,7 @@ class DemoExecutorPlugin(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         match event:
-            case PlanGeneratedEvent() if self.context and self.context.has_capability("fs:read"):
+            case PlanGeneratedEvent() if self.context and self.context.has_capability("fs.read"):
                 for step in event.steps:
                     telemetry = DriverTelemetryEvent(
                         workflow_id=event.workflow_id,

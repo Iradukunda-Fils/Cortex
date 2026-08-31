@@ -30,10 +30,10 @@ Rather than forcing all plugins into an `asyncio` runtime, Cortex selects execut
 
 | Execution Class | Substrate Mechanism | Isolation Boundary | Concurrency Strategy |
 | :--- | :--- | :--- | :--- |
-| **CPU-Bound** | Single-Threaded Worker Process | Linux Namespace / Seccomp | Horizontal Replica Scaling |
-| **I/O-Bound** | Worker Process + Local Async IO | OS Pipe / Landlock | Gateway Inflight Queueing |
-| **Long-Running / Media**| Dedicated Worker Process | Landlock / Resource CGroups | Isolated Process + `ObjectRef` |
-| **Interactive / PTY** | Gateway PTY Orchestration | TCB completar mediation | Virtual Terminal Streams |
+| **CPU-Bound** | Single-Threaded Worker Process | cgroups v2 CPU/PID (Gate A) | Horizontal Replica Scaling |
+| **I/O-Bound** | Worker Process + Local Async IO | cgroups v2 CPU/RAM (Gate A) | Gateway Inflight Queueing |
+| **Long-Running / Media**| Dedicated Worker Process | cgroups v2 CPU/RAM/PID (Gate A) | Isolated Process + `ObjectRef` |
+| **Interactive / PTY** | Gateway PTY Orchestration | TCB Complete Mediation | Virtual Terminal Streams |
 | **Streaming Data** | Layer 2 CBE Pipe Buffer | 16 MiB Frame Ceiling | Stream Sockets |
 
 ---
@@ -72,3 +72,20 @@ If a worker process crashes or drops connection during long-running execution:
 3. **`ACTUATION_UNKNOWN`**: Work was in-flight during non-idempotent operation. Gateway transitions state to `INDETERMINATE` (a formal terminal state). **Automatic retry is STRICTLY FORBIDDEN** to prevent duplicate side effects.
 
 ---
+
+## 5. PHYSICAL EXECUTION ENFORCEMENT (GATE A)
+
+Worker processes are physically contained using Linux cgroups v2 enforcement, orchestrated by the `WorkerSupervisor` and `CgroupResourceEnforcer` subsystems:
+
+| Resource | cgroup v2 Controller | Implementation Status |
+| :--- | :--- | :--- |
+| **CPU** | `cpu.max` (CFS quota/period) | **ADVERSARIALLY-TESTED** |
+| **RAM** | `memory.max` | **ADVERSARIALLY-TESTED** |
+| **PIDs** | `pids.max` | **ADVERSARIALLY-TESTED** |
+
+The full specification, lifecycle sequence, and safety invariants are documented in:
+- `docs/architecture/gate_a_physical_execution_isolation.md`
+- Implementation: `cortex/tools/kernel/enforcement/`
+- Tests: `tests/kernel/test_execution_enforcement_stress.py`
+
+> **Note:** Seccomp-BPF syscall filtering and Landlock filesystem sandboxing are defined in the configuration schema but are not yet active at the OS enforcement level. They remain classified as **DESIGN ONLY**.
