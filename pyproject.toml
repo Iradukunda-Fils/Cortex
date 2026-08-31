@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cortex-runtime"
-version = "0.4.0"
+version = "0.5.0"
 description = "Spatiotemporal authority and semantic verification framework for autonomous workflows"
 readme = "README.md"
 license = { text = "Apache-2.0" }
