@@ -1,0 +1,52 @@
+name: PR Governance & Verification Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [ main, "release/*" ]
+
+jobs:
+  pr-title-check:
+    name: Validate PR Conventional Commit Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR Title Format
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            proof
+            build
+            ci
+            chore
+          requireScope: false
+
+  pr-verification:
+    name: Canonical Verification Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Run Canonical Verification Gate
+        run: ./scripts/verify.sh
