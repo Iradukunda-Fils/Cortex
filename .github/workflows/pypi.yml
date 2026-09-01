@@ -2,7 +2,7 @@ name: PyPI Release & Test Automation
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, "release/*" ]
     tags: [ 'v*' ]
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   test:
     name: Test & Quality Gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
 
     steps:
       - name: Checkout Code
@@ -38,7 +38,7 @@ jobs:
   publish:
     name: Publish Package to PyPI
     needs: test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # Mandatory for PyPI OIDC Trusted Publishing
