@@ -8,11 +8,12 @@ from typing import TypeVar
 F = TypeVar("F", bound=Callable[..., object])
 
 try:
-    from typing import override as override  # type: ignore[attr-defined]
+    from typing_extensions import override as override
 except ImportError:
     try:
-        from typing_extensions import override as override  # type: ignore[no-redef]
+        from typing import override as override  # type: ignore[attr-defined] # pyright: ignore[reportAttributeAccessIssue]
     except ImportError:
+
         def override(method: F, /) -> F:  # type: ignore[no-redef]
             return method
 
