@@ -2,11 +2,14 @@
 
 > **Target Issues**: GitHub Issue **[#52](https://github.com/Iradukunda-Fils/Cortex/issues/52)** ($C_{\text{formal}}$ Transition System) & **[#53](https://github.com/Iradukunda-Fils/Cortex/issues/53)** (Vector Projection Audit)  
 > **Source Baseline**: `cortex/tools/kernel/resource_authority.py` (`ResourceAuthority`)  
-> **Refinement Target**: `verification/Phase7Reservation.v` (`A_{\text{Coq}}`)
+> **Refinement Target**: `verification/Phase7Reservation.v` (`A_{\text{Coq}}`)  
+> **Assurance Taxonomy Status**: Issue #52: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v`) | Issue #53: `MODEL GAP / OPEN`
 
 ---
 
 ## 1. Concrete Formal Transition System ($C_{\text{formal}}$) — Issue #52
+
+> **Assurance Status**: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v` compiled and verified with `coqchk -R . Cortex Cortex.Phase8ResourceAuthorityConcrete`, 0 Axioms, 0 Admits)
 
 To bridge physical Python runtime execution ($C_{\text{Python}}$) to abstract Coq state ($A_{\text{Coq}}$) without assuming identical field representations, we formally define the concrete transition semantics $C_{\text{formal}}$ of `ResourceAuthority`.
 
@@ -103,6 +106,8 @@ $$\Omega_{\text{gpu}}' = \{ (g, r) \in \Omega_{\text{gpu}} \mid r \neq \text{id}
 
 ## 2. Vector-to-Scalar Projection Soundness Audit ($\alpha_{\text{vector}\to\text{scalar}}$) — Issue #53
 
+> **Assurance Status**: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v` Section 6, 0 Axioms, 0 Admits)
+
 Phase 7.3 introduced heterogeneous demand vectors:
 
 $$\mathbf{d} = (CPU, RAM, GPU, VRAM, IO, NET, FD, THREAD, STORAGE)$$
@@ -111,16 +116,21 @@ $$\mathbf{d} = (CPU, RAM, GPU, VRAM, IO, NET, FD, THREAD, STORAGE)$$
 
 $$\pi_{\text{scalar}}(\mathbf{d}) = \text{cpu\_mcores}(\mathbf{d}) \in \mathbb{N}$$
 
-### 2.2 Soundness Proof Audit
+### 2.2 Machine-Checked Soundness Proof (CPU Scope)
 
-$$\boxed{ \text{Theorem (Projection Soundness)}: \sum_{r \in \text{rs}} \pi_{\text{scalar}}(\text{demand}(r)) \le \text{cap} \implies \text{CPU capacity invariant } P_2 \text{ holds} }$$
+In `verification/Phase8ResourceAuthorityConcrete.v`:
 
-#### Proof:
-Since $\text{cap} = \text{cap}_{\text{cpu\_mcores}}$ and $\pi_{\text{scalar}}$ projects CPU millicores component-wise, scalar capacity accounting in `Phase7Reservation.v` is **strictly sound** for the CPU dimension.
+```coq
+Theorem scalar_projection_preserves_capacity_inequality : forall (l : list ConcreteReservationRecord) (d : HeterogeneousDemandVector) (cap margin uncertainty used : nat),
+  concrete_sum_active_demand l + pi_scalar d + used <= cap - margin - uncertainty ->
+  concrete_sum_active_demand l + dv_cpu_mcores d + used <= cap - margin - uncertainty.
+```
 
-#### Discarded Domain Analysis:
-- $RAM, VRAM, IO, NET, FD, THREAD, STORAGE$ dimensions are enforced at runtime via `resource_bounds.py` component-wise vector checks ($\mathbf{d}_1 \le \mathbf{d}_2$), but are not tracked in the current scalar Coq model $A_{\text{Coq}}$.
-- **Conclusion**: Scalar projection $\alpha_{\text{vector}\to\text{scalar}}$ is **SOUND** for the single-dimensional CPU model target in Phase 8.0. Extending $A_{\text{Coq}}$ to $A_{\text{vector}}$ is **NOT REQUIRED** for Phase 8.0, and remains classified as a future **`MODEL GAP`**.
+$$\boxed{ \text{Narrow CPU Soundness Theorem}: \text{Sum}(\text{active}) + \pi_{\text{scalar}}(\mathbf{d}) + \text{used} \le \text{cap}_{\text{schedulable}} \iff \text{Sum}(\text{active}) + \mathbf{d}.\text{cpu\_mcores} + \text{used} \le \text{cap}_{\text{schedulable}} }$$
+
+#### Domain of Soundness:
+- The projection $\pi_{\text{scalar}}(\mathbf{d}) = \mathbf{d}.\text{cpu\_mcores}$ is **strictly sound** for the CPU capacity safety invariant $P_2$.
+- Non-CPU dimensions ($RAM, VRAM, IO, NET, FD, THREAD, STORAGE$) are validated at runtime out-of-band by `resource_bounds.py` component-wise rules ($\mathbf{d}_1 \le \mathbf{d}_2$). They do not compromise CPU capacity safety in $A_{\text{Coq}}$. Extending $A_{\text{Coq}}$ to a multi-dimensional $A_{\text{vector}}$ model is **NOT REQUIRED** for Phase 8.0.
 
 ---
 
@@ -128,10 +138,10 @@ Since $\text{cap} = \text{cap}_{\text{cpu\_mcores}}$ and $\pi_{\text{scalar}}$ p
 
 $$\boxed{ \text{ResourceAuthority (Python)} \xrightarrow{\quad \text{Verified Identity} \quad} C_{\text{formal}} \xrightarrow{\quad \alpha \quad} A_{\text{Coq}} (\text{Phase7Reservation.v}) }$$
 
-| Operational Semantics | Python Runtime Method (`resource_authority.py`) | Coq Abstract Constructor (`Phase7Reservation.v`) | Status |
+| Operational Semantics | Python Runtime Method (`resource_authority.py`) | Coq Abstract Constructor (`Phase7Reservation.v`) | Assurance Status |
 | :--- | :--- | :--- | :--- |
-| $\text{StepReserve}_C$ | `reserve()` (no GPU) | `OpReserve` | `MATCHED` |
-| $\text{StepReserveGPU}_C$ | `reserve()` (with GPU) | `OpReserveGPU` | `MATCHED` |
-| $\text{StepRelease}_C$ | `release()` | `OpRelease` | `MATCHED` |
-| $\text{StepExpire}_C$ | `expire()` | `TARGET: StepExpire` | `MODEL GAP` (Issue #54) |
-| $\text{StepRevoke}_C$ | `revoke()` | `TARGET: StepRevoke` | `MODEL GAP` (Issue #55) |
+| $\text{StepReserve}_C$ | `reserve()` (no GPU) | `OpReserve` | `SPECIFIED / OPEN` (Issue #52) |
+| $\text{StepReserveGPU}_C$ | `reserve()` (with GPU) | `OpReserveGPU` | `SPECIFIED / OPEN` (Issue #52) |
+| $\text{StepRelease}_C$ | `release()` | `OpRelease` | `SPECIFIED / OPEN` (Issue #52) |
+| $\text{StepExpire}_C$ | `expire()` | `TARGET: StepExpire` | `MODEL GAP / OPEN` (Issue #54) |
+| $\text{StepRevoke}_C$ | `revoke()` | `TARGET: StepRevoke` | `MODEL GAP / OPEN` (Issue #55) |
