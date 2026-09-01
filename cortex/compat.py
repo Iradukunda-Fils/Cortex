@@ -11,7 +11,9 @@ try:
     from typing_extensions import override as override
 except ImportError:
     try:
-        from typing import override as override  # type: ignore[attr-defined] # pyright: ignore[reportAttributeAccessIssue]
+        from typing import (
+            override as override,  # type: ignore[attr-defined] # pyright: ignore[reportAttributeAccessIssue]
+        )
     except ImportError:
 
         def override(method: F, /) -> F:  # type: ignore[no-redef]

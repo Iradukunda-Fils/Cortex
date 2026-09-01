@@ -96,6 +96,7 @@ jobs:
       - name: Verify Formal Coq Soundness Proofs
         run: |
           docker run --rm \
+            --user root \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace/verification \
             coqorg/coq:8.18-ocaml-4.14-flambda \

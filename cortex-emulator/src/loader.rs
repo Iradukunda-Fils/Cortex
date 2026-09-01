@@ -70,6 +70,7 @@ pub fn load_program<P: AsRef<Path>>(path: P) -> Result<Program, LoadError> {
     }
 
     let mut instructions = Vec::with_capacity(count);
+    #[allow(clippy::chunks_exact_to_as_chunks)]
     for chunk in payload.chunks_exact(4) {
         let raw_u32 = u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
         instructions.push(Instruction::decode(raw_u32));
