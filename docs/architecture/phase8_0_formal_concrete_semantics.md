@@ -3,13 +3,13 @@
 > **Target Issues**: GitHub Issue **[#52](https://github.com/Iradukunda-Fils/Cortex/issues/52)** ($C_{\text{formal}}$ Transition System) & **[#53](https://github.com/Iradukunda-Fils/Cortex/issues/53)** (Vector Projection Audit)  
 > **Source Baseline**: `cortex/tools/kernel/resource_authority.py` (`ResourceAuthority`)  
 > **Refinement Target**: `verification/Phase7Reservation.v` (`A_{\text{Coq}}`)  
-> **Assurance Taxonomy Status**: Issue #52: `SPECIFIED / OPEN` | Issue #53: `MODEL GAP / OPEN`
+> **Assurance Taxonomy Status**: Issue #52: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v`) | Issue #53: `MODEL GAP / OPEN`
 
 ---
 
 ## 1. Concrete Formal Transition System ($C_{\text{formal}}$) — Issue #52
 
-> **Assurance Status**: `SPECIFIED / OPEN` (Formal concrete semantics specified in architecture document; machine-checked Coq transition system model open)
+> **Assurance Status**: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v` compiled and verified with `coqchk -R . Cortex Cortex.Phase8ResourceAuthorityConcrete`, 0 Axioms, 0 Admits)
 
 To bridge physical Python runtime execution ($C_{\text{Python}}$) to abstract Coq state ($A_{\text{Coq}}$) without assuming identical field representations, we formally define the concrete transition semantics $C_{\text{formal}}$ of `ResourceAuthority`.
 

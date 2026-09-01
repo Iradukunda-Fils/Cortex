@@ -97,7 +97,7 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
 - **Phase 7.7b**: Autoscaling Policy/Decision Engine (`autoscaler.py`, control loop, scale-up/down safety, quiescence retirable checks, hysteresis — **CLOSED / RUNTIME-VERIFIED & ADVERSARIALLY TESTED**)
 - **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **ACTIVE NEXT GATE**
   - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ Gateway Refinement (Issue #32) — `PROOF TARGET / OPEN` (Layer 3 Isolated)
-  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — `SPECIFIED / OPEN` (`phase8_0_formal_concrete_semantics.md`)
+  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v`)
   - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — `MODEL GAP / OPEN` (`phase8_0_formal_concrete_semantics.md`)
   - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
   - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
