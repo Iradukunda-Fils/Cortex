@@ -1,0 +1,13 @@
+schema:
+  name: cortex-app-manifest
+  version: "1"
+
+project:
+  name: document-pipeline-workflow
+  version: "1.0.0"
+  environment: development
+
+tasks:
+  defaults:
+    timeout: 60.0
+    max_retries: 3

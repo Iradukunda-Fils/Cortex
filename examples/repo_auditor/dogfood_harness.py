@@ -233,9 +233,9 @@ def run_profile(profile: dict[str, object], output_dir: str) -> ProfileResult:
     platform_caps = {
         "workflow.plan.create",
         "workflow.command.issue",
-        "fs:read",
-        "exec:git",
-        "exec:pytest",
+        "fs.read",
+        "exec.git",
+        "exec.pytest",
         "hardware.telemetry.read",
     }
     client = CortexClient(platform_capabilities=platform_caps)

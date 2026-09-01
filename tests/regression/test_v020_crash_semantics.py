@@ -17,9 +17,9 @@ from cortex._research.crash_semantics import execute_crash_semantics_research
 class TestCrashSemanticsResearchSuite(unittest.TestCase):
     """Regression test suite for Issue #11 plugin crash and failure semantics."""
 
-    def test_public_api_symbols_frozen_at_21(self) -> None:
-        """Public API surface must remain locked at exactly 21 symbols."""
-        self.assertEqual(len(cortex.__all__), 21)
+    def test_public_api_symbols_frozen_at_23(self) -> None:
+        """Public API surface must remain locked at exactly 23 symbols."""
+        self.assertEqual(len(cortex.__all__), 23)
         self.assertNotIn("_research", cortex.__all__)
 
     def test_internal_package_has_empty_all(self) -> None:

@@ -131,6 +131,15 @@ class TestCBEStreaming(unittest.TestCase):
         with self.assertRaises(CBETruncatedPayloadError):
             decode_frame(hdr)
 
+    def test_stream_decoder_max_buffer_overflow(self) -> None:
+        decoder = StreamDecoder(expected_sequence=0)
+        # Feed small chunk first
+        decoder.feed(b"CF\x01")
+        # Attempt to overflow buffer limit
+        oversized_chunk = b"A" * 16_842_761
+        with self.assertRaises(CBEFrameTooLargeError):
+            decoder.feed(oversized_chunk)
+
 
 if __name__ == "__main__":
     unittest.main()

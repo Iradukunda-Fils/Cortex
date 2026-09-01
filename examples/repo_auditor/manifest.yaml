@@ -16,9 +16,9 @@ produces_events:
   - VerificationResultEvent
 
 required_capabilities:
-  - fs:read
-  - exec:git
-  - exec:pytest
+  - fs.read
+  - exec.git
+  - exec.pytest
   - workflow.plan.create
   - workflow.command.issue
   - hardware.telemetry.read

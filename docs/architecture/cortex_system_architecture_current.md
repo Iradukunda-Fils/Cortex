@@ -25,6 +25,7 @@ Cortex is a spatiotemporal authority, deterministic execution, and formal verifi
 4. **Causal Traceability (Gate I/J)**: Every state mutation produces an immutable, SHA-256 rolling-hash-linked event tree verifyable by an offline verifier (`cortex_verifier.py`).
 5. **Fail-Closed Safety**: Any configuration mismatch, stale lease, unhandled worker failure, or corrupt telemetry immediately aborts execution and rolls back uncommitted state.
 6. **Autoscaling Governance**: Unbounded or authority-expanding autoscaling is strictly prohibited. Bounded autoscaling with strict operational constraints (`min_replicas`, `max_replicas`, `scale_up_threshold`, `scale_down_threshold`, `cooldown`, `rate_limits`) MAY be introduced in future phases without violating bounded determinism.
+7. **Physical Execution Enforcement (Gate A)**: Worker processes are physically contained using Linux cgroups v2 (`cpu.max`, `memory.max`, `pids.max`). The `WorkerSupervisor` orchestrates process lifecycle and the `CgroupResourceEnforcer` writes OS limits. Gate A is **`IMPLEMENTED / ADVERSARIALLY-TESTED`**.
 
 ---
 
@@ -57,6 +58,10 @@ Cortex/
 │   │   │   │   └── router.py           # CandidateResolver & CandidateRouter (Least-Inflight)
 │   │   │   ├── schema/                 # Kernel-level Pydantic data schemas
 │   │   │   ├── services/               # Event store, replay engine, verification bus
+│   │   │   ├── enforcement/            # Gate A physical execution enforcement
+│   │   │   │   ├── contract.py         # EnforcementContract & SupervisorLifecycleState
+│   │   │   │   ├── cgroup.py           # CgroupResourceEnforcer (cgroups v2 interface)
+│   │   │   │   └── supervisor.py       # WorkerSupervisor process lifecycle manager
 │   │   │   └── transport.py            # Layer 2 framing transport adapters
 │   │   ├── verification/               # Verification engine, adapters (Coq, Rust, RTL)
 │   │   └── verify.py                   # High-level verification runner
@@ -65,8 +70,8 @@ Cortex/
 │   ├── Cargo.toml
 │   ├── src/                            # Rust ISA simulator, STCR capability register file, CBE decoder
 │   └── tests/                          # Rust CBE & Layer 2 streaming conformance tests
-├── cortex-go/                          # Go Concurrency & Transport Adapter
-│   ├── adapter/                        # Polyglot stream bridging
+├── cortex-go/                          # Go CBE Codec Conformance Substrate
+│   ├── adapter/                        # Stateless CBE primitives (Encode, Decode, Hash, UUID)
 │   ├── cbe/                            # Pure-Go zero-dependency CBE codec
 │   └── tests/                          # Cross-runtime parity conformance tests
 ├── docs/                               # Architectural documentation, gate specs, guides
@@ -241,3 +246,45 @@ Production Status:     BLOCKED (Pending P0–P13 & Security Audit)
   - Documentation Audit Engine:   307/307 PASS (222 Warnings)
 ========================================================================
 ```
+
+---
+
+## 11. Frozen Public Developer Contract & Governance Invariants
+
+### A. Architectural Posture: Frozen Interface / Evolving Kernel
+The public developer API, application progressive disclosure spectrum, reference examples, and documentation rules are **SPECIFICATION-LOCKED & FROZEN**. Internal kernel infrastructure (scheduling algorithms, physical OS enforcement, vector resource management, and hardware adapters) continues evolving beneath the public API.
+
+```
+                 FROZEN PUBLIC SURFACE
+        ┌─────────────────────────────────────┐
+        │ Public Cortex SDK (@cortex.task)    │
+        │ Reference Developer Examples        │
+        │ 3-Level Progressive Disclosure API  │
+        │ Documentation & Governance Rules    │
+        └──────────────────┬──────────────────┘
+                           │
+                           ▼
+                 EVOLVING KERNEL SUBSTRATE
+        ┌─────────────────────────────────────┐
+        │ Resource Authority & Lease Engine   │
+        │ Worker Supervisor & Process Lifecycle│
+        │ Cgroup / OS Enforcement Adapters    │
+        │ Vector Resource Accounting          │
+        │ Autoscaling & Distributed Runtime   │
+        └─────────────────────────────────────┘
+```
+
+### B. Core Governance Invariants
+
+1. **Complexity Absorption Invariant**:
+   $$\boxed{ \text{Developer API Complexity} \ll \text{Cortex Internal Safety Complexity} }$$
+2. **Explicit Evidence Requirement**:
+   $$\boxed{ \text{Public API} = \text{simple} \quad\land\quad \text{Internal Architecture} = \text{complex} \quad\land\quad \text{Evidence} = \text{explicit} }$$
+3. **Executable Documentation Rule**:
+   $$\boxed{ \text{Examples} \longleftrightarrow \text{Public API} \longleftrightarrow \text{Tests} \longleftrightarrow \text{Documentation} }$$
+4. **Mandatory 6-Stage Feature Gate Sequence**:
+   $$\boxed{ \text{Design} \longrightarrow \text{Implementation} \longrightarrow \text{Executable Tests} \longrightarrow \text{Evidence} \longrightarrow \text{Documentation} \longrightarrow \text{Public API Decision} }$$
+5. **Formal Model Distinction**:
+   $$\boxed{ \text{Coq Abstract Proof} \neq \text{Automatic Proof of Python Implementation} }$$
+   Abstract Coq proofs apply to formal specification models; concrete Python code requires explicit refinement proofs before claiming formal correctness.
+

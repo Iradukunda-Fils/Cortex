@@ -16,4 +16,6 @@ GrantCapRTL.v
 GateF_F3_1_InvocationSimulation.v
 GateL1_EpochMonotonicity.v
 Phase4RoutingRefinement.v
-
+Phase5LoadBalancerRefinement.v
+Phase5Simulation.v
+Phase6WALSafety.v

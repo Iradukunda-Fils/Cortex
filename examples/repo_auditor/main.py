@@ -28,9 +28,9 @@ from examples.repo_auditor.plugins import (
 PLATFORM_CAPABILITIES = {
     "workflow.plan.create",
     "workflow.command.issue",
-    "fs:read",
-    "exec:git",
-    "exec:pytest",
+    "fs.read",
+    "exec.git",
+    "exec.pytest",
     "hardware.telemetry.read",
 }
 

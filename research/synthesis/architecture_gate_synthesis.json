@@ -1,7 +1,7 @@
 {
-  "timestamp_utc": "2026-08-11T14:07:56Z",
+  "timestamp_utc": "2026-08-29T13:16:08Z",
   "environment": {
-    "python_version": "3.14.4",
+    "python_version": "3.14.7",
     "os": "Linux",
     "arch": "x86_64"
   },
@@ -28,6 +28,52 @@
       "subsequent_workflow_healthy": true,
       "deterministic_cancellation": true,
       "single_process_limitation": "Non-cooperative thread blocking (time.sleep, GIL loops) stalls main event thread"
+    },
+    "gate_a_physical_execution_enforcement": {
+      "status": "IMPLEMENTED_AND_ADVERSARIALLY_TESTED",
+      "enforcement_slice": "CPU + RAM + Process Lifetime",
+      "components": [
+        "EnforcementContract",
+        "CgroupResourceEnforcer",
+        "WorkerSupervisor"
+      ],
+      "cgroup_v2_support": "cgroups v2 unified hierarchy (/sys/fs/cgroup)",
+      "authority_boundary": "Supervisor Executes; Authority Decides",
+      "fail_closed_policy": "RequiredPhysicalEnforcement AND AttachFailure => ExecutionRejected",
+      "containment_invariant": "ExecutionTree(w) <= CG_w",
+      "reclamation_sequence": "Fence -> StopAdmission -> Terminate/Quiesce -> ConfirmProcessExit -> OSReclamation -> LogicalReconciliation -> CgroupCleanup",
+      "capacity_reuse_invariant": "CapacityReusable => ExecutionTreeTerminated AND ExitObserved AND OldExecutionCannotContinue",
+      "unexpected_crash_recovery": "Worker dies unexpectedly -> Supervisor observes -> Reservation reconciles -> Capacity becomes reusable (test_10 verified)",
+      "repeated_stress_verification": "5/5 sequential stress iterations (50 total executions) passed with zero flaky failures",
+      "assurance_status_breakdown": {
+        "phase7_abstract_reservation_safety": "PROVEN (Coq Phase7Reservation.v)",
+        "python_resource_authority_impl": "IMPLEMENTED / RUNTIME-VERIFIED",
+        "cgroup_execution_enforcement": "IMPLEMENTED / ADVERSARIALLY TESTED",
+        "python_to_coq_refinement": "OPEN / NOT MACHINE-CHECKED",
+        "cross_fsm_consistency": "FORMALLY SPECIFIED",
+        "multi_distro_portability": "UNPROVEN"
+      },
+      "property_evidence_matrix": {
+        "cpu_enforcement": "ADVERSARIALLY_TESTED",
+        "ram_isolation": "ADVERSARIALLY_TESTED",
+        "pid_process_containment": "ADVERSARIALLY_TESTED",
+        "descendant_containment": "ADVERSARIALLY_TESTED",
+        "capacity_reuse_safety": "ADVERSARIALLY_TESTED",
+        "gateway_isolation": "ADVERSARIALLY_TESTED",
+        "fail_closed_startup": "ADVERSARIALLY_TESTED",
+        "lifecycle_cleanup": "ADVERSARIALLY_TESTED",
+        "unexpected_crash_recovery": "ADVERSARIALLY_TESTED",
+        "cross_environment_portability": "EMPIRICALLY_VERIFIED_LOCAL_CGROUP_V2"
+      },
+      "gate_a_freeze_status": "FROZEN_IMPLEMENTATION_BASELINE",
+      "refinement_impact_governance_rules": {
+        "authority_state_change": "Formal re-refinement required",
+        "enforcement_semantics_change": "Adversarial retest required",
+        "supervisor_lifecycle_change": "Race/recovery retest required",
+        "telemetry_only_change": "No authority re-proof; targeted tests",
+        "documentation_only_change": "Truth-audit required"
+      },
+      "verification_status": "7/7 Unit Tests PASS; 10/10 Adversarial Stress Tests PASS (5-run churn verified); 136/136 Certification Suite PASS"
     }
   },
   "synthesis": {
@@ -98,6 +144,7 @@
   "gate_decision": {
     "architecture_gate_passed": true,
     "recommendation": "Proceed to Issue #13 (Runtime Restart & Workflow Recovery Semantics) with IN_DOUBT state contracts and Tiered Hybrid Architecture principles established.",
-    "issue_13_authorized": true
+    "issue_13_authorized": true,
+    "gate_a_execution_enforcement_passed": true
   }
 }

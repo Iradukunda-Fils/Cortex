@@ -109,7 +109,8 @@ class LeaseManager:
             return False
 
         active_count = sum(
-            1 for rec in self._active_leases.values()
+            1
+            for rec in self._active_leases.values()
             if rec.assigned_worker_id == worker_ref.instance_id and rec.active and not rec.committed
         )
         if active_count >= max_inflight:

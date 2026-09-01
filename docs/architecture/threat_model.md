@@ -1,9 +1,9 @@
 # Cortex Plugin Runtime Threat Model
 
 > **Status**: Formal Architecture & Security Specification  
-> **Target Version**: Cortex v0.2.1 Core  
+> **Target Version**: Cortex v0.2.1 Core (Updated for Gate A Physical Enforcement Baseline)  
 > **Empirical Foundation**: Issue #18 Capability Enforcement Security Audit (`c8f7a96`)  
-> **Scope**: Single-Process, In-Memory Plugin Capability Security & Runtime Boundaries  
+> **Scope**: In-Memory Plugin Capability Security & Physical Execution Enforcement Boundaries  
 
 ---
 
@@ -118,14 +118,17 @@ The single-process architecture of Cortex v0.2.1 explicitly leaves the following
 1. **Host Process Crash Escalation (Issue #11)**:
    - *Risk*: An unhandled exception, `sys.exit()`, `os._exit()`, or `SIGSEGV` inside a plugin handler terminates the entire host Python process, halting all concurrent workflows.
    - *Mitigation Plan*: Phase 2 Issue #11 research; v0.3 Multi-Process worker boundary (Issue #14).
+   - *Gate A Status*: **PARTIALLY MITIGATED**. `WorkerSupervisor` isolates worker processes; worker crash does not propagate to Gateway. Unexpected SIGKILL recovery adversarially tested.
 
 2. **CPU Starvation & Blocking Handler Execution (Issue #12)**:
    - *Risk*: An infinite loop (`while True: pass`) or long-running synchronous I/O call inside `plugin.on_event()` blocks the main loop thread indefinitely.
    - *Mitigation Plan*: Phase 2 Issue #12 research; worker process watchdog supervision (Issue #15).
+   - *Gate A Status*: **MITIGATED**. cgroups v2 `cpu.max` CFS quota enforces hard CPU ceiling per worker. Adversarially tested.
 
 3. **Memory Exhaustion & OOM Termination (Issue #11)**:
    - *Risk*: A rogue plugin allocating infinite memory in global scope causes an Out-Of-Memory (OOM) killer event that terminates the host engine.
    - *Mitigation Plan*: Phase 2 Issue #11 research; process cgroups / memory limits.
+   - *Gate A Status*: **MITIGATED**. cgroups v2 `memory.max` enforces hard RAM ceiling per worker. OS OOM-killer targets contained worker, not Gateway.
 
 4. **Direct Process Memory Inspection via `ctypes`**:
    - *Risk*: Because all plugins execute in the same address space, a malicious Python plugin importing `ctypes` can inspect process memory pointers.
@@ -135,20 +138,31 @@ The single-process architecture of Cortex v0.2.1 explicitly leaves the following
 
 ## 6. Path to Multi-Process Isolation (v0.3 Foundations)
 
-The empirical evidence from Issue #18 establishes that **semantic capability contracts and event schemas are sound**. The transition to **Cortex v0.3** will project these exact semantic contracts across OS process boundaries:
+The empirical evidence from Issue #18 establishes that **semantic capability contracts and event schemas are sound**. Gate A provides the first physical enforcement boundary using Linux cgroups v2.
 
 ```
                Cortex Architecture Evolution
                            │
-             ┌─────────────┴─────────────┐
-             │                           │
-       Cortex v0.2.1               Cortex v0.3
-     (Single Process)         (Multi-Process Runtime)
-             │                           │
-   In-Memory Dispatch         Deterministic IPC Socket
-             │                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+       Cortex v0.2.1   Gate A        Cortex v0.3+
+     (Single Process)  (cgroups v2)  (Full Isolation)
+             │             │             │
+   In-Memory Dispatch  Physical     Deterministic IPC
+             │         CPU/RAM/PID      Socket
+             │         Enforcement       │
     Same Capability Invariants & Event Lineage Graph
 ```
 
-- **Phase 2 Operational Research (Issues #10–#13)** will quantify runtime telemetry, crash behavior, timeouts, and restart semantics.
-- **Phase 3 Multi-Process Engine (Issues #14–#16 & Parity Verification)** will implement isolated child worker processes while preserving the **exact 21-symbol public SDK contract** established in v0.2.x.
+### Current Gate A Enforcement Status
+- **CPU Quota**: cgroups v2 `cpu.max` — **ADVERSARIALLY-TESTED**
+- **RAM Ceiling**: cgroups v2 `memory.max` — **ADVERSARIALLY-TESTED**
+- **PID Ceiling**: cgroups v2 `pids.max` — **ADVERSARIALLY-TESTED**
+- **Worker Crash Recovery**: SIGKILL/OOM observation and reconciliation — **ADVERSARIALLY-TESTED**
+- **Reference**: `docs/architecture/gate_a_physical_execution_isolation.md`
+
+### Remaining Open Items
+- **Seccomp-BPF syscall filtering**: Config schema defined; kernel filter attachment not yet implemented.
+- **Landlock filesystem sandboxing**: Config schema defined; runtime enforcement not yet active.
+- **Network namespace isolation** (`CLONE_NEWNET`): Proposed for future phase.
+- **Python → Coq formal refinement**: Correspondence between concrete Python enforcement and abstract Coq model remains OPEN.

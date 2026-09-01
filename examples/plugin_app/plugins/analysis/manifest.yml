@@ -1,0 +1,10 @@
+plugin:
+  name: analysis
+  version: "1.0.0"
+  description: "Standard Python analysis plugin"
+
+capabilities:
+  required:
+    - "workflow.plan.create"
+  forbidden:
+    - "storage.write"

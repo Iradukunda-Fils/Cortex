@@ -16,7 +16,7 @@ from typing import Any
 
 import cortex
 
-# Frozen v0.2.0 public API surface — 21 symbols
+# Frozen public API surface — 23 symbols (updated for Level 1/2 @cortex.task)
 V020_PUBLIC_SYMBOLS = frozenset(
     {
         "BaseEvent",
@@ -33,6 +33,7 @@ V020_PUBLIC_SYMBOLS = frozenset(
         "PlanGeneratedEvent",
         "PluginContext",
         "PluginManifest",
+        "TaskSpecification",
         "TelemetryEvent",
         "VerificationResultEvent",
         "Workflow",
@@ -40,6 +41,7 @@ V020_PUBLIC_SYMBOLS = frozenset(
         "WorkflowPolicy",
         "WorkflowState",
         "override",
+        "task",
     }
 )
 
@@ -231,11 +233,11 @@ class TestPublicAPIBoundaryEnforcement(unittest.TestCase):
         )
 
     def test_symbol_count_is_exact(self) -> None:
-        """The public API must have exactly 21 symbols."""
+        """The public API must have exactly 23 symbols."""
         self.assertEqual(
             len(cortex.__all__),
-            21,
-            f"Expected 21 public symbols, got {len(cortex.__all__)}",
+            23,
+            f"Expected 23 public symbols, got {len(cortex.__all__)}",
         )
 
 

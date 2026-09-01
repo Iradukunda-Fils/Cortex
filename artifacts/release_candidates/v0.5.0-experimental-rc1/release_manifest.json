@@ -1,0 +1,48 @@
+{
+  "release_id": "REL-V0.5.0-EXPERIMENTAL-RC1",
+  "package_name": "cortex-runtime",
+  "version": "0.5.0rc1",
+  "pep440_version": "0.5.0rc1",
+  "git_tag": "v0.5.0rc1",
+  "git_experimental_tag": "v0.5.0-experimental-rc1",
+  "release_branch": "release/0.5.x",
+  "source_branch": "feat/phase-5-load-balancing-design",
+  "timestamp_utc": "2026-08-31T16:20:00Z",
+  "author": "Iradukunda Fils",
+  "assurance_level": "PRE-PHASE-8-BASELINES-VERIFIED",
+  "verification_suite": {
+    "total_pytest_tests": 562,
+    "passed_pytest_tests": 562,
+    "failed_pytest_tests": 0,
+    "pass_rate_percentage": 100.0,
+    "coq_verification": {
+      "total_modules": 29,
+      "axioms_declared": 0,
+      "admitted_proofs": 0,
+      "status": "CERTIFIED_CLEAN"
+    },
+    "independent_verifier": {
+      "corpus_target": "tests/golden/f4c_evidence_corpus/valid_chain.json",
+      "verdict": "VALID",
+      "exit_code": 0
+    }
+  },
+  "subsystem_status": {
+    "phase_5_load_balancing": "IMPLEMENTED_AND_VERIFIED",
+    "phase_6_durable_authority_wal": "IMPLEMENTED_AND_VERIFIED",
+    "phase_7_resource_authority": "RUNTIME_VERIFIED",
+    "phase_7_6_resource_aware_scheduler": "EMPIRICALLY_PROFILE_VERIFIED",
+    "phase_7_7_distributed_placement_model": "LOGICAL_SIMULATION_VERIFIED",
+    "phase_8_refinement_proofs": "FORMAL_PROOF_OBLIGATION_OPEN"
+  },
+  "github_governance": {
+    "milestones": {
+      "milestone_6": "v0.4.1 — Hardening & Maintenance (Open)",
+      "milestone_7": "v0.5.0 — Dynamic Load Balancing, Durable Authority & Placement Baseline (Closed - 100% Complete)",
+      "milestone_9": "v0.6.0 — Phase 8.0 Machine-Checked Refinement Proofs (Open - Phase 8 Gate)"
+    },
+    "open_issues_count": 7,
+    "reconciled_open_issues": [19, 23, 32, 33, 35, 36, 37],
+    "issue_32_status": "OPEN_REQUIRED"
+  }
+}

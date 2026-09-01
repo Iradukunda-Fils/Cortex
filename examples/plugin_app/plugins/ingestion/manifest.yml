@@ -1,0 +1,10 @@
+plugin:
+  name: ingestion
+  version: "1.0.0"
+  description: "Standard Python document ingestion plugin"
+
+capabilities:
+  required:
+    - "fs.read"
+  forbidden:
+    - "network.outbound"

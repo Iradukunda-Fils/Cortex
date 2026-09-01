@@ -32,13 +32,15 @@ This inventory documents the physical and logical structure of the Cortex reposi
 
 ---
 
-## 2. Go Transport Adapter (`cortex-go/`)
+## 2. Go CBE Conformance Substrate (`cortex-go/`)
 
 | Path | Purpose | Trust Domain | Authority Level | Runtime Role | Verification Evidence | Tests | Release Relevance | Current Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `cortex-go/cbe/` | High-throughput Go CBE encoder/decoder/streaming parser | TCB (Ingestion Layer) | Level 1 | Layer 2 binary framing & stream demuxing | Cross-language equivalence with Python CBE | `cortex-go/tests/streaming_test.go` | v0.3.0 | IMPLEMENTED-VERIFIED |
-| `cortex-go/adapter/` | IPC protocol adapter, gRPC/unix-socket bridge | Host Transport | Level 1 | Low-latency socket transport | Conformance suite bridge | `cortex-go/tests/conformance_test.go` | v0.3.0 | IMPLEMENTED-VERIFIED |
-| `cortex-go/cmd/gate-e-adapter/` | Binary executable CLI for Go framing adapter | Host Transport | Level 1 | CLI entrypoint for transport daemon | Conformance bridge | `tests/conformance/test_adapter_mutations.py` | v0.3.0 | IMPLEMENTED-VERIFIED |
+| `cortex-go/cbe/` | Go CBE encoder/decoder/streaming parser (language-neutral codec proof point) | Conformance Layer | Level 1 | CBE binary encode/decode conformance verification | Cross-language equivalence with Python CBE | `cortex-go/tests/streaming_test.go` | v0.3.0 | IMPLEMENTED-VERIFIED |
+| `cortex-go/adapter/` | Stateless CBE protocol adapter (Encode, Decode, Hash, UUID primitives) | Conformance Layer | Level 1 | Stateless conformance primitives | Conformance suite bridge | `cortex-go/tests/conformance_test.go` | v0.3.0 | IMPLEMENTED-VERIFIED |
+| `cortex-go/cmd/gate-e-adapter/` | Standalone conformance verification executable | Conformance Layer | Level 1 | CLI entrypoint for Gate E conformance checks | Conformance bridge | `tests/conformance/test_adapter_mutations.py` | v0.3.0 | IMPLEMENTED-VERIFIED |
+
+> **Note**: `cortex-go/` provides CBE codec conformance only. It does not implement networking, plugin routing, event delivery, gRPC transport, or distributed execution. Those capabilities are classified as `OPEN` (future architecture).
 
 ---
 

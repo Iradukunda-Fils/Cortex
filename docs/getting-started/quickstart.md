@@ -79,7 +79,7 @@ EXECUTOR_MANIFEST = PluginManifest(
     description="Executes planned steps with capability guardrails",
     consumes_events=["PlanGeneratedEvent"],
     produces_events=["DriverTelemetryEvent", "VerificationResultEvent"],
-    required_capabilities=["fs:read"],
+    required_capabilities=["fs.read"],
 )
 
 # --- Step 2: Implement Plugin Logic ---
@@ -110,7 +110,7 @@ class QuickstartExecutor(BasePlugin):
     @override
     def on_event(self, event: BaseEvent) -> None:
         match event:
-            case PlanGeneratedEvent() if self.context and self.context.has_capability("fs:read"):
+            case PlanGeneratedEvent() if self.context and self.context.has_capability("fs.read"):
                 for step in event.steps:
                     telemetry = DriverTelemetryEvent(
                         workflow_id=event.workflow_id,

@@ -1,0 +1,16 @@
+plugin:
+  name: rust_secure_checksum
+  version: "1.0.0"
+  language: Rust
+  description: "Memory-safe FNV-1a cryptographic checksum & token validation plugin in Rust"
+
+capabilities:
+  required:
+    - name: "native.rust.memory_safe"
+  forbidden:
+    - "storage.write"
+
+performance_benefits:
+  - "Guaranteed memory safety (zero buffer overflows / use-after-free)"
+  - "Zero runtime garbage collection"
+  - "Compile-time thread safety checks"

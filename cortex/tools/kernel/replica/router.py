@@ -153,9 +153,7 @@ class RoutingPolicy:
     def select_candidate(self, eligible_candidates: List[WorkerRef]) -> WorkerRef:
         """Selects candidate with min (observed_inflight, instance_id)."""
         if not eligible_candidates:
-            raise NoEligibleWorkerNow(
-                "ERR_NO_ELIGIBLE_WORKER_NOW: No ready replica satisfies metadata criteria"
-            )
+            raise NoEligibleWorkerNow("ERR_NO_ELIGIBLE_WORKER_NOW: No ready replica satisfies metadata criteria")
 
         sorted_candidates = sorted(eligible_candidates, key=lambda w: (w.observed_inflight, w.instance_id))
         return sorted_candidates[0]
@@ -280,9 +278,7 @@ class GatewayDispatcher:
             group_queue.remove(invocation_id)
 
         if not selected_candidate or not ownership:
-            raise NoEligibleWorkerNow(
-                "ERR_NO_ELIGIBLE_WORKER_NOW: No ready replica passed atomic revalidation"
-            )
+            raise NoEligibleWorkerNow("ERR_NO_ELIGIBLE_WORKER_NOW: No ready replica passed atomic revalidation")
 
         # Handle Serialized State Domain lock
         if execution_class == ExecutionClass.SERIALIZED_STATE_DOMAIN and state_domain_key:

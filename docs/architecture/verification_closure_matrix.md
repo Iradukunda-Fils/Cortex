@@ -80,6 +80,7 @@ This represents the trusted cryptographic primitive boundary — the theorem say
 
 | Milestone / Gate | Scope / Objective | Refinement Level | Evaluator Status Classification | Technical Evidence & Refinement Obligation |
 | :--- | :--- | :--- | :--- | :--- |
+| **Gate A: Physical Isolation** | Physical CPU/RAM/process cgroup limits | — | **IMPLEMENTED / ADVERSARIALLY-TESTED** | `CgroupResourceEnforcer` & `WorkerSupervisor` 10-test stress campaign (10/10 PASS). |
 | **Gate G: Mediation** | Complete side-effect trapping | — | **IMPLEMENTATION-CERTIFIED** | Profile A 2-Stage Supervisor & Harness (104/104 PASS). |
 | **Gate H: Parity ($P2$)** | Intent ↔ Actuation Parity | — | **IMPLEMENTATION-CERTIFIED** | Empirical certification (21/21 PASS) via Profile A IPC. |
 | **Gate I: Witness ($P3$)** | Rolling SHA-256 state chain | — | **IMPLEMENTATION-CERTIFIED** | Empirical certification (7/7 PASS). Rolling hash chain. |

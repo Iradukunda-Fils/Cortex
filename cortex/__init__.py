@@ -26,6 +26,7 @@ from cortex.schema import (
     WorkflowPolicy,
     WorkflowState,
 )
+from cortex.task import TaskSpecification, task
 from cortex.tools.kernel.services.event_store import EventStoreService as EventStore
 
 __all__ = [
@@ -43,6 +44,7 @@ __all__ = [
     "PlanGeneratedEvent",
     "PluginContext",
     "PluginManifest",
+    "TaskSpecification",
     "TelemetryEvent",
     "VerificationResultEvent",
     "Workflow",
@@ -50,4 +52,5 @@ __all__ = [
     "WorkflowPolicy",
     "WorkflowState",
     "override",
+    "task",
 ]

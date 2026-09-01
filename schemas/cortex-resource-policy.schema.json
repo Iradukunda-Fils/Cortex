@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.dev/schemas/cortex-resource-policy.schema.json",
+  "title": "Cortex Declarative Resource Policy Schema",
+  "description": "Formal declarative specification schema for Cortex Resource Authority and Load Balancer scaling policies.",
+  "type": "object",
+  "required": [
+    "schema",
+    "resource_profile",
+    "safety",
+    "reservation",
+    "worker",
+    "scaling"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "object",
+      "required": ["name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "const": "cortex-resource-policy"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        }
+      }
+    },
+    "resource_profile": {
+      "type": "object",
+      "required": ["cpu", "memory"],
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "type": "object",
+          "required": ["capacity", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "number", "minimum": 0.1 },
+            "unit": { "type": "string", "enum": ["cores", "mcores"] }
+          }
+        },
+        "memory": {
+          "type": "object",
+          "required": ["capacity", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "number", "minimum": 1 },
+            "unit": { "type": "string", "enum": ["B", "MiB", "GiB"] }
+          }
+        },
+        "gpu": {
+          "type": "object",
+          "required": ["devices"],
+          "additionalProperties": false,
+          "properties": {
+            "devices": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 0 },
+              "uniqueItems": true
+            }
+          }
+        },
+        "vram": {
+          "type": "object",
+          "required": ["capacity", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "number", "minimum": 0 },
+            "unit": { "type": "string", "enum": ["MiB", "GiB"] }
+          }
+        },
+        "io": {
+          "type": "object",
+          "required": ["capacity"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "network": {
+          "type": "object",
+          "required": ["capacity", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "number", "minimum": 0 },
+            "unit": { "type": "string", "enum": ["Mbps", "Gbps"] }
+          }
+        },
+        "file_descriptors": {
+          "type": "object",
+          "required": ["capacity"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "integer", "minimum": 16 }
+          }
+        },
+        "threads": {
+          "type": "object",
+          "required": ["capacity"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "required": ["capacity", "unit"],
+          "additionalProperties": false,
+          "properties": {
+            "capacity": { "type": "number", "minimum": 0 },
+            "unit": { "type": "string", "enum": ["GB", "GiB"] }
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": ["memory_margin", "vram_margin", "fd_margin", "telemetry_uncertainty"],
+      "additionalProperties": false,
+      "properties": {
+        "memory_margin": { "type": "number", "minimum": 0 },
+        "vram_margin": { "type": "number", "minimum": 0 },
+        "fd_margin": { "type": "integer", "minimum": 0 },
+        "telemetry_uncertainty": { "type": "number", "minimum": 0 }
+      }
+    },
+    "reservation": {
+      "type": "object",
+      "required": ["max_active", "ttl", "expiry_policy", "reclamation_policy"],
+      "additionalProperties": false,
+      "properties": {
+        "max_active": { "type": "integer", "minimum": 1 },
+        "ttl": { "type": "number", "minimum": 0.1 },
+        "expiry_policy": { "type": "string", "enum": ["quarantine", "eject", "retry"] },
+        "reclamation_policy": { "type": "string", "enum": ["immediate", "deferred"] }
+      }
+    },
+    "worker": {
+      "type": "object",
+      "required": ["max_concurrency", "heartbeat_interval", "stale_after", "drain_timeout", "retirement_policy"],
+      "additionalProperties": false,
+      "properties": {
+        "max_concurrency": { "type": "integer", "minimum": 1 },
+        "heartbeat_interval": { "type": "number", "minimum": 0.1 },
+        "stale_after": { "type": "number", "minimum": 1.0 },
+        "drain_timeout": { "type": "number", "minimum": 1.0 },
+        "retirement_policy": { "type": "string", "enum": ["quiescent_fenced", "immediate_evict"] }
+      }
+    },
+    "scaling": {
+      "type": "object",
+      "required": ["scale_up", "scale_down"],
+      "additionalProperties": false,
+      "properties": {
+        "scale_up": {
+          "type": "object",
+          "required": ["enabled", "minimum_workers", "maximum_workers", "admission_threshold"],
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "minimum_workers": { "type": "integer", "minimum": 1 },
+            "maximum_workers": { "type": "integer", "minimum": 1 },
+            "admission_threshold": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+          }
+        },
+        "scale_down": {
+          "type": "object",
+          "required": ["enabled", "idle_threshold", "drain_required", "quiescence_required", "fencing_required"],
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "idle_threshold": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+            "drain_required": { "type": "boolean" },
+            "quiescence_required": { "type": "boolean" },
+            "fencing_required": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}
