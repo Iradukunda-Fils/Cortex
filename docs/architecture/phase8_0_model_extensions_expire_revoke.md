@@ -3,7 +3,8 @@
 > **Target Issues**: GitHub Issue **[#54](https://github.com/Iradukunda-Fils/Cortex/issues/54)** (`StepExpire`) & **[#55](https://github.com/Iradukunda-Fils/Cortex/issues/55)** (`StepRevoke`)  
 > **Prerequisites**: Issue [#52](https://github.com/Iradukunda-Fils/Cortex/issues/52) ($C_{\text{formal}}$) & Issue [#53](https://github.com/Iradukunda-Fils/Cortex/issues/53) (Vector Projection Audit)  
 > **Source Baseline**: `cortex/tools/kernel/resource_authority.py` (`expire()`, `revoke()`)  
-> **Coq Target File**: `verification/Phase7Reservation.v` (`StepOp`, `Step` inductive relation)
+> **Coq Target File**: `verification/Phase7Reservation.v` (`StepOp`, `Step` inductive relation)  
+> **Assurance Taxonomy Status**: `MODEL GAP / OPEN`
 
 ---
 
@@ -23,6 +24,8 @@ While `release()`, `expire()`, and `revoke()` all trigger capacity reclamation a
 ---
 
 ## 2. Issue #54 Specification — `StepExpire` Model Extension
+
+> **Assurance Status**: `MODEL GAP / OPEN` (Specification complete; Coq constructor and proof update open)
 
 ### 2.1 Concrete Runtime Transition ($\text{StepExpire}_C$)
 Executed by `ResourceAuthority.expire(res_id, now_ns)`:
@@ -74,6 +77,8 @@ Adding constructor to `Step`:
 ---
 
 ## 3. Issue #55 Specification — `StepRevoke` Model Extension
+
+> **Assurance Status**: `MODEL GAP / OPEN` (Specification complete; Coq constructor and proof update open)
 
 ### 3.1 Concrete Runtime Transition ($\text{StepRevoke}_C$)
 Executed by `ResourceAuthority.revoke(res_id, new_epoch)`:
@@ -142,7 +147,7 @@ Because transitioning status from `StatusActive` to `StatusExpired` or `StatusRe
 
 ## 5. Traceability & Backlog Mapping
 
-| Operation | Model Gap Issue | Proposed Extension | Invariant Preservation | Status |
+| Operation | Model Gap Issue | Proposed Extension | Invariant Preservation | Assurance Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `expire()` | **Issue #54** | `OpExpire` / `StepExpire` | `step_preserves_invariant` | ✅ **SPECIFIED** |
-| `revoke()` | **Issue #55** | `OpRevoke` / `StepRevoke` | `step_preserves_invariant` | ✅ **SPECIFIED** |
+| `expire()` | **Issue #54** | `OpExpire` / `StepExpire` | `step_preserves_invariant` | `MODEL GAP / OPEN` |
+| `revoke()` | **Issue #55** | `OpRevoke` / `StepRevoke` | `step_preserves_invariant` | `MODEL GAP / OPEN` |

@@ -3,13 +3,14 @@
 > **Target Issue**: GitHub Issue **[#57](https://github.com/Iradukunda-Fils/Cortex/issues/57)** (PO-8.1 Initial State Correspondence)  
 > **Prerequisites**: Issue [#52](https://github.com/Iradukunda-Fils/Cortex/issues/52) ($C_{\text{formal}}$) & Issue [#53](https://github.com/Iradukunda-Fils/Cortex/issues/53) (Vector Projection Audit)  
 > **Source Baseline**: `cortex/tools/kernel/resource_authority.py` (`ResourceAuthority.__init__`)  
-> **Coq Target**: `verification/Phase7Reservation.v` (`InitState`, `init_invariant_holds`)
+> **Coq Target**: `verification/Phase7Reservation.v` (`InitState`, `init_invariant_holds`)  
+> **Assurance Taxonomy Status**: `SPECIFIED / PROOF TARGET` (Abstract invariant proven; concrete refinement target open)
 
 ---
 
-## 1. Concrete Initial State ($C_0$) Construction
+## 1. Concrete Initial State ($C_{\text{Python},0}$) Construction
 
-The concrete runtime engine `ResourceAuthority` initializes its state tuple $C_0$ as follows:
+The concrete runtime engine `ResourceAuthority` initializes its state tuple $C_{\text{Python},0}$ as follows:
 
 ```python
 class ResourceAuthority:
@@ -32,11 +33,11 @@ class ResourceAuthority:
 
 In $C_{\text{formal}}$ notation:
 
-$$C_0 = \left\langle \emptyset, \text{cap}, 0, 1, \emptyset, \emptyset, \emptyset, M_{\text{safety}}, \Delta_{\text{uncertainty}} \right\rangle$$
+$$C_{\text{Python},0} = \left\langle \emptyset, \text{cap}, 0, 1, \emptyset, \emptyset, \emptyset, M_{\text{safety}}, \Delta_{\text{uncertainty}} \right\rangle$$
 
 ---
 
-## 2. Abstract Coq Initial State ($A_0$)
+## 2. Abstract Coq Initial State ($A_{\text{Coq},0}$)
 
 In `verification/Phase7Reservation.v`:
 
@@ -45,51 +46,33 @@ Definition InitState (cap margin uncertainty auth_epoch : nat) : ReservationStat
   mkReservationState nil cap 0 margin uncertainty auth_epoch nil nil nil.
 ```
 
-$$A_0 = \text{InitState}(\text{cap}, M_{\text{safety}}, \Delta_{\text{uncertainty}}, 1)$$
+$$A_{\text{Coq},0} = \text{InitState}(\text{cap}, M_{\text{safety}}, \Delta_{\text{uncertainty}}, 1)$$
 
 ---
 
-## 3. Canonical Abstraction Mapping ($\alpha$) at Initialization
+## 3. Critical Assurance Distinction: Model Invariant vs. Refinement Correspondence
 
-The abstraction mapping $\alpha : C_{\text{formal}} \to A_{\text{Coq}}$ maps dictionary representations to sorted Coq key-value lists:
+$$\boxed{ \text{Abstract Coq Model Theorem } (\text{init\_invariant\_holds}) \neq \text{Concrete Python Refinement Theorem } (\alpha(C_{\text{Python},0}) = A_{\text{Coq},0}) }$$
 
-$$\alpha(C) = \text{mkReservationState } (\alpha_{\text{rs}}(C.\text{rs})) \; (C.\text{cap}) \; (C.\text{used}) \; (C.M_{\text{safety}}) \; (C.\Delta_{\text{uncertainty}}) \; (C.\text{epoch}_A) \; (\alpha_{\text{assoc}}(C.\text{epochs}_L)) \; (\alpha_{\text{assoc}}(C.\text{gens}_W)) \; (\alpha_{\text{assoc}}(C.\Omega_{\text{gpu}}))$$
-
-### Key Equivalence Properties for Empty Containers:
-- $\alpha_{\text{rs}}(\emptyset) = \text{nil}$
-- $\alpha_{\text{assoc}}(\emptyset) = \text{nil}$
-
-Therefore:
-
-$$\alpha(C_0) = \text{mkReservationState } \text{nil} \; \text{cap} \; 0 \; M_{\text{safety}} \; \Delta_{\text{uncertainty}} \; 1 \; \text{nil} \; \text{nil} \; \text{nil} \equiv A_0$$
-
----
-
-## 4. Formal Theorem Specification (PO-8.1)
-
-$$\boxed{ \text{Theorem (PO-8.1 Initial State Correspondence)}: \alpha(C_0) = A_0 \land \text{ReservationInvariant}(A_0) }$$
-
-### Mechanical Verification in Coq:
-In `verification/Phase7Reservation.v`, `init_invariant_holds` mechanically proves that $A_0$ satisfies all system invariants:
-
+### A. Abstract Model Theorem (`init_invariant_holds` — PROVEN in Coq)
+In `verification/Phase7Reservation.v`:
 ```coq
 Theorem init_invariant_holds :
   forall cap margin uncertainty auth_epoch : nat,
     ReservationInvariant (InitState cap margin uncertainty auth_epoch).
 ```
+This proves that Coq's abstract state $A_{\text{Coq},0}$ satisfies abstract safety invariants $P_{1a}, P_{1b}, P_2, P_{11}, P_{12}, P_{13}$.
 
-### Invariants Satisfied by $A_0$:
-1. $P_{1a}$ **Invocation Uniqueness**: `count_active_for_inv nil i = 0 <= 1`.
-2. $P_{1b}$ **Attempt Uniqueness**: `count_active_for_attempt nil a = 0 <= 1`.
-3. $P_2$ **Capacity Safety**: `sum_active_demand nil + 0 = 0 <= cap - margin - uncertainty`.
-4. $P_{11}$ **Exclusive GPU Ownership**: `count_gpu_active_owner nil nil g = 0 <= 1`.
-5. $P_{13}$ **Terminal Reclamation**: Vacuously holds for `nil`.
-6. $P_{12}$ **Identity Stability**: Vacuously holds for `nil`.
+### B. Concrete Refinement Correspondence ($\alpha(C_{\text{Python},0}) = A_{\text{Coq},0}$ — PROOF TARGET / OPEN)
+Establishing full refinement requires a machine-checked theorem proving that applying the canonical abstraction mapping $\alpha$ to the concrete Python initial state $C_{\text{Python},0}$ equals $A_{\text{Coq},0}$:
+
+$$\boxed{ \alpha(C_{\text{Python},0}) = \text{mkReservationState } (\alpha_{\text{rs}}(\emptyset)) \; \text{cap} \; 0 \; M_{\text{safety}} \; \Delta_{\text{uncertainty}} \; 1 \; (\alpha_{\text{assoc}}(\emptyset)) \; (\alpha_{\text{assoc}}(\emptyset)) \; (\alpha_{\text{assoc}}(\emptyset)) = A_{\text{Coq},0} }$$
 
 ---
 
-## 5. Traceability & Assurance Status
+## 4. Traceability & Assurance Status
 
-| Formal Obligation | Coq Source File | Coq Theorem | Status |
-| :--- | :--- | :--- | :--- |
-| **PO-8.1** Initial State Mapping | `Phase7Reservation.v` | `init_invariant_holds` | ✅ **SPECIFIED & PROVED** (0 Axioms, 0 Admits) |
+| Obligation | Target Artifact | Assurance Label | Verification Command / Evidence | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| Abstract $A_{\text{Coq},0}$ Invariant Safety | `verification/Phase7Reservation.v` | `MODEL-CHECKED` | `coqchk -R . Cortex Phase7Reservation` (`init_invariant_holds`) | ✅ `PROVEN` |
+| Concrete Refinement Mapping ($\alpha(C_0) = A_0$) | `verification/Phase7Reservation.v` (or extraction module) | `PROOF TARGET` | Pending Coq refinement proof module | 🟡 `OPEN / PROOF TARGET` |
