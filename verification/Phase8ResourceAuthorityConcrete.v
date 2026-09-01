@@ -1,11 +1,12 @@
 (* ========================================================================= *)
 (* CORTEX FORMAL VERIFICATION FRAMEWORK                                      *)
-(* Module: Phase8ResourceAuthorityConcrete.v (Issue #52)                    *)
+(* Module: Phase8ResourceAuthorityConcrete.v (Issues #52 & #53)              *)
 (* Classification: Tier D (Formal Proof / Concrete Semantics Bridge)         *)
 (*                                                                            *)
 (* Scope: Formal Concrete Transition System C_formal modeling Python         *)
 (*   ResourceAuthority execution semantics (cortex/tools/kernel/resource_authority.py),*)
-(*   including valid transitions, rejection semantics, and abstraction map.  *)
+(*   including valid transitions, rejection semantics, abstraction map,      *)
+(*   and scalar CPU demand projection soundness.                             *)
 (*                                                                            *)
 (* Assurance Boundary: Zero Axioms, Zero Admits.                              *)
 (* ========================================================================= *)
@@ -199,6 +200,38 @@ Section Phase8ResourceAuthorityConcrete.
   Proof.
     intros c r Hoverflow.
     reflexivity.
+  Qed.
+
+  (* ========================================================================= *)
+  (* 6. VECTOR-TO-SCALAR PROJECTION SOUNDNESS (Issue #53)                       *)
+  (* ========================================================================= *)
+
+  Record HeterogeneousDemandVector := mkDemandVector {
+    dv_cpu_mcores : nat;
+    dv_ram_bytes  : nat;
+    dv_gpu_count  : nat;
+    dv_vram_bytes : nat;
+    dv_io_ops     : nat;
+    dv_net_mbps   : nat
+  }.
+
+  Definition pi_scalar (d : HeterogeneousDemandVector) : nat :=
+    dv_cpu_mcores d.
+
+  Theorem projection_soundness_cpu_scope : forall (d : HeterogeneousDemandVector),
+    pi_scalar d = dv_cpu_mcores d.
+  Proof.
+    intros d.
+    unfold pi_scalar. reflexivity.
+  Qed.
+
+  Theorem scalar_projection_preserves_capacity_inequality : forall (l : list ConcreteReservationRecord) (d : HeterogeneousDemandVector) (cap margin uncertainty used : nat),
+    concrete_sum_active_demand l + pi_scalar d + used <= cap - margin - uncertainty ->
+    concrete_sum_active_demand l + dv_cpu_mcores d + used <= cap - margin - uncertainty.
+  Proof.
+    intros l d cap margin uncertainty used Hle.
+    unfold pi_scalar in Hle.
+    exact Hle.
   Qed.
 
 End Phase8ResourceAuthorityConcrete.
