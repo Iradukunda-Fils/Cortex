@@ -58,8 +58,13 @@ class ReleaseReadinessEvaluator:
         if code == 0 and out:
             self.commit_sha = out[:12]
 
+        python_bin = sys.executable
+        venv_python = os.path.join(REPO_ROOT, ".venv", "bin", "python")
+        if os.path.exists(venv_python):
+            python_bin = venv_python
+
         # 2. Gate 1: Source Unit/Integration Tests
-        code, out, err = run_cmd([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
+        code, out, err = run_cmd([python_bin, "-m", "unittest", "discover", "-s", "tests"])
         test_pass = code == 0
         # Extract actual test count from unittest stderr (e.g. "Ran 275 tests")
         test_count = 0
@@ -73,7 +78,7 @@ class ReleaseReadinessEvaluator:
         self.gate_results["Source Tests"] = "PASS" if test_pass else "FAIL"
 
         # 3. Gate 2: Certification Pipeline
-        code, out, _ = run_cmd([sys.executable, "tests/conformance/run_certification.py"])
+        code, out, _ = run_cmd([python_bin, "tests/conformance/run_certification.py"])
         cert_pass = code == 0 and "OVERALL RESULT: CERTIFICATION: PASS" in out
         # Extract actual certification count from output (e.g. "PASS (136/136 Checks Verified)")
         cert_count = 0
