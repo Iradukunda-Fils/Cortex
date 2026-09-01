@@ -1,6 +1,6 @@
 # PyPI Production Release Guide for `cortex-runtime` (via Astral `uv`)
 
-This guide explains how to publish **`cortex-runtime` v0.2.0** to PyPI using **Astral `uv`**, providing high-speed package building (`uv build`) and tokenless/OIDC publishing (`uv publish`).
+This guide explains how to publish **`cortex-runtime` v1.0.0-RC1 (1.0.0rc1)** to PyPI using **Astral `uv`**, providing high-speed package building (`uv build`) and tokenless/OIDC publishing (`uv publish`).
 
 ---
 
@@ -12,8 +12,8 @@ The repository includes a GitHub Actions workflow (`.github/workflows/pypi.yml`)
 1. Ensure all changes are committed and merged into `main`.
 2. Create and push a version tag:
    ```bash
-   git tag v0.2.0
-   git push origin v0.2.0
+   git tag v1.0.0-rc1
+   git push origin v1.0.0-rc1
    ```
 3. GitHub Actions will automatically:
    - Run quality gates (`ruff`, `pyright`, `unittest`).
