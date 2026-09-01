@@ -118,6 +118,28 @@ Section Phase7Reservation.
          else r) :: map_release target_id tl
     end.
 
+  Fixpoint map_expire (target_id : ReservationId) (l : list Reservation) : list Reservation :=
+    match l with
+    | nil => nil
+    | cons r tl =>
+        (if Nat.eqb (res_id r) target_id
+         then mkReservation (res_id r) (res_inv r) (res_att r) (res_worker r)
+                            (res_demand r) (res_authority_epoch r)
+                            (res_lease_epoch r) (res_generation r) StatusExpired
+         else r) :: map_expire target_id tl
+    end.
+
+  Fixpoint map_revoke (target_id : ReservationId) (l : list Reservation) : list Reservation :=
+    match l with
+    | nil => nil
+    | cons r tl =>
+        (if Nat.eqb (res_id r) target_id
+         then mkReservation (res_id r) (res_inv r) (res_att r) (res_worker r)
+                            (res_demand r) (res_authority_epoch r)
+                            (res_lease_epoch r) (res_generation r) StatusRevoked
+         else r) :: map_revoke target_id tl
+    end.
+
   Fixpoint gpu_release (l : list (GPUId * ReservationId)) (target_id : ReservationId) : list (GPUId * ReservationId) :=
     match l with
     | nil => nil
@@ -284,6 +306,32 @@ Section Phase7Reservation.
            (rs_generations s)
            (gpu_release (rs_gpu_owners s) target_id))
 
+  | StepExpire : forall (s : ReservationState) (target_id : ReservationId),
+      Step s (OpExpire target_id)
+        (mkReservationState
+           (map_expire target_id (rs_reservations s))
+           (rs_capacity s)
+           (rs_used_capacity s)
+           (rs_safety_margin s)
+           (rs_uncertainty s)
+           (rs_authority_epoch s)
+           (rs_lease_epochs s)
+           (rs_generations s)
+           (gpu_release (rs_gpu_owners s) target_id))
+
+  | StepRevoke : forall (s : ReservationState) (target_id : ReservationId),
+      Step s (OpRevoke target_id)
+        (mkReservationState
+           (map_revoke target_id (rs_reservations s))
+           (rs_capacity s)
+           (rs_used_capacity s)
+           (rs_safety_margin s)
+           (rs_uncertainty s)
+           (rs_authority_epoch s)
+           (rs_lease_epochs s)
+           (rs_generations s)
+           (gpu_release (rs_gpu_owners s) target_id))
+
   | StepAuthoritySuccession : forall (s : ReservationState) (new_epoch : Epoch),
       new_epoch > rs_authority_epoch s ->
       Step s (OpAuthoritySuccession new_epoch)
@@ -418,18 +466,36 @@ Section Phase7Reservation.
         * exact (IHl target_id).
   Qed.
 
-  Lemma map_release_in : forall l target_id r,
-    In r (map_release target_id l) ->
-    exists r_orig, In r_orig l /\ res_id r = res_id r_orig.
+  Lemma map_expire_sum_le : forall l target_id,
+    sum_active_demand (map_expire target_id l) <= sum_active_demand l.
   Proof.
-    induction l; intros target_id r H_in.
-    - simpl in H_in. contradiction.
-    - simpl in H_in. destruct H_in as [H_head | H_tail].
-      + destruct (Nat.eqb (res_id a) target_id) eqn:E_eq.
-        * exists a. split; [left; reflexivity | rewrite <- H_head; simpl; reflexivity].
-        * exists a. split; [left; reflexivity | rewrite H_head; reflexivity].
-      + apply IHl in H_tail. destruct H_tail as [r_orig [H_in_orig H_eq]].
-        exists r_orig. split; [right; exact H_in_orig | exact H_eq].
+    induction l; intros target_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_eq.
+      + simpl. destruct (is_active_status (res_status a)) eqn:E_st.
+        * apply (le_trans _ (sum_active_demand l)).
+          -- exact (IHl target_id).
+          -- rewrite add_comm. exact (le_add_k (sum_active_demand l) (res_demand a)).
+        * exact (IHl target_id).
+      + simpl. destruct (is_active_status (res_status a)) eqn:E_st.
+        * exact (add_le_mono_l _ _ (res_demand a) (IHl target_id)).
+        * exact (IHl target_id).
+  Qed.
+
+  Lemma map_revoke_sum_le : forall l target_id,
+    sum_active_demand (map_revoke target_id l) <= sum_active_demand l.
+  Proof.
+    induction l; intros target_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_eq.
+      + simpl. destruct (is_active_status (res_status a)) eqn:E_st.
+        * apply (le_trans _ (sum_active_demand l)).
+          -- exact (IHl target_id).
+          -- rewrite add_comm. exact (le_add_k (sum_active_demand l) (res_demand a)).
+        * exact (IHl target_id).
+      + simpl. destruct (is_active_status (res_status a)) eqn:E_st.
+        * exact (add_le_mono_l _ _ (res_demand a) (IHl target_id)).
+        * exact (IHl target_id).
   Qed.
 
   Definition release_transform (target_id : ReservationId) (r_orig : Reservation) : Reservation :=
@@ -439,6 +505,20 @@ Section Phase7Reservation.
                         (res_lease_epoch r_orig) (res_generation r_orig) StatusReleased
     else r_orig.
 
+  Definition expire_transform (target_id : ReservationId) (r_orig : Reservation) : Reservation :=
+    if Nat.eqb (res_id r_orig) target_id
+    then mkReservation (res_id r_orig) (res_inv r_orig) (res_att r_orig) (res_worker r_orig)
+                        (res_demand r_orig) (res_authority_epoch r_orig)
+                        (res_lease_epoch r_orig) (res_generation r_orig) StatusExpired
+    else r_orig.
+
+  Definition revoke_transform (target_id : ReservationId) (r_orig : Reservation) : Reservation :=
+    if Nat.eqb (res_id r_orig) target_id
+    then mkReservation (res_id r_orig) (res_inv r_orig) (res_att r_orig) (res_worker r_orig)
+                        (res_demand r_orig) (res_authority_epoch r_orig)
+                        (res_lease_epoch r_orig) (res_generation r_orig) StatusRevoked
+    else r_orig.
+
   Lemma release_transform_id : forall target_id r_orig,
     res_id (release_transform target_id r_orig) = res_id r_orig.
   Proof.
@@ -446,9 +526,47 @@ Section Phase7Reservation.
     destruct (Nat.eqb (res_id r_orig) target_id); reflexivity.
   Qed.
 
+  Lemma expire_transform_id : forall target_id r_orig,
+    res_id (expire_transform target_id r_orig) = res_id r_orig.
+  Proof.
+    intros target_id r_orig. unfold expire_transform.
+    destruct (Nat.eqb (res_id r_orig) target_id); reflexivity.
+  Qed.
+
+  Lemma revoke_transform_id : forall target_id r_orig,
+    res_id (revoke_transform target_id r_orig) = res_id r_orig.
+  Proof.
+    intros target_id r_orig. unfold revoke_transform.
+    destruct (Nat.eqb (res_id r_orig) target_id); reflexivity.
+  Qed.
+
   Lemma map_release_in_full : forall l target_id r,
     In r (map_release target_id l) ->
     exists r_orig, In r_orig l /\ r = release_transform target_id r_orig.
+  Proof.
+    induction l as [| a l' IH]; intros target_id r H_in; simpl in H_in.
+    - contradiction.
+    - destruct H_in as [H_head | H_tail].
+      + exists a. split; [left; reflexivity | symmetry; exact H_head].
+      + apply IH in H_tail. destruct H_tail as [r_orig [H_in_orig H_eq]].
+        exists r_orig. split; [right; exact H_in_orig | exact H_eq].
+  Qed.
+
+  Lemma map_expire_in_full : forall l target_id r,
+    In r (map_expire target_id l) ->
+    exists r_orig, In r_orig l /\ r = expire_transform target_id r_orig.
+  Proof.
+    induction l as [| a l' IH]; intros target_id r H_in; simpl in H_in.
+    - contradiction.
+    - destruct H_in as [H_head | H_tail].
+      + exists a. split; [left; reflexivity | symmetry; exact H_head].
+      + apply IH in H_tail. destruct H_tail as [r_orig [H_in_orig H_eq]].
+        exists r_orig. split; [right; exact H_in_orig | exact H_eq].
+  Qed.
+
+  Lemma map_revoke_in_full : forall l target_id r,
+    In r (map_revoke target_id l) ->
+    exists r_orig, In r_orig l /\ r = revoke_transform target_id r_orig.
   Proof.
     induction l as [| a l' IH]; intros target_id r H_in; simpl in H_in.
     - contradiction.
@@ -514,6 +632,42 @@ Section Phase7Reservation.
         * exact (IHl target_id i).
   Qed.
 
+  Lemma map_expire_count_inv_le : forall l target_id i,
+    count_active_for_inv (map_expire target_id l) i <= count_active_for_inv l i.
+  Proof.
+    induction l; intros target_id i; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_inv a) i) eqn:E_inv.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id i). }
+        * exact (IHl target_id i).
+      + simpl. destruct (Nat.eqb (res_inv a) i) eqn:E_inv.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id i). }
+        * exact (IHl target_id i).
+  Qed.
+
+  Lemma map_revoke_count_inv_le : forall l target_id i,
+    count_active_for_inv (map_revoke target_id l) i <= count_active_for_inv l i.
+  Proof.
+    induction l; intros target_id i; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_inv a) i) eqn:E_inv.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id i). }
+        * exact (IHl target_id i).
+      + simpl. destruct (Nat.eqb (res_inv a) i) eqn:E_inv.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id i). }
+        * exact (IHl target_id i).
+  Qed.
+
   Lemma map_release_count_att_le : forall l target_id a_id,
     count_active_for_attempt (map_release target_id l) a_id <= count_active_for_attempt l a_id.
   Proof.
@@ -532,8 +686,80 @@ Section Phase7Reservation.
         * exact (IHl target_id a_id).
   Qed.
 
+  Lemma map_expire_count_att_le : forall l target_id a_id,
+    count_active_for_attempt (map_expire target_id l) a_id <= count_active_for_attempt l a_id.
+  Proof.
+    induction l; intros target_id a_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_att a) a_id) eqn:E_att.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id a_id). }
+        * exact (IHl target_id a_id).
+      + simpl. destruct (Nat.eqb (res_att a) a_id) eqn:E_att.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id a_id). }
+        * exact (IHl target_id a_id).
+  Qed.
+
+  Lemma map_revoke_count_att_le : forall l target_id a_id,
+    count_active_for_attempt (map_revoke target_id l) a_id <= count_active_for_attempt l a_id.
+  Proof.
+    induction l; intros target_id a_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_att a) a_id) eqn:E_att.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id a_id). }
+        * exact (IHl target_id a_id).
+      + simpl. destruct (Nat.eqb (res_att a) a_id) eqn:E_att.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id a_id). }
+        * exact (IHl target_id a_id).
+  Qed.
+
   Lemma map_release_count_by_id_le : forall l target_id r_id,
     count_active_by_id r_id (map_release target_id l) <= count_active_by_id r_id l.
+  Proof.
+    induction l; intros target_id r_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_id a) r_id) eqn:E_rid.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id r_id). }
+        * exact (IHl target_id r_id).
+      + simpl. destruct (Nat.eqb (res_id a) r_id) eqn:E_rid.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id r_id). }
+        * exact (IHl target_id r_id).
+  Qed.
+
+  Lemma map_expire_count_by_id_le : forall l target_id r_id,
+    count_active_by_id r_id (map_expire target_id l) <= count_active_by_id r_id l.
+  Proof.
+    induction l; intros target_id r_id; simpl.
+    - apply le_n.
+    - destruct (Nat.eqb (res_id a) target_id) eqn:E_tgt.
+      + simpl. destruct (Nat.eqb (res_id a) r_id) eqn:E_rid.
+        * destruct (is_active_status (res_status a)).
+          { apply le_S, IHl. }
+          { exact (IHl target_id r_id). }
+        * exact (IHl target_id r_id).
+      + simpl. destruct (Nat.eqb (res_id a) r_id) eqn:E_rid.
+        * destruct (is_active_status (res_status a)).
+          { apply le_n_S, IHl. }
+          { exact (IHl target_id r_id). }
+        * exact (IHl target_id r_id).
+  Qed.
+
+  Lemma map_revoke_count_by_id_le : forall l target_id r_id,
+    count_active_by_id r_id (map_revoke target_id l) <= count_active_by_id r_id l.
   Proof.
     induction l; intros target_id r_id; simpl.
     - apply le_n.
@@ -835,6 +1061,82 @@ Section Phase7Reservation.
         assert (H_id_orig : res_id r1_orig = res_id r2_orig).
         { rewrite <- (release_transform_id target_id r1_orig).
           rewrite <- (release_transform_id target_id r2_orig).
+          rewrite <- H_eq1, <- H_eq2. exact H_eq_id. }
+        assert (H_orig_eq : r1_orig = r2_orig).
+        { exact (inv_p12_identity_stability s H_inv r1_orig r2_orig H_in1_orig H_in2_orig H_id_orig). }
+        rewrite H_eq1, H_eq2, H_orig_eq. reflexivity.
+
+    - (* StepExpire *)
+      constructor.
+      + intro i. simpl. apply (le_trans _ (count_active_for_inv (rs_reservations s) i)).
+        * apply map_expire_count_inv_le.
+        * exact (inv_p1a_inv_uniqueness s H_inv i).
+      + intro a. simpl. apply (le_trans _ (count_active_for_attempt (rs_reservations s) a)).
+        * apply map_expire_count_att_le.
+        * exact (inv_p1b_att_uniqueness s H_inv a).
+      + simpl. apply (le_trans (sum_active_demand (map_expire target_id (rs_reservations s)) + rs_used_capacity s)
+                               (sum_active_demand (rs_reservations s) + rs_used_capacity s)
+                               (rs_capacity s - rs_safety_margin s - rs_uncertainty s)).
+        * apply (add_le_mono_r (sum_active_demand (map_expire target_id (rs_reservations s))) (sum_active_demand (rs_reservations s)) (rs_used_capacity s)).
+          exact (map_expire_sum_le (rs_reservations s) target_id).
+        * exact (inv_p2_capacity_safety s H_inv).
+      + intro g. simpl. unfold count_gpu_active_owner.
+        destruct (gpu_owned_by (gpu_release (rs_gpu_owners s) target_id) g) eqn:E_rel.
+        * pose proof (gpu_release_owned_by_some (rs_gpu_owners s) target_id g r E_rel) as [H_in H_neq].
+          apply (le_trans _ (count_active_by_id r (rs_reservations s))).
+          { apply map_expire_count_by_id_le. }
+          { exact (count_active_by_id_le_1_inv s r H_inv). }
+        * exact (nat_le_0 1).
+      + intros r H_in H_st.
+        apply map_expire_in_full in H_in. destruct H_in as [r_orig [H_in_orig H_eq]].
+        subst r. unfold expire_transform in H_st |- *.
+        destruct (Nat.eqb (res_id r_orig) target_id) eqn:E_tgt.
+        * reflexivity.
+        * apply (inv_p13_terminal_reclamation s H_inv r_orig H_in_orig H_st).
+      + intros r1 r2 H_in1 H_in2 H_eq_id.
+        apply map_expire_in_full in H_in1. destruct H_in1 as [r1_orig [H_in1_orig H_eq1]].
+        apply map_expire_in_full in H_in2. destruct H_in2 as [r2_orig [H_in2_orig H_eq2]].
+        assert (H_id_orig : res_id r1_orig = res_id r2_orig).
+        { rewrite <- (expire_transform_id target_id r1_orig).
+          rewrite <- (expire_transform_id target_id r2_orig).
+          rewrite <- H_eq1, <- H_eq2. exact H_eq_id. }
+        assert (H_orig_eq : r1_orig = r2_orig).
+        { exact (inv_p12_identity_stability s H_inv r1_orig r2_orig H_in1_orig H_in2_orig H_id_orig). }
+        rewrite H_eq1, H_eq2, H_orig_eq. reflexivity.
+
+    - (* StepRevoke *)
+      constructor.
+      + intro i. simpl. apply (le_trans _ (count_active_for_inv (rs_reservations s) i)).
+        * apply map_revoke_count_inv_le.
+        * exact (inv_p1a_inv_uniqueness s H_inv i).
+      + intro a. simpl. apply (le_trans _ (count_active_for_attempt (rs_reservations s) a)).
+        * apply map_revoke_count_att_le.
+        * exact (inv_p1b_att_uniqueness s H_inv a).
+      + simpl. apply (le_trans (sum_active_demand (map_revoke target_id (rs_reservations s)) + rs_used_capacity s)
+                               (sum_active_demand (rs_reservations s) + rs_used_capacity s)
+                               (rs_capacity s - rs_safety_margin s - rs_uncertainty s)).
+        * apply (add_le_mono_r (sum_active_demand (map_revoke target_id (rs_reservations s))) (sum_active_demand (rs_reservations s)) (rs_used_capacity s)).
+          exact (map_revoke_sum_le (rs_reservations s) target_id).
+        * exact (inv_p2_capacity_safety s H_inv).
+      + intro g. simpl. unfold count_gpu_active_owner.
+        destruct (gpu_owned_by (gpu_release (rs_gpu_owners s) target_id) g) eqn:E_rel.
+        * pose proof (gpu_release_owned_by_some (rs_gpu_owners s) target_id g r E_rel) as [H_in H_neq].
+          apply (le_trans _ (count_active_by_id r (rs_reservations s))).
+          { apply map_revoke_count_by_id_le. }
+          { exact (count_active_by_id_le_1_inv s r H_inv). }
+        * exact (nat_le_0 1).
+      + intros r H_in H_st.
+        apply map_revoke_in_full in H_in. destruct H_in as [r_orig [H_in_orig H_eq]].
+        subst r. unfold revoke_transform in H_st |- *.
+        destruct (Nat.eqb (res_id r_orig) target_id) eqn:E_tgt.
+        * reflexivity.
+        * apply (inv_p13_terminal_reclamation s H_inv r_orig H_in_orig H_st).
+      + intros r1 r2 H_in1 H_in2 H_eq_id.
+        apply map_revoke_in_full in H_in1. destruct H_in1 as [r1_orig [H_in1_orig H_eq1]].
+        apply map_revoke_in_full in H_in2. destruct H_in2 as [r2_orig [H_in2_orig H_eq2]].
+        assert (H_id_orig : res_id r1_orig = res_id r2_orig).
+        { rewrite <- (revoke_transform_id target_id r1_orig).
+          rewrite <- (revoke_transform_id target_id r2_orig).
           rewrite <- H_eq1, <- H_eq2. exact H_eq_id. }
         assert (H_orig_eq : r1_orig = r2_orig).
         { exact (inv_p12_identity_stability s H_inv r1_orig r2_orig H_in1_orig H_in2_orig H_id_orig). }

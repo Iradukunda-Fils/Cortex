@@ -97,12 +97,12 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
 - **Phase 7.7b**: Autoscaling Policy/Decision Engine (`autoscaler.py`, control loop, scale-up/down safety, quiescence retirable checks, hysteresis — **CLOSED / RUNTIME-VERIFIED & ADVERSARIALLY TESTED**)
 - **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **ACTIVE NEXT GATE**
   - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ Gateway Refinement (Issue #32) — `PROOF TARGET / OPEN` (Layer 3 Isolated)
-  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v`)
-  - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v` Section 6)
-  - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
-  - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
-  - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
-  - **Obligation 7**: Forward Simulation Step Preservation for Reserve/Release (Issue #58) — `PROOF TARGET / OPEN` (Requires #52, #53, #54, #55, #57)
+  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v`)
+  - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` Section 6)
+  - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepExpire`)
+  - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepRevoke`)
+  - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
+  - **Obligation 7**: Universal Forward Simulation Step Preservation Theorem $R(C,A)$ (Issue #58) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `universal_forward_simulation`)
   - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — `PROOF TARGET / OPEN` (Requires #58)
 
 ---

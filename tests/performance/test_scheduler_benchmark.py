@@ -211,17 +211,25 @@ class TestSchedulerBenchmarkSuite(unittest.TestCase):
 
         results: List[LockAttributionMetrics] = []
 
-        threads_to_test = [1, 2, 4, 8, 16, 32, 64]
-        scales_to_test = [1000, 10000]
+        full_benchmark = os.getenv("CORTEX_BENCHMARK", "0").lower() in ("1", "true", "yes")
+        if full_benchmark:
+            threads_to_test = [1, 2, 4, 8, 16, 32, 64]
+            scales_to_test = [1000, 10000]
+        else:
+            threads_to_test = [1, 2, 4]
+            scales_to_test = [10, 100]
 
         for scale_n in scales_to_test:
-            print(f"\n--- SCALE N = {scale_n} (|W_c| = {scale_n // 5}) ---")
+            print(f"\n--- SCALE N = {scale_n} (|W_c| = {max(1, scale_n // 5)}) ---")
             for use_snap in [False, True]:
                 mode_str = "Snapshot Read View V=f(S_A)" if use_snap else "Global RLock Baseline"
                 print(f"\n[ MODE: {mode_str} ]")
                 for c in threads_to_test:
-                    # Adjust ops per thread to keep benchmark run duration manageable for 10k
-                    ops_cnt = 50 if scale_n == 1000 else 20
+                    # Adjust ops per thread to keep benchmark run duration manageable
+                    if full_benchmark:
+                        ops_cnt = 50 if scale_n == 1000 else 20
+                    else:
+                        ops_cnt = 10
                     m = self._profile_lock_attribution(
                         scale_n=scale_n,
                         num_threads=c,
@@ -242,17 +250,23 @@ class TestSchedulerBenchmarkSuite(unittest.TestCase):
         print("=" * 105 + "\n")
 
         # Save artifacts
-        out_dir = os.path.expanduser("~/.gemini/antigravity/brain/45356e66-d161-49a3-833f-7ca68f18fa84")
-        os.makedirs(out_dir, exist_ok=True)
-        with open(os.path.join(out_dir, "benchmark_lock_attribution_results.json"), "w") as f:
-            json.dump(
-                {
-                    "system_metadata": asdict(sys_meta),
-                    "benchmark_results": [asdict(m) for m in results],
-                },
-                f,
-                indent=2,
-            )
+        out_dir = os.getenv(
+            "CORTEX_ARTIFACT_DIR",
+            os.path.expanduser("~/.gemini/antigravity/brain/45356e66-d161-49a3-833f-7ca68f18fa84")
+        )
+        try:
+            os.makedirs(out_dir, exist_ok=True)
+            with open(os.path.join(out_dir, "benchmark_lock_attribution_results.json"), "w") as f:
+                json.dump(
+                    {
+                        "system_metadata": asdict(sys_meta),
+                        "benchmark_results": [asdict(m) for m in results],
+                    },
+                    f,
+                    indent=2,
+                )
+        except Exception:
+            pass
 
         self.assertGreater(len(results), 0)
 
