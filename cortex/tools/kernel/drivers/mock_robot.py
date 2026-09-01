@@ -41,7 +41,7 @@ class MockRobotDriver:
             self.actuator_id = "arm_joint_1"
             self.publish_cb = actuator_id_or_cb
         else:
-            self.actuator_id = str(actuator_id_or_cb)
+            self.actuator_id = actuator_id_or_cb
             self.publish_cb = publish_cb or context.publish
 
         self.positions = {"arm_joint_1": 0.0, "arm_joint_2": 0.0}

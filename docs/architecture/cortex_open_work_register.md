@@ -114,8 +114,27 @@ The **Cortex Resource Authority** sits between physical telemetry observation an
 
 $$\boxed{ \text{Telemetry} \neq \text{Authority} }$$
 
-### System Assurance Ladder
+### System Assurance Ladder (Current Implementation)
 
-$$\boxed{ \begin{array}{l} \text{Coq (Rocq)} \rightarrow \text{Local Mathematical Safety \& Conservation Laws}\\ \text{TLA+} \rightarrow \text{Distributed Authority, Epoch Fencing \& Liveness}\\ \text{Python Kernel} \rightarrow \text{Live Authoritative State Control Plane } (S_A)\\ \text{Go / Rust Substrates} \rightarrow \text{Transport, WASM Sandbox \& Execution Streams}\\ \text{Linux / NVML Telemetry} \rightarrow \text{Physical Resource Observation (Non-Authoritative)} \end{array} }$$
+| Layer | Language | Current Role | Assurance |
+| :--- | :--- | :--- | :--- |
+| Coq (Rocq) | — | Local mathematical safety & conservation laws | Machine-checked (0 axioms, 0 admits) |
+| TLA+ | — | Distributed authority, epoch fencing & liveness | Model-checked (6M+ states) |
+| Python Kernel | Python | Live authoritative state control plane ($S_A$), plugins, routing, scheduling | Runtime-verified (562 tests) |
+| `cortex-go/cbe` | Go | CBE encode/decode codec | Conformance-verified |
+| `cortex-go/adapter` | Go | Stateless CBE primitives (Encode, Decode, Hash, UUID) | Implemented |
+| `cortex-emulator` | Rust | RISC-V hardware emulator & CBE codec | Implemented |
+| Linux / NVML | — | Physical resource observation (non-authoritative) | Telemetry |
 
+### Substrate Capability Classification
 
+| Component | Current Status | What It Does NOT Do |
+| :--- | :--- | :--- |
+| Go CBE codec | `IMPLEMENTED` | No networking, no plugin routing, no event delivery |
+| Go cross-node transport | `OPEN` | Not implemented |
+| Go distributed execution | `OPEN` | Not implemented |
+| Rust distributed execution | `OPEN` | Not implemented |
+
+### Future Architecture (Not Yet Implemented)
+
+$$\text{Python Authority} \rightarrow \text{Go/Rust Transport Substrate} \rightarrow \text{Execution}$$

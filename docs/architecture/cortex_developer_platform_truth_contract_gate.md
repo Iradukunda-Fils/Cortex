@@ -44,7 +44,7 @@ To eliminate documentation drift and prevent the conflation of formal guarantees
 | Python $\to$ Coq Refinement | `docs/architecture/gate_f_concrete_refinement.md` | `REFINEMENT-PROPOSED` | Formal mapping ($\alpha$) between Python dict state and Coq record state. Not machine-checked. |
 | `ProductionDynamicLoadBalancer` | `cortex/tools/kernel/load_balancer.py` | `IMPLEMENTED / RUNTIME-VERIFIED` | GIL-optimizing scheduler with capability index and snapshot views. |
 | `process_sandbox.py` | `replica/process_sandbox.py` | `IMPLEMENTED / RUNTIME-VERIFIED` | Host process isolation using Linux namespace system calls (`clone_newpid`). |
-| Go CBE Transport | `cortex-go/cbe/` | `EXPERIMENTALLY SUPPORTED` | Go transport framing for binary decoding/encoding. |
+| Go CBE Codec | `cortex-go/cbe/` | `EXPERIMENTALLY SUPPORTED` | Go CBE encode/decode codec conformance (no transport, no networking). |
 | Rust WASM Sandbox | `contracts/` | `PROTOTYPE` | Rust contract sandbox interface. Awaiting core execution loop integration. |
 
 ---

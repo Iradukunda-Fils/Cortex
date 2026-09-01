@@ -70,8 +70,8 @@ Cortex/
 │   ├── Cargo.toml
 │   ├── src/                            # Rust ISA simulator, STCR capability register file, CBE decoder
 │   └── tests/                          # Rust CBE & Layer 2 streaming conformance tests
-├── cortex-go/                          # Go Concurrency & Transport Adapter
-│   ├── adapter/                        # Polyglot stream bridging
+├── cortex-go/                          # Go CBE Codec Conformance Substrate
+│   ├── adapter/                        # Stateless CBE primitives (Encode, Decode, Hash, UUID)
 │   ├── cbe/                            # Pure-Go zero-dependency CBE codec
 │   └── tests/                          # Cross-runtime parity conformance tests
 ├── docs/                               # Architectural documentation, gate specs, guides
