@@ -693,4 +693,72 @@ Section Phase8ResourceAuthorityConcrete.
       + unfold RefinementRelation. split; [reflexivity | exact Hinv].
   Qed.
 
+  (* ========================================================================= *)
+  (* 9. WAL PREFIX REFINEMENT THEOREM (Issue #56)                              *)
+  (* ========================================================================= *)
+
+  Inductive ConcreteExecution : ConcreteResourceState -> list ConcreteOp -> ConcreteResourceState -> Prop :=
+  | CExecNil : forall (c : ConcreteResourceState),
+      ConcreteExecution c nil c
+  | CExecCons : forall (c : ConcreteResourceState) (op : ConcreteOp) (c_mid : ConcreteResourceState) (ops : list ConcreteOp) (c' : ConcreteResourceState),
+      ConcreteStep c op c_mid ->
+      ConcreteExecution c_mid ops c' ->
+      ConcreteExecution c (cons op ops) c'.
+
+  Fixpoint app_ops (l1 l2 : list StepOp) : list StepOp :=
+    match l1 with
+    | nil => l2
+    | cons x xs => cons x (app_ops xs l2)
+    end.
+
+  Lemma abstract_steps_trans :
+    forall (s s' s'' : ReservationState) (ops1 ops2 : list StepOp),
+      AbstractSteps s ops1 s' ->
+      AbstractSteps s' ops2 s'' ->
+      AbstractSteps s (app_ops ops1 ops2) s''.
+  Proof.
+    intros s s' s'' ops1 ops2 H1 H2.
+    induction H1 as [| s_i op s_mid ops1' s_target Hstep Hrest IH].
+    - simpl. exact H2.
+    - simpl. apply AStepCons with (s' := s_mid).
+      + exact Hstep.
+      + apply IH. exact H2.
+  Qed.
+
+  Theorem wal_prefix_refinement :
+    forall (ops : list ConcreteOp) (c c' : ConcreteResourceState) (a : ReservationState),
+      RefinementRelation c a ->
+      ConcreteExecution c ops c' ->
+      exists (a_ops : list StepOp) (a' : ReservationState),
+        AbstractSteps a a_ops a' /\
+        RefinementRelation c' a'.
+  Proof.
+    intros ops c c' a Href Hexec.
+    generalize dependent a.
+    induction Hexec as [c_init | c_init op c_mid ops_rest c_final Hstep Hexec_rest IH]; intros a Href.
+    - exists nil, a.
+      split.
+      + apply AStepNil.
+      + exact Href.
+    - destruct (universal_forward_simulation c_init c_mid op a Href Hstep) as [a_ops1 [a_mid [Habs1 Href_mid]]].
+      destruct (IH a_mid Href_mid) as [a_ops2 [a_final [Habs2 Href_final]]].
+      exists (app_ops a_ops1 a_ops2), a_final.
+      split.
+      + apply (abstract_steps_trans a a_mid a_final a_ops1 a_ops2 Habs1 Habs2).
+      + exact Href_final.
+  Qed.
+
+  Theorem wal_replay_from_init_refinement :
+    forall (ops : list ConcreteOp) (cap margin uncertainty auth_epoch : nat) (c' : ConcreteResourceState),
+      ConcreteExecution (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil) ops c' ->
+      exists (a_ops : list StepOp) (a' : ReservationState),
+        AbstractSteps (InitState cap margin uncertainty auth_epoch) a_ops a' /\
+        RefinementRelation c' a'.
+  Proof.
+    intros ops cap margin uncertainty auth_epoch c' Hexec.
+    apply (wal_prefix_refinement ops (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil) c' (InitState cap margin uncertainty auth_epoch)).
+    - apply initial_state_refinement.
+    - exact Hexec.
+  Qed.
+
 End Phase8ResourceAuthorityConcrete.

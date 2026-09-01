@@ -103,7 +103,7 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
   - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepRevoke`)
   - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
   - **Obligation 7**: Universal Forward Simulation Step Preservation Theorem $R(C,A)$ (Issue #58) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `universal_forward_simulation`)
-  - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — `PROOF TARGET / OPEN` (Requires #58)
+  - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `wal_prefix_refinement`)
 
 ---
 
