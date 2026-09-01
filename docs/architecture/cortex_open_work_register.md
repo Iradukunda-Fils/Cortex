@@ -16,13 +16,24 @@ $$\boxed{ \#23 > \#33 > \#36 > \#32 > \#35 > \#37 > \#19 }$$
 
 | Priority Rank | Work ID | Description | Source | Issue | Priority | Security Impact | Formal Impact | Target Release | Current Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | **OPEN-003** | External Security Review & P0-P13 Production Readiness | Security Plan | #23 | CRITICAL | Critical (Production Sign-off) | High (Full Matrix P1..P4) | `v1.0.0` | `OPEN_REQUIRED` |
-| **2** | **OPEN-006** | Finalize WASM Profile B Sandbox Filters & Test Matrix | DEBT-006 | #33 | HIGH | High (Sandbox Isolation) | Medium (Gate G bounds) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **3** | **OPEN-009** | Gate J 13-Class Property-Based Fuzzing Engine | DEBT-008 | #36 | HIGH | High (Adversarial Fuzzing) | High (Independent Verifier) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **4** | **OPEN-005** | Concrete-to-Coq Forward Simulation Refinement Relation | DEBT-005 | #32 | HIGH | High (Code-to-Proof Soundness) | Critical (Bridge Python -> Coq) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **5** | **OPEN-008** | Resolve 222 Hyperlink and Formatting Documentation Warnings | DEBT-007 | #35 | LOW | Low (Developer Experience) | Low (Documentation Integrity) | Backlog | `OPEN_REQUIRED` |
-| **6** | **OPEN-010** | Yosys Open-Source Synthesis Gate Check for STCR Pipeline | DEBT-009 | #37 | MEDIUM | High (Hardware Conformance) | Medium (RTL AST Verification) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
+| **1** | **OPEN-003** | External Security Review & P0-P13 Production Readiness | Security Plan | #23 | CRITICAL | Critical (Production Sign-off) | High (Full Matrix P1..P4) | `v1.0.0-RC1` | `DOSSIER_PREPARED_OPEN_GATE` |
+| **2** | **OPEN-006** | Finalize WASM Profile B Sandbox Filters & Test Matrix | DEBT-006 | #33 | HIGH | High (Sandbox Isolation) | Medium (Gate G bounds) | `v0.6.0` | `CLOSED_VERIFIED` |
+| **3** | **OPEN-009** | Gate J 13-Class Property-Based Fuzzing Engine | DEBT-008 | #36 | HIGH | High (Adversarial Fuzzing) | High (Independent Verifier) | `v0.6.0` | `CLOSED_VERIFIED` |
+| **4** | **OPEN-005** | Concrete-to-Coq Forward Simulation Refinement Relation | DEBT-005 | #32 | HIGH | High (Code-to-Proof Soundness) | Critical (Bridge Python -> Coq) | `v0.6.0` | `CLOSED_VERIFIED` |
+| **5** | **OPEN-008** | Resolve 222 Hyperlink and Formatting Documentation Warnings | DEBT-007 | #35 | LOW | Low (Developer Experience) | Low (Documentation Integrity) | `v0.6.1-patch` | `OPEN_REQUIRED` |
+| **6** | **OPEN-010** | Yosys Open-Source Synthesis Gate Check for STCR Pipeline | DEBT-009 | #37 | MEDIUM | High (Hardware Conformance) | Medium (RTL AST Verification) | `Hardware Assurance Track` | `OPEN_NON_BLOCKING` |
 | **7** | **OPEN-011** | Newcomer Contribution Path & Onboarding Documentation | Community | #19 | LOW | Low (Community Growth) | Low | Backlog | `OPEN_OPTIONAL` |
+
+---
+
+## Decoupled Assurance Layer Principle
+
+$$\boxed{ \text{Python Tests} \neq \text{Coq Proofs} \neq \text{RTL Simulation} \neq \text{Yosys Synthesis} \neq \text{External Security Review} }$$
+
+- **Software & Formal Release Track**: Governed by Python conformance tests (566/566), Coq formal proofs (0 Axioms, 0 Admits), and benchmark models.
+- **Hardware Assurance Track (Issue #37)**: Independent Yosys RTL synthesizability gate. Non-blocking for software/runtime releases unless production hardware claims explicitly depend on it.
+- **External Security Review Gate (Issue #23)**: Governing production approval gate for `v1.0.0`.
+
 
 ---
 
@@ -95,15 +106,17 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
 - **Phase 7.6**: Resource-Aware Scheduler (`ResourceAwareScheduler`, $Feasible(i,w)$ predicate, placement cost optimization, atomic `ResourceAuthority.reserve()` integration, telemetry separation — **CLOSED / RUNTIME-VERIFIED & BENCHMARKED**)
 - **Phase 7.7a**: Heterogeneous Distributed Placement Model (`distributed_scheduler.py`, global identities, multi-node fragmentation, locality, stale-read retry — **CLOSED / RUNTIME-VERIFIED & BENCHMARKED (LOGICAL SIMULATION)**)
 - **Phase 7.7b**: Autoscaling Policy/Decision Engine (`autoscaler.py`, control loop, scale-up/down safety, quiescence retirable checks, hysteresis — **CLOSED / RUNTIME-VERIFIED & ADVERSARIALLY TESTED**)
-- **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **ACTIVE NEXT GATE**
-  - **Obligation 1**: $R_{\text{Phase4}}(C_{\text{Python}}, A_{\text{Coq}})$ Gateway Refinement (Issue #32) — `PROOF TARGET / OPEN` (Layer 3 Isolated)
-  - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v`)
-  - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` Section 6)
-  - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepExpire`)
-  - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepRevoke`)
-  - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
-  - **Obligation 7**: Universal Forward Simulation Step Preservation Theorem $R(C,A)$ (Issue #58) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `universal_forward_simulation`)
-  - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `wal_prefix_refinement`)
+- **Phase 8.0**: Formal Machine-Checked Simulation & Refinement Proofs ($Python \rightarrow Coq$) — **RESOURCE AUTHORITY & GATEWAY REFINEMENT CLOSED**
+  - **Phase 8 ResourceAuthority Refinement**: ✅ **CLOSED / MACHINE-CHECKED** (coqchk: 0 Axioms, 0 Admits; Python $\to C_{\text{formal}}$: `RUNTIME/STRUCTURAL TRACEABILITY ONLY`)
+    - **Obligation 2**: Formal Concrete Transition Semantics $C_{\text{formal}}$ (Issue #52) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v`)
+    - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` Section 6)
+    - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepExpire`)
+    - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — ✅ `CLOSED / MODEL-CHECKED` (`Phase7Reservation.v` `StepRevoke`)
+    - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
+    - **Obligation 7**: Universal Forward Simulation Step Preservation Theorem $R(C,A)$ (Issue #58) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `universal_forward_simulation`)
+    - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — ✅ `CLOSED / MODEL-CHECKED` (`Phase8ResourceAuthorityConcrete.v` `wal_prefix_refinement`)
+  - **Phase 4 Gateway Refinement** (Issue #32 / OPEN-005): ✅ **CLOSED / MACHINE-CHECKED** (coqchk: 0 Axioms, 0 Admits, `Phase4GatewayConcrete.v` `universal_gateway_forward_simulation`; Python $\to C_{\text{Gateway,formal}}$: `RUNTIME/STRUCTURAL TRACEABILITY ONLY`)
+  - **Performance Benchmark Reproducibility**: ✅ **AUDITED & STABILIZED / NON-FUNCTIONAL** (4-stage methodology model established, standalone P99=17ms, zero scheduler code mutation — `docs/architecture/phase7_6_benchmark_reproducibility_audit.md`)
 
 ---
 
