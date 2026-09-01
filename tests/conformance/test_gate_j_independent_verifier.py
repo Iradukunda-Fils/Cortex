@@ -188,6 +188,90 @@ class TestGateJIndependentVerifier(unittest.TestCase):
         self.assertEqual(verdict, Verdict.INVALID)
         self.assertIn("TRAP_TOKEN_PARITY_MISMATCH", msg)
 
+    def test_j_adv_013_duplicate_sequence_incarnation(self):
+        """J-ADV-013: Duplicate sequence number / non-monotonic sequence mutation triggers Verdict.INVALID (1)."""
+        bundle = generate_valid_evidence_bundle(steps=3)
+        bundle["witness_chain"][1]["sequence"] = 1  # Duplicate sequence 1 instead of 2
+        verdict, msg = self.verifier.verify_evidence_bundle(bundle)
+        self.assertEqual(verdict, Verdict.INVALID)
+        self.assertIn("TRAP_SEQUENCE_GAP", msg)
+
+    def test_j_adv_014_13_class_property_fuzzing_engine(self):
+        """J-ADV-014: Gate J 13-Class Property-Based Fuzzing Engine (100 randomized mutation trials)."""
+        import random
+
+        rng = random.Random(42)  # Deterministic seed for reproducible fuzzing
+
+        for trial in range(100):
+            bundle = generate_valid_evidence_bundle(steps=3)
+            mutation_class = rng.randint(1, 13)
+
+            if mutation_class == 1:
+                # Class 1: Valid baseline (must be VALID)
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.VALID, f"Trial {trial}: Baseline bundle failed")
+            elif mutation_class == 2:
+                # Class 2: Event payload mutation
+                bundle["events"][0]["event"] = f"MUTATED_{trial}"
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Event mutation allowed")
+            elif mutation_class == 3:
+                # Class 3: Intent parameter substitution
+                bundle["intents"][0]["body"]["path"] = f"/unauthorized/path_{trial}"
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Intent mutation allowed")
+            elif mutation_class == 4:
+                # Class 4: Event omission
+                bundle["events"].pop(0)
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertIn(verdict, (Verdict.INVALID, Verdict.INDETERMINATE), f"Trial {trial}: Omission allowed")
+            elif mutation_class == 5:
+                # Class 5: Event reordering
+                bundle["events"].reverse()
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertIn(verdict, (Verdict.INVALID, Verdict.INDETERMINATE), f"Trial {trial}: Reordering allowed")
+            elif mutation_class == 6:
+                # Class 6: Signature forgery
+                bundle["intents"][0]["signature"] = "deadbeef" * 8
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Signature forgery allowed")
+            elif mutation_class == 7:
+                # Class 7: Anchor corruption
+                bundle["anchor"]["expected_w0"] = "00" * 32
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Anchor corruption allowed")
+            elif mutation_class == 8:
+                # Class 8: Witness chain rewrite
+                bundle["witness_chain"][0]["witness"] = "ff" * 32
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Witness rewrite allowed")
+            elif mutation_class == 9:
+                # Class 9: Truncated stream
+                del bundle["witness_chain"]
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INDETERMINATE, f"Trial {trial}: Truncated stream allowed")
+            elif mutation_class == 10:
+                # Class 10: Stream length mismatch
+                bundle["tokens"].pop()
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INDETERMINATE, f"Trial {trial}: Stream length mismatch allowed")
+            elif mutation_class == 11:
+                # Class 11: Missing anchor
+                del bundle["anchor"]
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INDETERMINATE, f"Trial {trial}: Missing anchor allowed")
+            elif mutation_class == 12:
+                # Class 12: Token parity mismatch
+                bundle["tokens"][0]["intent_hash"] = "1234" * 16
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Token parity mismatch allowed")
+            elif mutation_class == 13:
+                # Class 13: Non-monotonic sequence
+                bundle["witness_chain"][1]["sequence"] = 99
+                verdict, _ = self.verifier.verify_evidence_bundle(bundle)
+                self.assertEqual(verdict, Verdict.INVALID, f"Trial {trial}: Non-monotonic sequence allowed")
+
 
 if __name__ == "__main__":
     unittest.main()
+

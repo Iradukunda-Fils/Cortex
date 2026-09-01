@@ -1,6 +1,6 @@
 # Phase 4 Architecture & Implementation Audit Report
 
-> **Audit Target**: Phase 4 Routing & Dispatch Subsystem (`docs/architecture/phase_4_routing_and_dispatch_specification.md`)  
+> **Audit Target**: Phase 4 Routing & Dispatch Subsystem (`docs/spec/phase_4_routing_and_dispatch_specification.md`)  
 > **Governance Status**: `IMPLEMENTATION-VERIFIED FOR TESTED SINGLE-GATEWAY DOMAIN`  
 > **Auditor**: Architecture Review & Verification Pass  
 > **Baseline Commit**: `SHA: c743b36` (333/333 tests pass)

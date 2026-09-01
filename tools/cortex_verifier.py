@@ -87,7 +87,7 @@ class IndependentVerifier:
         if not witness_chain or not events or not intents:
             return Verdict.INDETERMINATE, "TRAP_INCOMPLETE_TRACE_EMPTY_STREAM"
 
-        if len(witness_chain) != len(events) or len(events) != len(intents):
+        if len(witness_chain) != len(events) or len(events) != len(intents) or len(tokens) != len(intents):
             return Verdict.INDETERMINATE, "TRAP_INCOMPLETE_TRACE_STREAM_LENGTH_MISMATCH"
 
         # 1. Genesis Anchor Verification W_0

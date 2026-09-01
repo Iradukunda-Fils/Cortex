@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-AUDIT_JSON_PATH = os.path.join(REPO_ROOT, "docs", "architecture", "coq_print_assumptions_audit.json")
+AUDIT_JSON_PATH = os.path.join(REPO_ROOT, "docs", "verification", "coq_print_assumptions_audit.json")
 COQ_FILE_PATH = os.path.join(REPO_ROOT, "verification", "Phase4RoutingRefinement.v")
 
 

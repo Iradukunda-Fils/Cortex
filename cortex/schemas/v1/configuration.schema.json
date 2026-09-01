@@ -128,7 +128,7 @@
       "properties": {
         "profile_name": {
           "type": "string",
-          "enum": ["Profile_A_Linux_Strict"],
+          "enum": ["Profile_A_Linux_Strict", "Profile_B_WASM_Strict"],
           "description": "Isolation profile name. Permissive/Development profiles MUST NOT be used in production schemas."
         },
         "required_capabilities": {

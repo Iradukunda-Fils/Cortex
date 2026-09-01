@@ -209,10 +209,10 @@ def main() -> int:
     total_warnings = 0
 
     target_docs = [
-        "docs/architecture/phase_4_routing_and_dispatch_specification.md",
+        "docs/spec/phase_4_routing_and_dispatch_specification.md",
         "docs/history/phase_4_implementation_audit.md",
         "docs/architecture/replica_scaling_specification.md",
-        "docs/architecture/configuration_and_control_plane_specification.md",
+        "docs/spec/configuration_and_control_plane_specification.md",
         "docs/history/cli_and_configuration_audit.md",
         "docs/history/phase_4_documentation_and_generated_artifact_audit.md",
         "docs/guides/cortex-configuration.md",

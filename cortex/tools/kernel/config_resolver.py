@@ -361,10 +361,10 @@ class ConfigResolver:
         sandbox["required_capabilities"] = sorted(parsed_caps)
 
         # STAGE 6: Security Ceiling Enforcement (EffectiveConfig <= SecurityCeiling)
-        if sandbox.get("profile_name") != "Profile_A_Linux_Strict" and not security_override:
+        if sandbox.get("profile_name") not in ("Profile_A_Linux_Strict", "Profile_B_WASM_Strict") and not security_override:
             raise SecurityCeilingViolationError(
                 f"Security profile ceiling violation: attempted profile '{sandbox.get('profile_name')}' "
-                f"degrades 'Profile_A_Linux_Strict' without security override"
+                f"degrades strict profiles without security override"
             )
 
         if not sandbox.get("read_only_root", True) and not security_override:
