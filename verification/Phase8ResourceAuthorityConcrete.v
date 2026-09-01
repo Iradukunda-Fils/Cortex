@@ -1,12 +1,12 @@
 (* ========================================================================= *)
 (* CORTEX FORMAL VERIFICATION FRAMEWORK                                      *)
-(* Module: Phase8ResourceAuthorityConcrete.v (Issues #52 & #53)              *)
+(* Module: Phase8ResourceAuthorityConcrete.v (Issues #52, #53, #57)          *)
 (* Classification: Tier D (Formal Proof / Concrete Semantics Bridge)         *)
 (*                                                                            *)
 (* Scope: Formal Concrete Transition System C_formal modeling Python         *)
 (*   ResourceAuthority execution semantics (cortex/tools/kernel/resource_authority.py),*)
 (*   including valid transitions, rejection semantics, abstraction map,      *)
-(*   and scalar CPU demand projection soundness.                             *)
+(*   scalar CPU demand projection soundness, and initial state refinement theorem.*)
 (*                                                                            *)
 (* Assurance Boundary: Zero Axioms, Zero Admits.                              *)
 (* ========================================================================= *)
@@ -182,7 +182,7 @@ Section Phase8ResourceAuthorityConcrete.
       (crs_gpu_owners c).
 
   (* ========================================================================= *)
-  (* 5. SEMANTIC SOUNDNESS THEOREMS                                            *)
+  (* 5. SEMANTIC SOUNDNESS & INITIAL STATE REFINEMENT THEOREMS (Issue #57)      *)
   (* ========================================================================= *)
 
   Theorem concrete_init_state_mapping : forall (cap margin uncertainty auth_epoch : nat),
@@ -191,6 +191,18 @@ Section Phase8ResourceAuthorityConcrete.
   Proof.
     intros cap margin uncertainty auth_epoch.
     unfold alpha_state, InitState. simpl. reflexivity.
+  Qed.
+
+  Theorem initial_state_refinement : forall (cap margin uncertainty auth_epoch : nat),
+    alpha_state (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil) =
+    InitState cap margin uncertainty auth_epoch /\
+    ReservationInvariant (alpha_state (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil)).
+  Proof.
+    intros cap margin uncertainty auth_epoch.
+    split.
+    - apply concrete_init_state_mapping.
+    - rewrite concrete_init_state_mapping.
+      apply init_invariant_holds.
   Qed.
 
   Theorem concrete_rejection_preserves_abstract_state : forall (c : ConcreteResourceState) (r : ConcreteReservationRecord),

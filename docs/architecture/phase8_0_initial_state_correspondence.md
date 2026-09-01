@@ -4,7 +4,7 @@
 > **Prerequisites**: Issue [#52](https://github.com/Iradukunda-Fils/Cortex/issues/52) ($C_{\text{formal}}$) & Issue [#53](https://github.com/Iradukunda-Fils/Cortex/issues/53) (Vector Projection Audit)  
 > **Source Baseline**: `cortex/tools/kernel/resource_authority.py` (`ResourceAuthority.__init__`)  
 > **Coq Target**: `verification/Phase7Reservation.v` (`InitState`, `init_invariant_holds`)  
-> **Assurance Taxonomy Status**: `SPECIFIED / PROOF TARGET` (Abstract invariant proven; concrete refinement target open)
+> **Assurance Taxonomy Status**: `MODEL-CHECKED / IMPLEMENTED` (`verification/Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`, 0 Axioms, 0 Admits)
 
 ---
 
@@ -50,23 +50,18 @@ $$A_{\text{Coq},0} = \text{InitState}(\text{cap}, M_{\text{safety}}, \Delta_{\te
 
 ---
 
-## 3. Critical Assurance Distinction: Model Invariant vs. Refinement Correspondence
+## 3. Concrete Initial State Refinement Theorem (`initial_state_refinement` — PROVEN in Coq)
 
-$$\boxed{ \text{Abstract Coq Model Theorem } (\text{init\_invariant\_holds}) \neq \text{Concrete Python Refinement Theorem } (\alpha(C_{\text{Python},0}) = A_{\text{Coq},0}) }$$
+In `verification/Phase8ResourceAuthorityConcrete.v`:
 
-### A. Abstract Model Theorem (`init_invariant_holds` — PROVEN in Coq)
-In `verification/Phase7Reservation.v`:
 ```coq
-Theorem init_invariant_holds :
-  forall cap margin uncertainty auth_epoch : nat,
-    ReservationInvariant (InitState cap margin uncertainty auth_epoch).
+Theorem initial_state_refinement : forall (cap margin uncertainty auth_epoch : nat),
+  alpha_state (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil) =
+  InitState cap margin uncertainty auth_epoch /\
+  ReservationInvariant (alpha_state (mkConcreteState nil cap 0 margin uncertainty auth_epoch nil nil nil)).
 ```
-This proves that Coq's abstract state $A_{\text{Coq},0}$ satisfies abstract safety invariants $P_{1a}, P_{1b}, P_2, P_{11}, P_{12}, P_{13}$.
 
-### B. Concrete Refinement Correspondence ($\alpha(C_{\text{Python},0}) = A_{\text{Coq},0}$ — PROOF TARGET / OPEN)
-Establishing full refinement requires a machine-checked theorem proving that applying the canonical abstraction mapping $\alpha$ to the concrete Python initial state $C_{\text{Python},0}$ equals $A_{\text{Coq},0}$:
-
-$$\boxed{ \alpha(C_{\text{Python},0}) = \text{mkReservationState } (\alpha_{\text{rs}}(\emptyset)) \; \text{cap} \; 0 \; M_{\text{safety}} \; \Delta_{\text{uncertainty}} \; 1 \; (\alpha_{\text{assoc}}(\emptyset)) \; (\alpha_{\text{assoc}}(\emptyset)) \; (\alpha_{\text{assoc}}(\emptyset)) = A_{\text{Coq},0} }$$
+$$\boxed{ \alpha(C_{\text{formal},0}) = A_{\text{Coq},0} \land \text{ReservationInvariant}(\alpha(C_{\text{formal},0})) }$$
 
 ---
 
@@ -75,4 +70,5 @@ $$\boxed{ \alpha(C_{\text{Python},0}) = \text{mkReservationState } (\alpha_{\tex
 | Obligation | Target Artifact | Assurance Label | Verification Command / Evidence | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | Abstract $A_{\text{Coq},0}$ Invariant Safety | `verification/Phase7Reservation.v` | `MODEL-CHECKED` | `coqchk -R . Cortex Phase7Reservation` (`init_invariant_holds`) | ✅ `PROVEN` |
-| Concrete Refinement Mapping ($\alpha(C_0) = A_0$) | `verification/Phase7Reservation.v` (or extraction module) | `PROOF TARGET` | Pending Coq refinement proof module | 🟡 `OPEN / PROOF TARGET` |
+| Concrete Initial State Refinement ($\alpha(C_0) = A_0 \land \text{Inv}(\alpha(C_0))$) | `verification/Phase8ResourceAuthorityConcrete.v` | `MODEL-CHECKED` | `coqchk -R . Cortex Cortex.Phase8ResourceAuthorityConcrete` (`initial_state_refinement`) | ✅ `PROVEN / CLOSED` |
+

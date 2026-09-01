@@ -101,7 +101,7 @@ $$\boxed{ \text{Hardware} \rightarrow \text{Observation} \rightarrow \text{Autho
   - **Obligation 3**: Vector-to-Scalar Projection Soundness Audit $\alpha_{\text{vector}\to\text{scalar}}$ (Issue #53) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v` Section 6)
   - **Obligation 4**: `StepExpire` Abstract Transition & Reclamation Model (Issue #54) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
   - **Obligation 5**: `StepRevoke` Abstract Transition & Fencing Model (Issue #55) — `MODEL GAP / OPEN` (`phase8_0_model_extensions_expire_revoke.md`)
-  - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — `PROOF TARGET / OPEN` (`phase8_0_initial_state_correspondence.md`)
+  - **Obligation 6**: Initial State Correspondence Theorem $\alpha(C_0) = A_0$ (Issue #57) — ✅ `MODEL-CHECKED / IMPLEMENTED` (`Phase8ResourceAuthorityConcrete.v` `initial_state_refinement`)
   - **Obligation 7**: Forward Simulation Step Preservation for Reserve/Release (Issue #58) — `PROOF TARGET / OPEN` (Requires #52, #53, #54, #55, #57)
   - **Obligation 8**: WAL Durable Prefix Refinement Theorem $D'$ (Issue #56) — `PROOF TARGET / OPEN` (Requires #58)
 
