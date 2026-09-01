@@ -2,14 +2,11 @@
   <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="95" align="left" style="margin-right: 18px; margin-bottom: 10px;" />
   <h1 style="border: none; margin: 0; padding: 0;">Cortex Platform</h1>
   <h3 style="border: none; margin: 4px 0 10px 0; font-weight: 600; font-size: 1.15em;">Spatiotemporal Authority & Semantic Verification Framework</h3>
-  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a> <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a> <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a> <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-136%2F136%20PASS-brightgreen.svg" alt="Certification: 136/136 PASS"></a>
+  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/badge/version-v1.0.0--RC1-blue.svg" alt="Cortex Version: v1.0.0-RC1"></a> <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a> <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a> <a href="tests/conformance/run_certification.py"><img src="https://img.shields.io/badge/Certification-566%2F566%20PASS-brightgreen.svg" alt="Certification: 566/566 PASS"></a>
 </p>
 <br clear="left"/>
 
 > **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
-
-
-
 
 ---
 
@@ -26,21 +23,21 @@ Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Secu
  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
  │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (Gate K / ADR-008)                          │
  │ Manifests declare required permissions before plugins access the kernel bus.                │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ SignedIntent Payload (CBE Format)
-                                                ▼
+ └──────────────────────────────┬──────────────────────────────────────────────┘
+                                │ SignedIntent Payload (CBE Format)
+                                ▼
  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
  │ 2. EXECUTION TOKEN INTENT PARITY & ACTUATION GATE (Gate H / P2)                             │
  │ Single-use ExecutionTokens bind tokens strictly to intent hashes: D3 == D2                  │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Governed Side-Effect Execution
-                                                ▼
+ └──────────────────────────────┬──────────────────────────────────────────────┘
+                                │ Governed Side-Effect Execution
+                                ▼
  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
  │ 3. ROLLING CAUSAL WITNESS JOURNALING (Gate I / P3)                                          │
  │ Emits tamper-evident rolling hash commitments: W_{t+1} = SHA256(W_t || D_E || D_I)          │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Raw Evidence Traces (R, E)
-                                                ▼
+ └──────────────────────────────┬──────────────────────────────────────────────┘
+                                │ Raw Evidence Traces (R, E)
+                                ▼
  ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
  │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (Gate J / P4)                               │
  │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE │
@@ -51,32 +48,38 @@ Cortex replaces ambient authority with a **Hardware/Kernel-Enforced 4-Layer Secu
 
 ## 🗺️ Repository Map & Documentation Architecture
 
-For open-source contributors and systems architects, the codebase is structured logically across normative specifications, architecture records, polyglot engines, and verification suites:
+For open-source contributors and systems architects, the codebase is structured logically across normative specifications, security dossiers, verification proofs, and governance registers:
 
 ```text
 Cortex Platform Architecture Map
-├── docs/                                    # Master Technical & Specification Portal
-│   ├── architecture/                        # Architectural Audits & Verification Matrices
-│   │   ├── verification_closure_matrix.md   # Master Phase 13 Assurance Status Matrix
-│   │   ├── gate_g_complete_mediation_inventory.md # Complete Mediation Path Analysis
-│   │   └── threat_model.md                  # Threat Vectors & Mitigation Catalog
-│   ├── spec/                                # Normative Protocol & Security Specifications
-│   │   ├── gate_g_remediation_specification.md # Worker Sandbox & Narrow IPC Architecture
-│   │   ├── gate_h_execution_token_specification.md # ExecutionToken & Intent Parity Spec (P2)
-│   │   ├── gate_i_causal_witness_specification.md  # Rolling Witness Chain Specification (P3)
-│   │   ├── gate_j_independent_verifier_specification.md # Untrusted Verifier Engine Spec (P4)
-│   │   └── v03_layer2_streaming_spec.md     # Layer 2 Streaming Protocol Framing
+├── docs/                                    # Master Technical & Documentation Portal
+│   ├── architecture/                        # Kernel Core Architecture Specifications
+│   │   ├── overview.md                      # Core System Architecture & Security Boundary
+│   │   └── resource-authority.md            # Heterogeneous Resource Vector & Authority FSM
+│   ├── security/                            # Authoritative Security Dossiers & Threat Registers
+│   │   ├── cortex_external_security_review_dossier.md # Master Security Review Dossier (#23)
+│   │   ├── cortex_security_and_threat_register.md     # System Threat Register & Mitigation Matrix
+│   │   └── threat_model.md                  # Capability Sandbox Threat Vector Model
+│   ├── verification/                        # Coq Formal Proof Inventories & Theorems
+│   │   ├── coq_formal_proof_inventory_delta.md       # Coq Refinement Proof Inventory (0 Axioms)
+│   │   └── verification_closure_matrix.md            # Phase 8 Formal Verification Status
+│   ├── spec/                                # Normative Control Plane & Protocol Specs
+│   │   ├── configuration_and_control_plane_specification.md # Control Plane & Schema Spec
+│   │   └── phase_5_load_balancing_specification.md          # Dynamic Load Balancer Spec
+│   ├── governance/                          # Project Governance, Policies & Work Registers
+│   │   ├── cortex_open_work_register.md     # Authoritative Open Work Register & Priority
+│   │   └── cortex-developer-contract.md     # Platform Developer & Kernel Safety Contract
+│   ├── release/                             # Versioned Release Documentation (v0.2.0 to v1.0.0-RC1)
 │   └── adrs/                                # Architectural Decision Records
-│       └── ADR-008-identity-specification-supersession.md # Identity Supersession (UUIDv5/v7)
 │
 ├── tools/                                   # Standalone Tooling & Verification Engines
 │   └── cortex_verifier.py                   # Zero-dependency Independent Verifier CLI (Gate J)
 │
 ├── tests/conformance/                       # Conformance & Adversarial Certification Suite
-│   ├── run_certification.py                 # Master 74-Check Conformance Test Runner
-│   ├── test_gate_h_adversarial.py           # Gate H Parity & Replay Protection Tests (21/21)
-│   ├── test_gate_i_causal_witness.py        # Gate I Tamper-Evident Witness Chain Tests (7/7)
-│   └── test_gate_j_independent_verifier.py # Gate J Verifier Engine Adversarial Tests (12/12)
+│   ├── test_gate_h_adversarial.py           # Gate H Parity & Replay Protection Tests
+│   ├── test_gate_i_causal_witness.py        # Gate I Tamper-Evident Witness Chain Tests
+│   ├── test_gate_j_independent_verifier.py # Gate J Verifier Engine Adversarial Tests
+│   └── test_wasm_profile_b_sandbox.py       # WASM Profile B Sandbox Conformance Suite
 │
 ├── cortex/                                  # Python Control Plane & Reference Runtime
 ├── cortex-emulator/                         # Rust STCR Hardware State Machine Emulator
@@ -91,10 +94,10 @@ Cortex Platform Architecture Map
 | Security Invariant | Mathematical / Normative Definition | Status | Empirical Verification & Test Harness |
 | :--- | :--- | :---: | :--- |
 | **$P1$: Authority Attenuation** | $\Lambda_{t+1} \subseteq \Lambda_t \land w_1 \sqsubseteq w_2$ | **PARTIAL** | Python `PluginContext` & Rust `cortex-emulator` STCR. |
-| **$P2$: Execution Parity** | $D_3 \equiv D_2 \equiv \text{SHA256}(\text{CBE}(\text{SignedIntent}))$ | **CERTIFIED** | 21/21 Gate H Scenarios PASS (`test_gate_h_adversarial.py`). |
-| **$P3$: Causal Witness** | $W_{t+1} = \text{SHA256}(W_t \parallel \text{CBE}(E_{t+1}) \parallel \text{CBE}(I_{t+1}))$ | **CERTIFIED** | 7/7 Gate I Scenarios PASS (`test_gate_i_causal_witness.py`). |
-| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **CERTIFIED** | 12/12 Gate J Scenarios PASS (`tools/cortex_verifier.py`). |
-| **Complete Mediation (Gate G)** | $\forall \text{eff} \in \text{Effects}, \text{eff} \text{ passes through } \text{ExecutionToken}$ | **SPECIFIED** | Sandbox & Narrow IPC Architecture (`gate_g_remediation_specification.md`). |
+| **$P2$: Execution Parity** | $D_3 \equiv D_2 \equiv \text{SHA256}(\text{CBE}(\text{SignedIntent}))$ | **CERTIFIED** | Gate H Scenarios PASS (`test_gate_h_adversarial.py`). |
+| **$P3$: Causal Witness** | $W_{t+1} = \text{SHA256}(W_t \parallel \text{CBE}(E_{t+1}) \parallel \text{CBE}(I_{t+1}))$ | **CERTIFIED** | Gate I Scenarios PASS (`test_gate_i_causal_witness.py`). |
+| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **CERTIFIED** | Gate J Scenarios PASS (`tools/cortex_verifier.py`). |
+| **Complete Mediation (Gate G)** | $\forall \text{eff} \in \text{Effects}, \text{eff} \text{ passes through } \text{ExecutionToken}$ | **SPECIFIED** | Sandbox & Narrow IPC Architecture (`docs/spec/gate_g_remediation_specification.md`). |
 
 ---
 
@@ -116,10 +119,10 @@ Ensure 0 type errors across the codebase:
 pyright
 ```
 
-### 3. Run Master Certification Pipeline
-Execute the full 74-check conformance suite covering golden corpus vectors, Coq/Rust/RTL cycle assertions, Gate H parity, Gate I witness, and Gate J verification:
+### 3. Run Test & Conformance Suite
+Execute the full unit and conformance suite (566 tests):
 ```bash
-python3 tests/conformance/run_certification.py
+python3 -m unittest discover -s tests -p "test_*.py"
 ```
 
 ### 4. Run Independent Verifier Engine CLI
@@ -127,41 +130,6 @@ Verify raw untrusted evidence bundles out-of-band without importing runtime modu
 ```bash
 python3 tools/cortex_verifier.py tests/golden/f4c_evidence_corpus/valid_chain.json
 # Output: VERDICT: VALID (0) - EVIDENCE_VERIFIED_VALID
-```
-
----
-
-## 💻 Developer Code Example: End-to-End Governed Execution
-
-Here is how an application mints an intent, acquires an `ExecutionToken`, and enforces $D_3 \equiv D_2$ parity:
-
-```python
-import hashlib
-from cortex.cbe import encode_cbe
-
-# 1. Define SignedIntent
-intent_payload = {
-    "body": {
-        "intent_type": "STORAGE_WRITE",
-        "target_resource": "/data/export.csv",
-        "payload": {"bytes": 1024},
-        "timestamp_ns": 1776274200000000000
-    },
-    "authority_pubkey": "PUBKEY_NODE_01",
-    "signature": "a3f890b..."
-}
-
-# 2. Mint ExecutionToken (D2 = SHA256(CBE(SignedIntent)))
-signed_intent_cbe = encode_cbe(intent_payload)
-intent_hash_d2 = hashlib.sha256(signed_intent_cbe).hexdigest()
-token = {"intent_hash": intent_hash_d2, "epoch": 1, "nonce": "abc123nonce"}
-
-# 3. Actuation Boundary Assertion (D3 == D2)
-d3_hash = hashlib.sha256(encode_cbe(intent_payload)).hexdigest()
-if d3_hash != token["intent_hash"]:
-    raise PermissionError(f"TRAP_INTENT_PARITY_MISMATCH: {d3_hash} != {token['intent_hash']}")
-
-print("✅ Governed Side-Effect Actuated Successfully!")
 ```
 
 ---
