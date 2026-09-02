@@ -62,12 +62,12 @@ pub fn compute_raw_uuidv5(namespace_bytes: &[u8], name_bytes: &[u8]) -> (String,
     hasher.update(namespace_bytes);
     hasher.update(name_bytes);
     let digest = hasher.finalize();
-    let sha1_hex = to_hex_string(&digest);
+    let sha1_hex = to_hex_string(digest.as_slice());
 
-    let mut raw_16 = [0u8; 16];
-    raw_16.copy_from_slice(&digest[..16]);
+    let mut raw_16: [u8; 16] = digest.as_slice()[..16].try_into().unwrap();
     raw_16[6] = (raw_16[6] & 0x0f) | 0x50; // Version 5
     raw_16[8] = (raw_16[8] & 0x3f) | 0x80; // Variant RFC 4122
+
 
     let u = uuid::Builder::from_bytes(raw_16).into_uuid();
     (sha1_hex, u.to_string())
@@ -77,12 +77,13 @@ fn normalize_float(f: f64) -> Result<f64, CBEError> {
     if f.is_nan() || f.is_infinite() {
         return Err(CBEError::FloatNonFinite(format!("Non-finite float: {}", f)));
     }
-    if f == -0.0 {
+    if f == 0.0 && f.is_sign_negative() {
         Ok(0.0)
     } else {
         Ok(f)
     }
 }
+
 
 pub fn encode(val: &CortexValue) -> Result<Vec<u8>, CBEError> {
     match val {
@@ -147,30 +148,34 @@ pub fn encode(val: &CortexValue) -> Result<Vec<u8>, CBEError> {
 }
 
 pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
-    if data.is_empty() {
-        return Err(CBEError::InvalidLength("Unexpected end of stream".into()));
-    }
+    let tag = *data
+        .get(0)
+        .ok_or_else(|| CBEError::InvalidLength("Unexpected end of stream".into()))?;
 
-    let tag = data[0];
     match tag {
         b'N' => Ok((CortexValue::Null, 1)),
         b'B' => {
             if data.len() < 2 {
                 return Err(CBEError::InvalidLength("Truncated Bool/Bytes tag".into()));
             }
-            let next_byte = data[1];
+            let next_byte = *data
+                .get(1)
+                .ok_or_else(|| CBEError::InvalidLength("Truncated Bool/Bytes tag".into()))?;
             if next_byte == b'1' {
                 Ok((CortexValue::Bool(true), 2))
             } else if next_byte == b'0' {
                 Ok((CortexValue::Bool(false), 2))
             } else {
                 // Bytes tag: B<len>:<payload>
-                let (len, header_len) = parse_length_prefix(&data[1..])?;
+                let (len, header_len) = parse_length_prefix(data.get(1..).unwrap_or(&[]))?;
                 let start = 1 + header_len;
                 if start + len > data.len() {
                     return Err(CBEError::InvalidLength("Truncated Bytes payload".into()));
                 }
-                let raw_bytes = data[start..start + len].to_vec();
+                let raw_bytes = data
+                    .get(start..start + len)
+                    .ok_or_else(|| CBEError::InvalidLength("Truncated Bytes payload".into()))?
+                    .to_vec();
                 Ok((CortexValue::Bytes(raw_bytes), start + len))
             }
         }
@@ -179,7 +184,7 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             if curr >= data.len() {
                 return Err(CBEError::InvalidLength("Truncated Int stream".into()));
             }
-            let is_neg = if data[curr] == b'-' {
+            let is_neg = if data.get(curr) == Some(&b'-') {
                 curr += 1;
                 true
             } else {
@@ -187,7 +192,9 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             };
 
             let start_digits = curr;
-            while curr < data.len() && data[curr] >= b'0' && data[curr] <= b'9' {
+            while curr < data.len()
+                && data.get(curr).map_or(false, |b| b.is_ascii_digit())
+            {
                 curr += 1;
             }
 
@@ -195,7 +202,9 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
                 return Err(CBEError::InvalidLength("Missing integer digits".into()));
             }
 
-            let digits_bytes = &data[start_digits..curr];
+            let digits_bytes = data
+                .get(start_digits..curr)
+                .ok_or_else(|| CBEError::InvalidLength("Missing integer digits".into()))?;
             let digits_str = std::str::from_utf8(digits_bytes)
                 .map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
 
@@ -217,7 +226,7 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
                 .parse()
                 .map_err(|_| CBEError::IntOverflow(digits_str.into()))?;
             if is_neg {
-                val_int = -val_int;
+                val_int = val_int.wrapping_neg();
             }
 
             Ok((CortexValue::Int(val_int), curr))
@@ -226,7 +235,9 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             if data.len() < 17 {
                 return Err(CBEError::InvalidLength("Truncated Float D tag".into()));
             }
-            let hex_bytes = &data[1..17];
+            let hex_bytes = data
+                .get(1..17)
+                .ok_or_else(|| CBEError::InvalidLength("Truncated Float D tag".into()))?;
             let hex_str =
                 std::str::from_utf8(hex_bytes).map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
 
@@ -238,36 +249,38 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             Ok((CortexValue::Float(norm_float), 17))
         }
         b'S' => {
-            let (len, header_len) = parse_length_prefix(&data[1..])?;
+            let (len, header_len) = parse_length_prefix(data.get(1..).unwrap_or(&[]))?;
             let start = 1 + header_len;
             if start + len > data.len() {
                 return Err(CBEError::InvalidLength("Truncated String payload".into()));
             }
-            let raw_payload = &data[start..start + len];
+            let raw_payload = data
+                .get(start..start + len)
+                .ok_or_else(|| CBEError::InvalidLength("Truncated String payload".into()))?;
             let s = std::str::from_utf8(raw_payload)
                 .map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
             Ok((CortexValue::String(s.to_string()), start + len))
         }
         b'L' => {
-            let (count, header_len) = parse_length_prefix(&data[1..])?;
+            let (count, header_len) = parse_length_prefix(data.get(1..).unwrap_or(&[]))?;
             let mut curr = 1 + header_len;
             let mut items = Vec::with_capacity(count);
 
             for _ in 0..count {
-                let (item, consumed) = decode(&data[curr..])?;
+                let (item, consumed) = decode(data.get(curr..).unwrap_or(&[]))?;
                 items.push(item);
                 curr += consumed;
             }
             Ok((CortexValue::List(items), curr))
         }
         b'M' => {
-            let (count, header_len) = parse_length_prefix(&data[1..])?;
+            let (count, header_len) = parse_length_prefix(data.get(1..).unwrap_or(&[]))?;
             let mut curr = 1 + header_len;
             let mut pairs = Vec::with_capacity(count);
             let mut prev_key_bytes: Option<Vec<u8>> = None;
 
             for _ in 0..count {
-                let (k_node, k_consumed) = decode(&data[curr..])?;
+                let (k_node, k_consumed) = decode(data.get(curr..).unwrap_or(&[]))?;
                 curr += k_consumed;
 
                 let k_str = match k_node {
@@ -291,7 +304,7 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
                 }
                 prev_key_bytes = Some(curr_key_bytes);
 
-                let (v_node, v_consumed) = decode(&data[curr..])?;
+                let (v_node, v_consumed) = decode(data.get(curr..).unwrap_or(&[]))?;
                 curr += v_consumed;
 
                 pairs.push((k_str, v_node));
@@ -307,7 +320,7 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
 
 fn parse_length_prefix(data: &[u8]) -> Result<(usize, usize), CBEError> {
     let mut curr = 0;
-    while curr < data.len() && data[curr] != b':' {
+    while curr < data.len() && data.get(curr) != Some(&b':') {
         curr += 1;
     }
     if curr >= data.len() {
@@ -315,10 +328,13 @@ fn parse_length_prefix(data: &[u8]) -> Result<(usize, usize), CBEError> {
             "Missing length colon prefix".into(),
         ));
     }
-    let len_str =
-        std::str::from_utf8(&data[..curr]).map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
+    let slice = data
+        .get(..curr)
+        .ok_or_else(|| CBEError::InvalidLength("Missing length colon prefix".into()))?;
+    let len_str = std::str::from_utf8(slice).map_err(|e| CBEError::InvalidUTF8(e.to_string()))?;
     let len: usize = len_str
         .parse()
         .map_err(|_| CBEError::InvalidLength(len_str.into()))?;
     Ok((len, curr + 1))
 }
+
