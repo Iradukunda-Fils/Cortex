@@ -25,7 +25,7 @@ $$\boxed{ \#23 \text{ (Governing v1.0 Gate)} \quad > \quad \#35 \text{ (Docs)} \
 | **—** | **OPEN-009** | Gate J 13-Class Property-Based Fuzzing Engine | DEBT-008 | #36 | HIGH | Adversarial Fuzzing | `v0.6.0` | `CLOSED_VERIFIED` |
 | **—** | **OPEN-012** | Physical Network Isolation via Linux NetNS (Gate B.2) | Gate B.2 | #66 | HIGH | Physical Containment | `v0.6.0` | `CLOSED_VERIFIED` |
 | **—** | **OPEN-013** | Landlock LSM Filesystem Containment & Privileges (Gate B.4) | Gate B.4 | #67 | HIGH | Physical Containment | `v0.6.0` | `CLOSED_VERIFIED` |
-| **—** | **OPEN-014** | Canonical 3-Plugin MCP Secure External Effect Reference App | Reference App | — | MEDIUM | Developer Reference | `v0.6.0` | `CLOSED_VERIFIED` |
+| **—** | **OPEN-014** | Canonical 5-Plugin MCP Secure Effect Reference App (1-to-Many Event Fan-Out) | Reference App | — | MEDIUM | Developer Reference | `v0.6.0` | `CLOSED_VERIFIED` |
 
 ---
 

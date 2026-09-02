@@ -2,8 +2,8 @@ name: ingestion-plugin
 version: "1.0.0"
 description: "Ingests external event payloads safely via Gateway-mediated MCP echo service"
 consumes_events:
-  - TaskScheduledEvent
+  - IntentEvent
 produces_events:
-  - IngestionCompletedEvent
+  - CommandIssuedEvent
 required_capabilities:
   - "mcp:echo"

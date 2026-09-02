@@ -1,65 +1,68 @@
 # Cortex MCP Secure External Effect Application (`mcp_secure_effect_app`)
 
-**Canonical 3-Plugin Reference Application for Gateway-Mediated External Side-Effects**
+**Canonical 5-Plugin Reference Application for Emergent Pub/Sub Event Fan-Out & Gateway-Mediated Side-Effects**
 
-This reference application demonstrates how sandboxed Cortex plugins request external side-effects safely through the Cortex Control Plane using pre-authorized adapter execution, credential isolation, HMAC idempotency derivation, and Content-Addressable Storage (CAS).
+This reference application demonstrates how sandboxed Cortex plugins request external side-effects safely through the Cortex Control Plane while demonstrating **1-to-Many Pub/Sub Event Fan-Out**: a single event published by one plugin is consumed concurrently by multiple independent plugins to trigger adaptive self-healing workflows without centralized coupling.
 
 ---
 
-## Architectural Principle
+## 1-to-Many Pub/Sub Event Fan-Out Architecture
 
-$$\boxed{ \text{Worker has Intent} \quad \longrightarrow \quad \text{Gateway Authorizes} \quad \longrightarrow \quad \text{Sandbox Enforces} \quad \longrightarrow \quad \text{Adapter Executes} }$$
+$$\boxed{ \text{DriverTelemetryEvent} \quad \Longrightarrow \quad \begin{cases} \text{MitigationPlugin (mcp:mitigate)} & \rightarrow \text{Rebalance Resources} \\ \text{NotificationPlugin (mcp:notify)} & \rightarrow \text{Send Ops Alert} \end{cases} }$$
 
-1. **Sandboxed Plugins**: Express **intent** via unprivileged `EffectRequest` objects. Workers **never** receive credentials, derive idempotency keys, or execute external network sockets directly.
-2. **Gateway Authorization Gate (Gate B)**: Evaluates capability grants, lease epoch fencing, resolves authoritative effect classification, and derives HMAC-SHA256 idempotency key.
-3. **Credential Broker Vault**: Resolves provider credentials from an isolated vault after authorization succeeds. Credentials are injected directly into the adapter context and never returned to workers.
-4. **Local Process MCP Adapter**: Executes pre-authorized tool calls over an isolated stdio JSON-RPC subprocess boundary.
-5. **CAS Evidence Spooling**: Spools evidence payloads >4KiB into `ContentAddressableStore`, returning cryptographic hash reference pointers.
+1. **`IngestionPlugin` (`mcp:echo`)**: Ingests telemetry via Gateway MCP stdio echo service and emits `CommandIssuedEvent`.
+2. **`AnalyticsPlugin` (`mcp:report`)**: Processes analytics payload via Gateway MCP generate_report service (>4KiB auto-spooled to CAS), detects telemetry anomaly, and emits `DriverTelemetryEvent` (`anomaly_detected: True`).
+3. **`MitigationPlugin` (`mcp:mitigate`) & `NotificationPlugin` (`mcp:notify`)**: Both plugins consume `DriverTelemetryEvent` **concurrently**:
+   - `MitigationPlugin` executes Gateway MCP resource rebalance and emits `PlanGeneratedEvent`.
+   - `NotificationPlugin` dispatches emergency alert notification and emits `CommandIssuedEvent`.
+4. **`AuditPlugin` (`mcp:audit`)**: Audits complete emergent lineage and emits `VerificationResultEvent` (`rule_id: "EMERGENT_MITIGATION_VERIFIED"`).
 
 ---
 
 ## Included Plugins
 
-| Plugin Name | Manifest Capabilities | Role & Execution Flow |
-| :--- | :--- | :--- |
-| **`ingestion_plugin`** | `["mcp:echo"]` | Ingests external event payloads safely via Gateway-mediated MCP echo service |
-| **`analytics_plugin`** | `["mcp:report"]` | Generates analytical report payloads; auto-spools evidence >4KiB to CAS |
-| **`audit_plugin`** | `["mcp:audit"]` | Verifies execution lineage, policy compliance, and audit log generation |
+| Plugin Name | Manifest Capabilities | Consumed Event | Produced Event | Role & Execution Flow |
+| :--- | :--- | :--- | :--- | :--- |
+| **`ingestion_plugin`** | `["mcp:echo"]` | `IntentEvent` | `CommandIssuedEvent` | Ingests external event payloads safely via Gateway-mediated MCP echo service |
+| **`analytics_plugin`** | `["mcp:report"]` | `CommandIssuedEvent` | `DriverTelemetryEvent` | Generates analytical report payloads; auto-spools evidence >4KiB to CAS; flags anomaly |
+| **`mitigation_plugin`** | `["mcp:mitigate"]` | `DriverTelemetryEvent` | `PlanGeneratedEvent` | **Fan-Out Consumer 1**: Reacts autonomously to telemetry anomaly and executes Gateway resource rebalance |
+| **`notification_plugin`** | `["mcp:notify"]` | `DriverTelemetryEvent` | `CommandIssuedEvent` | **Fan-Out Consumer 2**: Dispatches emergency operational alert concurrently upon telemetry anomaly |
+| **`audit_plugin`** | `["mcp:audit"]` | `PlanGeneratedEvent` | `VerificationResultEvent` | Verifies execution lineage, policy compliance, and audit log generation |
 
 ---
 
-## Control Plane Architecture
+## Emergent Control Plane Architecture
 
 ```
-                       CORTEX CONTROL PLANE
- ┌─────────────────────────────────────────────────────────────────┐
- │                       3 Sandboxed Plugins                       │
- │  [IngestionPlugin]    [AnalyticsPlugin]     [AuditPlugin]       │
- │   (mcp:echo)           (mcp:report)          (mcp:audit)        │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │               Gateway Authorization Gate (Gate B)               │
- │   - Capability Grant Validation & Negotiation                  │
- │   - Lease Epoch & Worker Incarnation Fencing                    │
- │   - Gateway-Driven Authoritative Effect Classification         │
- │   - HMAC-SHA256 Idempotency Key Derivation                      │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │         Credential Broker Vault & Pipeline Execution            │
- │   - Inject Vault Credentials into Adapter Execution Context     │
- │   - Auto-Spool Large Evidence (>4KiB) to CAS                    │
- │   - Classification-Gated Failure Recovery                       │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │             LocalProcessMCPAdapter (Stdio Subprocess)           │
- │   - JSON-RPC 2.0 over Stdio                                     │
- └─────────────────────────────────────────────────────────────────┘
+                                  CORTEX CONTROL PLANE
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │                             5 Sandboxed Autonomous Plugins                             │
+ │  [IngestionPlugin]    [AnalyticsPlugin]     [MitigationPlugin]   [NotificationPlugin]  │
+ │   (mcp:echo)           (mcp:report)          (mcp:mitigate)       (mcp:notify)       │
+ └───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+                                             ▼
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │                          Gateway Authorization Gate (Gate B)                           │
+ │   - Capability Grant Validation & Sandboxing                                          │
+ │   - Lease Epoch & Worker Incarnation Fencing                                           │
+ │   - Gateway-Driven Authoritative Effect Classification                                │
+ │   - HMAC-SHA256 Idempotency Key Derivation                                             │
+ └───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+                                             ▼
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │                    Credential Broker Vault & Pipeline Execution                        │
+ │   - Inject Vault Credentials into Adapter Execution Context                            │
+ │   - Auto-Spool Large Evidence (>4KiB) to CAS                                           │
+ │   - Classification-Gated Failure Recovery                                              │
+ └───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+                                             ▼
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │                        LocalProcessMCPAdapter (Stdio Subprocess)                       │
+ │   - JSON-RPC 2.0 over Stdio                                                            │
+ └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -77,21 +80,14 @@ examples/mcp_secure_effect_app/
 │   └── local_mcp_service.py            # Stdio JSON-RPC MCP service fixture
 ├── plugins/
 │   ├── __init__.py
-│   ├── ingestion_plugin/
-│   │   ├── __init__.py
-│   │   ├── manifest.yml                # Ingestion capability requirements
-│   │   └── tasks.py                    # Safe payload ingestion task
-│   ├── analytics_plugin/
-│   │   ├── __init__.py
-│   │   ├── manifest.yml                # Analytics capability requirements
-│   │   └── tasks.py                    # Large report generation task
-│   └── audit_plugin/
-│       ├── __init__.py
-│       ├── manifest.yml                # Audit capability requirements
-│       └── tasks.py                    # Audit log recording task
+│   ├── ingestion_plugin/ (manifest.yml & tasks.py)
+│   ├── analytics_plugin/ (manifest.yml & tasks.py)
+│   ├── mitigation_plugin/ (manifest.yml & tasks.py)
+│   ├── notification_plugin/ (manifest.yml & tasks.py)
+│   └── audit_plugin/ (manifest.yml & tasks.py)
 └── tests/
     ├── __init__.py
-    └── test_secure_effect_app.py      # Integration test suite for all 3 plugins
+    └── test_secure_effect_app.py      # Comprehensive integration test suite
 ```
 
 ---
@@ -105,16 +101,5 @@ python -m examples.mcp_secure_effect_app.main
 
 ### Run Integration Test Suite
 ```bash
-pytest examples/mcp_secure_effect_app/tests
+pytest examples/mcp_secure_effect_app.tests
 ```
-
----
-
-## Verified Security Invariants Demonstrated
-
-| Invariant | Description | Verification Method |
-| :--- | :--- | :--- |
-| **Credential Isolation** | Provider tokens exist only in `CredentialBroker` vault; never visible to plugins | `test_credential_isolation_vault` |
-| **Capability Gate** | Requests for ungranted capabilities are denied at Gateway boundary | `test_ungranted_capability_is_rejected` |
-| **Lease Fencing** | Requests with stale lease epochs are rejected before adapter execution | `test_stale_lease_epoch_is_rejected` |
-| **CAS Evidence Spooling** | Payloads >4KiB auto-spool to CAS with SHA-256 reference pointers | `test_analytics_plugin_spools_evidence_to_cas` |

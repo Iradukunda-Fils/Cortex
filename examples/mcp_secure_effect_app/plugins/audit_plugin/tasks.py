@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from cortex import BaseEvent, BasePlugin, PluginManifest
+from cortex import BaseEvent, BasePlugin, PlanGeneratedEvent, PluginManifest, VerificationResultEvent
 from cortex.tools.kernel.effect_gateway import EffectOutcome, EffectRequest
 
 if TYPE_CHECKING:
@@ -18,11 +18,33 @@ if TYPE_CHECKING:
 class AuditPlugin(BasePlugin):
     """Plugin responsible for audit log verification."""
 
-    def __init__(self, manifest: PluginManifest) -> None:
+    def __init__(
+        self,
+        manifest: PluginManifest,
+        pipeline: EffectExecutionPipeline | None = None,
+        exec_ctx: ExecutionContext | None = None,
+    ) -> None:
         self.manifest = manifest
+        self.pipeline = pipeline
+        self.exec_ctx = exec_ctx
 
     def on_event(self, event: BaseEvent) -> None:
-        pass
+        """Handles incoming PlanGeneratedEvent, records Gateway audit log, and publishes VerificationResultEvent."""
+        if isinstance(event, PlanGeneratedEvent) and self.pipeline and self.exec_ctx:
+            outcome = self.run_audit(self.pipeline, self.exec_ctx)
+
+            if self.context and self.context.publish_func and outcome.evidence:
+                audit_event = VerificationResultEvent(
+                    workflow_id=event.workflow_id,
+                    passed=True,
+                    rule_id="EMERGENT_MITIGATION_VERIFIED",
+                    details={
+                        "audit_outcome": outcome.evidence.data.decode("utf-8"),
+                        "mitigation_steps": event.steps,
+                    },
+                    causation_id=event.event_id,
+                )
+                self.context.publish_func(audit_event)
 
     def run_audit(
         self,

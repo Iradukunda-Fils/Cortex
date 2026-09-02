@@ -1,0 +1,9 @@
+name: mitigation-plugin
+version: "1.0.0"
+description: "Emergent autonomous mitigation plugin reacting to telemetry anomalies"
+consumes_events:
+  - DriverTelemetryEvent
+produces_events:
+  - PlanGeneratedEvent
+required_capabilities:
+  - "mcp:mitigate"

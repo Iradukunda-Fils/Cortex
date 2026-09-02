@@ -60,6 +60,29 @@ def handle_rpc_request(request: dict) -> dict:
             "result": {"content": [{"type": "text", "text": json.dumps(audit_payload)}]},
         }
 
+    elif tool_name == "rebalance_resources":
+        mitigation_payload = {
+            "action": "REBALANCE",
+            "status": "SUCCESS",
+            "allocated_units": 64,
+        }
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {"content": [{"type": "text", "text": json.dumps(mitigation_payload)}]},
+        }
+
+    elif tool_name == "send_alert":
+        notification_payload = {
+            "channel": "OPS_TELEMETRY_ALERTS",
+            "delivery_status": "DELIVERED",
+        }
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {"content": [{"type": "text", "text": json.dumps(notification_payload)}]},
+        }
+
     elif tool_name == "fail":
         return {
             "jsonrpc": "2.0",

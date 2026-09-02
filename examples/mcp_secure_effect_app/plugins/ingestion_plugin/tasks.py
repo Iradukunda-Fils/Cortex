@@ -8,7 +8,7 @@ import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict
 
-from cortex import BaseEvent, BasePlugin, PluginManifest
+from cortex import BaseEvent, BasePlugin, CommandIssuedEvent, IntentEvent, PluginManifest
 from cortex.tools.kernel.effect_gateway import EffectOutcome, EffectRequest
 
 if TYPE_CHECKING:
@@ -28,11 +28,31 @@ class ExecutionContext:
 class IngestionPlugin(BasePlugin):
     """Plugin responsible for ingesting external payloads via Gateway MCP stdio echo service."""
 
-    def __init__(self, manifest: PluginManifest) -> None:
+    def __init__(
+        self,
+        manifest: PluginManifest,
+        pipeline: EffectExecutionPipeline | None = None,
+        exec_ctx: ExecutionContext | None = None,
+    ) -> None:
         self.manifest = manifest
+        self.pipeline = pipeline
+        self.exec_ctx = exec_ctx
 
     def on_event(self, event: BaseEvent) -> None:
-        pass
+        """Handles incoming IntentEvent, executes Gateway effect, and publishes CommandIssuedEvent."""
+        if isinstance(event, IntentEvent) and self.pipeline and self.exec_ctx:
+            raw_payload = {"goal": event.goal, "parameters": event.parameters}
+            outcome = self.ingest_payload(self.pipeline, self.exec_ctx, raw_payload)
+
+            if self.context and self.context.publish_func and outcome.evidence:
+                cmd_event = CommandIssuedEvent(
+                    workflow_id=event.workflow_id,
+                    plan_id="plan_ingest_01",
+                    action="echo",
+                    parameters={"ingested_data": outcome.evidence.data.decode("utf-8")},
+                    causation_id=event.event_id,
+                )
+                self.context.publish_func(cmd_event)
 
     def ingest_payload(
         self,

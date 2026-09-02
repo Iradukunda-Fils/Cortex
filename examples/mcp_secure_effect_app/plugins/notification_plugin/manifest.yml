@@ -1,0 +1,9 @@
+name: notification-plugin
+version: "1.0.0"
+description: "Concurrent fan-out consumer: sends emergency alerts upon telemetry anomaly"
+consumes_events:
+  - DriverTelemetryEvent
+produces_events:
+  - CommandIssuedEvent
+required_capabilities:
+  - "mcp:notify"
