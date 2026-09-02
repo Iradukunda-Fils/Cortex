@@ -4,6 +4,6 @@ description: "Concurrent fan-out consumer: sends emergency alerts upon telemetry
 consumes_events:
   - DriverTelemetryEvent
 produces_events:
-  - CommandIssuedEvent
+  - VerificationResultEvent
 required_capabilities:
   - "mcp:notify"

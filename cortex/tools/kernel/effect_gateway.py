@@ -71,7 +71,7 @@ class EffectRequest:
     """
 
     invocation_id: str
-    capability: str  # e.g. "mcp.echo", "storage.write"
+    capability: str  # e.g. "mcp:echo", "storage:write"
     operation: str  # e.g. "echo", "put_object"
     arguments: bytes  # Serialized operation payload
     resource_id: str  # Target resource identifier

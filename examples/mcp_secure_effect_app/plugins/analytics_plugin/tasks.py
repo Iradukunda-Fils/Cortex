@@ -34,13 +34,16 @@ class AnalyticsPlugin(BasePlugin):
             outcome = self.generate_report(self.pipeline, self.exec_ctx, size_bytes=8192)
 
             if self.context and self.context.publish_func and outcome.evidence:
+                # When evidence is spooled (>4KiB), is_reference=True and data contains the CAS ref key.
+                # When inline (<4KiB), is_reference=False and data contains the raw evidence bytes.
+                evidence_ref = outcome.evidence.data.decode("utf-8") if outcome.evidence.is_reference else ""
                 telemetry_event = DriverTelemetryEvent(
                     workflow_id=event.workflow_id,
                     driver_id="analytics_engine_01",
                     status="SUCCESS",
                     payload={
                         "is_reference": outcome.evidence.is_reference,
-                        "content_hash": outcome.evidence.content_hash,
+                        "evidence_ref": evidence_ref,
                         "anomaly_detected": True,
                     },
                     causation_id=event.event_id,
@@ -54,7 +57,7 @@ class AnalyticsPlugin(BasePlugin):
         size_bytes: int = 8192,
         execution_attempt_id: str = "att_analytics_01",
     ) -> EffectOutcome:
-        """Submits an EffectRequest expected to return large evidence (>4KiB auto-spooled to CAS)."""
+        """Submits an EffectRequest expected to return large evidence (>4KiB auto-spooled)."""
         arguments_bytes = json.dumps(
             {
                 "tool_name": "generate_report",

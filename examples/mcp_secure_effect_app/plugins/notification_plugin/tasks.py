@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from cortex import BaseEvent, BasePlugin, CommandIssuedEvent, DriverTelemetryEvent, PluginManifest
+from cortex import BaseEvent, BasePlugin, DriverTelemetryEvent, PluginManifest, VerificationResultEvent
 from cortex.tools.kernel.effect_gateway import EffectOutcome, EffectRequest
 
 if TYPE_CHECKING:
@@ -35,14 +35,14 @@ class NotificationPlugin(BasePlugin):
                 outcome = self.send_alert(self.pipeline, self.exec_ctx)
 
                 if self.context and self.context.publish_func and outcome.evidence:
-                    cmd_event = CommandIssuedEvent(
+                    alert_result = VerificationResultEvent(
                         workflow_id=event.workflow_id,
-                        plan_id="plan_notify_01",
-                        action="send_alert",
-                        parameters={"alert_status": outcome.evidence.data.decode("utf-8")},
+                        passed=True,
+                        rule_id="ALERT_DISPATCHED",
+                        details={"alert_status": outcome.evidence.data.decode("utf-8")},
                         causation_id=event.event_id,
                     )
-                    self.context.publish_func(cmd_event)
+                    self.context.publish_func(alert_result)
 
     def send_alert(
         self,

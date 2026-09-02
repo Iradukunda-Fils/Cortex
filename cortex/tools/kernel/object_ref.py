@@ -169,7 +169,7 @@ class DataPlaneResolver:
         auth_ctx: AdapterExecutionContext,
         obj_ref: ObjectRef,
         user_capabilities: set[str],
-        required_capability: str = "storage.read",
+        required_capability: str = "storage:read",
         resource_policy_allowed: bool = True,
     ) -> PhysicalLocatorHandle:
         """

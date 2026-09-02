@@ -46,11 +46,11 @@ class CortexClient:
         if platform_capabilities is None:
             # Default standard platform capabilities
             self.platform_capabilities = {
-                "workflow.plan.create",
-                "workflow.command.issue",
-                "hardware.telemetry.read",
-                "verification.oracle.execute",
-                "verification.invariant.check",
+                "workflow:plan:create",
+                "workflow:command:issue",
+                "hardware:telemetry:read",
+                "verification:oracle:execute",
+                "verification:invariant:check",
                 "fs:read",
                 "exec:git",
                 "exec:pytest",

@@ -189,7 +189,7 @@ def run_pipeline_demo() -> dict:
             version="1.0.0",
             description="Emergent notification plugin",
             consumes_events=["DriverTelemetryEvent"],
-            produces_events=["CommandIssuedEvent"],
+            produces_events=["VerificationResultEvent"],
             required_capabilities=["mcp:notify"],
         ),
         pipeline=pipeline,
