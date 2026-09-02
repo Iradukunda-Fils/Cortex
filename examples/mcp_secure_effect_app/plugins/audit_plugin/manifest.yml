@@ -1,0 +1,9 @@
+name: audit-plugin
+version: "1.0.0"
+description: "Verifies workflow lineage, policy compliance, and audit log generation"
+consumes_events:
+  - AnalyticsCompletedEvent
+produces_events:
+  - AuditCompletedEvent
+required_capabilities:
+  - "mcp:audit"

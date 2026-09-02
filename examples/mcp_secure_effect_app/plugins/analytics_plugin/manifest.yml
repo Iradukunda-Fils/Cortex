@@ -1,0 +1,9 @@
+name: analytics-plugin
+version: "1.0.0"
+description: "Generates analytical reports with large payloads auto-spooled to CAS"
+consumes_events:
+  - IngestionCompletedEvent
+produces_events:
+  - AnalyticsCompletedEvent
+required_capabilities:
+  - "mcp:report"
