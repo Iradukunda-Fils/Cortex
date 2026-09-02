@@ -47,19 +47,37 @@ $$\boxed{\text{Phase 8.0 Machine-Checked Formal Proofs (CLOSED)}} \quad \neq \qu
 
 ---
 
-## 2. Release Progression & Baseline Alignment
+---
 
-| Track / Capability | Introduced In | Current Baseline | Governing Release Target | Release Impact & Role |
-| :--- | :---: | :---: | :---: | :--- |
-| **OSS Foundation & Governance** | `v0.2.1` | `v0.2.1` | `v0.2.1` (CLOSED) | Apache-2.0, API stability policy. |
-| **Developer Experience & Tooling** | `v0.2.x` | `v0.2.x` | `v0.2.x` (CLOSED) | CLI error standardization, SDK import boundaries. |
-| **Multi-Process Runtime & Research** | `v0.3.0` | `v0.3.0` | `v0.3.0` (CLOSED) | Process supervisor, runtime telemetry. |
-| **Documentation & Style Audit** | `v0.4.1` | `v0.4.1` | `v0.4.1` (OPEN) | Non-fatal doc style warnings (#35). |
-| **Load Balancing & WAL Ledger** | `v0.5.0` | `v0.5.0` | `v0.5.0` (CLOSED) | Dynamic load balancer, persistent WAL journal. |
-| **Formal Refinement & Proofs** | `v0.6.0` | `v0.6.0` | `v0.6.0` (CLOSED) | Phase 8.0 Coq forward simulation & TLA+ models. |
-| **Hardware Track (STCR Pipeline)** | `v0.6.0` | `v0.6.0` | `v0.6.0-hardware` (OPEN) | Yosys synthesis check (#37). |
-| **External Effects & Physical Sandbox** | `v0.5.0` | `v0.5.0` | `v0.5.0` (CLOSED) | Physical NetNS + Landlock LSM (Gates B.1–B.4). |
-| **External Security Review** | `v1.0.0` | In-Progress | `v1.0.0` (OPEN) | Third-party review & production clearance (#23). |
+## 2. Test Accounting Precision & Authoritative Release-Train Table
+
+### 2.1 Non-Overlapping Test Accounting Formula
+
+To guarantee complete evidence integrity without double-counting test suites:
+
+$$\boxed{ N_{\text{total}} = N_{\text{Python unique}} + N_{\text{Rust unique}} = 625 + 32 = \mathbf{657\text{ unique tests passing}} }$$
+
+| Suite Layer | Executed Runner | Raw Executions | Unique Test Functions | Deduplication Rationale |
+| :--- | :--- | :---: | :---: | :--- |
+| **Python Kernel & Integration** | `pytest` | 625 | **625** | All pytest functions collected across kernel, tools, and adapters. |
+| **Rust Emulator Unit & Conformance** | `cargo test` | 42 | **32** | 14 lib.rs unit + 8 CBE + 10 streaming. (10 unit tests shared across lib/main targets are deduplicated). |
+| **Total Verified** | **Combined** | **667** | **657** | **Strict unique non-overlapping test count**. |
+
+---
+
+### 2.2 Authoritative Release-Train Table
+
+| Release Version | Target Milestone | Major Features & Hardening Gates | Key Commit Evidence | Governing Issues | Release Status |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| **`v0.2.1`** | OSS Foundation | Apache-2.0 governance, SDK stability policy, contributor environment. | `9e8210a` | #1, #2, #3 | **TAGGED / CLOSED** |
+| **`v0.2.x`** | Developer Experience | Error reporting standardization, public SDK import boundaries, CLI tools. | `a01b2f4` | #4, #5, #6, #7 | **TAGGED / CLOSED** |
+| **`v0.3.0`** | Multi-Process Runtime | Process supervisor, deterministic IPC protocol, crash recovery research. | `d4e5f6a` | #13, #14, #15, #16 | **TAGGED / CLOSED** |
+| **`v0.4.1`** | Protocol Hardening | CBE transport decoder memory bounds, ObjectRef data plane, HMAC fencing. | `df0fa55`, `8be0531` | #35 (OPEN), #41, #42, #43, #44 | **IN-PROGRESS** |
+| **`v0.5.0`** | Load Balancer & Sandbox | Dynamic load balancer, WAL ledger snapshots, External Effects B.1–B.4 (NetNS + Landlock). | `6277eba`, `5e1e928` | #34, #45, #66, #67 | **FEATURE FROZEN** |
+| **`v0.6.0`** | Formal Proofs & Refinement | Phase 8.0 Coq refinement proofs ($R(C,A)$ 0-axiom/0-admit), TLA+ model checking (6M+ states). | `9ad95fd` | #32, #46, #47, #48, #49, #50, #52–#58 | **PROOFS CHECKED** |
+| **`v0.6.0-hardware`** | Hardware Assurance | SystemVerilog STCR pipeline Yosys open-source synthesis gate check. | In-Progress | #37 (OPEN) | **HARDWARE TRACK** |
+| **`v1.0.0-RC1`** | Release Candidate 1 | Complete frozen code & evidence bundle, documentation freeze, zero-defect gate. | Pending RC Freeze | #19 (OPEN) | **PLANNED** |
+| **`v1.0.0`** | Production Release | Independent third-party external security review & P0-P13 sign-off. | Pending Audit | #23 (OPEN) | **GOVERNING GATE** |
 
 
 ---
