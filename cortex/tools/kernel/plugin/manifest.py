@@ -4,6 +4,10 @@ Declarative Plugin Manifest Schema
 Every plugin declares its event consumption/production contract and the
 kernel capabilities it requires.  The Kernel enforces capability negotiation
 at registration time — no raw access to internals is ever granted.
+
+Capability Naming Conventions:
+  - Colon Syntax ('<scheme>:<target>') : External side-effects & adapters (e.g. 'mcp:echo', 'fs:read', 'exec:git')
+  - Dot Syntax   ('<domain>.<action>') : Internal control plane & kernel state (e.g. 'workflow.plan.create')
 """
 
 from dataclasses import dataclass, field
@@ -12,7 +16,18 @@ from dataclasses import dataclass, field
 @dataclass(frozen=True)
 class PluginManifest:
     """Immutable declaration of a plugin's identity, event contract,
-    and required kernel capabilities."""
+    and required kernel capabilities.
+
+    Attributes:
+        name: Unique plugin identifier name.
+        version: Semantic version string.
+        description: Human-readable summary of plugin purpose.
+        consumes_events: List of event type names subscribed to by plugin.
+        produces_events: List of event type names published by plugin.
+        required_capabilities: List of capability strings required by plugin.
+            External side-effects MUST use scheme colons (e.g. 'mcp:echo').
+            Internal platform domains use dot hierarchy (e.g. 'workflow.plan.create').
+    """
 
     name: str
     version: str

@@ -5,7 +5,7 @@ Authoritative single-entrypoint configuration processing engine and admission co
 Enforces the 10-stage resolution pipeline:
 1. Merge Input Sources (Defaults -> File -> Environment -> CLI)
 2. Default Materialization
-3. Field-Class Specific Normalization (NFC Human Text, ASCII Identifiers, Canonical Capabilities, Paths)
+3. Field-Class Specific Normalization (NFC Human Text, ASCII Identifiers, Canonical Capabilities with ':' for scheme adapters & '.' for internal domains, Paths)
 4. JSON Schema Structural Validation (Draft 2020-12)
 5. Semantic Validation (replica bounds, path isolation, capability formats)
 6. Security Ceiling Enforcement (EffectiveConfig <= SecurityCeiling)
