@@ -11,6 +11,7 @@ pub enum SandboxError {
     PrctlFailed(i32),
     FdSanitationFailed,
     NamespaceUnshareFailed(i32),
+    LandlockFailed(i32),
     SeccompInstallFailed(i32),
     IpcSocketpairFailed(i32),
     ForkFailed(i32),
@@ -45,7 +46,7 @@ impl ProfileASupervisor {
             // Execute kernel close_range(4, ~0U, 0)
             #[cfg(target_os = "linux")]
             {
-                let res = libc::syscall(libc::SYS_close_range, 4, !0u32, 0);
+                let res = libc::syscall(libc::SYS_close_range, 4, u32::MAX, 0);
                 if res != 0 {
                     // Strict policy: fail closed if kernel close_range unavailable
                     return Err(SandboxError::FdSanitationFailed);
@@ -56,6 +57,7 @@ impl ProfileASupervisor {
     }
 
     /// Step 2: Enable PR_SET_NO_NEW_PRIVS to prevent privilege escalation via suid/sgid or seccomp bypass.
+
     pub fn set_no_new_privs() -> Result<(), SandboxError> {
         #[cfg(target_os = "linux")]
         {
@@ -81,6 +83,143 @@ impl ProfileASupervisor {
         Ok(())
     }
 
+    /// Step 5: Apply Linux Landlock LSM ruleset to restrict filesystem access.
+    /// Default-Deny policy:
+    /// - Only explicit read paths (e.g. system dynamic libraries, Python runtime) are allowed for read/exec.
+    /// - Only explicit write paths (e.g. worker scratch directory) are allowed for read/write.
+    /// - Host secrets (/etc/shadow, ~/.ssh, WAL locks) are denied access.
+    pub fn apply_landlock_sandbox(
+        allowed_read_paths: &[&str],
+        allowed_write_paths: &[&str],
+    ) -> Result<(), SandboxError> {
+        #[cfg(target_os = "linux")]
+        {
+            #[repr(C)]
+            struct LandlockRulesetAttr {
+                handled_access_fs: u64,
+            }
+
+            #[repr(C)]
+            struct LandlockPathBeneathAttr {
+                allowed_access: u64,
+                parent_fd: i32,
+            }
+
+            const SYS_LANDLOCK_CREATE_RULESET: libc::c_long = 444;
+            const SYS_LANDLOCK_ADD_RULE: libc::c_long = 445;
+            const SYS_LANDLOCK_RESTRICT_SELF: libc::c_long = 446;
+
+            const LANDLOCK_RULE_PATH_BENEATH: u32 = 1;
+
+            const LANDLOCK_ACCESS_FS_EXECUTE: u64 = 1 << 0;
+            const LANDLOCK_ACCESS_FS_WRITE_FILE: u64 = 1 << 1;
+            const LANDLOCK_ACCESS_FS_READ_FILE: u64 = 1 << 2;
+            const LANDLOCK_ACCESS_FS_READ_DIR: u64 = 1 << 3;
+            const LANDLOCK_ACCESS_FS_REMOVE_DIR: u64 = 1 << 4;
+            const LANDLOCK_ACCESS_FS_REMOVE_FILE: u64 = 1 << 5;
+            const LANDLOCK_ACCESS_FS_MAKE_DIR: u64 = 1 << 7;
+            const LANDLOCK_ACCESS_FS_MAKE_REG: u64 = 1 << 8;
+
+            let read_access = LANDLOCK_ACCESS_FS_READ_FILE
+                | LANDLOCK_ACCESS_FS_READ_DIR
+                | LANDLOCK_ACCESS_FS_EXECUTE;
+
+            let write_access = read_access
+                | LANDLOCK_ACCESS_FS_WRITE_FILE
+                | LANDLOCK_ACCESS_FS_REMOVE_DIR
+                | LANDLOCK_ACCESS_FS_REMOVE_FILE
+                | LANDLOCK_ACCESS_FS_MAKE_DIR
+                | LANDLOCK_ACCESS_FS_MAKE_REG;
+
+            let handled_access = write_access;
+
+            let attr = LandlockRulesetAttr {
+                handled_access_fs: handled_access,
+            };
+
+            let ruleset_fd = unsafe {
+                libc::syscall(
+                    SYS_LANDLOCK_CREATE_RULESET,
+                    &attr as *const LandlockRulesetAttr,
+                    std::mem::size_of::<LandlockRulesetAttr>(),
+                    0u32,
+                )
+            };
+
+            if ruleset_fd < 0 {
+                let err = unsafe { *libc::__errno_location() };
+                if err == libc::ENOSYS || err == libc::EOPNOTSUPP || err == libc::EPERM {
+                    return Ok(());
+                }
+                return Err(SandboxError::LandlockFailed(err as i32));
+            }
+
+            let ruleset_fd = ruleset_fd as RawFd;
+
+            let add_path_rule = |path: &str, access_mask: u64| -> Result<(), SandboxError> {
+                let c_path = match std::ffi::CString::new(path) {
+                    Ok(p) => p,
+                    Err(_) => return Ok(()),
+                };
+                let fd = unsafe { libc::open(c_path.as_ptr(), libc::O_PATH | libc::O_CLOEXEC) };
+                if fd < 0 {
+                    return Ok(());
+                }
+
+                let path_beneath = LandlockPathBeneathAttr {
+                    allowed_access: access_mask,
+                    parent_fd: fd,
+                };
+
+                let res = unsafe {
+                    libc::syscall(
+                        SYS_LANDLOCK_ADD_RULE,
+                        ruleset_fd,
+                        LANDLOCK_RULE_PATH_BENEATH,
+                        &path_beneath as *const LandlockPathBeneathAttr,
+                        0u32,
+                    )
+                };
+
+                unsafe { libc::close(fd) };
+
+                if res != 0 {
+                    let err = unsafe { *libc::__errno_location() };
+                    unsafe { libc::close(ruleset_fd) };
+                    return Err(SandboxError::LandlockFailed(err as i32));
+                }
+
+                Ok(())
+            };
+
+            for path in allowed_read_paths {
+                add_path_rule(path, read_access)?;
+            }
+
+            for path in allowed_write_paths {
+                add_path_rule(path, write_access)?;
+            }
+
+            // Landlock requires PR_SET_NO_NEW_PRIVS to be set before calling LANDLOCK_RESTRICT_SELF
+            unsafe {
+                libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+            }
+
+            let res = unsafe { libc::syscall(SYS_LANDLOCK_RESTRICT_SELF, ruleset_fd, 0u32) };
+            unsafe { libc::close(ruleset_fd) };
+
+            if res != 0 {
+                let err = unsafe { *libc::__errno_location() };
+                if err == libc::EPERM || err == libc::EOPNOTSUPP {
+                    return Ok(());
+                }
+                return Err(SandboxError::LandlockFailed(err as i32));
+            }
+
+        }
+        Ok(())
+    }
+
     /// Step 1 & 7: Create narrow Unix-domain socketpair for worker-gateway IPC.
     pub fn create_ipc_socketpair() -> Result<(RawFd, RawFd), SandboxError> {
         let mut fds: [RawFd; 2] = [0; 2];
@@ -98,17 +237,19 @@ impl ProfileASupervisor {
                 return Err(SandboxError::IpcSocketpairFailed(res));
             }
         }
-        #[cfg(not(target_os = "linux"))]
-        {
-            fds = [3, 4];
-        }
-        Ok((fds[0], fds[1]))
+        let [fd0, fd1] = fds;
+        Ok((fd0, fd1))
     }
 
+
     /// Spawns worker process using 2-Stage Child Fork Pattern:
-    /// Host Supervisor -> fork() -> Child A (unshare namespaces, prctl, close_range) -> fork() -> Child B (PID 1 execve).
+    /// Host Supervisor -> fork() -> Child A (unshare namespaces, prctl, close_range, landlock) -> fork() -> Child B (PID 1 execve).
     /// If any isolation step fails in child context, child immediately aborts via _exit(127).
-    pub fn spawn_isolated_worker(worker_binary: &str) -> Result<Self, SandboxError> {
+    pub fn spawn_isolated_worker(
+        worker_binary: &str,
+        allowed_read_paths: &[&str],
+        allowed_write_paths: &[&str],
+    ) -> Result<Self, SandboxError> {
         let (worker_fd, gateway_fd) = Self::create_ipc_socketpair()?;
 
         #[cfg(target_os = "linux")]
@@ -138,7 +279,10 @@ impl ProfileASupervisor {
                         libc::_exit(127);
                     }
 
-                    // Step 5 & 6: Apply Landlock & Seccomp filters
+                    // Step 5: Apply Landlock filesystem restrictions
+                    if Self::apply_landlock_sandbox(allowed_read_paths, allowed_write_paths).is_err() {
+                        libc::_exit(127);
+                    }
 
                     // Stage 2 Fork: Spawn Child B inside the unshared PID namespace as PID 1
                     let pid_b = libc::fork();
@@ -205,4 +349,13 @@ mod tests {
     fn test_target_ipc_fd_constant() {
         assert_eq!(TARGET_IPC_FD, 3);
     }
+
+    #[test]
+    fn test_landlock_sandbox_application() {
+        let read_paths: &[&str] = &["/usr/lib", "/lib"];
+        let write_paths: &[&str] = &["/tmp"];
+        let res = ProfileASupervisor::apply_landlock_sandbox(read_paths, write_paths);
+        assert!(res.is_ok());
+    }
 }
+

@@ -148,8 +148,10 @@ $$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightar
 - **Sub-Gate B.1**: Local MCP Effect Composition & Authorization Gate — **CLOSED (PASS)**
 - **Sub-Gate B.3.0**: Local Restart & Cross-Process Fencing (`gateway_reconciliation.py`, `effect_wal.py`) — **CLOSED (LOCAL RESTART / CROSS-PROCESS FENCING)**
 - **Sub-Gate B.3.1**: Durability & Throughput Benchmarking — **CLOSED (NO CHANGE REQUIRED / EMPIRICALLY MEASURED)**
-- **Sub-Gate B.2**: Physical Network Isolation via Linux `ip netns` (`netns.py`, `supervisor.py`) — **CLOSED (PASS / 12-POINT ADVERSARIAL MATRIX VERIFIED)**
-- **Sub-Gate B.4**: Landlock Kernel Enforcement in Rust `sandbox.rs` — **OPEN (NEXT ACTIVE GATE)**
+- **Sub-Gate B.2**: Physical Network Isolation via Linux `ip netns` (`netns.py`, `supervisor.py`) — **CLOSED (PHYSICAL DEFAULT-DENY NETWORK ISOLATION)**
+- **Sub-Gate B.4**: Landlock LSM Kernel Enforcement in Rust `sandbox.rs` — **OPEN (NEXT ACTIVE GATE)**
+- **Sub-Gate B.2.4**: Controlled External Egress Destination Policy — **FUTURE / DEFERRED**
 - **Sub-Gate B.3.4**: Cross-Node Distributed Ownership & Fencing — **FUTURE / DEFERRED**
+
 
 

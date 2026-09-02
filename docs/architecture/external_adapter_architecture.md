@@ -143,18 +143,20 @@ Empirical performance evaluation (`tests/benchmarks/test_b3_throughput_benchmark
 
 ## 8. SUB-GATE ROADMAP STATUS & CONTRIBUTOR GUIDELINES
 
-$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (NEXT)} \rightarrow \text{Gate B.4 (OPEN)} }$$
+$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (CLOSED)} \rightarrow \text{Gate B.4 (NEXT ACTIVE)} }$$
 
 1. **Gate B.1 (CLOSED)**: Local MCP Composition & Authorization.
 2. **Gate B.3 (CLOSED)**: Local Restart & Cross-Process Fencing (`B.3 = CLOSED — LOCAL RESTART / CROSS-PROCESS FENCING`).
-3. **Gate B.2 (NEXT ACTIVE)**: Physical Network Isolation via Linux `ip netns`.
-4. **Gate B.4 (OPEN)**: Landlock Kernel Enforcement in Rust `sandbox.rs`.
+3. **Gate B.2 (CLOSED)**: Physical Network Isolation via Linux `ip netns` (`B.2 = CLOSED — PHYSICAL DEFAULT-DENY NETWORK ISOLATION`).
+4. **Gate B.4 (NEXT ACTIVE)**: Landlock Kernel Enforcement in Rust `sandbox.rs`.
 5. **Gate B.3.4 (DEFERRED)**: Cross-Node Distributed Ownership.
 
 ### Contributor Checklist for PRs:
 - [ ] Run Pyright type checker: `pyright cortex/tools/kernel/` (Must maintain 0 errors).
+- [ ] Run Sub-Gate B.2 test suite: `python3 -m unittest tests/kernel/test_b2_network_isolation.py` (12/12 pass).
 - [ ] Run Sub-Gate B.3 test suite: `python3 -m unittest tests/kernel/test_b3_restart_fencing.py`
 - [ ] Run Sub-Gate B.1 test suite: `python3 -m unittest tests/kernel/test_mcp_adapter_vertical_slice.py`
 - [ ] Ensure all lockfile path derivations use `hashlib.sha256(effect_key.encode("utf-8")).hexdigest()`.
 - [ ] Ensure `EffectWALEngine.append_record` performs LSN allocation inside `fcntl.flock`.
+
 
