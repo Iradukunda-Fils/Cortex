@@ -138,3 +138,17 @@ $$\boxed{ \text{Telemetry} \neq \text{Authority} }$$
 ### Future Architecture (Not Yet Implemented)
 
 $$\text{Python Authority} \rightarrow \text{Go/Rust Transport Substrate} \rightarrow \text{Execution}$$
+
+---
+
+## External Effects Subsystem Gate Sequence (B.1–B.4)
+
+$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (NEXT)} \rightarrow \text{Gate B.4 (OPEN)} }$$
+
+- **Sub-Gate B.1**: Local MCP Effect Composition & Authorization Gate — **CLOSED (PASS)**
+- **Sub-Gate B.3.0**: Local Restart & Cross-Process Fencing (`gateway_reconciliation.py`, `effect_wal.py`) — **CLOSED (LOCAL RESTART / CROSS-PROCESS FENCING)**
+- **Sub-Gate B.3.1**: Durability & Throughput Benchmarking — **CLOSED (NO CHANGE REQUIRED / EMPIRICALLY MEASURED)**
+- **Sub-Gate B.2**: Physical Network Isolation via `ip netns` — **OPEN (NEXT ACTIVE GATE)**
+- **Sub-Gate B.4**: Landlock Kernel Enforcement — **OPEN (DESIGN ONLY)**
+- **Sub-Gate B.3.4**: Cross-Node Distributed Ownership & Fencing — **FUTURE / DEFERRED**
+
