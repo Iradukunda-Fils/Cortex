@@ -1,7 +1,7 @@
 # Cortex Open Work Register
 **Authoritative Remaining Engineering Obligations & Backlog Ledger**  
-**Date:** August 26, 2026  
-**Repository Baseline SHA:** `9ad95fd` (`main`)
+**Date:** September 2, 2026  
+**Repository Baseline SHA:** `34386f6` (`main`)
 
 ---
 
@@ -10,19 +10,21 @@ $$\boxed{ \text{Safety} > \text{Formal Assurance} > \text{Resource Bounds} > \te
 
 ---
 
-## Open Work Priority Ranking
+## Open Work Priority Ranking & Governance Status
 
-$$\boxed{ \#23 > \#33 > \#36 > \#32 > \#35 > \#37 > \#19 }$$
+$$\boxed{ \#23 \text{ (Governing v1.0 Gate)} \quad > \quad \#35 \text{ (Docs)} \quad > \quad \#37 \text{ (Hardware Track)} \quad > \quad \#19 \text{ (Community)} }$$
 
-| Priority Rank | Work ID | Description | Source | Issue | Priority | Security Impact | Formal Impact | Target Release | Current Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | **OPEN-003** | External Security Review & P0-P13 Production Readiness | Security Plan | #23 | CRITICAL | Critical (Production Sign-off) | High (Full Matrix P1..P4) | `v1.0.0` | `OPEN_REQUIRED` |
-| **2** | **OPEN-006** | Finalize WASM Profile B Sandbox Filters & Test Matrix | DEBT-006 | #33 | HIGH | High (Sandbox Isolation) | Medium (Gate G bounds) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **3** | **OPEN-009** | Gate J 13-Class Property-Based Fuzzing Engine | DEBT-008 | #36 | HIGH | High (Adversarial Fuzzing) | High (Independent Verifier) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **4** | **OPEN-005** | Concrete-to-Coq Forward Simulation Refinement Relation | DEBT-005 | #32 | HIGH | High (Code-to-Proof Soundness) | Critical (Bridge Python -> Coq) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **5** | **OPEN-008** | Resolve 222 Hyperlink and Formatting Documentation Warnings | DEBT-007 | #35 | LOW | Low (Developer Experience) | Low (Documentation Integrity) | Backlog | `OPEN_REQUIRED` |
-| **6** | **OPEN-010** | Yosys Open-Source Synthesis Gate Check for STCR Pipeline | DEBT-009 | #37 | MEDIUM | High (Hardware Conformance) | Medium (RTL AST Verification) | `v0.5.0-experimental` | `OPEN_REQUIRED` |
-| **7** | **OPEN-011** | Newcomer Contribution Path & Onboarding Documentation | Community | #19 | LOW | Low (Community Growth) | Low | Backlog | `OPEN_OPTIONAL` |
+| Priority Rank | Work ID | Description | Source | Issue | Priority | Governing Track | Target Release | Current Status |
+| :---: | :--- | :--- | :--- | :---: | :--- | :--- | :---: | :---: |
+| **1** | **OPEN-003** | External Security Review & P0-P13 Production Sign-Off | Security Plan | #23 | CRITICAL | Production Security Gate | `v1.0.0` | `OPEN_REQUIRED` |
+| **2** | **OPEN-008** | Resolve Hyperlink & Formatting Documentation Warnings | DEBT-007 | #35 | LOW | Maintenance Line | `v0.4.1` | `OPEN_REQUIRED` |
+| **3** | **OPEN-010** | Yosys Open-Source Synthesis Gate Check for STCR Pipeline | DEBT-009 | #37 | MEDIUM | Independent Hardware Track | `v0.6.0-hardware` | `OPEN_REQUIRED` |
+| **4** | **OPEN-011** | Newcomer Contribution Path & Onboarding Documentation | Community | #19 | LOW | Community Growth Track | `v1.0-open` | `OPEN_OPTIONAL` |
+| **—** | **OPEN-006** | WASM Profile B Sandbox Filters & Test Matrix | DEBT-006 | #33 | HIGH | Sandbox Isolation | `SUPERSEDED` | `SUPERSEDED_BY_NETNS_LANDLOCK` |
+| **—** | **OPEN-005** | Concrete-to-Coq Forward Simulation Refinement Relation | DEBT-005 | #32 | HIGH | Formal Proof Bridge | `v0.6.0` | `CLOSED_VERIFIED` |
+| **—** | **OPEN-009** | Gate J 13-Class Property-Based Fuzzing Engine | DEBT-008 | #36 | HIGH | Adversarial Fuzzing | `v0.6.0` | `CLOSED_VERIFIED` |
+| **—** | **OPEN-012** | Physical Network Isolation via Linux NetNS (Gate B.2) | Gate B.2 | #66 | HIGH | Physical Containment | `v0.6.0` | `CLOSED_VERIFIED` |
+| **—** | **OPEN-013** | Landlock LSM Filesystem Containment & Privileges (Gate B.4) | Gate B.4 | #67 | HIGH | Physical Containment | `v0.6.0` | `CLOSED_VERIFIED` |
 
 ---
 

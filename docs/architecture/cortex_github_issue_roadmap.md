@@ -60,24 +60,49 @@ $$\boxed{ N_{\text{total}} = N_{\text{Python unique}} + N_{\text{Rust unique}} =
 | Suite Layer | Executed Runner | Raw Executions | Unique Test Functions | Deduplication Rationale |
 | :--- | :--- | :---: | :---: | :--- |
 | **Python Kernel & Integration** | `pytest` | 625 | **625** | All pytest functions collected across kernel, tools, and adapters. |
-| **Rust Emulator Unit & Conformance** | `cargo test` | 42 | **32** | 14 lib.rs unit + 8 CBE + 10 streaming. (10 unit tests shared across lib/main targets are deduplicated). |
+| **Rust Emulator Unit & Conformance** | `cargo test` | 42 | **32** | 14 lib.rs unit + 8 CBE + 10 streaming. (10 unit tests shared across `lib.rs`/`main.rs` binary targets are deduplicated). |
 | **Total Verified** | **Combined** | **667** | **657** | **Strict unique non-overlapping test count**. |
 
 ---
 
-### 2.2 Authoritative Release-Train Table
+### 2.2 Authoritative Release-Train Ledger
 
-| Release Version | Target Milestone | Major Features & Hardening Gates | Key Commit Evidence | Governing Issues | Release Status |
+```
+                       RELEASE-TRAIN BRANCHING & MILESTONE MATRIX
+                                           │
+       ┌───────────────────────────────────┼───────────────────────────────────┐
+       ▼                                   ▼                                   ▼
+ release/0.5.x                       release/0.6.x                           main
+ (Hardened Baseline)                 (Formal Proofs & Physical B.1–B.4)   (Active Governance)
+       │                                   │                                   │
+  v0.5.0 Tag                           v0.6.0 Tag                          v1.0.0-RC1 (Planned)
+ (Load Balancer & WAL)                (Coq Proofs & NetNS/Landlock)       (Technical Code Freeze)
+                                                                               │
+                                                                          v1.0.0 Gate (#23)
+                                                                        (External Security Audit)
+```
+
+| Release Tag / Branch | Associated Git Branch | Exact Capabilities At Tag | Key Commit Evidence | Governing Issues & Gates | Governance & Release Status |
 | :---: | :--- | :--- | :--- | :---: | :---: |
-| **`v0.2.1`** | OSS Foundation | Apache-2.0 governance, SDK stability policy, contributor environment. | `9e8210a` | #1, #2, #3 | **TAGGED / CLOSED** |
-| **`v0.2.x`** | Developer Experience | Error reporting standardization, public SDK import boundaries, CLI tools. | `a01b2f4` | #4, #5, #6, #7 | **TAGGED / CLOSED** |
-| **`v0.3.0`** | Multi-Process Runtime | Process supervisor, deterministic IPC protocol, crash recovery research. | `d4e5f6a` | #13, #14, #15, #16 | **TAGGED / CLOSED** |
-| **`v0.4.1`** | Protocol Hardening | CBE transport decoder memory bounds, ObjectRef data plane, HMAC fencing. | `df0fa55`, `8be0531` | #35 (OPEN), #41, #42, #43, #44 | **IN-PROGRESS** |
-| **`v0.5.0`** | Load Balancer & Sandbox | Dynamic load balancer, WAL ledger snapshots, External Effects B.1–B.4 (NetNS + Landlock). | `6277eba`, `5e1e928` | #34, #45, #66, #67 | **FEATURE FROZEN** |
-| **`v0.6.0`** | Formal Proofs & Refinement | Phase 8.0 Coq refinement proofs ($R(C,A)$ 0-axiom/0-admit), TLA+ model checking (6M+ states). | `9ad95fd` | #32, #46, #47, #48, #49, #50, #52–#58 | **PROOFS CHECKED** |
-| **`v0.6.0-hardware`** | Hardware Assurance | SystemVerilog STCR pipeline Yosys open-source synthesis gate check. | In-Progress | #37 (OPEN) | **HARDWARE TRACK** |
-| **`v1.0.0-RC1`** | Release Candidate 1 | Complete frozen code & evidence bundle, documentation freeze, zero-defect gate. | Pending RC Freeze | #19 (OPEN) | **PLANNED** |
-| **`v1.0.0`** | Production Release | Independent third-party external security review & P0-P13 sign-off. | Pending Audit | #23 (OPEN) | **GOVERNING GATE** |
+| **`v0.2.1`** | `release/0.1.x` | Apache-2.0 governance, SDK stability policy, contributor environment. | `9e8210a` | #1, #2, #3 | **HISTORICAL TAG** |
+| **`v0.2.x`** | `release/0.1.x` | CLI error standardization, public SDK import boundaries. | `a01b2f4` | #4, #5, #6, #7 | **HISTORICAL TAG** |
+| **`v0.3.0`** | `main` | Multi-process worker supervisor, deterministic IPC protocol. | `d4e5f6a` | #13, #14, #15, #16 | **HISTORICAL TAG** |
+| **`v0.4.1`** | `release/0.4.x` | CBE transport memory bounds, ObjectRef data plane, HMAC fencing. | `df0fa55`, `8be0531` | #35 (OPEN - Maintenance) | **MAINTENANCE BRANCH** |
+| **`v0.5.0`** | `release/0.5.x` | Single-Gateway dynamic load balancer (`load_balancer.py`) & WAL journal. | `6277eba` | #34, #45 | **HARDENED BASELINE** |
+| **`v0.6.0`** | `release/0.6.x` | Phase 8.0 Coq refinement proofs ($R(C,A)$ 0-axiom) & External Effects B.1–B.4 physical NetNS/Landlock containment. | `9ad95fd`, `17a0dab` | #32, #46–#50, #52–#58, #66, #67 | **HARDENED MILESTONE** |
+| **`v0.6.0-hardware`** | `main` | SystemVerilog STCR pipeline Yosys open-source synthesis gate check. | In-Progress | #37 (OPEN - Hardware Track) | **INDEPENDENT TRACK** |
+| **`v1.0.0-RC1`** | `main` | Technical RC code freeze: zero-defect gate, full test parity, evidence bundle. | Pending RC Freeze | Technical RC Checklist (Decoupled from #19) | **PLANNED RC** |
+| **`v1.0.0`** | `main` | Production release: independent third-party external security review & P0-P13 sign-off. | Pending Audit | #23 (OPEN - Production Gate) | **GOVERNING RELEASE** |
+
+---
+
+### 2.3 Governance Posture Definition
+
+$$\boxed{\text{Runtime Architecture Frozen}} \quad \mid \quad \boxed{\text{Release Governance / Documentation / Security Review Active}}$$
+
+1. **Runtime Architecture Frozen**: Core kernel algorithms, resource reservation algebra, and sandbox boundary primitives (NetNS + Landlock LSM) are frozen. No new infrastructure features will be added without a demonstrated, evidence-backed business requirement.
+2. **Technical Release Candidate Gate**: `v1.0.0-RC1` depends strictly on technical verification criteria (657 unique tests passing, zero lint/clippy warnings, proof artifact consistency). Community onboarding (#19) and Hardware synthesis (#37) operate on independent tracks and do not block software RC1.
+3. **Production Release Gate**: `v1.0.0` is strictly blocked by **Issue #23** (Independent Third-Party External Security Sign-Off). No internal self-audit replaces this external gate.
 
 
 ---
