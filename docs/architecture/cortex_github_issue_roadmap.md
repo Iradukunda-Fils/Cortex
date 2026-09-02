@@ -12,12 +12,16 @@
 ## 1. Remote Inventory & Discrepancy Reconciliation
 
 ### 1.1 Remote Inventory Verification
-- **Total Remote Issue Count**: 49 issues
-- **Highest Issue Number**: #58
-- **Issue Number Range**: 1..58
+- **Total Remote Issue Count**: 51 issues
+- **Highest Issue Number**: #67
+- **Issue Number Range**: 1..67
 - **Missing Issue Numbers (9)**: `#24, #26, #27, #28, #29, #38, #39, #40, #51` (Skipped or PR-converted during GitHub creation)
 - **OPEN Issues (4)**: `#19, #23, #35, #37`
-- **CLOSED Issues (45)**: `#1..#18, #20..#22, #25, #30..#34, #36, #41..#50, #52..#58`
+- **CLOSED Issues (47)**: `#1..#18, #20..#22, #25, #30..#34, #36, #41..#50, #52..#58, #66, #67`
+
+### 1.1.1 Recently Completed Security Physical Containment Issues
+- **Issue #66 (CLOSED)**: `feat(security): Physical Network Isolation via Linux Network Namespaces (Gate B.2)`
+- **Issue #67 (CLOSED)**: `feat(security): Landlock LSM Filesystem Containment & Privilege Hardening (Gate B.4)`
 
 ### 1.2 Open Issue Classification Matrix
 
