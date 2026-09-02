@@ -26,12 +26,15 @@ from cortex.tools.kernel.effect_gateway import (
     EffectRequest,
 )
 
-from ..main import build_cortex_effect_runtime
-from ..plugins.analytics_plugin.tasks import AnalyticsPlugin
-from ..plugins.audit_plugin.tasks import AuditPlugin
-from ..plugins.ingestion_plugin.tasks import ExecutionContext, IngestionPlugin
-from ..plugins.mitigation_plugin.tasks import MitigationPlugin
-from ..plugins.notification_plugin.tasks import NotificationPlugin
+from examples.mcp_secure_effect_app.main import build_cortex_effect_runtime
+from examples.mcp_secure_effect_app.plugins.analytics_plugin.tasks import AnalyticsPlugin
+from examples.mcp_secure_effect_app.plugins.audit_plugin.tasks import AuditPlugin
+from examples.mcp_secure_effect_app.plugins.ingestion_plugin.tasks import (
+    ExecutionContext,
+    IngestionPlugin,
+)
+from examples.mcp_secure_effect_app.plugins.mitigation_plugin.tasks import MitigationPlugin
+from examples.mcp_secure_effect_app.plugins.notification_plugin.tasks import NotificationPlugin
 
 
 class TestMCPSecureEffectApp(unittest.TestCase):

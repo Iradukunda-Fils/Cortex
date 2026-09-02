@@ -13,7 +13,7 @@ Capability Naming Conventions:
 from dataclasses import dataclass, field
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class PluginManifest:
     """Immutable declaration of a plugin's identity, event contract,
     and required kernel capabilities.
