@@ -68,7 +68,6 @@ pub fn compute_raw_uuidv5(namespace_bytes: &[u8], name_bytes: &[u8]) -> (String,
     raw_16[6] = (raw_16[6] & 0x0f) | 0x50; // Version 5
     raw_16[8] = (raw_16[8] & 0x3f) | 0x80; // Variant RFC 4122
 
-
     let u = uuid::Builder::from_bytes(raw_16).into_uuid();
     (sha1_hex, u.to_string())
 }
@@ -83,7 +82,6 @@ fn normalize_float(f: f64) -> Result<f64, CBEError> {
         Ok(f)
     }
 }
-
 
 pub fn encode(val: &CortexValue) -> Result<Vec<u8>, CBEError> {
     match val {
@@ -149,7 +147,7 @@ pub fn encode(val: &CortexValue) -> Result<Vec<u8>, CBEError> {
 
 pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
     let tag = *data
-        .get(0)
+        .first()
         .ok_or_else(|| CBEError::InvalidLength("Unexpected end of stream".into()))?;
 
     match tag {
@@ -192,9 +190,7 @@ pub fn decode(data: &[u8]) -> Result<(CortexValue, usize), CBEError> {
             };
 
             let start_digits = curr;
-            while curr < data.len()
-                && data.get(curr).map_or(false, |b| b.is_ascii_digit())
-            {
+            while curr < data.len() && data.get(curr).is_some_and(|b| b.is_ascii_digit()) {
                 curr += 1;
             }
 
@@ -337,4 +333,3 @@ fn parse_length_prefix(data: &[u8]) -> Result<(usize, usize), CBEError> {
         .map_err(|_| CBEError::InvalidLength(len_str.into()))?;
     Ok((len, curr + 1))
 }
-

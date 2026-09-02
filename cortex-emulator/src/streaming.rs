@@ -113,23 +113,28 @@ pub fn decode_frame(
         return Err(CbeFrameError::TruncatedHeader(data.len()));
     }
 
-    let magic_bytes = data.get(0..2).ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
+    let magic_bytes = data
+        .get(0..2)
+        .ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
     let magic: [u8; 2] = magic_bytes.try_into().unwrap();
     if magic != *MAGIC_BYTES {
         return Err(CbeFrameError::MagicMismatch(magic));
     }
 
-    let tag_byte = data.get(2).ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
+    let tag_byte = data
+        .get(2)
+        .ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
     let frame_type = FrameType::try_from(*tag_byte)?;
 
-    let seq_bytes = data.get(3..7).ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
+    let seq_bytes = data
+        .get(3..7)
+        .ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
     let sequence = u32::from_be_bytes(seq_bytes.try_into().unwrap());
 
-    let len_bytes = data.get(7..11).ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
+    let len_bytes = data
+        .get(7..11)
+        .ok_or(CbeFrameError::TruncatedHeader(data.len()))?;
     let payload_len = u32::from_be_bytes(len_bytes.try_into().unwrap()) as usize;
-
-
-
 
     if let Some(expected) = expected_sequence {
         if sequence != expected {
@@ -165,7 +170,6 @@ pub fn decode_frame(
         .to_vec();
 
     CortexFrame::new(frame_type, sequence, payload)
-
 }
 
 pub struct StreamEncoder {
@@ -215,26 +219,33 @@ impl StreamDecoder {
         self.buffer.extend_from_slice(chunk);
         let mut frames = Vec::new();
         while self.buffer.len() >= HEADER_SIZE {
-
-
-            let magic_bytes = self.buffer.get(0..2).ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
+            let magic_bytes = self
+                .buffer
+                .get(0..2)
+                .ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
 
             let magic: [u8; 2] = magic_bytes.try_into().unwrap();
             if magic != *MAGIC_BYTES {
                 return Err(CbeFrameError::MagicMismatch(magic));
             }
 
-            let tag_byte = self.buffer.get(2).ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
+            let tag_byte = self
+                .buffer
+                .get(2)
+                .ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
             let _frame_type = FrameType::try_from(*tag_byte)?;
 
-            let seq_bytes = self.buffer.get(3..7).ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
+            let seq_bytes = self
+                .buffer
+                .get(3..7)
+                .ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
             let sequence = u32::from_be_bytes(seq_bytes.try_into().unwrap());
 
-            let len_bytes = self.buffer.get(7..11).ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
+            let len_bytes = self
+                .buffer
+                .get(7..11)
+                .ok_or(CbeFrameError::TruncatedHeader(self.buffer.len()))?;
             let payload_len = u32::from_be_bytes(len_bytes.try_into().unwrap()) as usize;
-
-
-
 
             // Allocation protection check BEFORE buffer allocation
             if payload_len > MAX_FRAME_SIZE {

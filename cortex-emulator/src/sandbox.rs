@@ -58,7 +58,6 @@ impl ProfileASupervisor {
 
     /// Step 2: Enable PR_SET_NO_NEW_PRIVS to prevent privilege escalation via suid/sgid or seccomp bypass.
     pub fn set_no_new_privs() -> Result<(), SandboxError> {
-
         #[cfg(target_os = "linux")]
         {
             let res = unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) };
@@ -215,7 +214,6 @@ impl ProfileASupervisor {
                 }
                 return Err(SandboxError::LandlockFailed(err as i32));
             }
-
         }
         Ok(())
     }
@@ -240,7 +238,6 @@ impl ProfileASupervisor {
         let [fd0, fd1] = fds;
         Ok((fd0, fd1))
     }
-
 
     /// Spawns worker process using 2-Stage Child Fork Pattern:
     /// Host Supervisor -> fork() -> Child A (unshare namespaces, prctl, close_range, landlock) -> fork() -> Child B (PID 1 execve).
@@ -280,7 +277,9 @@ impl ProfileASupervisor {
                     }
 
                     // Step 5: Apply Landlock filesystem restrictions
-                    if Self::apply_landlock_sandbox(allowed_read_paths, allowed_write_paths).is_err() {
+                    if Self::apply_landlock_sandbox(allowed_read_paths, allowed_write_paths)
+                        .is_err()
+                    {
                         libc::_exit(127);
                     }
 
@@ -354,10 +353,10 @@ mod tests {
     fn test_landlock_sandbox_application() {
         let read_paths = ["/usr/lib", "/lib"];
         let write_paths = ["/tmp"];
-        let res =
-            ProfileASupervisor::apply_landlock_sandbox(read_paths.as_slice(), write_paths.as_slice());
+        let res = ProfileASupervisor::apply_landlock_sandbox(
+            read_paths.as_slice(),
+            write_paths.as_slice(),
+        );
         assert!(res.is_ok());
     }
 }
-
-
