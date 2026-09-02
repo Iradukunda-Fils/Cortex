@@ -113,14 +113,15 @@ pub fn decode_frame(
         return Err(CbeFrameError::TruncatedHeader(data.len()));
     }
 
-    let magic: [u8; 2] = [data[0], data[1]];
+    let magic: [u8; 2] = data[0..2].try_into().unwrap();
     if magic != *MAGIC_BYTES {
         return Err(CbeFrameError::MagicMismatch(magic));
     }
 
     let frame_type = FrameType::try_from(data[2])?;
-    let sequence = u32::from_be_bytes([data[3], data[4], data[5], data[6]]);
-    let payload_len = u32::from_be_bytes([data[7], data[8], data[9], data[10]]) as usize;
+    let sequence = u32::from_be_bytes(data[3..7].try_into().unwrap());
+    let payload_len = u32::from_be_bytes(data[7..11].try_into().unwrap()) as usize;
+
 
     if let Some(expected) = expected_sequence {
         if sequence != expected {
@@ -196,24 +197,17 @@ impl StreamDecoder {
         let mut frames = Vec::new();
 
         while self.buffer.len() >= HEADER_SIZE {
-            let magic: [u8; 2] = [self.buffer[0], self.buffer[1]];
+            let magic: [u8; 2] = self.buffer[0..2].try_into().unwrap();
+
+
             if magic != *MAGIC_BYTES {
                 return Err(CbeFrameError::MagicMismatch(magic));
             }
 
             let _frame_type = FrameType::try_from(self.buffer[2])?;
-            let sequence = u32::from_be_bytes([
-                self.buffer[3],
-                self.buffer[4],
-                self.buffer[5],
-                self.buffer[6],
-            ]);
-            let payload_len = u32::from_be_bytes([
-                self.buffer[7],
-                self.buffer[8],
-                self.buffer[9],
-                self.buffer[10],
-            ]) as usize;
+            let sequence = u32::from_be_bytes(self.buffer[3..7].try_into().unwrap());
+            let payload_len = u32::from_be_bytes(self.buffer[7..11].try_into().unwrap()) as usize;
+
 
             // Allocation protection check BEFORE buffer allocation
             if payload_len > MAX_FRAME_SIZE {
