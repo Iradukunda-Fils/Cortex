@@ -77,3 +77,84 @@ $$\text{Retry}(I, a_n, \text{Epoch}_n) \implies a_{n+1} \neq a_n \quad \land \qu
    - If inconclusive, a targeted scope quarantine (`QuarantineScope` $\subseteq$ `StateDomain`) locks only the affected resource/invocation, allowing unrelated operations in the domain to proceed safely.
 
 ---
+
+## 5. CODEBASE DIRECTORY STRUCTURE & MODULE RESPONSIBILITIES
+
+Contributors modifying or extending the External Effects Subsystem must adhere to the following directory layout:
+
+```
+cortex/tools/kernel/
+├── adapter_contract.py        # Core contracts: AdapterExecutionContext, EffectPayload, EvidencePayload, AdapterOutcome
+├── effect_gateway.py          # GatewayAuthorizationGate (PEP), EffectRequest, zero-credential worker schema
+├── effect_runtime.py          # CredentialBroker (host vault resolution), isolated stdio process runner
+├── effect_wal.py              # Crash-safe binary CWAL engine (CRC32, atomic fsync, LSN allocation)
+├── gateway_reconciliation.py  # GatewayReconciliationEngine (Dual-epoch fencing, SHA-256 CrossGatewayClaimLock, QUARANTINED recovery, COMMITTED replay)
+└── adapters/
+    └── mcp_adapter.py         # Stdio MCP Client adapter wrapping local tool servers under ResourceContract
+
+tests/
+├── kernel/
+│   ├── test_mcp_adapter_vertical_slice.py # Sub-Gate B.1 Local Composition tests
+│   └── test_b3_restart_fencing.py          # Sub-Gate B.3.0 Restart Fencing adversarial tests
+├── benchmarks/
+│   └── test_b3_throughput_benchmarks.py   # Sub-Gate B.3.1 Empirical IOPS & Latency Benchmark Suite
+└── fixtures/
+    └── local_mcp_server.py                # Standalone stdio JSON-RPC MCP server test fixture
+```
+
+---
+
+## 6. FENCED EXECUTION, WAL DURABILITY & CRASH RECOVERY (SUB-GATE B.3.0)
+
+### 6.1 Dual-Epoch Fencing ($P12_{\text{epoch}}$)
+Every external effect execution request must pass strict fencing against active Gateway state:
+$$\text{LeaseEpoch}_{\text{request}} = \text{LeaseEpoch}_{\text{active}} \quad \land \quad \text{AuthorityEpoch}_{\text{request}} = \text{AuthorityEpoch}_{\text{active}}$$
+Any epoch mismatch raises `StaleEpochError` immediately, preventing zombie or post-failover execution.
+
+### 6.2 Cross-Process Execution Mutex ($P12_{\text{cross-process}}$)
+Processes sharing the same host prevent duplicate in-flight actuation using `CrossGatewayClaimLock`.
+- Lock Path Sanitization: `Path("/tmp/cortex_effect_claims/" + SHA256(effect_key) + ".lock")`
+- Uses non-blocking OS file locks (`fcntl.flock(LOCK_EX | LOCK_NB)`).
+- Enforces $\forall k, \, |\text{ActiveExternalExecutions}(k)| \le 1$ across all local processes.
+
+### 6.3 Write-Ahead Logging & fsync Barriers ($P6_{\text{durable}}$)
+State transitions follow binary `CWAL` framing:
+`[Magic b"CWAL"][Length 4b][CRC32 4b][SeqNo 8b][Payload JSON bytes...]`
+
+Dispatches follow the mandatory disk sync sequence:
+$$\text{Persist}(\text{ADMITTED}) \xrightarrow{\text{fsync}} \text{Persist}(\text{ACTUATING}) \xrightarrow{\text{fsync}} \text{Dispatch} \xrightarrow{\text{Persist}(\text{COMMITTED})} \xrightarrow{\text{fsync}}$$
+
+### 6.4 Recovery & Quarantine Semantics ($P9_{\text{recovery}}$)
+During Gateway restart:
+- Unresolved `EFFECT_ACTUATING` logs are converted to `EFFECT_QUARANTINED`.
+- Replaying a quarantined key returns `ExecutionStatus.UNKNOWN_EFFECT` with an explicit quarantine error message.
+- **Zero Blind Retries**: Automatic execution is strictly blocked for quarantined keys.
+
+---
+
+## 7. EMPIRICAL BENCHMARKS & GOVERNANCE (SUB-GATE B.3.1)
+
+Empirical performance evaluation (`tests/benchmarks/test_b3_throughput_benchmarks.py`):
+- **Single-Threaded Throughput**: ~1,650 ops/sec ($P_{50} = 0.191$ ms, $P_{95} = 3.541$ ms, $P_{99} = 7.751$ ms)
+- **Concurrency Scaling ($C \in \{1 \dots 16\}$)**: Up to 2,244 ops/sec under 16 concurrent worker threads.
+- **Governance Decision**: `NO CHANGE REQUIRED` — Empirical data proves local `CWAL` easily fulfills operational constraints without distributed databases or sharding.
+
+---
+
+## 8. SUB-GATE ROADMAP STATUS & CONTRIBUTOR GUIDELINES
+
+$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (NEXT)} \rightarrow \text{Gate B.4 (OPEN)} }$$
+
+1. **Gate B.1 (CLOSED)**: Local MCP Composition & Authorization.
+2. **Gate B.3 (CLOSED)**: Local Restart & Cross-Process Fencing (`B.3 = CLOSED — LOCAL RESTART / CROSS-PROCESS FENCING`).
+3. **Gate B.2 (NEXT ACTIVE)**: Physical Network Isolation via Linux `ip netns`.
+4. **Gate B.4 (OPEN)**: Landlock Kernel Enforcement in Rust `sandbox.rs`.
+5. **Gate B.3.4 (DEFERRED)**: Cross-Node Distributed Ownership.
+
+### Contributor Checklist for PRs:
+- [ ] Run Pyright type checker: `pyright cortex/tools/kernel/` (Must maintain 0 errors).
+- [ ] Run Sub-Gate B.3 test suite: `python3 -m unittest tests/kernel/test_b3_restart_fencing.py`
+- [ ] Run Sub-Gate B.1 test suite: `python3 -m unittest tests/kernel/test_mcp_adapter_vertical_slice.py`
+- [ ] Ensure all lockfile path derivations use `hashlib.sha256(effect_key.encode("utf-8")).hexdigest()`.
+- [ ] Ensure `EffectWALEngine.append_record` performs LSN allocation inside `fcntl.flock`.
+

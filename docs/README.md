@@ -61,7 +61,9 @@ research/                              # Empirical Research & Spikes Substrate
 - **[4-Domain Identity Model](architecture/identity-model.md)**: Logical vs. Idempotency vs. Application vs. Runtime identity separation, CBE tuple framing, and cleanroom test vectors.
 - **[Replay State Machine & Recovery Evidence](architecture/recovery-and-state.md)**: Evidence model, command execution lifecycle phases, and $P_{\text{semantic}}$ projection.
 - **[Public SDK API Stability Policy](architecture/api-stability-policy.md)**: SemVer guarantees and the frozen 21-symbol public boundary.
+- **[External Effects Subsystem Architecture Specification](architecture/external_adapter_architecture.md)**: (*IMPLEMENTATION VERIFIED / CLOSED B.1 & B.3*) Canonical spec for Gateway PEP authorization, zero-credential worker payloads, dual-epoch fencing, CRC32 binary WAL, and SHA-256 cross-process claim locks.
 - **[Capability Sandbox Threat Model](architecture/threat_model.md)**: Capability security sandbox threat vector analysis.
+
 
 ### 3. Architectural Design Records & Gate Specs
 - **[ADR Index](adrs/README.md)**: Index of all Cortex Architectural Design Records.
