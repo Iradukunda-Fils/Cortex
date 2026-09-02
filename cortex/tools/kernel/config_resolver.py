@@ -15,6 +15,8 @@ Enforces the 10-stage resolution pipeline:
 10. Generation Binding & Crash-Safe Durable Admission (ConfigAdmissionEngine)
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import os
@@ -257,10 +259,10 @@ class ConfigResolver:
     def __init__(self, schema_path: Path | None = None) -> None:
         self.schema_path = schema_path or _SCHEMA_PATH
         self._schema: dict[str, Any] | None = None
-        self._validator: jsonschema.Draft202012Validator | None = None
+        self._validator: Any = None
 
     def _get_validator(self) -> Any:
-        if not HAS_JSONSCHEMA:
+        if not HAS_JSONSCHEMA or jsonschema is None:
             return None
         if self._validator is None:
             if not self.schema_path.exists():
@@ -268,7 +270,7 @@ class ConfigResolver:
             with open(self.schema_path, "r", encoding="utf-8") as f:
                 loaded_schema: dict[str, Any] = json.load(f)
             self._schema = loaded_schema
-            self._validator = jsonschema.Draft202012Validator(loaded_schema)
+            self._validator = getattr(jsonschema, "Draft202012Validator")(loaded_schema)
         return self._validator
 
     def parse_env_overrides(self, env_dict: dict[str, str] | None = None) -> dict[str, Any]:
@@ -344,13 +346,16 @@ class ConfigResolver:
 
         # STAGE 4: Structural JSON Schema Validation (Draft 2020-12)
         validator = self._get_validator()
-        if validator is not None:
+        if validator is not None and jsonschema is not None:
+            val_err_cls = getattr(jsonschema, "ValidationError", Exception)
             try:
                 validator.validate(normalized_raw)
-            except jsonschema.ValidationError as err:
-                path_str = ".".join(str(p) for p in err.path)
+            except val_err_cls as err:
+                err_path = getattr(err, "path", [])
+                err_msg = getattr(err, "message", str(err))
+                path_str = ".".join(str(p) for p in err_path)
                 raise SchemaValidationError(
-                    f"JSON Schema structural validation failure at '{path_str}': {err.message}"
+                    f"JSON Schema structural validation failure at '{path_str}': {err_msg}"
                 ) from err
 
         # STAGE 5: Semantic Validation
