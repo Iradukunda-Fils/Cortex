@@ -57,8 +57,8 @@ impl ProfileASupervisor {
     }
 
     /// Step 2: Enable PR_SET_NO_NEW_PRIVS to prevent privilege escalation via suid/sgid or seccomp bypass.
-
     pub fn set_no_new_privs() -> Result<(), SandboxError> {
+
         #[cfg(target_os = "linux")]
         {
             let res = unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) };
