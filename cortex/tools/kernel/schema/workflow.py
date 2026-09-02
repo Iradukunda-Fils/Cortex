@@ -21,14 +21,14 @@ class WorkflowState(str, enum.Enum):
     ABORTED = "ABORTED"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class WorkflowPolicy:
     timeout_seconds: float = 300.0
     max_retries: int = 3
     abort_on_verification_failure: bool = True
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Workflow:
     """First-class runtime unit of execution encapsulating autonomous lifecycles."""
 
