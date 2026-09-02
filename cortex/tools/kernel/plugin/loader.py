@@ -48,8 +48,9 @@ class CapabilityNegotiator:
         granted: set[str] = set()
         denied: list[str] = []
 
+        normalized_platform = {p.replace(".", ":") for p in self.platform_capabilities}
         for cap in manifest.required_capabilities:
-            if cap in self.platform_capabilities:
+            if cap in self.platform_capabilities or cap.replace(".", ":") in normalized_platform:
                 granted.add(cap)
             else:
                 denied.append(cap)

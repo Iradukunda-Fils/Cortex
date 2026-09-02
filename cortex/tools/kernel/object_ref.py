@@ -177,7 +177,8 @@ class DataPlaneResolver:
         Fails closed with DataPlaneAccessDeniedError if any security check fails.
         """
         # 1. Capability Check
-        if required_capability not in user_capabilities:
+        norm_user_caps = {c.replace(".", ":") for c in user_capabilities}
+        if required_capability not in user_capabilities and required_capability.replace(".", ":") not in norm_user_caps:
             raise DataPlaneAccessDeniedError(
                 f"Required capability {required_capability!r} missing from user capabilities {user_capabilities!r}"
             )
