@@ -1,71 +1,62 @@
-# Cortex Master GitHub Issue Roadmap (v1.7.0-RECONCILED)
+# Cortex Master GitHub Issue Roadmap (v1.8.0-AUDITED)
 
 > **Governance Status**: `NORMATIVE GITHUB ISSUE ROADMAP & DEPENDENCY SPECIFICATION`  
-> **Baseline Version**: `v1.7.0-RECONCILED`  
-> **Repository SHA**: `5e1e928` (`main`)  
+> **Baseline Version**: `v1.8.0-AUDITED`  
+> **Repository SHA**: `2e6f4cc` (`main`)  
 > **Reconciliation Governance Rule**: $\boxed{ \text{Remote Issue State} \leftrightarrow \text{Repository Truth} \leftrightarrow \text{Business Goal} }$  
 > **Classification Taxonomy**: $\boxed{ \text{KEEP} \mid \text{CLOSE} \mid \text{UPDATE} \mid \text{SPLIT} \mid \text{SUPERSEDED} \mid \text{NEW} }$  
 > **Core Product Value Proposition**: $\boxed{ \text{Worker has intent} \quad \text{Authority decides} \quad \text{Kernel enforces} \quad \text{Adapter executes} }$
 
 ---
 
-## 1. Master Architectural Baseline & Production Assurance Gate
+## 1. Remote Inventory & Discrepancy Reconciliation
 
-```
-                     v1.7.0-RECONCILED ARCHITECTURAL BASELINE
-                                       │
-                                       ▼
-                  Issue #41: CBE Protocol Decoder Memory Bound (CLOSED)
-                                       │
-                        ┌──────────────┴──────────────┐
-                        ▼                             ▼
-  Issue #42: ObjectRef Data Plane               Issue #43: ResourceContract
-  (CLOSED)                                      (CLOSED)
-                        │                             │
-                        └──────────────┬──────────────┘
-                                       ▼
-                  Issue #44: Gateway HMAC Idempotency & Fencing (CLOSED)
-                                       │
-                                       ▼
-                  Issue #45: Effect Reconciliation Engine (CLOSED)
-                                       │
-                                       ▼
-                  Issue #33: Sandbox Profiles (CLOSED — Native Linux NetNS & Landlock)
-                                       │
-                                       ▼
-                  Issue #32: Concrete-to-Coq Refinement Bridge (CLOSED)
-                                       │
-                                       ▼
-                  Issue #52-#58: Phase 8.0 Coq & WAL Refinement Proofs (CLOSED)
+### 1.1 Remote Inventory Verification
+- **Total Remote Issue Count**: 49 issues
+- **Highest Issue Number**: #58
+- **Issue Number Range**: 1..58
+- **Missing Issue Numbers (9)**: `#24, #26, #27, #28, #29, #38, #39, #40, #51` (Skipped or PR-converted during GitHub creation)
+- **OPEN Issues (4)**: `#19, #23, #35, #37`
+- **CLOSED Issues (45)**: `#1..#18, #20..#22, #25, #30..#34, #36, #41..#50, #52..#58`
 
-                        PRODUCTION ASSURANCE GATE
-                                    │
-                       ┌────────────┴─────────────┐
-                       │                          │
-                  Formal Safety              Runtime Safety
-                       │                          │
-                   Coq / TLA+               Fuzz / Stress
-                       │                          │
-                       └────────────┬─────────────┘
-                                    │
-                              Security Review (#23) [KEEP — Required for v1.0]
-                                    │
-                               Production Gate
-```
+### 1.2 Open Issue Classification Matrix
 
-### Authoritative Backlog & Release Matrix
+| Issue | Title | Classification | Business Value & Acceptance Criterion | Governing Release Target |
+| :---: | :--- | :---: | :--- | :---: |
+| **#23** | External Security Review & Readiness | **KEEP** | **Current Governing External-Signoff Gate**: Third-party review report + P0-P13 checklist. | `v1.0.0` |
+| **#35** | Resolve doc hyperlink & style warnings | **KEEP** | Low-priority documentation hygiene. `docs_audit.py` warning count resolution. | `v0.4.1` |
+| **#37** | Yosys synthesis gate for STCR pipeline | **KEEP** | Hardware Assurance Track only. Synthesizability check for FPGA targets. | `v0.6.0-hardware` |
+| **#19** | Newcomer contribution path & guides | **KEEP** | Open-source ecosystem adoption. Curate 5 `good first issue` candidates. | `v1.0-open` |
 
-| Track | Current State | Release Target | Business Relevance & Release Impact |
-| :--- | :--- | :---: | :--- |
-| **Core Kernel Substrate** | Hardened (Phase 1–6) | `v0.5.0` | Crash-safe WAL, atomic FSM, zero-leak resource authority. |
-| **Formal Proofs (Coq & TLA+)** | Machine-Checked (0 Axioms, 0 Admits) | `v0.5.0` | Proven safety invariants ($P_1 \dots P_{14}$) and forward simulation. |
-| **External Effects (Gates B.1–B.4)** | Runtime & Physical Verified | `v0.5.0` | Physical NetNS isolation ($NetNS(worker) \neq NetNS(host)$) + Landlock LSM + MCP adapters. |
-| **Controlled External Egress (B.2.4)** | Deferred | `Future (v1.1+)` | Per-destination URI egress authorization policies. |
-| **Cross-Node Distributed Fencing (B.3.4)** | Deferred | `Future (v1.2+)` | Cross-node distributed lease fencing (empirically unneeded on single-node). |
-| **External Security Review (#23)** | OPEN (P0 Blocker) | `v1.0.0` | Independent third-party audit required prior to public `v1.0` sign-off. |
-| **Hardware Assurance Track (#37)** | OPEN (Hardware Only) | `v0.6.0-hardware` | Yosys synthesis gate for FPGA target deployment (non-blocking for software). |
-| **Community Onboarding (#19)** | OPEN (Community) | `v1.0-open` | Good-first-issue developer guide for open-source ecosystem expansion. |
-| **Documentation Warnings (#35)** | OPEN (Low Priority) | `v0.4.1` | Resolve 228 hyperlink/formatting warnings in architecture docs. |
+### 1.3 Supersession Architecture Decision: Issue #33
+- **Original Scope**: WASM Profile B Sandbox Filters
+- **Status**: **SUPERSEDED** (Not completed as WASM C-JIT)
+- **Architectural Decision**: Matured to **Native Linux Kernel Containment** (`unshare(CLONE_NEWUSER | CLONE_NEWNET)` + Landlock LSM + `PR_SET_NO_NEW_PRIVS` in `sandbox.rs`).
+- **Rationale**: Host-native Linux containerization provides lower latency, direct syscall filtering via Seccomp/Landlock, and physical NetNS default-deny isolation without requiring embedded WASM execution.
+
+### 1.4 Formal Proofs vs. Product/Security Obligations
+
+$$\boxed{\text{Phase 8.0 Machine-Checked Formal Proofs (CLOSED)}} \quad \neq \quad \boxed{\text{External Security Sign-off & Physical Containment Gates (ACTIVE)}}$$
+
+- **Formal Assurance**: $P_1 \dots P_{14}$ resource authority safety invariants and forward simulation ($R(C_{\text{Python}}, A_{\text{Coq}})$) are 100% machine-checked in Coq with 0 axioms and 0 admits.
+- **Product & Deployment Assurance**: Issue #23 third-party audit and physical host containment limitations remain active operational deployment boundaries.
+
+---
+
+## 2. Release Progression & Baseline Alignment
+
+| Track / Capability | Introduced In | Current Baseline | Governing Release Target | Release Impact & Role |
+| :--- | :---: | :---: | :---: | :--- |
+| **OSS Foundation & Governance** | `v0.2.1` | `v0.2.1` | `v0.2.1` (CLOSED) | Apache-2.0, API stability policy. |
+| **Developer Experience & Tooling** | `v0.2.x` | `v0.2.x` | `v0.2.x` (CLOSED) | CLI error standardization, SDK import boundaries. |
+| **Multi-Process Runtime & Research** | `v0.3.0` | `v0.3.0` | `v0.3.0` (CLOSED) | Process supervisor, runtime telemetry. |
+| **Documentation & Style Audit** | `v0.4.1` | `v0.4.1` | `v0.4.1` (OPEN) | Non-fatal doc style warnings (#35). |
+| **Load Balancing & WAL Ledger** | `v0.5.0` | `v0.5.0` | `v0.5.0` (CLOSED) | Dynamic load balancer, persistent WAL journal. |
+| **Formal Refinement & Proofs** | `v0.6.0` | `v0.6.0` | `v0.6.0` (CLOSED) | Phase 8.0 Coq forward simulation & TLA+ models. |
+| **Hardware Track (STCR Pipeline)** | `v0.6.0` | `v0.6.0` | `v0.6.0-hardware` (OPEN) | Yosys synthesis check (#37). |
+| **External Effects & Physical Sandbox** | `v0.5.0` | `v0.5.0` | `v0.5.0` (CLOSED) | Physical NetNS + Landlock LSM (Gates B.1–B.4). |
+| **External Security Review** | `v1.0.0` | In-Progress | `v1.0.0` (OPEN) | Third-party review & production clearance (#23). |
+
 
 ---
 
