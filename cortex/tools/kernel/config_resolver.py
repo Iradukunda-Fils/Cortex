@@ -65,11 +65,12 @@ class CanonicalCapability:
         if not cap_str or cap_str == "*":
             raise SemanticValidationError(f"Invalid capability format '{cap_str}': wildcards forbidden")
 
-        parts = cap_str.split(".", 1)
+        delimiter = ":" if ":" in cap_str else "."
+        parts = cap_str.split(delimiter, 1)
         if len(parts) != 2 or not parts[0] or not parts[1]:
-            raise SemanticValidationError(f"Invalid capability format '{cap_str}': must match '<namespace>.<action>'")
+            raise SemanticValidationError(f"Invalid capability format '{cap_str}': must match '<namespace>.<action>' or '<namespace>:<action>'")
 
-        pattern = re.compile(r"^[a-z0-9_-]+\.[a-z0-9._-]+$")
+        pattern = re.compile(r"^[a-z0-9_-]+[:.][a-z0-9._:-]+$")
         if not pattern.match(cap_str):
             raise SemanticValidationError(
                 f"Invalid capability characters in '{cap_str}': must match alphanumeric namespace notation"
