@@ -25,6 +25,7 @@ from cortex.tools.kernel.enforcement.contract import (
     SupervisorLifecycleState,
     SupervisorTelemetry,
 )
+from cortex.tools.kernel.enforcement.netns import NetworkCapability, NetworkNamespaceEnforcer
 from cortex.tools.kernel.replica.lifecycle import (
     WorkerLifecycleTracker,
 )
@@ -52,14 +53,17 @@ class WorkerSupervisor:
         contract: EnforcementContract,
         resource_authority: ResourceAuthority,
         enforcer: Optional[CgroupResourceEnforcer] = None,
+        netns_enforcer: Optional[NetworkNamespaceEnforcer] = None,
         lifecycle_tracker: Optional[WorkerLifecycleTracker] = None,
         grace_period_sec: float = DEFAULT_GRACE_PERIOD_SEC,
     ) -> None:
         self.contract = contract
         self.resource_authority = resource_authority
         self.enforcer = enforcer or CgroupResourceEnforcer()
+        self.netns_enforcer = netns_enforcer or NetworkNamespaceEnforcer()
         self.lifecycle_tracker = lifecycle_tracker
         self.grace_period_sec = grace_period_sec
+
 
         self._lock = threading.Lock()
         self.state = SupervisorLifecycleState.CREATED
@@ -90,9 +94,12 @@ class WorkerSupervisor:
 
             self.state = SupervisorLifecycleState.ATTACHING
 
-        # Step 1: Detect capability & create cgroup
+        # Step 1: Detect capability & create cgroup / netns
         capability = self.enforcer.detect_environment()
         physical_enforcement_active = capability == EnvironmentCapability.SUPPORTED_AVAILABLE
+
+        netns_capability = self.netns_enforcer.detect_environment()
+        netns_active = netns_capability == NetworkCapability.SUPPORTED_AVAILABLE
 
         if self.contract.require_physical_enforcement and not physical_enforcement_active:
             with self._lock:
@@ -100,6 +107,14 @@ class WorkerSupervisor:
             raise ExecutionContainmentError(
                 f"Physical enforcement required for worker {self.contract.worker_id}, "
                 f"but cgroup v2 capability is {capability.name}. Execution rejected."
+            )
+
+        if self.contract.require_network_isolation and not netns_active:
+            with self._lock:
+                self.state = SupervisorLifecycleState.FAILED_CLOSED
+            raise ExecutionContainmentError(
+                f"Network isolation required for worker {self.contract.worker_id}, "
+                f"but netns capability is {netns_capability.name}. Execution rejected."
             )
 
         if physical_enforcement_active:
@@ -113,21 +128,26 @@ class WorkerSupervisor:
                     f"Failed creating cgroup boundary for worker {self.contract.worker_id}: {e}"
                 )
 
-        # Step 2: Launch worker process
+        # Step 2: Configure preexec_fn and launch worker process
         effective_env = dict(os.environ)
         if env:
             effective_env.update(env)
 
+        def combined_preexec() -> None:
+            if sys.platform != "win32":
+                os.setsid()
+            if self.contract.require_network_isolation and netns_active:
+                self.netns_enforcer.unshare_netns_preexec()
+
         start_ts = time.monotonic()
         try:
-            # Under Linux with cgroup v2, we attach the child process PID to cgroup immediately upon spawn
             proc = subprocess.Popen(
                 command,
                 env=effective_env,
                 cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                preexec_fn=os.setsid if sys.platform != "win32" else None,
+                preexec_fn=combined_preexec,
             )
         except Exception as e:
             if physical_enforcement_active and self.cgroup_path:
@@ -136,22 +156,36 @@ class WorkerSupervisor:
                 self.state = SupervisorLifecycleState.FAILED_CLOSED
             raise ExecutionContainmentError(f"Failed spawning process for worker {self.contract.worker_id}: {e}")
 
-        # Step 3: Attach process PID to cgroup and verify containment
+        # Step 3: Attach process PID to cgroup and verify cgroup & netns containment
         if physical_enforcement_active and self.cgroup_path:
             attached = self.enforcer.attach_process(self.cgroup_path, proc.pid)
             verified = self.enforcer.verify_process_membership(self.cgroup_path, proc.pid)
 
             if not attached or not verified:
-                # Immediate fail-closed kill to prevent uncontained execution
                 proc.kill()
                 proc.wait()
                 self.enforcer.remove_worker_cgroup(self.cgroup_path)
                 with self._lock:
                     self.state = SupervisorLifecycleState.FAILED_CLOSED
                 raise ExecutionContainmentError(
-                    f"Process PID {proc.pid} containment check failed for worker {self.contract.worker_id}. "
+                    f"Process PID {proc.pid} cgroup containment check failed for worker {self.contract.worker_id}. "
                     f"Attach: {attached}, Verify: {verified}. Worker killed fail-closed."
                 )
+
+        if self.contract.require_network_isolation and netns_active:
+            netns_isolated = self.netns_enforcer.verify_isolation(proc.pid)
+            if not netns_isolated:
+                proc.kill()
+                proc.wait()
+                if self.cgroup_path:
+                    self.enforcer.remove_worker_cgroup(self.cgroup_path)
+                with self._lock:
+                    self.state = SupervisorLifecycleState.FAILED_CLOSED
+                raise ExecutionContainmentError(
+                    f"Process PID {proc.pid} network namespace isolation check failed for worker {self.contract.worker_id}. "
+                    f"Worker killed fail-closed."
+                )
+
 
         # Step 4: Authorize execution & update state
         with self._lock:
