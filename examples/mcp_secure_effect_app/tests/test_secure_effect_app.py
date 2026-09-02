@@ -173,6 +173,30 @@ class TestMCPSecureEffectApp(unittest.TestCase):
         if outcome.evidence:
             self.assertIn("DELIVERED", outcome.evidence.data.decode("utf-8"))
 
+    def test_mitigation_plugin_succeeds(self) -> None:
+        outcome = self.mitigation_plugin.execute_mitigation(
+            pipeline=self.pipeline,
+            ctx=self.ctx,
+            execution_attempt_id="att_test_mitigate",
+        )
+
+        self.assertEqual(outcome.status, ExecutionStatus.EFFECT_COMMITTED)
+        self.assertIsNotNone(outcome.evidence)
+        if outcome.evidence:
+            self.assertIn("REBALANCE", outcome.evidence.data.decode("utf-8"))
+
+    def test_audit_plugin_succeeds(self) -> None:
+        outcome = self.audit_plugin.run_audit(
+            pipeline=self.pipeline,
+            ctx=self.ctx,
+            execution_attempt_id="att_test_audit",
+        )
+
+        self.assertEqual(outcome.status, ExecutionStatus.EFFECT_COMMITTED)
+        self.assertIsNotNone(outcome.evidence)
+        if outcome.evidence:
+            self.assertIn("aud_9901", outcome.evidence.data.decode("utf-8"))
+
     def test_analytics_plugin_spools_evidence_to_cas(self) -> None:
         outcome = self.analytics_plugin.generate_report(
             pipeline=self.pipeline,
