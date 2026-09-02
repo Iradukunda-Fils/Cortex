@@ -16,7 +16,6 @@ Verifies Sub-Gate B.3 Safety Invariants:
 
 from __future__ import annotations
 
-import json
 import shutil
 import tempfile
 import unittest
@@ -29,15 +28,12 @@ from cortex.tools.kernel.adapter_contract import (
     ExecutionStatus,
     ResourceContract,
 )
-from cortex.tools.kernel.effect_gateway import EffectOutcome
 from cortex.tools.kernel.effect_wal import (
     EffectWALEngine,
-    EffectWALRecord,
     EffectWALState,
     WALCorruptRecordError,
 )
 from cortex.tools.kernel.gateway_reconciliation import (
-    EffectInFlightError,
     GatewayReconciliationEngine,
     StaleEpochError,
 )
@@ -232,7 +228,7 @@ class TestSubGateB3_AdversarialFencing(unittest.TestCase):
         wal_file = Path(self.temp_dir) / "effect_lifecycle.wal"
         with open(wal_file, "r+b") as f:
             f.seek(EffectWALEngine.HEADER_SIZE + 2)
-            f.write(b"\xFF\xFF\xFF")
+            f.write(b"\xff\xff\xff")
 
         wal_corrupt = EffectWALEngine(self.temp_dir)
         try:
@@ -240,8 +236,6 @@ class TestSubGateB3_AdversarialFencing(unittest.TestCase):
                 wal_corrupt.replay_all_records()
         finally:
             wal_corrupt.close()
-
-
 
 
 if __name__ == "__main__":

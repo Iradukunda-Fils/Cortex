@@ -159,10 +159,7 @@ class LocalProcessMCPAdapter(ResourceContract):
             truncated_stderr = (stderr_data or "").strip()[:MAX_STDERR_CAPTURE_BYTES]
             return AdapterOutcome(
                 status=ExecutionStatus.UNKNOWN_EFFECT,
-                error_message=(
-                    f"MCP process exited with code {proc.returncode}. "
-                    f"stderr: {truncated_stderr}"
-                ),
+                error_message=(f"MCP process exited with code {proc.returncode}. stderr: {truncated_stderr}"),
             )
 
         # Parse JSON-RPC response — malformed output → EFFECT_NOT_APPLIED
@@ -183,9 +180,7 @@ class LocalProcessMCPAdapter(ResourceContract):
 
         # JSON-RPC error object → EFFECT_NOT_APPLIED (server explicitly rejected)
         if "error" in rpc_response:
-            error_msg = rpc_response["error"].get(
-                "message", "MCP tool execution failed"
-            )
+            error_msg = rpc_response["error"].get("message", "MCP tool execution failed")
             return AdapterOutcome(
                 status=ExecutionStatus.EFFECT_NOT_APPLIED,
                 error_message=error_msg,

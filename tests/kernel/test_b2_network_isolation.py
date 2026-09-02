@@ -22,7 +22,8 @@ import tempfile
 import textwrap
 import unittest
 from typing import Optional
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+
 from cortex.tools.kernel.enforcement.contract import EnforcementContract, SupervisorLifecycleState
 from cortex.tools.kernel.enforcement.netns import NetworkCapability, NetworkNamespaceEnforcer
 from cortex.tools.kernel.enforcement.supervisor import ExecutionContainmentError, WorkerSupervisor
@@ -43,9 +44,7 @@ class TestSubGateB2_NetworkIsolation(unittest.TestCase):
         self.enforcer = NetworkNamespaceEnforcer()
         self.capability = self.enforcer.detect_environment()
         if self.capability != NetworkCapability.SUPPORTED_AVAILABLE:
-            self.skipTest(
-                f"CLONE_NEWUSER | CLONE_NEWNET not available ({self.capability.name})"
-            )
+            self.skipTest(f"CLONE_NEWUSER | CLONE_NEWNET not available ({self.capability.name})")
 
         self.authority = _make_mock_authority()
         self.contract = EnforcementContract(
@@ -103,7 +102,7 @@ class TestSubGateB2_NetworkIsolation(unittest.TestCase):
     def test_b2_11_host_network_unaffected(self) -> None:
         """Host network namespace inode remains unchanged after worker lifecycle."""
         host_inode_before = self.enforcer.get_netns_inode(os.getpid())
-        result = self._run_isolated_worker("import time; time.sleep(0.2)")
+        self._run_isolated_worker("import time; time.sleep(0.2)")
         host_inode_after = self.enforcer.get_netns_inode(os.getpid())
         self.assertEqual(host_inode_before, host_inode_after)
 

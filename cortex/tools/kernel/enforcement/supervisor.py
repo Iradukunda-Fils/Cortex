@@ -64,7 +64,6 @@ class WorkerSupervisor:
         self.lifecycle_tracker = lifecycle_tracker
         self.grace_period_sec = grace_period_sec
 
-
         self._lock = threading.Lock()
         self.state = SupervisorLifecycleState.CREATED
         self.process: Optional[subprocess.Popen] = None
@@ -185,7 +184,6 @@ class WorkerSupervisor:
                     f"Process PID {proc.pid} network namespace isolation check failed for worker {self.contract.worker_id}. "
                     f"Worker killed fail-closed."
                 )
-
 
         # Step 4: Authorize execution & update state
         with self._lock:

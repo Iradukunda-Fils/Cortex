@@ -30,15 +30,20 @@ from cortex.tools.kernel.adapter_contract import (
     EffectClassification,
     EffectPayload,
     ExecutionStatus,
-    MAX_INLINE_EVIDENCE_BYTES,
 )
 from cortex.tools.kernel.adapters.mcp_adapter import LocalProcessMCPAdapter
 from cortex.tools.kernel.effect_gateway import (
     CapabilityDeniedError,
     EffectFencingError,
-    EffectRequest,
     EffectOutcome,
+    EffectRequest,
     GatewayAuthorizationGate,
+)
+from cortex.tools.kernel.effect_runtime import (
+    ContentAddressableStore,
+    CredentialBroker,
+    EffectExecutionPipeline,
+    EffectResultStore,
 )
 from cortex.tools.kernel.reconciliation import (
     EffectReconciliationEngine,
@@ -67,9 +72,7 @@ class StubEffectAuthority:
         self._gen = valid_generation
         self._epoch = valid_epoch
 
-    def validate_effect_reservation(
-        self, worker_generation: int, lease_epoch: int
-    ) -> bool:
+    def validate_effect_reservation(self, worker_generation: int, lease_epoch: int) -> bool:
         return worker_generation == self._gen and lease_epoch == self._epoch
 
 
@@ -101,12 +104,8 @@ class StubCapabilityRegistry:
             return False
         return operation in ops
 
-    def resolve_effect_classification(
-        self, capability: str, operation: str
-    ) -> EffectClassification:
-        return self._classifications.get(
-            capability, EffectClassification.UNKNOWN_EFFECT
-        )
+    def resolve_effect_classification(self, capability: str, operation: str) -> EffectClassification:
+        return self._classifications.get(capability, EffectClassification.UNKNOWN_EFFECT)
 
 
 # ---------------------------------------------------------------------------
@@ -132,9 +131,7 @@ def _make_request(
     invocation_id: str = "inv_test_001",
 ) -> EffectRequest:
     if arguments is None:
-        arguments = json.dumps(
-            {"tool_name": operation, "arguments": {"msg": "hello"}}
-        ).encode("utf-8")
+        arguments = json.dumps({"tool_name": operation, "arguments": {"msg": "hello"}}).encode("utf-8")
     return EffectRequest(
         invocation_id=invocation_id,
         capability=capability,
@@ -337,9 +334,7 @@ class TestP8_EvidenceSizeBounding(unittest.TestCase):
             operation_type="large_response",
         )
         payload = EffectPayload(
-            data=json.dumps(
-                {"tool_name": "large_response", "arguments": {"size_bytes": 8192}}
-            ).encode("utf-8")
+            data=json.dumps({"tool_name": "large_response", "arguments": {"size_bytes": 8192}}).encode("utf-8")
         )
         outcome = adapter.execute_effect(ctx, payload)
         self.assertEqual(outcome.status, ExecutionStatus.EFFECT_CONFIRMED)
@@ -359,11 +354,7 @@ class TestP8_EvidenceSizeBounding(unittest.TestCase):
             resource_id="res_1",
             operation_type="echo",
         )
-        payload = EffectPayload(
-            data=json.dumps(
-                {"tool_name": "echo", "arguments": {"msg": "hi"}}
-            ).encode("utf-8")
-        )
+        payload = EffectPayload(data=json.dumps({"tool_name": "echo", "arguments": {"msg": "hi"}}).encode("utf-8"))
         outcome = adapter.execute_effect(ctx, payload)
         self.assertEqual(outcome.status, ExecutionStatus.EFFECT_CONFIRMED)
         assert outcome.evidence is not None
@@ -410,9 +401,7 @@ class TestP10_AdapterCrashReconciliation(unittest.TestCase):
             resource_id="res_ambiguous",
             operation_type="ambiguous_effect",
         )
-        payload = EffectPayload(
-            data=json.dumps({"tool_name": "ambiguous_effect"}).encode("utf-8")
-        )
+        payload = EffectPayload(data=json.dumps({"tool_name": "ambiguous_effect"}).encode("utf-8"))
         outcome = adapter.execute_effect(ctx, payload)
         self.assertEqual(outcome.status, ExecutionStatus.UNKNOWN_EFFECT)
         assert outcome.error_message is not None
@@ -488,15 +477,11 @@ class TestEndToEndPipeline(unittest.TestCase):
         req = _make_request(
             capability="mcp.echo",
             operation="echo",
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"greeting": "hello cortex"}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"greeting": "hello cortex"}}).encode("utf-8"),
         )
 
         # Gateway authorization
-        ctx, classification = gate.authorize_and_prepare(
-            req, execution_attempt_id="att_e2e_1"
-        )
+        ctx, classification = gate.authorize_and_prepare(req, execution_attempt_id="att_e2e_1")
         self.assertEqual(classification, EffectClassification.READ_ONLY)
 
         # Adapter execution
@@ -520,14 +505,10 @@ class TestEndToEndPipeline(unittest.TestCase):
         req = _make_request(
             capability="mcp.ambiguous",
             operation="ambiguous_effect",
-            arguments=json.dumps(
-                {"tool_name": "ambiguous_effect"}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "ambiguous_effect"}).encode("utf-8"),
         )
 
-        ctx, classification = gate.authorize_and_prepare(
-            req, execution_attempt_id="att_e2e_crash"
-        )
+        ctx, classification = gate.authorize_and_prepare(req, execution_attempt_id="att_e2e_crash")
         self.assertEqual(classification, EffectClassification.UNKNOWN_EFFECT)
 
         adapter = LocalProcessMCPAdapter(server_command=MCP_COMMAND)
@@ -551,22 +532,12 @@ class TestEndToEndPipeline(unittest.TestCase):
 # ===========================================================================
 
 
-from cortex.tools.kernel.effect_runtime import (
-    ContentAddressableStore,
-    CredentialBroker,
-    EffectExecutionPipeline,
-    EffectResultStore,
-)
-
-
 def _make_pipeline(
     adapter_command: Optional[list[str]] = None,
 ) -> EffectExecutionPipeline:
     """Constructs a complete pipeline with all components wired."""
     gate = _make_gate()
-    adapter = LocalProcessMCPAdapter(
-        server_command=adapter_command or MCP_COMMAND
-    )
+    adapter = LocalProcessMCPAdapter(server_command=adapter_command or MCP_COMMAND)
     broker = CredentialBroker()
     broker.register_credential("res_test_01", b"SECRET_PROVIDER_TOKEN_XYZ")
     cas = ContentAddressableStore()
@@ -589,18 +560,18 @@ class TestP1b_CredentialIsolation(unittest.TestCase):
         """EffectOutcome returned to worker contains zero credential bytes."""
         pipeline = _make_pipeline()
         req = _make_request(
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"msg": "test"}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"msg": "test"}}).encode("utf-8"),
         )
         outcome = pipeline.execute(req, execution_attempt_id="att_cred_1")
         # Credential is b"SECRET_PROVIDER_TOKEN_XYZ" — must NOT appear
-        outcome_bytes = json.dumps({
-            "invocation_id": outcome.invocation_id,
-            "status": outcome.status.value,
-            "error_message": outcome.error_message or "",
-            "evidence": outcome.evidence.data.decode("utf-8", errors="replace") if outcome.evidence else "",
-        }).encode("utf-8")
+        outcome_bytes = json.dumps(
+            {
+                "invocation_id": outcome.invocation_id,
+                "status": outcome.status.value,
+                "error_message": outcome.error_message or "",
+                "evidence": outcome.evidence.data.decode("utf-8", errors="replace") if outcome.evidence else "",
+            }
+        ).encode("utf-8")
         self.assertNotIn(b"SECRET_PROVIDER_TOKEN_XYZ", outcome_bytes)
 
     def test_credential_not_in_effect_request(self) -> None:
@@ -657,9 +628,7 @@ class TestP8_CASRoundTrip(unittest.TestCase):
         req = _make_request(
             capability="mcp.large",
             operation="large_response",
-            arguments=json.dumps(
-                {"tool_name": "large_response", "arguments": {"size_bytes": 8192}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "large_response", "arguments": {"size_bytes": 8192}}).encode("utf-8"),
         )
         outcome = pipeline.execute(req, execution_attempt_id="att_cas_1")
         self.assertEqual(outcome.status, ExecutionStatus.EFFECT_CONFIRMED)
@@ -679,9 +648,7 @@ class TestP12_PipelineReplayProtection(unittest.TestCase):
         pipeline = _make_pipeline()
         req = _make_request(
             invocation_id="inv_replay_100",
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"v": "original"}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"v": "original"}}).encode("utf-8"),
         )
         # First execution — hits adapter
         outcome1 = pipeline.execute(req, execution_attempt_id="att_1")
@@ -701,15 +668,11 @@ class TestP12_PipelineReplayProtection(unittest.TestCase):
         pipeline = _make_pipeline()
         req1 = _make_request(
             invocation_id="inv_a",
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"v": 1}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"v": 1}}).encode("utf-8"),
         )
         req2 = _make_request(
             invocation_id="inv_b",
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"v": 1}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"v": 1}}).encode("utf-8"),
         )
         outcome1 = pipeline.execute(req1, execution_attempt_id="att_1")
         outcome2 = pipeline.execute(req2, execution_attempt_id="att_1")
@@ -740,9 +703,7 @@ class TestPipelineComposition(unittest.TestCase):
         """Full chain: authorized echo through pipeline."""
         pipeline = _make_pipeline()
         req = _make_request(
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"greeting": "pipeline"}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"greeting": "pipeline"}}).encode("utf-8"),
         )
         outcome = pipeline.execute(req, execution_attempt_id="att_pipe_1")
         self.assertEqual(outcome.status, ExecutionStatus.EFFECT_CONFIRMED)
@@ -754,9 +715,7 @@ class TestPipelineComposition(unittest.TestCase):
         req = _make_request(
             capability="mcp.ambiguous",
             operation="ambiguous_effect",
-            arguments=json.dumps(
-                {"tool_name": "ambiguous_effect"}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "ambiguous_effect"}).encode("utf-8"),
         )
         outcome = pipeline.execute(req, execution_attempt_id="att_pipe_crash")
         self.assertEqual(outcome.status, ExecutionStatus.UNKNOWN_EFFECT)
@@ -766,6 +725,7 @@ class TestPipelineComposition(unittest.TestCase):
         pipeline = _make_pipeline()
         req = _make_request(capability="mcp.forbidden", operation="hack")
         from cortex.tools.kernel.effect_gateway import CapabilityDeniedError
+
         with self.assertRaises(CapabilityDeniedError):
             pipeline.execute(req, execution_attempt_id="att_pipe_denied")
 
@@ -813,9 +773,7 @@ class TestP12_ConcurrentDuplicateFencing(unittest.TestCase):
 
         req = _make_request(
             invocation_id="inv_concurrent_99",
-            arguments=json.dumps(
-                {"tool_name": "echo", "arguments": {"race": "test"}}
-            ).encode("utf-8"),
+            arguments=json.dumps({"tool_name": "echo", "arguments": {"race": "test"}}).encode("utf-8"),
         )
 
         def worker_task(thread_id: int):
@@ -870,5 +828,3 @@ class TestP8_CASIntegrityAndScoping(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

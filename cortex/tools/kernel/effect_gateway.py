@@ -30,7 +30,6 @@ from cortex.tools.kernel.adapter_contract import (
     ExecutionStatus,
 )
 
-
 # ---------------------------------------------------------------------------
 # Exceptions
 # ---------------------------------------------------------------------------
@@ -174,9 +173,7 @@ class GatewayAuthorizationGate:
         domain_separator: str = "cortex.v1.effect_idempotency",
     ) -> None:
         if len(domain_secret) < 16:
-            raise ValueError(
-                "Domain secret must be at least 16 bytes for HMAC-SHA256 security."
-            )
+            raise ValueError("Domain secret must be at least 16 bytes for HMAC-SHA256 security.")
         self._authority = effect_authority
         self._registry = capability_registry
         self._domain_secret = domain_secret
@@ -207,9 +204,7 @@ class GatewayAuthorizationGate:
             f"{request.contract_version}"
         ).encode("utf-8")
 
-        digest = hmac.new(
-            self._domain_secret, canonical_message, hashlib.sha256
-        ).hexdigest()
+        digest = hmac.new(self._domain_secret, canonical_message, hashlib.sha256).hexdigest()
         return f"hmac-sha256:v1:{digest}"
 
     def authorize_and_prepare(
@@ -226,27 +221,21 @@ class GatewayAuthorizationGate:
             CapabilityDeniedError: If capability is not granted.
         """
         # Step 1: Lease Epoch & Worker Generation Fencing
-        if not self._authority.validate_effect_reservation(
-            request.worker_generation, request.lease_epoch
-        ):
+        if not self._authority.validate_effect_reservation(request.worker_generation, request.lease_epoch):
             raise EffectFencingError(
                 f"Effect reservation invalid: generation={request.worker_generation}, "
                 f"epoch={request.lease_epoch}. Request rejected."
             )
 
         # Step 2: Capability Permission Grant Check
-        if not self._registry.is_capability_granted(
-            request.capability, request.operation
-        ):
+        if not self._registry.is_capability_granted(request.capability, request.operation):
             raise CapabilityDeniedError(
                 f"Capability '{request.capability}' operation '{request.operation}' "
                 f"is not granted. Effect request rejected."
             )
 
         # Step 3: Resolve Authoritative Effect Classification (Gateway-Driven)
-        classification = self._registry.resolve_effect_classification(
-            request.capability, request.operation
-        )
+        classification = self._registry.resolve_effect_classification(request.capability, request.operation)
 
         # Step 4: Derive Deterministic Idempotency Key
         idempotency_key = self.derive_idempotency_key(request)

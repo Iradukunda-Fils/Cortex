@@ -143,15 +143,18 @@ $$\text{Python Authority} \rightarrow \text{Go/Rust Transport Substrate} \righta
 
 ## External Effects Subsystem Gate Sequence (B.1–B.4)
 
-$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (CLOSED)} \rightarrow \text{Gate B.4 (NEXT ACTIVE)} }$$
+$$\boxed{ \text{Gate B.1 (CLOSED)} \rightarrow \text{Gate B.3 (CLOSED)} \rightarrow \text{Gate B.2 (CLOSED)} \rightarrow \text{Gate B.4 (CLOSED / RUNTIME-VERIFIED)} }$$
+
+$$\boxed{ \text{Worker has intent} \quad \text{Authority decides} \quad \text{Kernel enforces} \quad \text{Adapter executes} }$$
 
 - **Sub-Gate B.1**: Local MCP Effect Composition & Authorization Gate — **CLOSED (PASS)**
 - **Sub-Gate B.3.0**: Local Restart & Cross-Process Fencing (`gateway_reconciliation.py`, `effect_wal.py`) — **CLOSED (LOCAL RESTART / CROSS-PROCESS FENCING)**
 - **Sub-Gate B.3.1**: Durability & Throughput Benchmarking — **CLOSED (NO CHANGE REQUIRED / EMPIRICALLY MEASURED)**
-- **Sub-Gate B.2**: Physical Network Isolation via Linux `ip netns` (`netns.py`, `supervisor.py`) — **CLOSED (PHYSICAL DEFAULT-DENY NETWORK ISOLATION)**
-- **Sub-Gate B.4**: Landlock LSM Kernel Enforcement in Rust `sandbox.rs` — **OPEN (NEXT ACTIVE GATE)**
+- **Sub-Gate B.2**: Physical Network Isolation via Linux `unshare(CLONE_NEWUSER | CLONE_NEWNET)` (`netns.py`, `supervisor.py`) — **CLOSED (PHYSICAL DEFAULT-DENY NETWORK ISOLATION: $NetNS(worker) \neq NetNS(host)$)**
+- **Sub-Gate B.4**: Landlock LSM Kernel Enforcement in Rust `sandbox.rs` — **CLOSED (FAIL-CLOSED FILESYSTEM CONTAINMENT & PR_SET_NO_NEW_PRIVS)**
 - **Sub-Gate B.2.4**: Controlled External Egress Destination Policy — **FUTURE / DEFERRED**
 - **Sub-Gate B.3.4**: Cross-Node Distributed Ownership & Fencing — **FUTURE / DEFERRED**
+
 
 
 

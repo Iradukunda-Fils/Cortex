@@ -56,7 +56,6 @@ class EnforcementContract:
     require_network_isolation: bool = True
     allow_network_egress: bool = False
 
-
     def to_cgroup_cpu_max(self, period_us: int = DEFAULT_CFS_PERIOD_US) -> str:
         """Converts cpu_mcores into cgroup v2 cpu.max 'quota period' format."""
         if self.cpu_mcores <= 0:

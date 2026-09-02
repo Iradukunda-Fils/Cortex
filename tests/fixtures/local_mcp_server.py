@@ -42,9 +42,7 @@ def handle_request(req: dict) -> dict:
         return {
             "jsonrpc": "2.0",
             "id": req_id,
-            "result": {
-                "content": [{"type": "text", "text": json.dumps(args)}]
-            },
+            "result": {"content": [{"type": "text", "text": json.dumps(args)}]},
         }
 
     elif tool_name == "fail":
@@ -63,9 +61,7 @@ def handle_request(req: dict) -> dict:
         return {
             "jsonrpc": "2.0",
             "id": req_id,
-            "result": {
-                "content": [{"type": "text", "text": "Completed slow task"}]
-            },
+            "result": {"content": [{"type": "text", "text": "Completed slow task"}]},
         }
 
     elif tool_name == "large_response":
@@ -74,16 +70,12 @@ def handle_request(req: dict) -> dict:
         return {
             "jsonrpc": "2.0",
             "id": req_id,
-            "result": {
-                "content": [{"type": "text", "text": large_text}]
-            },
+            "result": {"content": [{"type": "text", "text": large_text}]},
         }
 
     elif tool_name == "ambiguous_effect":
         # Simulates crash after partial execution — status is genuinely unknown
-        sys.stderr.write(
-            "CRITICAL: Internal state ambiguous, crashing process\n"
-        )
+        sys.stderr.write("CRITICAL: Internal state ambiguous, crashing process\n")
         sys.stderr.flush()
         sys.exit(137)
 

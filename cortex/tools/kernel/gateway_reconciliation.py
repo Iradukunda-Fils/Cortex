@@ -68,7 +68,6 @@ class CrossGatewayClaimLock:
         except (IOError, OSError):
             return None
 
-
     def release_claim(self, lock_handle: Optional[Any]) -> None:
         if lock_handle is not None and not lock_handle.closed:
             try:
@@ -148,9 +147,7 @@ class GatewayReconciliationEngine:
         """
         # Step 1: Strict Dual Epoch Fencing Check
         if lease_epoch != self._lease_epoch:
-            raise StaleEpochError(
-                f"Lease epoch mismatch: request={lease_epoch} != active={self._lease_epoch}"
-            )
+            raise StaleEpochError(f"Lease epoch mismatch: request={lease_epoch} != active={self._lease_epoch}")
         if authority_epoch != self._authority_epoch:
             raise StaleEpochError(
                 f"Authority epoch mismatch: request={authority_epoch} != active={self._authority_epoch}"
@@ -212,6 +209,7 @@ class GatewayReconciliationEngine:
                 operation_type=operation_type,
             )
             from cortex.tools.kernel.adapter_contract import EffectPayload
+
             adapter_outcome = adapter.execute_effect(ctx, EffectPayload(data=payload))
 
             # Step 7: Build EffectOutcome & Persist COMMITTED state -> fsync
@@ -245,4 +243,3 @@ class GatewayReconciliationEngine:
 
         finally:
             self._claim_mutex.release_claim(lock_handle)
-

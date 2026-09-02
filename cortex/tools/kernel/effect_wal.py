@@ -21,10 +21,9 @@ import zlib
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 from cortex.tools.kernel.adapter_contract import (
-    AdapterOutcome,
     EvidencePayload,
     ExecutionStatus,
 )
@@ -99,15 +98,11 @@ class EffectWALRecord:
             raise WALCorruptRecordError(f"Invalid WAL magic header: {magic!r}")
 
         if len(payload_bytes) != payload_len:
-            raise WALCorruptRecordError(
-                f"Payload length mismatch: expected {payload_len}, got {len(payload_bytes)}"
-            )
+            raise WALCorruptRecordError(f"Payload length mismatch: expected {payload_len}, got {len(payload_bytes)}")
 
         actual_crc = zlib.crc32(payload_bytes) & 0xFFFFFFFF
         if actual_crc != expected_crc:
-            raise WALCorruptRecordError(
-                f"CRC32 mismatch: calculated {actual_crc:#010x}, expected {expected_crc:#010x}"
-            )
+            raise WALCorruptRecordError(f"CRC32 mismatch: calculated {actual_crc:#010x}, expected {expected_crc:#010x}")
 
         p = json.loads(payload_bytes.decode("utf-8"))
 
@@ -201,7 +196,6 @@ class EffectWALEngine:
         finally:
             fcntl.flock(fd, fcntl.LOCK_UN)
 
-
     def replay_all_records(self) -> List[EffectWALRecord]:
         """
         Reads and verifies all CRC32 binary records from disk.
@@ -222,9 +216,7 @@ class EffectWALEngine:
                     # Incomplete tail frame written before crash -> clean stop
                     break
 
-                magic, payload_len, expected_crc, seq_no = struct.unpack(
-                    ">4sIIQ", header_bytes
-                )
+                magic, payload_len, expected_crc, seq_no = struct.unpack(">4sIIQ", header_bytes)
                 payload_bytes = f.read(payload_len)
 
                 if len(payload_bytes) < payload_len:
@@ -255,4 +247,3 @@ class EffectWALEngine:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
-

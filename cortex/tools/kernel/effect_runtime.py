@@ -191,17 +191,13 @@ class ContentAddressableStore:
 
         # Owner authorization check (cross-invocation access defense)
         if owner_id is not None and requester_id is not None and owner_id != requester_id:
-            raise CASAccessDeniedError(
-                f"Unauthorized access to ObjectRef {ref} by requester {requester_id}"
-            )
+            raise CASAccessDeniedError(f"Unauthorized access to ObjectRef {ref} by requester {requester_id}")
 
         # Integrity verification check
         computed_hash = hashlib.sha256(data).hexdigest()
         expected_hash = ref.split("sha256:")[-1]
         if computed_hash != expected_hash:
-            raise CASDataCorruptionError(
-                f"CAS Integrity Breach for {ref}: hash mismatch"
-            )
+            raise CASDataCorruptionError(f"CAS Integrity Breach for {ref}: hash mismatch")
 
         return data
 
@@ -277,9 +273,7 @@ class EffectExecutionPipeline:
         Guarantees exactly one external execution even for concurrent duplicate requests.
         """
         # Step 1: Authorize via Gateway (fencing + capability + classification + HMAC key)
-        ctx, classification = self._gate.authorize_and_prepare(
-            request, execution_attempt_id
-        )
+        ctx, classification = self._gate.authorize_and_prepare(request, execution_attempt_id)
 
         key = ctx.idempotency_key
 
@@ -317,9 +311,7 @@ class EffectExecutionPipeline:
             if evidence is not None and not evidence.is_reference:
                 if len(evidence.data) > MAX_INLINE_EVIDENCE_BYTES:
                     ref = self._cas.put(evidence.data, owner_id=ctx.invocation_id)
-                    evidence = EvidencePayload(
-                        data=ref.encode("utf-8"), is_reference=True
-                    )
+                    evidence = EvidencePayload(data=ref.encode("utf-8"), is_reference=True)
                     adapter_outcome = AdapterOutcome(
                         status=adapter_outcome.status,
                         evidence=evidence,
