@@ -352,10 +352,12 @@ mod tests {
 
     #[test]
     fn test_landlock_sandbox_application() {
-        let read_paths: &[&str] = &["/usr/lib", "/lib"];
-        let write_paths: &[&str] = &["/tmp"];
-        let res = ProfileASupervisor::apply_landlock_sandbox(read_paths, write_paths);
+        let read_paths = ["/usr/lib", "/lib"];
+        let write_paths = ["/tmp"];
+        let res =
+            ProfileASupervisor::apply_landlock_sandbox(read_paths.as_slice(), write_paths.as_slice());
         assert!(res.is_ok());
     }
 }
+
 
