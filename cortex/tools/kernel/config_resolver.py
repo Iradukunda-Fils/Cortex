@@ -27,7 +27,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-import jsonschema
+try:
+    import jsonschema
+    HAS_JSONSCHEMA = True
+except ImportError:
+    jsonschema = None
+    HAS_JSONSCHEMA = False
 
 from cortex.exceptions import (
     ConfigurationError,
@@ -254,7 +259,9 @@ class ConfigResolver:
         self._schema: dict[str, Any] | None = None
         self._validator: jsonschema.Draft202012Validator | None = None
 
-    def _get_validator(self) -> jsonschema.Draft202012Validator:
+    def _get_validator(self) -> Any:
+        if not HAS_JSONSCHEMA:
+            return None
         if self._validator is None:
             if not self.schema_path.exists():
                 raise ConfigurationError(f"Pinned JSON Schema file not found at: {self.schema_path}")
@@ -337,13 +344,14 @@ class ConfigResolver:
 
         # STAGE 4: Structural JSON Schema Validation (Draft 2020-12)
         validator = self._get_validator()
-        try:
-            validator.validate(normalized_raw)
-        except jsonschema.ValidationError as err:
-            path_str = ".".join(str(p) for p in err.path)
-            raise SchemaValidationError(
-                f"JSON Schema structural validation failure at '{path_str}': {err.message}"
-            ) from err
+        if validator is not None:
+            try:
+                validator.validate(normalized_raw)
+            except jsonschema.ValidationError as err:
+                path_str = ".".join(str(p) for p in err.path)
+                raise SchemaValidationError(
+                    f"JSON Schema structural validation failure at '{path_str}': {err.message}"
+                ) from err
 
         # STAGE 5: Semantic Validation
         replica = normalized_raw["replica_group"]

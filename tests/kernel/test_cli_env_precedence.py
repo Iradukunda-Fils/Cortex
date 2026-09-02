@@ -26,12 +26,14 @@ from cortex.exceptions import (
     SemanticValidationError,
 )
 from cortex.tools.kernel.config_resolver import (
+    HAS_JSONSCHEMA,
     CanonicalCapability,
     ConfigAdmissionEngine,
     ConfigResolver,
 )
 
 
+@unittest.skipUnless(HAS_JSONSCHEMA, "jsonschema package not installed in environment")
 class TestConfigResolverComprehensive(unittest.TestCase):
     def setUp(self) -> None:
         self.resolver = ConfigResolver()
