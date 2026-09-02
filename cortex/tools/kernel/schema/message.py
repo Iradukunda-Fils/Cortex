@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BaseEvent:
     """Universal event envelope carrying identity, workflow correlation,
     and causal lineage metadata."""
@@ -39,7 +39,7 @@ class BaseEvent:
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class IntentEvent(BaseEvent):
     """Represents WHAT is desired (Goal / Action Request)."""
 
@@ -49,7 +49,7 @@ class IntentEvent(BaseEvent):
     parameters: dict[str, object] = field(default_factory=dict)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class PlanGeneratedEvent(BaseEvent):
     """Represents HOW the Intent is decomposed into structured steps."""
 
@@ -58,7 +58,7 @@ class PlanGeneratedEvent(BaseEvent):
     steps: list[dict[str, object]] = field(default_factory=list)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CommandIssuedEvent(BaseEvent):
     """Represents EXECUTE THIS SINGLE OPERATION."""
 
@@ -68,7 +68,7 @@ class CommandIssuedEvent(BaseEvent):
     parameters: dict[str, object] = field(default_factory=dict)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DriverTelemetryEvent(BaseEvent):
     """Raw execution feedback from hardware, tools, or RTL models."""
 
@@ -77,7 +77,7 @@ class DriverTelemetryEvent(BaseEvent):
     payload: dict[str, object] = field(default_factory=dict)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class VerificationResultEvent(BaseEvent):
     """Verification/Invariant evaluation result derived from Telemetry."""
 
@@ -92,7 +92,7 @@ class VerificationResultEvent(BaseEvent):
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CommitEventV1(BaseEvent):
     """Immutable architectural commit event scoped exclusively to the
     formal verification service pipeline (Coq / Rust / RTL oracles)."""
