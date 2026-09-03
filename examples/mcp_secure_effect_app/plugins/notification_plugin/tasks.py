@@ -12,6 +12,7 @@ from cortex.tools.kernel.effect_gateway import EffectOutcome, EffectRequest
 
 if TYPE_CHECKING:
     from cortex.tools.kernel.effect_runtime import EffectExecutionPipeline
+
     from ..ingestion_plugin.tasks import ExecutionContext
 
 

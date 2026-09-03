@@ -18,6 +18,7 @@ Tests (10 cases):
 from __future__ import annotations
 
 import unittest
+
 from cortex import CortexClient, IntentEvent, PluginManifest, WorkflowState
 from cortex.tools.kernel.adapter_contract import ExecutionStatus
 from cortex.tools.kernel.effect_gateway import (
@@ -25,7 +26,6 @@ from cortex.tools.kernel.effect_gateway import (
     EffectFencingError,
     EffectRequest,
 )
-
 from examples.mcp_secure_effect_app.main import build_cortex_effect_runtime
 from examples.mcp_secure_effect_app.plugins.analytics_plugin.tasks import AnalyticsPlugin
 from examples.mcp_secure_effect_app.plugins.audit_plugin.tasks import AuditPlugin

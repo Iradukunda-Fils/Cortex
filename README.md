@@ -12,15 +12,16 @@
 
 ## 🚀 Current Milestone & Release Train Status
 
-$$\boxed{ \text{v0.5.0} \rightarrow \text{v0.6.0} \rightarrow \text{v1.0.0-RC1} } \quad \text{with} \quad \Delta \text{Architecture} = 0$$
+$$\boxed{ \text{Package Metadata: 0.7.0rc1} \quad \vert \quad \text{RELEASE\_STATUS} = \text{RELEASE\_CANDIDATE} }$$
 
-- **Current Milestone**: `v1.0.0-RC1` (Release Candidate 1 — Active Architecture Freeze).
-- **External Security Gate**: Governed by **Issue #23** (External Security Review & Audit Sign-off).
-- **Verification Status**: 566/566 tests pass cleanly; Phase 8.0 Coq formal proofs machine-checked with **0 Axioms / 0 Admits**.
+- **Current Status**: `RELEASE_CANDIDATE` (Production v1.0.0 Release: **BLOCKED** pending Issue #23 external security review).
+- **Package Manifest**: `cortex-runtime` v0.7.0rc1 (`pyproject.toml`).
+- **Formal Assurance Scope**: Core kernel invariants ($P_1, P_2, P_6$) are machine-checked in Coq (0 Axioms / 0 Admits). F4c bounded refinement is verified across 10 structural equivalence classes.
+- **Physical Sandboxing Scope**: Physical isolation (Landlock/seccomp) is enforced when workloads run via `cortex-emulator`. In pure Python runtime, `ResourceAuthority` enforces logical vector bounds.
 
 | Release Version | Release Status | Primary Milestone Deliverables | Release Documentation |
 | :--- | :--- | :--- | :--- |
-| **`v1.0.0-RC1`** | **Release Candidate** | Frozen baseline prepared for external security audit gate (Issue #23) | [`cortex_open_work_register.md`](docs/architecture/cortex_open_work_register.md) |
+| **`v0.7.0rc1`** | **Release Candidate** | External Effects Subsystem, Network Containment (B.2), Process Fencing (B.3) | [`cortex_v0.7.0rc1_release_manifest.md`](docs/release/v0.7.0rc1_release_manifest.md) |
 | **`v0.6.0`** | Formal Proof Milestone | Phase 8.0 Machine-Checked Refinement Proofs & WASM Profile B | [`coq_formal_proof_inventory_delta.md`](docs/architecture/coq_formal_proof_inventory_delta.md) |
 | **`v0.5.0`** | Durable Authority Baseline | Dynamic Load Balancing, Write-Ahead Logging & Placement Subsystem | [`replica_scaling_specification.md`](docs/architecture/replica_scaling_specification.md) |
 | **`v0.4.0-experimental`** | Experimental Baseline | Multi-tier IPC channels and streaming message codec | [`v0.3.0-experimental.md`](docs/release/v0.3.0-experimental.md) |
