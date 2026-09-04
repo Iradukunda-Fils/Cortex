@@ -186,17 +186,10 @@ class LocalProcessMCPAdapter(ResourceContract):
                 error_message=error_msg,
             )
 
-        # Successful execution: extract and bound evidence payload
+        # Successful execution: extract evidence payload (pipeline spools to CAS if >4KiB)
         result_data = rpc_response.get("result", {})
         result_bytes = json.dumps(result_data, sort_keys=True).encode("utf-8")
-
-        if len(result_bytes) > MAX_INLINE_EVIDENCE_BYTES:
-            # Evidence exceeds 4KiB → spool to reference pointer
-            content_hash = hashlib.sha256(result_bytes).hexdigest()
-            ref_pointer = f"sha256:{content_hash}:{len(result_bytes)}".encode("utf-8")
-            evidence = EvidencePayload(data=ref_pointer, is_reference=True)
-        else:
-            evidence = EvidencePayload(data=result_bytes)
+        evidence = EvidencePayload(data=result_bytes, is_reference=False)
 
         return AdapterOutcome(
             status=ExecutionStatus.EFFECT_CONFIRMED,
