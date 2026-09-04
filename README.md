@@ -17,17 +17,17 @@ Cortex `v0.7.0rc1` represents the frozen Release Candidate for the **External Ef
 $$\boxed{\text{Audited Commit: } \texttt{318729c3fed1313420658db83ea560e256348caf}} \quad \vert \quad \boxed{\text{Release Identity: } \texttt{v0.7.0rc1}}$$
 
 ```
-+-----------------------------------------------------------------------------------+
-|                        RELEASE CANDIDATE METADATA & ARTIFACTS                     |
-+-----------------------------------------------------------------------------------+
-| Git Tag          | v0.7.0rc1                                                      |
-| Tag Target Commit| 318729c3fed1313420658db83ea560e256348caf                        |
-| Working Tree     | Clean (git status --porcelain is empty)                        |
-| Package Version  | cortex-runtime 0.7.0rc1 (pyproject.toml)                       |
-| Rust Emulator    | 0.1.0 (cortex-emulator/Cargo.toml)                            |
++--------------------------------------------------------------------------------------+
+|                        RELEASE CANDIDATE METADATA & ARTIFACTS                        |
++--------------------------------------------------------------------------------------+
+| Git Tag          | v0.7.0rc1                                                         |
+| Tag Target Commit| 318729c3fed1313420658db83ea560e256348caf                          |
+| Working Tree     | Clean (git status --porcelain is empty)                           |
+| Package Version  | cortex-runtime 0.7.0rc1 (pyproject.toml)                          |
+| Rust Emulator    | 0.1.0 (cortex-emulator/Cargo.toml)                                |
 | Wheel SHA256     | a8fd04bf5d91c8c52e0d812debf1b22309003a9cf5a24e3f794727a4362f687a  |
 | Source Tar SHA256| 87857a94da5c8643d7b44ebb64cb8231aeff924ea7189395c4e62c625e18583f  |
-+-----------------------------------------------------------------------------------+
++--------------------------------------------------------------------------------------+
 ```
 
 ---
@@ -80,6 +80,8 @@ For comprehensive systems engineering analysis, low-level security audits, and t
 | 🔌 [**API & Plugin Contract Status**](docs/architecture/cortex_api_and_plugin_contract_status.md) | Boundaries between Native Plugins (`BasePlugin`), Subprocess Workers, and Adapters. |
 | 🛡️ [**Deployment Truth Matrix**](docs/architecture/cortex_deployment_truth_matrix.md) | OS kernel dependencies (Landlock LSM, cgroups v2, NetNS), degradation rules & environments. |
 | 🏁 [**Release Readiness Final Report**](docs/architecture/cortex_release_readiness_final.md) | Immutable commit binding, defect resolution register, and final release sign-off. |
+| ⚙️ [**Release Process & Governance**](docs/release/cortex_release_process_and_governance.md) | Normative 6-step release protocol, PyPI OIDC publishing, and release gates. |
+| 🔒 [**CI/CD Security & Scalability Audit**](docs/architecture/cortex_cicd_security_and_scalability_audit.md) | Audit of GitHub Actions workflows, OIDC authentication, and least-privilege security. |
 | 📜 [**CBE Transport Specification**](docs/architecture/cbe_transport_architecture.md) | Canonical Binary Encoding transport protocol, frame layout, and wire grammar. |
 | ⚖️ [**Resource Authority Specification**](docs/architecture/resource-authority.md) | Capacity vector accounting, reservation lifecycle, and formal proof alignment. |
 
