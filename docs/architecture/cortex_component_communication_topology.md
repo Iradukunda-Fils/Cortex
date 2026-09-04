@@ -165,7 +165,38 @@ High-throughput, low-latency workloads (e.g. 60 FPS 1080p/4K video streams, PyTo
 
 ---
 
-## 7. Reliability & Process Group Fencing Invariants
+## 7. Predictable Behavior of Plugin Pub/Sub & Adapter Communication Under Load
+
+During high-concurrency event bursts or heavy plugin messaging, Cortex enforces predictable, deterministic runtime behavior using four core safety bounds:
+
+```
+                            PREDICTABLE PUB/SUB UNDER LOAD
+                            
+[ High-Volume Event Ingress ]
+              │
+              ▼ (1. Enforce Bounded In-Flight Queues: max_count, max_bytes)
+[ EventBus Router / Adapter ] ─── Over Capacity? ───► Action: REJECT (Fail-Closed)
+              │
+              ▼ (2. Monotonic Sequence & Epoch Fencing)
+[ Monotonic Filter ] ─── Out-of-Order / Duplicate? ───► Action: DROP (Idempotent)
+              │
+              ▼ (3. Non-Blocking Async Channel Pipeline)
+[ Plugin Execution Subprocess ]
+```
+
+### Core Predictability Controls:
+1. **Bounded Queue Ceilings & Reactive Backpressure**:
+   Async Pub/Sub topics and Adapter event buffers enforce strict ceilings on queue message counts (`max_count`) and total memory byte sizes (`max_bytes`). When subscriber processing lags behind ingress rates, Cortex deterministically rejects new ingress frames (`ResourceBoundTrigger: REJECT`) rather than allowing unbounded heap allocation.
+2. **Monotonic Sequence & Epoch Fencing**:
+   Under heavy load or network re-transmissions, pub/sub frames carry monotonic sequence counters and epoch IDs. Late-arriving, duplicate, or stale event frames are dropped deterministically (`EFFECT_NOT_APPLIED`), guaranteeing linearizable, predictable state transitions.
+3. **Partitioned Asynchronous Event Dispatch**:
+   Plugin Pub/Sub topics execute over non-blocking `asyncio` event loops partitioned by topic name. High latency in one plugin subscriber channel does not block or degrade message delivery across unrelated topics.
+4. **Dynamic Load Balancing & Worker Shedding**:
+   When worker memory or CPU utilization breaches host resource ceilings, the `DynamicLoadBalancer` drains overloaded workers and routes new pub/sub task assignments to under-utilized replicas.
+
+---
+
+## 8. Reliability & Process Group Fencing Invariants
 
 1. **Process Group Teardown**: `WorkerSupervisor` calls `os.setsid()` during subprocess creation to establish a distinct process group. On termination or timeout, `os.killpg(proc.pid, SIGTERM/SIGKILL)` is executed to guarantee zero orphan process accumulation.
 2. **Bounded Allocation Defense**: Go and Python CBE decoders enforce pre-allocation ceilings ($\min(\text{declared\_count}, 1024)$) to prevent OOM denial-of-service attacks from untrusted framing streams.
