@@ -207,7 +207,11 @@ func decodeList(data []byte) (CortexValue, int, error) {
 		return nil, 0, err
 	}
 	curr := 1 + headerLen
-	elements := make([]CortexValue, 0, count)
+	initCap := count
+	if initCap > 1024 {
+		initCap = 1024
+	}
+	elements := make([]CortexValue, 0, initCap)
 
 	for i := 0; i < count; i++ {
 		elem, consumed, err := Decode(data[curr:])
@@ -227,7 +231,11 @@ func decodeMap(data []byte) (CortexValue, int, error) {
 		return nil, 0, err
 	}
 	curr := 1 + headerLen
-	pairs := make([]MapPair, 0, count)
+	initCap := count
+	if initCap > 1024 {
+		initCap = 1024
+	}
+	pairs := make([]MapPair, 0, initCap)
 	var prevKeyBytes []byte
 
 	for i := 0; i < count; i++ {
