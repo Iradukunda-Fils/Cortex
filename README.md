@@ -1,125 +1,140 @@
 <p align="left">
   <img src="docs/assets/images/cortex-logo.png" alt="Cortex Logo" width="95" align="left" style="margin-right: 18px; margin-bottom: 10px;" />
-  <h1 style="border: none; margin: 0; padding: 0;">Cortex Platform</h1>
-  <h3 style="border: none; margin: 4px 0 10px 0; font-weight: 600; font-size: 1.15em;">Spatiotemporal Authority & Semantic Verification Framework</h3>
-  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a> <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a> <a href="https://github.com/microsoft/pyright"><img src="https://img.shields.io/badge/type--checking-pyright-brightgreen.svg" alt="Type Checked: Pyright"></a> <a href="scripts/verify.sh"><img src="https://img.shields.io/badge/Verification%20Gate-566%2F566%20PASS-brightgreen.svg" alt="Verification Gate: 566/566 PASS"></a>
+  <h1 style="border: none; margin: 0; padding: 0;">Cortex Framework</h1>
+  <h3 style="border: none; margin: 4px 0 10px 0; font-weight: 600; font-size: 1.15em;">Spatiotemporal Authority, Capability-Security & Semantic Verification Framework</h3>
+  <a href="https://pypi.org/project/cortex-runtime/"><img src="https://img.shields.io/pypi/v/cortex-runtime.svg" alt="PyPI Version"></a> <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python Version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache 2.0"></a> <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/managed--with-uv-purple.svg" alt="Managed with uv"></a> <a href="docs/architecture/cortex_release_readiness_final.md"><img src="https://img.shields.io/badge/Release%20Status-RC%20READY%20(v0.7.0rc1)-brightgreen.svg" alt="Release Candidate Status"></a>
 </p>
 <br clear="left"/>
 
-> **Cortex** is a spatiotemporal authority and semantic verification framework designed to enforce execution integrity, capability-negotiated sandboxing, and post-facto deterministic verification across autonomous software runtimes and AI agent architectures.
+> **Cortex** is an open-source, capability-secured spatiotemporal authority and formal verification framework for autonomous workflows, AI agents, and microservices. It enforces fail-closed physical containment, cryptographic witness journaling, content-addressed evidence tracking, and machine-checked invariant safety across polyglot execution runtimes.
 
 ---
 
-## 🚀 Current Milestone & Release Train Status
+## 🚀 Release Candidate Baseline (`v0.7.0rc1`)
 
-$$\boxed{ \text{Package Metadata: 0.7.0rc1} \quad \vert \quad \text{RELEASE\_STATUS} = \text{RELEASE\_CANDIDATE} }$$
+Cortex `v0.7.0rc1` represents the frozen Release Candidate for the **External Effects Subsystem & Physical Containment Kernel**.
 
-- **Current Status**: `RELEASE_CANDIDATE` (Production v1.0.0 Release: **BLOCKED** pending Issue #23 external security review).
-- **Package Manifest**: `cortex-runtime` v0.7.0rc1 (`pyproject.toml`).
-- **Formal Assurance Scope**: Core kernel invariants ($P_1, P_2, P_6$) are machine-checked in Coq (0 Axioms / 0 Admits). F4c bounded refinement is verified across 10 structural equivalence classes.
-- **Physical Sandboxing Scope**: Physical isolation (Landlock/seccomp) is enforced when workloads run via `cortex-emulator`. In pure Python runtime, `ResourceAuthority` enforces logical vector bounds.
+$$\boxed{\text{Audited Commit: } \texttt{318729c3fed1313420658db83ea560e256348caf}} \quad \vert \quad \boxed{\text{Release Identity: } \texttt{v0.7.0rc1}}$$
 
-| Release Version | Release Status | Primary Milestone Deliverables | Release Documentation |
-| :--- | :--- | :--- | :--- |
-| **`v0.7.0rc1`** | **Release Candidate** | External Effects Subsystem, Network Containment (B.2), Process Fencing (B.3) | [`cortex_v0.7.0rc1_release_manifest.md`](docs/release/v0.7.0rc1_release_manifest.md) |
-| **`v0.6.0`** | Formal Proof Milestone | Phase 8.0 Machine-Checked Refinement Proofs & WASM Profile B | [`coq_formal_proof_inventory_delta.md`](docs/architecture/coq_formal_proof_inventory_delta.md) |
-| **`v0.5.0`** | Durable Authority Baseline | Dynamic Load Balancing, Write-Ahead Logging & Placement Subsystem | [`replica_scaling_specification.md`](docs/architecture/replica_scaling_specification.md) |
-| **`v0.4.0-experimental`** | Experimental Baseline | Multi-tier IPC channels and streaming message codec | [`v0.3.0-experimental.md`](docs/release/v0.3.0-experimental.md) |
-| **`v0.2.1`** | Production Release | Host gateway admission control & execution state machine | [`cortex_completed_work_register.md`](docs/architecture/cortex_completed_work_register.md) |
-| **`v0.2.0`** | Initial Release | Core Python control plane and capability context baseline | [`cortex_system_architecture_current.md`](docs/architecture/cortex_system_architecture_current.md) |
-
----
-
-## 📖 System Architecture & Security Layers
-
-Traditional security architectures rely on static user identity roles (POSIX permissions, IAM roles, cgroups) which fail under non-deterministic AI agent workloads and dynamic plugin executions:
-* **Ambient Authority Leakage**: Agents executing inside shell environments inherit full ambient process permissions, allowing unmediated filesystem or network access.
-* **Subshell Script Bypasses**: Malicious or miscalibrated plugins invoke shell scripts (`.sh`), subprocesses, or eval blocks to bypass application-level checks.
-* **Trace Non-Repudiation**: Without cryptographic trace verification, auditing *why* an autonomous agent performed a destructive side-effect is impossible.
-
-Cortex replaces ambient authority with a **Hardware/Kernel-Enforced Security Boundary**:
-
-```text
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 1. STATIC CAPABILITY NEGOTIATION & STCR MAPPING (ConfigResolver)                            │
- │ Manifests declare required permissions before plugins access the kernel bus.                │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ SignedIntent Payload (CBE Format)
-                                                ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 2. RESOURCE AUTHORITY & PHYSICAL CONTAINMENT GATE (ResourceAuthority / Cgroups v2)          │
- │ Attenuated resource vectors enforce R_task <= R_plugin <= R_system limits.                  │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Governed Side-Effect Execution
-                                                ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 3. ROLLING CAUSAL WITNESS JOURNALING & WAL (Durable Write-Ahead Logging)                     │
- │ Emits tamper-evident rolling hash commitments: W_{t+1} = SHA256(W_t || D_E || D_I)          │
- └──────────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                                │ Raw Evidence Traces (R, E)
-                                                ▼
- ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
- │ 4. ZERO-DEPENDENCY INDEPENDENT UNTRUSTED VERIFIER (tools/cortex_verifier.py)                  │
- │ Standalone CLI tools/cortex-verifier evaluates traces ➔ VALID (0), INVALID (1), INDETERMINATE │
- └───────────────────────────────────────────────────────────────────────────────────────────────┘
+```
++-----------------------------------------------------------------------------------+
+|                        RELEASE CANDIDATE METADATA & ARTIFACTS                     |
++-----------------------------------------------------------------------------------+
+| Git Tag          | v0.7.0rc1                                                      |
+| Tag Target Commit| 318729c3fed1313420658db83ea560e256348caf                        |
+| Working Tree     | Clean (git status --porcelain is empty)                        |
+| Package Version  | cortex-runtime 0.7.0rc1 (pyproject.toml)                       |
+| Rust Emulator    | 0.1.0 (cortex-emulator/Cargo.toml)                            |
+| Wheel SHA256     | a8fd04bf5d91c8c52e0d812debf1b22309003a9cf5a24e3f794727a4362f687a  |
+| Source Tar SHA256| 87857a94da5c8643d7b44ebb64cb8231aeff924ea7189395c4e62c625e18583f  |
++-----------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 🗺️ Repository Map & Documentation Taxonomy
+## 🏛️ Governing Architectural Invariants
 
-The repository follows a strict **Separation of Concerns** taxonomy across security, formal verification, protocol specs, governance, and release records:
+Cortex is built on a zero-trust, capability-attenuated kernel governed by two fundamental principles:
 
-```text
-Cortex Platform Repository Map
-├── docs/                                    # Master Documentation Portal
-│   ├── architecture/                        # Architectural Audits & Verification Matrices
-│   │   ├── cortex_open_work_register.md     # Master Issue & Engineering Obligation Register
-│   │   ├── coq_formal_proof_inventory_delta.md # Phase 8.0 Machine-Checked Proof Inventory
-│   │   ├── coq_print_assumptions_audit.json # Audit JSON Artifact (0 Axioms / 0 Admits)
-│   │   ├── configuration_and_control_plane_specification.md # Control Plane Spec
-│   │   └── phase_4_routing_and_dispatch_specification.md    # Routing Protocol Spec
-│   │
-│   ├── spec/                                # Normative Protocol Specifications
-│   │   ├── gate_g_remediation_specification.md # Worker Sandbox Architecture
-│   │   ├── gate_h_execution_token_specification.md # ExecutionToken Spec (P2)
-│   │   └── evidence_profile_v1.schema.json  # Evidence Profile JSON Schema
-│   │
-│   ├── release/                             # Historical & Milestone Release Records
-│   │   └── v0.3.0-experimental.md           # Experimental Baseline Record
-│   │
-│   └── history/                             # Historical Audits & Post-Implementation Logs
-│
-├── .github/                                 # GitHub Actions Workflows & Templates
-├── cortex/                                  # Python Control Plane & Kernel Subsystem
-├── verification/                            # Coq Formal Verification Source (.v files)
-├── tests/                                   # Full Test Suite (566 Unit & Conformance Tests)
-├── scripts/                                 # Verification & Build Automation Scripts
-│   ├── verify.sh                            # Master 7-Gate Canonical Verification Pipeline
-│   └── verify_coq_assumptions.py            # Coq Proof Assumptions Audit Script
-└── tools/                                   # Verification & Audit CLI Tools
-    ├── cortex_verifier.py                   # Zero-Dependency Verifier CLI
-    └── tools/assurance/docs_audit.py        # Repository Documentation Coherence Audit
+$$ \boxed{\textbf{Authority Decides}} \quad \text{and} \quad \boxed{\textbf{Adapter Executes}} $$
+
+```
+                                  CANONICAL EXECUTION FLOW
+                                  
+[ CortexClient ]
+       │
+       ▼ (1. Reserve Capacity Vector: RAM, CPU, PIDs)
+[ ResourceAuthority ] ─── Validates host capacity & issues reservation_id
+       │
+       ▼ (2. Restrict Capabilities & Issue HMAC Token)
+[ GatewayAuthorizationGate ] ─── Computes HMAC execution_token & context
+       │
+       ▼ (3. Launch Contained Subprocess Worker)
+[ WorkerSupervisor ] ─── Setsid, unshares netns/PID, attaches cgroup v2
+       │
+       ▼ (4. Subprocess Execution)
+[ Worker Process ] ─── Formulates EffectRequest (NO secrets embedded)
+       │
+       ▼ (5. Secure Execution Pipeline)
+[ EffectExecutionPipeline ]
+   ├── A. Replay Lookup (EffectResultStore)
+   ├── B. Gateway Credential Resolution (CredentialBroker vault)
+   ├── C. Adapter Invocation (ResourceContract)
+   ├── D. Authoritative CAS Spooling (if evidence > 4KiB)
+   └── E. Reconcile State (EffectReconciliationEngine)
+       │
+       ▼ (6. Physical Side-Effect Actuation)
+[ External System / Resource ]
 ```
 
 ---
 
-## 🛡️ Safety Invariants Matrix ($P1$–$P4$)
+## 📚 Architecture & Truth Documentation Index
 
-| Security Invariant | Mathematical / Normative Definition | Status | Verification Engine & Test Harness |
-| :--- | :--- | :---: | :--- |
-| **$P1$: Authority Attenuation** | $\Lambda_{t+1} \subseteq \Lambda_t \land \vec{R}_{\text{task}} \le \vec{R}_{\text{plugin}} \le \vec{R}_{\text{system}}$ | **IMPLEMENTED** | `ConfigResolver` & `ResourceAuthority` cgroups v2 |
-| **$P2$: Execution Parity** | $D_3 \equiv D_2 \equiv \text{SHA256}(\text{CBE}(\text{SignedIntent}))$ | **VERIFIED** | Gate H Conformance Suite (`test_gate_h_adversarial.py`) |
-| **$P3$: Causal Witness** | $W_{t+1} = \text{SHA256}(W_t \parallel \text{CBE}(E_{t+1}) \parallel \text{CBE}(I_{t+1}))$ | **VERIFIED** | Gate I Tamper-Evident Suite (`test_gate_i_causal_witness.py`) |
-| **$P4$: Independent Verifier** | $\text{Verify}(R, E) \to \{\text{VALID, INVALID, INDETERMINATE}\}$ | **VERIFIED** | Untrusted Verifier Engine (`tools/cortex_verifier.py`) |
+For comprehensive systems engineering analysis, low-level security audits, and truth matrices, refer to the authoritative architecture documentation portal:
+
+| Document | Purpose & Key Topics |
+| :--- | :--- |
+| 📋 [**Documentation Truth Audit**](docs/architecture/cortex_documentation_truth_audit.md) | Authoritative inventory, claim tracing matrix, and tier classification across all docs. |
+| 🔬 [**Architecture Consistency Report**](docs/architecture/cortex_architecture_consistency_report.md) | DSRP mental model, execution path, low-level security audit fixes, and master truth matrix. |
+| 🔌 [**API & Plugin Contract Status**](docs/architecture/cortex_api_and_plugin_contract_status.md) | Boundaries between Native Plugins (`BasePlugin`), Subprocess Workers, and Adapters. |
+| 🛡️ [**Deployment Truth Matrix**](docs/architecture/cortex_deployment_truth_matrix.md) | OS kernel dependencies (Landlock LSM, cgroups v2, NetNS), degradation rules & environments. |
+| 🏁 [**Release Readiness Final Report**](docs/architecture/cortex_release_readiness_final.md) | Immutable commit binding, defect resolution register, and final release sign-off. |
+| 📜 [**CBE Transport Specification**](docs/architecture/cbe_transport_architecture.md) | Canonical Binary Encoding transport protocol, frame layout, and wire grammar. |
+| ⚖️ [**Resource Authority Specification**](docs/architecture/resource-authority.md) | Capacity vector accounting, reservation lifecycle, and formal proof alignment. |
 
 ---
 
-## ⚡ Contributor Quickstart & Verification Commands
+## 🧪 Authoritative Test Accounting Battery
 
-### 1. Development Environment Setup (via Astral `uv`)
-Clone the repository and synchronize the isolated virtual environment:
+$$\sum \text{Targeted Release Integrity Battery} = \mathbf{297 / 297 \text{ PASSED}} \quad (100\% \text{ Pass Rate})$$
 
+| Scope / Suite | Runner / Command | Runtime | Unique Tests | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Python Conformance Suite** | `python3 -m unittest discover -s tests/conformance` | Python 3.10+ | **222 Tests** | **PASSED** |
+| **Reference Plugin Integration**| `python3 -m unittest discover -s examples/secure_external_effect_plugin/tests` | Python 3.10+ | **14 Tests** | **PASSED** |
+| **MCP Secure Application Suite**| `python3 -m unittest discover -s examples/mcp_secure_effect_app/tests` | Python 3.10+ | **11 Tests** | **PASSED** |
+| **Rust Emulator Suite** | `cargo test --manifest-path cortex-emulator/Cargo.toml` | Rust 2021 | **32 Tests** | **PASSED** |
+| **Go CBE Conformance Suite** | `cd cortex-go && go test -v ./...` | Go 1.20+ | **18 Tests** | **PASSED** |
+| **Ruff Code Quality & Linter** | `uv run ruff check .` | AST Analyzer | **0 Errors** | **PASSED** |
+
+> *Note on Test Accounting*: Historical test counts (e.g. 566/650) represented combined multi-runner execution snapshots across legacy targets. The 297 unique tests above represent the exact, complete release integrity battery for `v0.7.0rc1`.
+
+---
+
+## 📐 Formal Verification & Coq Proof Scope
+
+* **Proof Workspace**: `./verification/`
+* **Coq Source Modules**: **29 `.v` files**
+* **Axiom & Admit Count**: **0 Axioms, 0 Admits**
+* **Key Machine-Checked Proofs**:
+  * **Phase 4 Routing Safety**: `rd_f6_unadmitted_safety` & `rd_f13_unadmitted_safe_retry` (`Phase4RoutingRefinement.v`)
+  * **Phase 5 Simulation**: `phase5_simulation_forward_simulation` (`Phase5Simulation.v`)
+  * **Phase 6 Durability**: `phase6_wal_prefix_refinement` (`Phase6WALSafety.v`)
+  * **Phase 8 Vector Safety**: `phase8_resource_authority_capacity_safety` (`Phase8ResourceAuthorityConcrete.v`)
+  * **Concrete Refinement**: `Phase8ResourceAuthorityConcrete.v` machine-checks concrete Python `ResourceAuthority` logic against abstract Coq models.
+
+---
+
+## 🛡️ Explicit Security Evidence Taxonomy
+
+| Security Control | Exact Evidence Level Classification | Implementation Source |
+| :--- | :--- | :--- |
+| **CBE Allocation Safety** | `Code Implemented` + `Runtime Verified` (Go & Python decoders) | `cortex-go/cbe/decoder.go`, `cortex/cbe/decoder.py` |
+| **Worker Process Group Termination** | `Code Implemented` + `Runtime Verified` (`os.killpg`) | `cortex/tools/kernel/enforcement/supervisor.py` |
+| **CAS Evidence Ownership** | `Code Implemented` + `Runtime Verified` (Pipeline Spooling) | `cortex/tools/kernel/effect_runtime.py` |
+| **Gateway Capability Fencing** | `Coq Model Proven` + `Concrete Implementation Tested` | `cortex/tools/kernel/effect_gateway.py` |
+| **Resource Vector Ceilings** | `Coq Model Proven` + `Refinement Proven` + `Tested` | `cortex/tools/kernel/resource_authority.py` |
+| **cgroups v2 Containment** | `Code Implemented` (Kernel Verified when cgroups v2 present) | `cortex/tools/kernel/enforcement/cgroup.py` |
+| **Network Namespace Isolation** | `Code Implemented` (Kernel Verified when `unshare` permitted) | `cortex/tools/kernel/enforcement/netns.py` |
+| **Profile A Landlock Sandbox** | `Code Implemented in Rust` + `Rust Runtime Verified` | `cortex-emulator/src/sandbox.rs` |
+| **Polyglot Boundary** | `Known Limitation` (Native plugins Python-only; Go/Rust via stdio/IPC) | `cortex/plugin.py`, `cortex/tools/kernel/adapters/` |
+
+---
+
+## ⚡ Developer Quickstart
+
+### 1. Installation (via `uv`)
 ```bash
 git clone https://github.com/Iradukunda-Fils/Cortex.git
 cd Cortex
@@ -127,60 +142,60 @@ uv venv && source .venv/bin/activate
 uv sync --all-extras
 ```
 
-### 2. Run Canonical 7-Gate Verification Pipeline
-Execute the full master quality, linting, type-checking, test, and documentation audit pipeline:
+### 2. Run Quality & Test Pipeline
 ```bash
-./scripts/verify.sh
-```
-
-### 3. Run Static Code Analysis & Documentation Audit
-```bash
-# Code quality check
+# Run Python Linter
 uv run ruff check .
 
-# Strict static type checking
-uv run pyright
+# Run Conformance Test Suite
+uv run python -m unittest discover -s tests/conformance
 
-# Documentation coherence audit
-uv run python3 tools/assurance/docs_audit.py
+# Run Reference Plugin & App Suites
+uv run python -m unittest discover -s examples/secure_external_effect_plugin/tests
+uv run python -m unittest discover -s examples/mcp_secure_effect_app/tests
+
+# Run Rust Emulator & Go Codecs
+cargo test --manifest-path cortex-emulator/Cargo.toml
+cd cortex-go && go test -v ./...
 ```
 
-### 4. Build PyPI Distribution Packages
-Construct wheel and source distribution artifacts for PyPI release:
+### 3. Build Distribution Packages
 ```bash
 uv build
 ```
 
 ---
 
-## 💻 Developer Code Example: Governed Task Execution
-
-Here is how an application creates a task context, resolves configuration ceilings, and enforces resource attenuation:
+## 💻 Developer Code Example: Governed Effect Execution
 
 ```python
-from cortex.tools.kernel.config_resolver import ConfigResolver
+from cortex.client import CortexClient
+from cortex.tools.kernel.effect_gateway import CapabilitySet, SignedIntent
 
-# 1. Initialize Resolver with Declared Security Profile
-resolver = ConfigResolver()
-
-# 2. Resolve Configuration with Strict Security Ceiling
-config = resolver.resolve(
-    profile_name="Profile_A_Linux_Strict",
-    declared_manifest={
-        "plugin_id": "com.cortex.analytics",
-        "capabilities": ["STORAGE_READ", "COMPUTE_EXEC"],
-        "resources": {"cpu_cores": 2.0, "memory_mib": 2048}
-    }
+# 1. Initialize Cortex Client with strict capability bounds
+client = CortexClient(
+    granted_capabilities=CapabilitySet({"STORAGE_READ", "HTTP_REQUEST"}),
+    host_memory_ceiling_mb=1024,
 )
 
-# 3. Assert Attenuation Limits (R_task <= R_plugin <= R_system)
-print(f"✅ Configuration Resolved: {config.snapshot_id}")
-print(f"🔒 Enforced RAM Limit: {config.resources['memory_mib']} MiB")
+# 2. Formulate signed intent payload
+intent = SignedIntent(
+    resource_id="adapter.mcp.stdio.v1",
+    operation_type="read_record",
+    arguments={"record_id": "rec_9901"},
+)
+
+# 3. Execute governed effect through secure pipeline
+outcome = client.execute_effect(intent)
+
+print(f"Status: {outcome.status}")  # ExecutionStatus.EFFECT_CONFIRMED
+if outcome.evidence:
+    print(f"Evidence (Ref: {outcome.evidence.is_reference}): {outcome.evidence.data.decode('utf-8')}")
 ```
 
 ---
 
 ## 📄 Licensing & Governance
 
-Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
-See **[Contributor Guide](CONTRIBUTING.md)** for contribution policies.
+Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.  
+See [cortex_release_readiness_final.md](docs/architecture/cortex_release_readiness_final.md) for the authoritative release readiness sign-off.

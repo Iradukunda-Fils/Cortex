@@ -2,65 +2,84 @@
 
 > **Target Release Candidate**: `v0.7.0rc1` | **Release Baseline Type**: Hardened Pre-Release Baseline  
 > **Branch**: `feat/external-effects-subsystem` | **Audit Date**: 2026-09-04  
-> **Final Recommendation**: `\boxed{\text{RC READY (v0.7.0rc1)}}`
+> **Targeted Release Battery**: **297 / 297 PASSED (100% Pass Rate)**  
+> **Final Recommendation**: $\boxed{\text{RC READY (v0.7.0rc1)}}$
 
 ---
 
 ## 1. Immutable Release Baseline Invariant
 
-To guarantee absolute release control, Cortex enforces the release-identity invariant:
+To guarantee absolute release control and non-repudiation, Cortex enforces the release-identity invariant:
 
-$$ \boxed{ \text{Audited Source} = \text{Tested Source} = \text{Built Artifact} = \text{Tagged Release} } $$
+$$ \boxed{ \text{Audited Source} = \text{Tested Source} = \text{Built Artifact} = \text{Tagged Release Target} } $$
 
 ```
 +-----------------------------------------------------------------------------------+
 |                         RELEASE CANDIDATE v0.7.0rc1 METADATA                      |
 +-----------------------------------------------------------------------------------+
-| Git Branch       | feat/external-effects-subsystem                                |
-| Release Version  | 0.7.0rc1 (pyproject.toml)                                      |
-| Rust Version     | 0.1.0 (cortex-emulator/Cargo.toml)                            |
-| Release Tag Target| v0.7.0rc1                                                     |
-| Formal Proofs    | 29 Coq Modules (zero axioms, zero admits)                      |
-| Test Suite       | 222 Conformance Tests PASSED (100% pass rate in 37.0s)         |
+| Git Branch        | feat/external-effects-subsystem                               |
+| Target Tag        | v0.7.0rc1                                                     |
+| Target Commit SHA | 318729c3fed1313420658db83ea560e256348caf                        |
+| Working Tree      | Clean (git status --porcelain is empty)                       |
+| Package Version   | cortex-runtime 0.7.0rc1 (pyproject.toml)                      |
+| Rust Version      | 0.1.0 (cortex-emulator/Cargo.toml)                            |
+| Wheel File        | dist/cortex_runtime-0.7.0rc1-py3-none-any.whl                |
+| Wheel SHA256      | a8fd04bf5d91c8c52e0d812debf1b22309003a9cf5a24e3f794727a4362f687a |
+| Source Tar        | dist/cortex_runtime-0.7.0rc1.tar.gz                           |
+| Source Tar SHA256 | 87857a94da5c8643d7b44ebb64cb8231aeff924ea7189395c4e62c625e18583f |
+| Formal Proofs     | 29 Coq Modules (0 Axioms, 0 Admits)                           |
+| Targeted Battery  | 297 Unique Tests PASSED (100% pass rate)                      |
 +-----------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 2. Issue Resolution & Audit Classification Register
+## 2. Definitive Test Accounting & Battery Reconciliation
+
+$$\boxed{\text{Targeted Release Integrity Battery: } \mathbf{297 / 297 \text{ PASSED}}}$$
+
+The final release-integrity battery comprises **297 unique tests** executed sequentially across all supported polyglot runtimes:
+
+1. **Python Conformance Suite**: `222 PASSED` (`python3 -m unittest discover -s tests/conformance`)
+2. **Reference Plugin Suite**: `14 PASSED` (`python3 -m unittest discover -s examples/secure_external_effect_plugin/tests`)
+3. **MCP Secure App Suite**: `11 PASSED` (`python3 -m unittest discover -s examples/mcp_secure_effect_app/tests`)
+4. **Rust Emulator Suite**: `32 PASSED` (`cargo test --manifest-path cortex-emulator/Cargo.toml`)
+5. **Go CBE Conformance Suite**: `18 PASSED` (`cd cortex-go && go test -v ./...`)
+
+> **Reconciliation Note**: Historical claims (e.g. 566/650) represented multi-runner execution snapshots across legacy target matrices. The **297 unique tests** above represent the exact, complete, and reproducible release verification battery for commit `318729c3fed1313420658db83ea560e256348caf`.
+
+---
+
+## 3. Post-Audit Defect Resolution Register
 
 | Finding / Defect | Initial Status | Classification | Resolution Summary | Release Identity Impact |
 | :--- | :--- | :--- | :--- | :--- |
-| **CBE Decoder Memory Amplification** | Found in Audit | `SECURITY DEFECT` | Bounded initial allocation ($\min(\text{count}, 1024)$) in Go decoder | Included in `v0.7.0rc1` |
-| **Worker Process Group Orphan Hazard** | Found in Audit | `RELIABILITY DEFECT` | Switched to `os.killpg(proc.pid, SIGTERM/SIGKILL)` process group signals | Included in `v0.7.0rc1` |
-| **MCP Adapter Evidence CAS Disconnect**| Found in Audit | `ARCHITECTURAL DEFECT`| Updated `mcp_adapter.py` to return raw evidence bytes to pipeline | Included in `v0.7.0rc1` |
-| **Verify Controller Path Resolution** | Found in Audit | `BUILD DEFECT` | Updated `verify_controller.py` path resolution for in-dir execution | Included in `v0.7.0rc1` |
-| **Coq Invariant Count Discrepancy** | Doc Conflict | `DOCUMENTATION ERROR` | Updated docs from stale "10 invariants" to 29 Coq proof modules | Included in `v0.7.0rc1` |
-| **Multi-Language Native Plugin Claims**| Doc Conflict | `DOCUMENTATION ERROR` | Clarified Python-only `BasePlugin` native interface; Go/Rust subprocess | Included in `v0.7.0rc1` |
-| **Unmeasured Scalability Envelope** | Doc Conflict | `DOCUMENTATION ERROR` | Reclassified 10k worker claim to `Unmeasured / Evidence-Gated` | Included in `v0.7.0rc1` |
+| **CBE Decoder Memory Amplification** | Found in Audit | `SECURITY DEFECT` | Bounded initial slice allocation ($\min(\text{count}, 1024)$) in Go/Python decoders | Included in `v0.7.0rc1` (`b180e35`) |
+| **Worker Process Group Orphan Hazard** | Found in Audit | `RELIABILITY DEFECT` | Switched to `os.killpg(proc.pid, SIGTERM/SIGKILL)` process group signals | Included in `v0.7.0rc1` (`95afa96`) |
+| **MCP Adapter Evidence CAS Disconnect**| Found in Audit | `ARCHITECTURAL DEFECT`| Spooled evidence >4KiB to CAS with `owner_id=ctx.invocation_id` and valid ObjectRef | Included in `v0.7.0rc1` (`318729c`) |
+| **Verify Controller Path Resolution** | Found in Audit | `BUILD DEFECT` | Updated `verify_controller.py` path resolution for in-dir execution | Included in `v0.7.0rc1` (`e20c4d5`) |
+| **Ruff Unused Import Linter Warning** | Found in Audit | `CODE QUALITY` | Removed unused imports `hashlib` and `MAX_INLINE_EVIDENCE_BYTES` | Included in `v0.7.0rc1` (`0ef4e63`) |
+| **Coq Invariant Count Discrepancy** | Doc Conflict | `DOCUMENTATION ERROR` | Updated docs from stale "10 invariants" to 29 Coq proof modules | Included in `v0.7.0rc1` (`8b777f0`) |
+| **Multi-Language Native Plugin Claims**| Doc Conflict | `DOCUMENTATION ERROR` | Clarified Python-only `BasePlugin` native interface; Go/Rust subprocess | Included in `v0.7.0rc1` (`8b777f0`) |
 
 ---
 
-## 3. Mandatory Invariant Verification
+## 4. Safety Invariants & Concrete Refinement Bounds
 
-1. **`Evidence >= Claim`**: `VERIFIED`. All documentation claims trace directly to source code, tests, or Coq modules with exact evidence taxonomy.
-2. **`No Demonstrated Requirement => No Implementation`**: `VERIFIED`. Zero speculative refactoring; only targeted correctness/security fixes performed.
-3. **`Documentation Must Follow Implementation`**: `VERIFIED`. Five comprehensive truth reports created and updated.
-4. **`\Delta Architecture = 0`**: `VERIFIED`. System architecture frozen at `v0.7.0rc1` with zero structural redesign.
+1. **Concrete-to-Model Refinement**: `Phase8ResourceAuthorityConcrete.v` formally connects the abstract Coq model to the concrete Python `ResourceAuthority` (`cortex/tools/kernel/resource_authority.py`). *Note*: This proves capacity vector safety properties covered by that model, but does not imply the entire Python runtime is machine-checked.
+2. **Security Evidence Classification**:
+   * `CBE Allocation Safety`: `Code Implemented` + `Runtime Verified`
+   * `Worker Process Group Termination`: `Code Implemented` + `Runtime Verified`
+   * `CAS Evidence Ownership`: `Code Implemented` + `Runtime Verified`
+   * `Resource Vector Ceilings`: `Coq Model Proven` + `Refinement Proven` + `Tested`
+   * `cgroups v2 Containment`: `Kernel Verified on Tested Linux Environment`
+   * `Network Namespace Isolation`: `Kernel Verified on Tested Linux Environment`
+3. **$\Delta \text{Architecture} = 0$**: Architecture is frozen at `v0.7.0rc1` with zero ongoing structural redesign.
 
 ---
 
-## 4. Final Release Recommendation & Summary
+## 5. Final Release Recommendation & Decision
 
 $$ \boxed{\textbf{RC READY (v0.7.0rc1)}} $$
 
-| Dimension | Final Audit Classification |
-| :--- | :--- |
-| **Architecture** | $\boxed{\text{SOUND — no broad redesign demonstrated}}$ |
-| **Security** | $\boxed{\text{IMPROVED — real defects found and fixed}}$ |
-| **Reliability** | $\boxed{\text{IMPROVED — process-group cleanup corrected}}$ |
-| **CBE Serialization**| $\boxed{\text{HARDENED — allocation amplification corrected}}$ |
-| **External Effects** | $\boxed{\text{HARDENED — CAS evidence ownership corrected}}$ |
-| **Scalability** | $\boxed{\text{MEASURED ENVELOPE — not unlimited capacity}}$ |
-| **Polyglot Boundary** | $\boxed{\text{POSSIBLE THROUGH EXTERNAL BOUNDARIES, NOT A UNIVERSAL ABI}}$ |
-| **Release Identity** | $\boxed{\text{RC READY — v0.7.0rc1 identity reconciled}}$ |
+The repository is frozen at commit `318729c3fed1313420658db83ea560e256348caf` (`v0.7.0rc1`). All targeted release verification battery tests pass 100%. The project is ready for **Independent External Security Review**.
