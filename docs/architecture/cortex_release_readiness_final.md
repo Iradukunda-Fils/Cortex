@@ -19,14 +19,14 @@ $$ \boxed{ \text{Audited Source} = \text{Tested Source} = \text{Built Artifact} 
 +-----------------------------------------------------------------------------------+
 | Git Branch        | feat/external-effects-subsystem                               |
 | Target Tag        | v0.7.0rc1                                                     |
-| Target Commit SHA | 318729c3fed1313420658db83ea560e256348caf                        |
+| Target Commit SHA | ec317eb120d0ac1274029361c6b9ac1d78fa52b5                        |
 | Working Tree      | Clean (git status --porcelain is empty)                       |
 | Package Version   | cortex-runtime 0.7.0rc1 (pyproject.toml)                      |
 | Rust Version      | 0.1.0 (cortex-emulator/Cargo.toml)                            |
 | Wheel File        | dist/cortex_runtime-0.7.0rc1-py3-none-any.whl                |
-| Wheel SHA256      | a8fd04bf5d91c8c52e0d812debf1b22309003a9cf5a24e3f794727a4362f687a |
+| Wheel SHA256      | 91af4ea2140b30ad4452e612d7ca3665d70bf02a7d889475260d9f6b731db66e |
 | Source Tar        | dist/cortex_runtime-0.7.0rc1.tar.gz                           |
-| Source Tar SHA256 | 87857a94da5c8643d7b44ebb64cb8231aeff924ea7189395c4e62c625e18583f |
+| Source Tar SHA256 | c557a9186d9fdbb99494fe79465e7ed4ab497a12d8d607c4f1dd23d9db06b60e |
 | Formal Proofs     | 29 Coq Modules (0 Axioms, 0 Admits)                           |
 | Targeted Battery  | 297 Unique Tests PASSED (100% pass rate)                      |
 +-----------------------------------------------------------------------------------+

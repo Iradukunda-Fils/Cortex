@@ -14,19 +14,19 @@
 
 Cortex `v0.7.0rc1` represents the frozen Release Candidate for the **External Effects Subsystem & Physical Containment Kernel**.
 
-$$\boxed{\text{Audited Commit: } \texttt{318729c3fed1313420658db83ea560e256348caf}} \quad \vert \quad \boxed{\text{Release Identity: } \texttt{v0.7.0rc1}}$$
+$$\boxed{\text{Audited Commit: } \texttt{ec317eb120d0ac1274029361c6b9ac1d78fa52b5}} \quad \vert \quad \boxed{\text{Release Identity: } \texttt{v0.7.0rc1}}$$
 
 ```
 +--------------------------------------------------------------------------------------+
 |                        RELEASE CANDIDATE METADATA & ARTIFACTS                        |
 +--------------------------------------------------------------------------------------+
 | Git Tag          | v0.7.0rc1                                                         |
-| Tag Target Commit| 318729c3fed1313420658db83ea560e256348caf                          |
+| Tag Target Commit| ec317eb120d0ac1274029361c6b9ac1d78fa52b5                          |
 | Working Tree     | Clean (git status --porcelain is empty)                           |
 | Package Version  | cortex-runtime 0.7.0rc1 (pyproject.toml)                          |
 | Rust Emulator    | 0.1.0 (cortex-emulator/Cargo.toml)                                |
-| Wheel SHA256     | a8fd04bf5d91c8c52e0d812debf1b22309003a9cf5a24e3f794727a4362f687a  |
-| Source Tar SHA256| 87857a94da5c8643d7b44ebb64cb8231aeff924ea7189395c4e62c625e18583f  |
+| Wheel SHA256     | 91af4ea2140b30ad4452e612d7ca3665d70bf02a7d889475260d9f6b731db66e  |
+| Source Tar SHA256| c557a9186d9fdbb99494fe79465e7ed4ab497a12d8d607c4f1dd23d9db06b60e  |
 +--------------------------------------------------------------------------------------+
 ```
 
