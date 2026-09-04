@@ -1,0 +1,9 @@
+name: audit-plugin
+version: "1.0.0"
+description: "Audit trail plugin — consumes CommandIssuedEvent from RecordServicePlugin"
+consumes_events:
+  - CommandIssuedEvent
+produces_events:
+  - VerificationResultEvent
+required_capabilities:
+  - "api:audit"

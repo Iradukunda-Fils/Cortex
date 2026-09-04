@@ -1,0 +1,9 @@
+name: record-service-plugin
+version: "1.0.0"
+description: "Reference record lookup and storage plugin using Gateway API capabilities"
+consumes_events:
+  - IntentEvent
+produces_events:
+  - CommandIssuedEvent
+required_capabilities:
+  - "api:records"

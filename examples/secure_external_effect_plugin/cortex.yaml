@@ -1,0 +1,12 @@
+schema:
+  name: cortex-app-manifest
+  version: "1"
+
+project:
+  name: secure-external-effect-plugin
+  version: "1.0.0"
+  environment: development
+
+plugins:
+  discovery_path: "./plugins"
+  lazy_loading: true
