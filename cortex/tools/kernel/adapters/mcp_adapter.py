@@ -11,7 +11,7 @@ Security Constraints:
     4. Adapter NEVER decides retry semantics (reconciliation engine decides).
     5. Subprocess crash → UNKNOWN_EFFECT (cannot determine if side-effect committed).
     6. Malformed response → EFFECT_NOT_APPLIED (deterministic rejection, no ambiguity).
-    7. Evidence exceeding MAX_INLINE_EVIDENCE_BYTES → is_reference=True (hash pointer).
+    7. Evidence exceeding 4KiB → spooled to CAS authoritatively by EffectExecutionPipeline.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ import json
 import subprocess
 
 from cortex.tools.kernel.adapter_contract import (
+    MAX_INLINE_EVIDENCE_BYTES,
     AdapterExecutionContext,
     AdapterOutcome,
     EffectClassification,
@@ -28,10 +29,13 @@ from cortex.tools.kernel.adapter_contract import (
     ExecutionStatus,
     ResourceContract,
 )
+from cortex.tools.kernel.effect_runtime import ContentAddressableStore
 
 # Explicit Named Constants
 DEFAULT_MCP_TIMEOUT_SECONDS: float = 5.0
 MAX_STDERR_CAPTURE_BYTES: int = 256
+
+_DEFAULT_CAS = ContentAddressableStore()
 
 
 class LocalProcessMCPAdapter(ResourceContract):
@@ -47,16 +51,18 @@ class LocalProcessMCPAdapter(ResourceContract):
         - Process crash → UNKNOWN_EFFECT
         - Malformed JSON-RPC → EFFECT_NOT_APPLIED
         - Explicit tool error → EFFECT_NOT_APPLIED
-        - Evidence > 4KiB → is_reference=True (hash pointer)
+        - Evidence > 4KiB → spooled to CAS with invocation ownership (is_reference=True)
     """
 
     def __init__(
         self,
         server_command: list[str],
         timeout_seconds: float = DEFAULT_MCP_TIMEOUT_SECONDS,
+        cas: ContentAddressableStore | None  = None,
     ) -> None:
         self._server_command = server_command
         self._timeout_seconds = timeout_seconds
+        self._cas = cas or _DEFAULT_CAS
 
     @property
     def resource_type(self) -> str:
@@ -184,10 +190,15 @@ class LocalProcessMCPAdapter(ResourceContract):
                 error_message=error_msg,
             )
 
-        # Successful execution: extract evidence payload (pipeline spools to CAS if >4KiB)
+        # Successful execution: extract evidence payload (spool to CAS if >4KiB)
         result_data = rpc_response.get("result", {})
         result_bytes = json.dumps(result_data, sort_keys=True).encode("utf-8")
-        evidence = EvidencePayload(data=result_bytes, is_reference=False)
+
+        if len(result_bytes) > MAX_INLINE_EVIDENCE_BYTES:
+            ref = self._cas.put(result_bytes, owner_id=ctx.invocation_id)
+            evidence = EvidencePayload(data=ref.encode("utf-8"), is_reference=True)
+        else:
+            evidence = EvidencePayload(data=result_bytes, is_reference=False)
 
         return AdapterOutcome(
             status=ExecutionStatus.EFFECT_CONFIRMED,
