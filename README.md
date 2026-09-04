@@ -83,6 +83,20 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
+#### Option C: Adding Package to an Existing Project
+
+```bash
+# 1. Install Latest Stable Release
+uv add cortex-runtime           # via uv
+pip install cortex-runtime      # via pip
+
+# 2. Install Specific Pre-Release / Release Candidate (v0.7.0rc1)
+uv add --prerelease=allow cortex-runtime          # via uv (allows latest pre-release)
+uv add cortex-runtime==0.7.0rc1                  # via uv (exact RC version)
+pip install --pre cortex-runtime                  # via pip (allows latest pre-release)
+pip install cortex-runtime==0.7.0rc1             # via pip (exact RC version)
+```
+
 ### 2. Run Verification & Test Suite
 ```bash
 # Run canonical verification pipeline
