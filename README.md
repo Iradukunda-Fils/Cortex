@@ -60,6 +60,7 @@ For detailed architectural specifications, security audits, and release protocol
 | 🏁 [**Release Readiness Final Report**](docs/architecture/cortex_release_readiness_final.md) | Immutable commit binding, defect resolution register, and final release sign-off. |
 | ⚙️ [**Release Process & Governance**](docs/release/cortex_release_process_and_governance.md) | Step-by-step release protocol, PyPI OIDC publishing, and release gates. |
 | 🔒 [**CI/CD Security & Scalability Audit**](docs/architecture/cortex_cicd_security_and_scalability_audit.md) | Audit of GitHub Actions workflows, OIDC authentication, and security governance. |
+| 🌐 [**Component Communication Topology**](docs/architecture/cortex_component_communication_topology.md) | Low-level asynchronous IPC, CBE wire framing, and sequence diagrams. |
 
 ---
 
