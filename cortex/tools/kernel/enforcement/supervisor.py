@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import signal
 import subprocess
 import sys
 import threading
@@ -247,7 +248,10 @@ class WorkerSupervisor:
 
         if proc and proc.poll() is None:
             try:
-                proc.terminate()
+                if sys.platform != "win32" and hasattr(os, "killpg"):
+                    os.killpg(proc.pid, signal.SIGTERM)
+                else:
+                    proc.terminate()
             except OSError:
                 pass
 
@@ -261,7 +265,10 @@ class WorkerSupervisor:
                     f"{self.grace_period_sec}s grace period. Sending SIGKILL."
                 )
                 try:
-                    proc.kill()
+                    if sys.platform != "win32" and hasattr(os, "killpg"):
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    else:
+                        proc.kill()
                     proc.wait()
                 except OSError:
                     pass
