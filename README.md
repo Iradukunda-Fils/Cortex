@@ -139,6 +139,9 @@ cd cortex-go && go test -v ./...
 ## 💻 Developer Code Example: Governed Effect Execution
 
 ```python
+# ---------------------------------------------------------------------------
+# Example A: High-Level Workflow Client & Capability Sandboxing
+# ---------------------------------------------------------------------------
 from cortex import CortexClient, Capability, WorkflowState
 
 # 1. Define explicit Capability objects for sandboxed execution
@@ -152,6 +155,32 @@ print(f"Active Platform Capabilities ({len(client.platform_capabilities)}):", so
 
 # 3. Inspect active workflow execution states
 print("Supported Workflow States:", [state.value for state in WorkflowState])
+
+
+# ---------------------------------------------------------------------------
+# Example B: Low-Level Governed Kernel Effect Request & CAS Store
+# ---------------------------------------------------------------------------
+from cortex.tools.kernel.effect_gateway import EffectRequest
+from cortex.tools.kernel.effect_runtime import ContentAddressableStore
+
+# 1. Formulate unprivileged EffectRequest payload
+req = EffectRequest(
+    invocation_id="inv_1001",
+    capability="mcp:stdio",
+    operation="read_record",
+    arguments=b'{"record_id": "rec_9901"}',
+    resource_id="adapter.mcp.stdio.v1",
+    lease_epoch=1,
+    worker_generation=1,
+)
+print(f"Formulated EffectRequest (Resource: {req.resource_id}, Op: {req.operation})")
+
+# 2. Spool large evidence payload into ContentAddressableStore (CAS)
+cas = ContentAddressableStore()
+ref_key = cas.put(b"Large evidence payload content", owner_id=req.invocation_id)
+retrieved_data = cas.get(ref_key, requester_id=req.invocation_id)
+print(f"CAS Reference Key: {ref_key}")
+print(f"Retrieved CAS Payload: {retrieved_data.decode('utf-8')}")
 ```
 
 ---
