@@ -121,7 +121,22 @@ $$\text{Frame Layout} = \underbrace{\text{Magic Header (4B)}}_{\texttt{0x43 0x42
 
 ---
 
-## 5. Reliability & Process Group Fencing Invariants
+## 5. Synchronous vs. Asynchronous Communication Matrix
+
+Cortex explicitly segregates **Synchronous Governance** from **Asynchronous Execution**:
+
+| Component Boundary | Sync / Async Mode | Rationale & Mechanism |
+| :--- | :---: | :--- |
+| **Admission & Reservation** (`ResourceAuthority`) | **SYNCHRONOUS** | Pre-execution safety cannot be eventual. Vector limits (RAM/CPU) are locked synchronously in `WAL` before process spawn. |
+| **Capability Authorization** (`GatewayAuthorizationGate`) | **SYNCHRONOUS** | HMAC execution tokens must be verified and signed synchronously to ensure fail-closed security. |
+| **Worker Subprocess Execution** (`WorkerSupervisor`) | **ASYNCHRONOUS** | Processes are spawned asynchronously; stdin/stdout pipes are managed via non-blocking `asyncio` event loops. |
+| **Plugin IPC Transport** (`LocalProcessMCPAdapter`) | **ASYNCHRONOUS** | CBE stream frames use correlation IDs (`request_id`, `invocation_id`) to multiplex multiple tool calls without blocking. |
+| **Evidence CAS Spooling** (`ContentAddressableStore`) | **ASYNCHRONOUS** | Payload writes $> 4\text{KiB}$ occur asynchronously to prevent thread blocking during I/O persistence. |
+| **Effect Reconciliation & Journaling** (`EffectExecutionPipeline`) | **ASYNCHRONOUS** | Outcome state changes and witness chain updates are committed asynchronously upon stream completion. |
+
+---
+
+## 6. Reliability & Process Group Fencing Invariants
 
 1. **Process Group Teardown**: `WorkerSupervisor` calls `os.setsid()` during subprocess creation to establish a distinct process group. On termination or timeout, `os.killpg(proc.pid, SIGTERM/SIGKILL)` is executed to guarantee zero orphan process accumulation.
 2. **Bounded Allocation Defense**: Go and Python CBE decoders enforce pre-allocation ceilings ($\min(\text{declared\_count}, 1024)$) to prevent OOM denial-of-service attacks from untrusted framing streams.
