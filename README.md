@@ -63,11 +63,37 @@ For detailed architectural specifications, security audits, and release protocol
 
 ---
 
-## ⚡ Developer Quickstart
+## ⚡ Developer Quickstart & Installation
 
-### 1. Environment Setup & Installation
+### 📦 1. Installing `cortex-runtime`
 
-#### Option A: Using `uv` (Recommended — High Performance)
+#### Stable Releases (PyPI)
+```bash
+# Using uv (Recommended)
+uv add cortex-runtime
+
+# Using pip
+pip install cortex-runtime
+```
+
+#### Pre-Release Candidates (e.g. `v0.7.0rc1`)
+```bash
+# Using uv (allow latest pre-release candidate)
+uv add --prerelease=allow cortex-runtime
+
+# Using uv (install exact pre-release version)
+uv add cortex-runtime==0.7.0rc1
+
+# Using pip (allow latest pre-release candidate)
+pip install --pre cortex-runtime
+
+# Using pip (install exact pre-release version)
+pip install cortex-runtime==0.7.0rc1
+```
+
+### 🛠️ 2. Local Repository Development Setup
+
+#### Option A: Setup via `uv` (Recommended)
 ```bash
 git clone https://github.com/Iradukunda-Fils/Cortex.git
 cd Cortex
@@ -75,7 +101,7 @@ uv venv && source .venv/bin/activate
 uv sync --all-extras
 ```
 
-#### Option B: Using Standard `pip` & Virtual Environment
+#### Option B: Setup via Standard `pip`
 ```bash
 git clone https://github.com/Iradukunda-Fils/Cortex.git
 cd Cortex
@@ -83,29 +109,27 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-#### Option C: Adding Package to an Existing Project
+### 🚀 3. Deploying Pre-Releases to PyPI
 
+To build and deploy a pre-release candidate (such as `v0.7.0rc1`) to PyPI:
 ```bash
-# 1. Install Latest Stable Release
-uv add cortex-runtime           # via uv
-pip install cortex-runtime      # via pip
+# 1. Build distribution artifacts locally using uv
+uv build
 
-# 2. Install Specific Pre-Release / Release Candidate (v0.7.0rc1)
-uv add --prerelease=allow cortex-runtime          # via uv (allows latest pre-release)
-uv add cortex-runtime==0.7.0rc1                  # via uv (exact RC version)
-pip install --pre cortex-runtime                  # via pip (allows latest pre-release)
-pip install cortex-runtime==0.7.0rc1             # via pip (exact RC version)
+# 2. Assign release candidate tag & push to GitHub (triggers keyless PyPI OIDC publish)
+git tag -a v0.7.0rc1 -m "Release Candidate v0.7.0rc1"
+git push origin v0.7.0rc1
 ```
 
-### 2. Run Verification & Test Suite
+### 🧪 4. Run Verification & Test Suite
 ```bash
-# Run canonical verification pipeline
+# Run canonical 7-gate verification pipeline
 ./scripts/verify.sh
 
-# Run Rust emulator suite
+# Run Rust emulator test suite
 cargo test --manifest-path cortex-emulator/Cargo.toml
 
-# Run Go CBE suite
+# Run Go CBE codec conformance suite
 cd cortex-go && go test -v ./...
 ```
 
