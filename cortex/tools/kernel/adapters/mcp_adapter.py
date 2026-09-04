@@ -16,12 +16,10 @@ Security Constraints:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
 
 from cortex.tools.kernel.adapter_contract import (
-    MAX_INLINE_EVIDENCE_BYTES,
     AdapterExecutionContext,
     AdapterOutcome,
     EffectClassification,
