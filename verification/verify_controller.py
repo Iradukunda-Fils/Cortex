@@ -213,6 +213,13 @@ def run_bounded_job(name: str, cmd: str, max_rss_mb: float, timeout_sec: int) ->
     process = None
 
     try:
+        # Normalize command paths if executing directly inside verification/ directory
+        if os.path.basename(os.getcwd()) == "verification":
+            cmd = cmd.replace("make -C verification", "make")
+            cmd = cmd.replace("verification/tla/", "tla/")
+            if "tests/" in cmd:
+                cmd = cmd.replace("tests/", "../tests/")
+
         process = subprocess.Popen(
             cmd,
             shell=True,
