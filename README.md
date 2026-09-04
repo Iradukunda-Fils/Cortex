@@ -134,12 +134,22 @@ $$\sum \text{Targeted Release Integrity Battery} = \mathbf{297 / 297 \text{ PASS
 
 ## ⚡ Developer Quickstart
 
-### 1. Installation (via `uv`)
+### 1. Environment Setup & Installation
+
+#### Option A: Using `uv` (Recommended — High Performance)
 ```bash
 git clone https://github.com/Iradukunda-Fils/Cortex.git
 cd Cortex
 uv venv && source .venv/bin/activate
 uv sync --all-extras
+```
+
+#### Option B: Using Standard `pip` & Virtual Environment
+```bash
+git clone https://github.com/Iradukunda-Fils/Cortex.git
+cd Cortex
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
 ```
 
 ### 2. Run Quality & Test Pipeline
