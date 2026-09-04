@@ -139,28 +139,19 @@ cd cortex-go && go test -v ./...
 ## 💻 Developer Code Example: Governed Effect Execution
 
 ```python
-from cortex.client import CortexClient
-from cortex.tools.kernel.effect_gateway import CapabilitySet, SignedIntent
+from cortex import CortexClient, Capability, WorkflowState
 
-# 1. Initialize Cortex Client with strict capability bounds
-client = CortexClient(
-    granted_capabilities=CapabilitySet({"STORAGE_READ", "HTTP_REQUEST"}),
-    host_memory_ceiling_mb=1024,
-)
+# 1. Define explicit Capability objects for sandboxed execution
+read_cap = Capability(name="fs:read")
+test_cap = Capability(name="exec:pytest")
+plan_cap = Capability(name="workflow:plan:create")
 
-# 2. Formulate signed intent payload
-intent = SignedIntent(
-    resource_id="adapter.mcp.stdio.v1",
-    operation_type="read_record",
-    arguments={"record_id": "rec_9901"},
-)
+# 2. Initialize Cortex Client with granted capability names
+client = CortexClient(platform_capabilities={read_cap.name, test_cap.name, plan_cap.name})
+print(f"Active Platform Capabilities ({len(client.platform_capabilities)}):", sorted(list(client.platform_capabilities)))
 
-# 3. Execute governed effect through secure pipeline
-outcome = client.execute_effect(intent)
-
-print(f"Status: {outcome.status}")  # ExecutionStatus.EFFECT_CONFIRMED
-if outcome.evidence:
-    print(f"Evidence (Ref: {outcome.evidence.is_reference}): {outcome.evidence.data.decode('utf-8')}")
+# 3. Inspect active workflow execution states
+print("Supported Workflow States:", [state.value for state in WorkflowState])
 ```
 
 ---
