@@ -136,7 +136,36 @@ Cortex explicitly segregates **Synchronous Governance** from **Asynchronous Exec
 
 ---
 
-## 6. Reliability & Process Group Fencing Invariants
+## 6. Real-Time Machine Learning & Computer Vision Streaming Architecture
+
+High-throughput, low-latency workloads (e.g. 60 FPS 1080p/4K video streams, PyTorch/TensorRT inference, GPU tensor buffers) are handled efficiently in Cortex via a **Decoupled Data-Plane & Zero-Copy Reference Architecture**:
+
+```
+                       REAL-TIME COMPUTER VISION STREAMING TOPOLOGY
+
+[ Video Camera / RTSP Stream ]
+              │ (Raw Video Frames)
+              ▼
+[ Worker Process (ONNX / TensorRT) ] ─── Shared Memory IPC (shm / FD) ───► [ ContentAddressableStore ]
+              │                                                              (Zero-Copy Frame Buffer)
+              │ (CBE Metadata Stream: bounding_box, confidence, class_id)
+              ▼
+[ LocalProcessMCPAdapter ] ─── Async Non-Blocking Pipe ───► [ Cortex Control Plane ]
+```
+
+### Key Engineering Invariants for Real-Time ML:
+1. **GPU Vector Capacity Reservation (`ResourceAuthority`)**:
+   Before spawning ML workers, `ResourceAuthority` synchronously reserves GPU VRAM (`vram_mib`) and compute units (`gpu_count`). This guarantees that concurrent vision models (e.g. YOLOv8, Segment Anything) do not trigger CUDA Out-Of-Memory (OOM) driver crashes.
+2. **Zero-Copy Frame Offloading**:
+   Raw image/tensor buffers exceed the $4\text{KiB}$ inline evidence ceiling. Workers write frame buffers directly to shared memory (`/dev/shm` or Unix file descriptors) or CAS, returning lightweight `ObjectRef("sha256:<hash>")` references over the CBE stream pipe.
+3. **Asynchronous Metadata Pipelining**:
+   Detection boxes, tracking vectors, and inference classification results are serialized into lightweight CBE metadata frames and pushed asynchronously without blocking frame capture loops.
+4. **Fault-Isolated Subprocess Boundaries**:
+   Heavy native C++/CUDA dependencies (PyTorch, TensorRT, OpenCV) execute inside sandboxed subprocesses created by `WorkerSupervisor`. A C++ segfault or CUDA error terminates only the isolated worker process group (`os.killpg`), leaving the host control plane fully operational.
+
+---
+
+## 7. Reliability & Process Group Fencing Invariants
 
 1. **Process Group Teardown**: `WorkerSupervisor` calls `os.setsid()` during subprocess creation to establish a distinct process group. On termination or timeout, `os.killpg(proc.pid, SIGTERM/SIGKILL)` is executed to guarantee zero orphan process accumulation.
 2. **Bounded Allocation Defense**: Go and Python CBE decoders enforce pre-allocation ceilings ($\min(\text{declared\_count}, 1024)$) to prevent OOM denial-of-service attacks from untrusted framing streams.
